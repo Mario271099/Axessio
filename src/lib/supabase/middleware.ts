@@ -1,56 +1,67 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { STORAGE_KEY } from "./storage-key";
 
-/**
- * Rafraîchit la session Supabase à chaque requête et redirige vers /login
- * si l'utilisateur n'est pas authentifié sur une route protégée.
- */
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  let response = NextResponse.next({
+    request: { headers: request.headers },
+  });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions: {
+        name: STORAGE_KEY,
+        sameSite: "lax",
+        secure: false,
+        path: "/",
+      },
       cookies: {
         getAll() {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options),
-          );
+          for (const { name, value } of cookiesToSet) {
+            request.cookies.set(name, value);
+          }
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          });
+          for (const { name, value, options } of cookiesToSet) {
+            response.cookies.set(name, value, options);
+          }
         },
       },
     },
   );
 
-  // Important : ne PAS faire de logique métier entre createServerClient et getUser()
+  // CRITIQUE : ne RIEN exécuter entre createServerClient et getUser()
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
+
+  // Si l'utilisateur est connecté → on laisse passer partout, sans aucune redirection.
+  if (user) {
+    return response;
+  }
+
+  // Pas connecté : routes publiques autorisées
   const isPublicRoute =
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/auth") ||
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next") ||
-    pathname === "/";
+    pathname.includes(".");
 
-  if (!user && !isPublicRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("redirectTo", pathname);
-    return NextResponse.redirect(url);
+  if (isPublicRoute) {
+    return response;
   }
 
-  if (user && pathname === "/login") {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
-  }
-
-  return supabaseResponse;
+  // Pas connecté + route privée → /login
+  const url = request.nextUrl.clone();
+  url.pathname = "/login";
+  return NextResponse.redirect(url);
 }

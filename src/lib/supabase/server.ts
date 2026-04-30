@@ -1,13 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { STORAGE_KEY } from "./storage-key";
 
-/**
- * Client Supabase pour Server Components, Server Actions et Route Handlers.
- *
- * Note : `cookies()` est un proxy d'I/O, il faut donc l'`await` à chaque appel.
- * Ce client lit/écrit les cookies de session pour permettre à RLS d'identifier
- * l'utilisateur courant via `auth.uid()`.
- */
 export async function createClient() {
   const cookieStore = await cookies();
 
@@ -15,18 +9,23 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions: {
+        name: STORAGE_KEY,
+        sameSite: "lax",
+        secure: false,
+        path: "/",
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) => {
+          for (const { name, value, options } of cookiesToSet) {
+            try {
               cookieStore.set(name, value, options);
-            });
-          } catch {
-            // setAll a été appelé depuis un Server Component (lecture seule).
-            // Ignoré : le middleware rafraîchira la session.
+            } catch {
+              // Lecture seule (Server Component) — silencieux
+            }
           }
         },
       },
