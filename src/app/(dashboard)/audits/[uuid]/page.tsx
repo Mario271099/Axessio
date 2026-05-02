@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Sparkles, FileSearch, ListChecks } from "lucide-react";
+import {
+  ChevronLeft,
+  Sparkles,
+  FileSearch,
+  ListChecks,
+  Pencil,
+} from "lucide-react";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -57,13 +63,17 @@ export default async function AuditDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const project = Array.isArray(audit.project) ? audit.project[0] : audit.project;
+  const project = Array.isArray(audit.project)
+    ? audit.project[0]
+    : audit.project;
   const client = project?.client
     ? Array.isArray(project.client)
       ? project.client[0]
       : project.client
     : null;
-  const ref = Array.isArray(audit.reference) ? audit.reference[0] : audit.reference;
+  const ref = Array.isArray(audit.reference)
+    ? audit.reference[0]
+    : audit.reference;
 
   const score = audit.final_score ?? audit.initial_score ?? 0;
   const level = getConformityLevel(score);
@@ -98,8 +108,12 @@ export default async function AuditDetailPage({ params }: PageProps) {
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline">{client?.name ?? "—"}</Badge>
-            <span aria-hidden="true" className="text-muted-foreground">/</span>
-            <Badge variant="muted">{PLATFORM_LABELS[audit.platform as PlatformType]}</Badge>
+            <span aria-hidden="true" className="text-muted-foreground">
+              /
+            </span>
+            <Badge variant="muted">
+              {PLATFORM_LABELS[audit.platform as PlatformType]}
+            </Badge>
             <AuditStatusBadge status={audit.status as AuditStatus} />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -113,12 +127,20 @@ export default async function AuditDetailPage({ params }: PageProps) {
           </p>
         </div>
 
-        <Button asChild className="gap-2">
-          <Link href={`/audits/${uuid}/simulator`}>
-            <Sparkles className="h-4 w-4" aria-hidden="true" />
-            Ouvrir le simulateur
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" className="gap-2">
+            <Link href={`/audits/${uuid}/edit`}>
+              <Pencil className="h-4 w-4" aria-hidden="true" />
+              Modifier
+            </Link>
+          </Button>
+          <Button asChild className="gap-2">
+            <Link href={`/audits/${uuid}/simulator`}>
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+              Ouvrir le simulateur
+            </Link>
+          </Button>
+        </div>
       </header>
 
       {/* Cartes principales ---------------------------------------------- */}
@@ -152,9 +174,18 @@ export default async function AuditDetailPage({ params }: PageProps) {
               aria-label={`Conformité : ${score}%`}
             />
             <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-              <Stat label="Score initial" value={formatScore(audit.initial_score)} />
-              <Stat label="Score final" value={formatScore(audit.final_score)} />
-              <Stat label="Pages échantillon" value={(pageCount ?? 0).toString()} />
+              <Stat
+                label="Score initial"
+                value={formatScore(audit.initial_score)}
+              />
+              <Stat
+                label="Score final"
+                value={formatScore(audit.final_score)}
+              />
+              <Stat
+                label="Pages échantillon"
+                value={(pageCount ?? 0).toString()}
+              />
               <Stat label="NC ouvertes" value={(ncCount ?? 0).toString()} />
             </div>
           </CardContent>
@@ -165,7 +196,10 @@ export default async function AuditDetailPage({ params }: PageProps) {
             <CardTitle className="text-base">Planning</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
-            <Row label="Démarrage prévu" value={formatDate(audit.expected_start_at)} />
+            <Row
+              label="Démarrage prévu"
+              value={formatDate(audit.expected_start_at)}
+            />
             <Row label="Fin prévue" value={formatDate(audit.expected_end_at)} />
             <Row label="Livré le" value={formatDate(audit.delivered_at)} />
             <Row label="Mis en ligne" value={formatDate(audit.online_at)} />
@@ -242,7 +276,9 @@ function QuickLink({
         <div
           className={cn(
             "grid h-9 w-9 place-items-center rounded-md",
-            highlight ? "bg-primary/10 text-primary" : "bg-muted text-foreground",
+            highlight
+              ? "bg-primary/10 text-primary"
+              : "bg-muted text-foreground",
           )}
           aria-hidden="true"
         >

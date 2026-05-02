@@ -1,0 +1,298 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { MANDATORY_PAGES } from "@/types/domain";
+import type {
+  AuditStatus,
+  ComplexityLevel,
+  PageType,
+  PlatformType,
+  ServiceType,
+} from "@/types/domain";
+
+export interface ActionState {
+  error: string | null;
+  fieldErrors?: Record<string, string>;
+  success?: boolean;
+}
+
+// ============================================================================
+// Création d'un audit
+// ============================================================================
+export async function createAudit(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Non authentifié." };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.role !== "auditor") {
+    return { error: "Seuls les auditeurs peuvent créer des audits." };
+  }
+
+  const projectId = formData.get("projectId")?.toString();
+  const referenceId = formData.get("referenceId")?.toString();
+  const platform = formData.get("platform")?.toString() as PlatformType;
+  const serviceType = formData.get("serviceType")?.toString() as ServiceType;
+  const language = formData.get("language")?.toString() ?? "fr";
+  const expectedStartAt = formData.get("expectedStartAt")?.toString() || null;
+  const expectedEndAt = formData.get("expectedEndAt")?.toString() || null;
+  const accessibilityLink =
+    formData.get("accessibilityLink")?.toString() || null;
+  const notes = formData.get("notes")?.toString() || null;
+
+  const fieldErrors: Record<string, string> = {};
+  if (!projectId) fieldErrors.projectId = "Sélectionnez un projet.";
+  if (!referenceId) fieldErrors.referenceId = "Sélectionnez un référentiel.";
+  if (!platform) fieldErrors.platform = "Sélectionnez une plateforme.";
+  if (!serviceType)
+    fieldErrors.serviceType = "Sélectionnez un type de service.";
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return { error: "Veuillez corriger les erreurs ci-dessous.", fieldErrors };
+  }
+
+  const { data: audit, error: auditError } = await supabase
+    .from("audits")
+    .insert({
+      project_id: projectId,
+      reference_id: referenceId,
+      service_type: serviceType,
+      platform,
+      status: "PENDING" as AuditStatus,
+      language,
+      expected_start_at: expectedStartAt,
+      expected_end_at: expectedEndAt,
+      accessibility_link: accessibilityLink,
+      notes,
+      created_by: user.id,
+    })
+    .select("id")
+    .single();
+
+  if (auditError || !audit) {
+    return {
+      error: `Échec de la création : ${auditError?.message ?? "inconnue"}`,
+    };
+  }
+
+  // Pages obligatoires + Éléments transverses
+  const mandatoryPagesPayload = MANDATORY_PAGES.map((page, index) => ({
+    audit_id: audit.id,
+    name: page.name,
+    page_type: "MANDATORY" as PageType,
+    sort_order: index,
+  }));
+
+  const transversalPagePayload = {
+    audit_id: audit.id,
+    name: "Éléments transverses",
+    page_type: "TRANSVERSAL" as PageType,
+    sort_order: 99,
+  };
+
+  const { error: pagesError } = await supabase
+    .from("pages")
+    .insert([...mandatoryPagesPayload, transversalPagePayload]);
+
+  if (pagesError) {
+    console.error("[createAudit] Pages obligatoires non créées:", pagesError);
+  }
+
+  revalidatePath("/audits");
+  revalidatePath("/dashboard");
+  redirect(`/audits/${audit.id}`);
+}
+
+// ============================================================================
+// Mise à jour d'un audit (édition)
+// ============================================================================
+export async function updateAudit(
+  auditId: string,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Non authentifié." };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.role !== "auditor") {
+    return { error: "Seuls les auditeurs peuvent modifier un audit." };
+  }
+
+  const referenceId = formData.get("referenceId")?.toString();
+  const platform = formData.get("platform")?.toString() as PlatformType;
+  const serviceType = formData.get("serviceType")?.toString() as ServiceType;
+  const status = formData.get("status")?.toString() as AuditStatus;
+  const language = formData.get("language")?.toString() ?? "fr";
+  const expectedStartAt = formData.get("expectedStartAt")?.toString() || null;
+  const expectedEndAt = formData.get("expectedEndAt")?.toString() || null;
+  const accessibilityLink =
+    formData.get("accessibilityLink")?.toString() || null;
+  const notes = formData.get("notes")?.toString() || null;
+
+  const { error } = await supabase
+    .from("audits")
+    .update({
+      reference_id: referenceId,
+      platform,
+      service_type: serviceType,
+      status,
+      language,
+      expected_start_at: expectedStartAt,
+      expected_end_at: expectedEndAt,
+      accessibility_link: accessibilityLink,
+      notes,
+    })
+    .eq("id", auditId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/audits/${auditId}`);
+  revalidatePath("/audits");
+  return { error: null, success: true };
+}
+
+// ============================================================================
+// Archivage d'un audit
+// ============================================================================
+export async function archiveAudit(auditId: string): Promise<ActionState> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("audits")
+    .update({ status: "ARCHIVED" })
+    .eq("id", auditId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/audits");
+  return { error: null, success: true };
+}
+
+// ============================================================================
+// Ajout d'une page (avec URL et complexité)
+// ============================================================================
+export async function addPage(
+  auditId: string,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const supabase = await createClient();
+
+  const name = formData.get("name")?.toString().trim();
+  const url = formData.get("url")?.toString().trim() || null;
+  const complexityValue = formData.get("complexity")?.toString();
+  const complexity =
+    complexityValue && complexityValue !== "NONE"
+      ? (complexityValue as ComplexityLevel)
+      : null;
+
+  if (!name) return { error: "Le nom de la page est requis." };
+
+  const { data: maxRow } = await supabase
+    .from("pages")
+    .select("sort_order")
+    .eq("audit_id", auditId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextOrder = (maxRow?.sort_order ?? 0) + 1;
+
+  const { error } = await supabase.from("pages").insert({
+    audit_id: auditId,
+    name,
+    url,
+    page_type: "REPRESENTATIVE" as PageType,
+    complexity,
+    sort_order: nextOrder,
+  });
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/audits/${auditId}`);
+  revalidatePath(`/audits/${auditId}/sample`);
+  return { error: null, success: true };
+}
+
+// ============================================================================
+// Mise à jour d'une page (URL, nom, complexité)
+// ============================================================================
+export async function updatePage(
+  pageId: string,
+  auditId: string,
+  formData: FormData,
+): Promise<ActionState> {
+  const supabase = await createClient();
+
+  const name = formData.get("name")?.toString().trim();
+  const url = formData.get("url")?.toString().trim() || null;
+  const complexityValue = formData.get("complexity")?.toString();
+  const complexity =
+    complexityValue && complexityValue !== "NONE"
+      ? (complexityValue as ComplexityLevel)
+      : null;
+
+  if (!name) return { error: "Le nom de la page est requis." };
+
+  const { error } = await supabase
+    .from("pages")
+    .update({ name, url, complexity })
+    .eq("id", pageId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/audits/${auditId}/sample`);
+  return { error: null, success: true };
+}
+
+// ============================================================================
+// Suppression d'une page (TOUTES les pages désormais, sauf transversale)
+// ============================================================================
+export async function deletePage(
+  pageId: string,
+  auditId: string,
+): Promise<ActionState> {
+  const supabase = await createClient();
+
+  // On empêche uniquement la suppression de la page transversale (techniquement nécessaire)
+  const { data: page } = await supabase
+    .from("pages")
+    .select("page_type")
+    .eq("id", pageId)
+    .maybeSingle();
+
+  if (page?.page_type === "TRANSVERSAL") {
+    return {
+      error:
+        "La page Éléments transverses ne peut pas être supprimée (technique).",
+    };
+  }
+
+  const { error } = await supabase.from("pages").delete().eq("id", pageId);
+  if (error) return { error: error.message };
+
+  revalidatePath(`/audits/${auditId}/sample`);
+  return { error: null, success: true };
+}
