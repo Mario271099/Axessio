@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ChevronLeft,
+  ClipboardList,
   Sparkles,
   FileSearch,
   ListChecks,
@@ -208,7 +209,13 @@ export default async function AuditDetailPage({ params }: PageProps) {
       </div>
 
       {/* Liens rapides --------------------------------------------------- */}
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <QuickLink
+          href={`/audits/${uuid}/matrix`}
+          icon={ClipboardList}
+          title="Matrice de conformité"
+          description="Saisir le statut de conformité pour chaque critère et chaque page."
+        />
         <QuickLink
           href={`/audits/${uuid}/sample`}
           icon={FileSearch}

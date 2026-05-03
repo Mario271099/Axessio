@@ -85,7 +85,7 @@ Formule officielle RGAA dans `src/lib/score.ts` :
 - [x] Phase 2 : Création/édition d'audits + gestion de l'échantillon
 - [x] Phase 3 : Déploiement Vercel
 - [ ] Phase 4 : Import RGAA complet (~106 critères)
-- [ ] Phase 5 : Matrice de saisie de conformité
+- [x] Phase 5 : Matrice de saisie de conformité
 - [ ] Phase 6 : Création/édition des non-conformités
 - [ ] Phase 7 : Gestion des clients/projets/utilisateurs (CRUD)
 - [ ] Phase 8 : Notifications (Resend + React Email)
