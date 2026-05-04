@@ -15,7 +15,9 @@
       "PowerShell(Out-File *)",
       "PowerShell($ProgressPreference='SilentlyContinue'; Invoke-WebRequest -Uri 'https://accessibilite.public.lu/fr/raweb1.1/criteres.html' -UseBasicParsing -OutFile 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\raweb11.html'; \\(Get-Item 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\raweb11.html'\\).Length)",
       "PowerShell(& 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\extract-raweb.ps1')",
-      "Bash(node *)"
+      "Bash(node *)",
+      "PowerShell($ProgressPreference='SilentlyContinue'; Invoke-WebRequest -Uri 'https://accessibilite.public.lu/fr/raam1.1/referentiel-technique.html' -UseBasicParsing -OutFile 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\raam11.html'; \\(Get-Item 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\raam11.html'\\).Length)",
+      "PowerShell(& 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\extract-raam.ps1')"
     ]
   }
 }
