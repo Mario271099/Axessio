@@ -60,7 +60,9 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
 
   const { data: criteriaRows } = await supabase
     .from("criteria")
-    .select("id, thematic_id, identifier, name, url, disabilities, sort_order")
+    .select(
+      "id, thematic_id, identifier, name, url, disabilities, sort_order, name_en, level, principle, guideline",
+    )
     .in(
       "thematic_id",
       thematics.map((t) => t.id),
@@ -74,6 +76,10 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
     name: c.name,
     url: c.url,
     disabilities: (c.disabilities ?? []) as DisabilityType[],
+    nameEn: c.name_en ?? null,
+    level: (c.level ?? null) as Criterion["level"],
+    principle: c.principle ?? null,
+    guideline: c.guideline ?? null,
   }));
 
   // 3) Pages de l'audit

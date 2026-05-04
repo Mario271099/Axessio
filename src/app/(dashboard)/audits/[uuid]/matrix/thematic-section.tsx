@@ -162,10 +162,23 @@ export function ThematicSection({
                     <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
                       {criterion.identifier}
                     </span>
+                    {criterion.level && (
+                      <span
+                        className="rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-primary"
+                        aria-label={`Niveau WCAG ${criterion.level}`}
+                      >
+                        {criterion.level}
+                      </span>
+                    )}
                     <span className="font-medium leading-snug">
                       {criterion.name}
                     </span>
                   </div>
+                  {criterion.nameEn && (
+                    <p className="mt-0.5 text-xs italic text-muted-foreground">
+                      {criterion.nameEn}
+                    </p>
+                  )}
                   {criterion.url && (
                     <a
                       href={criterion.url}

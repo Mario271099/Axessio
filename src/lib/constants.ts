@@ -108,6 +108,17 @@ export const REFERENCE_TYPE_LABELS: Record<ReferenceType, string> = {
   EN_301_549: "EN 301 549",
 };
 
+/**
+ * Libellés français des 4 principes WCAG.
+ * Clé = valeur stockée en base (anglais), valeur = libellé affiché (français).
+ */
+export const WCAG_PRINCIPLE_LABELS: Record<string, string> = {
+  Perceivable: "Perceptible",
+  Operable: "Utilisable",
+  Understandable: "Compréhensible",
+  Robust: "Robuste",
+};
+
 // ============================================================================
 // Service & plateforme
 // ============================================================================

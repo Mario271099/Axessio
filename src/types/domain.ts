@@ -50,6 +50,8 @@ export interface Thematic {
   sortOrder: number;
 }
 
+export type WCAGLevel = "A" | "AA" | "AAA";
+
 export interface Criterion {
   id: string;
   thematicId: string;
@@ -57,6 +59,14 @@ export interface Criterion {
   name: string;
   url: string | null;
   disabilities: DisabilityType[];
+  /** Libellé anglais (WCAG). NULL pour les référentiels francophones. */
+  nameEn: string | null;
+  /** Niveau WCAG (A / AA / AAA). NULL pour les référentiels sans niveau. */
+  level: WCAGLevel | null;
+  /** Principe WCAG (Perceivable, Operable, Understandable, Robust). */
+  principle: string | null;
+  /** Guideline WCAG (ex: "1.1 Text Alternatives"). */
+  guideline: string | null;
 }
 
 // ============================================================================

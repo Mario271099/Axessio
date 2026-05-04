@@ -7,7 +7,15 @@
       "WebFetch(domain:github.com)",
       "Bash(npm install *)",
       "Bash(node -e \"console.log\\(require\\('./package.json'\\).dependencies['@radix-ui/react-accordion']\\)\")",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "WebFetch(domain:www.w3.org)",
+      "WebFetch(domain:accessibilite.public.lu)",
+      "WebSearch",
+      "PowerShell($ProgressPreference='SilentlyContinue'; $r = Invoke-WebRequest -Uri 'https://accessibilite.public.lu/fr/raweb1.1/criteres.html' -UseBasicParsing; $r.Content.Length)",
+      "PowerShell(Out-File *)",
+      "PowerShell($ProgressPreference='SilentlyContinue'; Invoke-WebRequest -Uri 'https://accessibilite.public.lu/fr/raweb1.1/criteres.html' -UseBasicParsing -OutFile 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\raweb11.html'; \\(Get-Item 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\raweb11.html'\\).Length)",
+      "PowerShell(& 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\extract-raweb.ps1')",
+      "Bash(node *)"
     ]
   }
 }
