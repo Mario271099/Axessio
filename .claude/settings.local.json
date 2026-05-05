@@ -21,7 +21,12 @@
       "Bash(sort -t. -k1n -k2n -u)",
       "Bash(sort -t. -k1n -k2n)",
       "Read(//tmp/**)",
-      "Bash(awk 'BEGIN{state=0} /^update public\\\\.criteria set methodology = '\"'\"'/{state=1} state==1{n=gsub\\(/'\"'\"''\"'\"'/,\"&\"\\); single=gsub\\(/'\"'\"'/,\"&\"\\)-2*n; if\\(single%2==1 && /where identifier/\\){print NR\": odd quotes line \"$0}} /^where identifier/{state=0}' \"C:/Users/mario/Desktop/Nouveau dossier/axessio/axessio-prototype/axessio/supabase/migrations/10_rgaa_methodology.sql\")"
+      "Bash(awk 'BEGIN{state=0} /^update public\\\\.criteria set methodology = '\"'\"'/{state=1} state==1{n=gsub\\(/'\"'\"''\"'\"'/,\"&\"\\); single=gsub\\(/'\"'\"'/,\"&\"\\)-2*n; if\\(single%2==1 && /where identifier/\\){print NR\": odd quotes line \"$0}} /^where identifier/{state=0}' \"C:/Users/mario/Desktop/Nouveau dossier/axessio/axessio-prototype/axessio/supabase/migrations/10_rgaa_methodology.sql\")",
+      "Bash(curl -sL \"https://accessibilite.public.lu/fr/raam1.1/referentiel-technique.html\" -o /tmp/raam.html)",
+      "Bash(ver)",
+      "Bash(cp /tmp/raam.html /c/Users/mario/AppData/Local/Temp/raam.html)",
+      "Read(//c/Users/mario/AppData/Local/Temp/**)",
+      "Bash(methodology)"
     ]
   }
 }
