@@ -17,7 +17,11 @@
       "PowerShell(& 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\extract-raweb.ps1')",
       "Bash(node *)",
       "PowerShell($ProgressPreference='SilentlyContinue'; Invoke-WebRequest -Uri 'https://accessibilite.public.lu/fr/raam1.1/referentiel-technique.html' -UseBasicParsing -OutFile 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\raam11.html'; \\(Get-Item 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\raam11.html'\\).Length)",
-      "PowerShell(& 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\extract-raam.ps1')"
+      "PowerShell(& 'C:\\\\Users\\\\mario\\\\AppData\\\\Local\\\\Temp\\\\extract-raam.ps1')",
+      "Bash(sort -t. -k1n -k2n -u)",
+      "Bash(sort -t. -k1n -k2n)",
+      "Read(//tmp/**)",
+      "Bash(awk 'BEGIN{state=0} /^update public\\\\.criteria set methodology = '\"'\"'/{state=1} state==1{n=gsub\\(/'\"'\"''\"'\"'/,\"&\"\\); single=gsub\\(/'\"'\"'/,\"&\"\\)-2*n; if\\(single%2==1 && /where identifier/\\){print NR\": odd quotes line \"$0}} /^where identifier/{state=0}' \"C:/Users/mario/Desktop/Nouveau dossier/axessio/axessio-prototype/axessio/supabase/migrations/10_rgaa_methodology.sql\")"
     ]
   }
 }
