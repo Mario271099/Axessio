@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   ClipboardCheck,
   Users,
+  UserCog,
   Building2,
   BookOpen,
   Settings,
@@ -26,6 +27,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/audits",    label: "Audits",          icon: ClipboardCheck,  roles: null },
   { href: "/projects",  label: "Projets",         icon: Building2,       roles: null },
   { href: "/clients",   label: "Clients",         icon: Users,           roles: ["auditor"] },
+  { href: "/users",     label: "Utilisateurs",    icon: UserCog,         roles: ["auditor"] },
   { href: "/references", label: "Référentiels",   icon: BookOpen,        roles: ["auditor"] },
   { href: "/settings",  label: "Paramètres",      icon: Settings,        roles: null },
 ];

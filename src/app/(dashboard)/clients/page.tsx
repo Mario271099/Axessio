@@ -1,7 +1,6 @@
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatDate } from "@/lib/utils";
+import { ClientsList, type ClientListItem } from "./clients-list";
 
 export default async function ClientsPage() {
   const profile = await requireProfile();
@@ -9,7 +8,10 @@ export default async function ClientsPage() {
   if (profile.role !== "auditor") {
     return (
       <div className="container mx-auto max-w-3xl p-6 md:p-8">
-        <div className="rounded-md border border-destructive/40 bg-destructive/5 p-6 text-sm text-destructive">
+        <div
+          role="alert"
+          className="rounded-md border border-destructive/40 bg-destructive/5 p-6 text-sm text-destructive"
+        >
           Accès réservé aux auditeurs internes.
         </div>
       </div>
@@ -17,45 +19,55 @@ export default async function ClientsPage() {
   }
 
   const supabase = await createClient();
-  const { data: clients } = await supabase
+
+  const { data: rows, error } = await supabase
     .from("clients")
-    .select("id, name, contract_start_at, has_subscription")
+    .select(
+      "id, name, website, contact_email, is_active, created_at, projects(id, audits(id))",
+    )
     .order("name");
 
-  return (
-    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
+  if (error) {
+    return (
+      <div className="container mx-auto max-w-3xl p-6 md:p-8">
+        <div
+          role="alert"
+          className="rounded-md border border-destructive/40 bg-destructive/5 p-6 text-sm text-destructive"
+        >
+          Erreur de chargement des clients : {error.message}
+        </div>
+      </div>
+    );
+  }
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Tous les clients</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {(clients ?? []).map((c) => (
-            <div
-              key={c.id}
-              className="flex items-center justify-between rounded-md border border-border p-3"
-            >
-              <div>
-                <p className="font-medium">{c.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  Contrat depuis le {formatDate(c.contract_start_at)}
-                </p>
-              </div>
-              {c.has_subscription && (
-                <span className="rounded-md bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-                  Abonnement actif
-                </span>
-              )}
-            </div>
-          ))}
-          {(clients ?? []).length === 0 && (
-            <p className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
-              Aucun client.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+  type ClientRow = {
+    id: string;
+    name: string;
+    website: string | null;
+    contact_email: string | null;
+    is_active: boolean | null;
+    created_at: string;
+    projects: { id: string; audits: { id: string }[] | null }[] | null;
+  };
+
+  const clients: ClientListItem[] = ((rows ?? []) as ClientRow[]).map((c) => {
+    const projects = c.projects ?? [];
+    const projectCount = projects.length;
+    const auditCount = projects.reduce(
+      (acc, p) => acc + (p.audits?.length ?? 0),
+      0,
+    );
+    return {
+      id: c.id,
+      name: c.name,
+      website: c.website,
+      contactEmail: c.contact_email,
+      isActive: c.is_active ?? true,
+      createdAt: c.created_at,
+      projectCount,
+      auditCount,
+    };
+  });
+
+  return <ClientsList clients={clients} />;
 }
