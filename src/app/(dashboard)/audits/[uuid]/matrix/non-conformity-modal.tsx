@@ -21,9 +21,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { NC_SEVERITY_LABELS } from "@/lib/constants";
+import { createClient } from "@/lib/supabase/client";
+import { addAttachment } from "@/app/(dashboard)/audits/[uuid]/anomalies/[ncId]/actions";
 import { createNonConformity } from "./actions";
 import type { AuditPage, Criterion, NCSeverity } from "@/types/domain";
+
+const MIME_TO_EXT: Record<string, string> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+  "application/pdf": "pdf",
+};
 
 interface Props {
   open: boolean;
@@ -46,7 +56,9 @@ export function NonConformityModal({
   const [description, setDescription] = useState("");
   const [recommendation, setRecommendation] = useState("");
   const [severity, setSeverity] = useState<NCSeverity>("MEDIUM");
+  const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const reset = () => {
@@ -54,12 +66,54 @@ export function NonConformityModal({
     setDescription("");
     setRecommendation("");
     setSeverity("MEDIUM");
+    setFiles([]);
     setError(null);
+    setWarning(null);
   };
 
   const handleClose = (next: boolean) => {
     if (!next) reset();
     onOpenChange(next);
+  };
+
+  const uploadFiles = async (ncId: string): Promise<string[]> => {
+    if (files.length === 0) return [];
+    const supabase = createClient();
+    const failures: string[] = [];
+
+    for (const file of files) {
+      const fallbackExt = MIME_TO_EXT[file.type] ?? "bin";
+      const nameExt = file.name.includes(".")
+        ? file.name.split(".").pop()!.toLowerCase()
+        : null;
+      const ext = nameExt && nameExt.length <= 5 ? nameExt : fallbackExt;
+      const path = `${auditId}/${ncId}/${crypto.randomUUID()}.${ext}`;
+
+      const { error: uploadErr } = await supabase.storage
+        .from("nc-attachments")
+        .upload(path, file, { contentType: file.type, upsert: false });
+
+      if (uploadErr) {
+        failures.push(`${file.name}: ${uploadErr.message}`);
+        continue;
+      }
+
+      const result = await addAttachment(
+        ncId,
+        auditId,
+        path,
+        file.name,
+        file.size,
+        file.type,
+      );
+      if (result.error) {
+        // Best-effort : on tente de retirer le fichier orphelin du bucket.
+        await supabase.storage.from("nc-attachments").remove([path]);
+        failures.push(`${file.name}: ${result.error}`);
+      }
+    }
+
+    return failures;
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -69,6 +123,7 @@ export function NonConformityModal({
       return;
     }
     setError(null);
+    setWarning(null);
 
     startTransition(async () => {
       const result = await createNonConformity(auditId, page.id, criterion.id, {
@@ -77,10 +132,24 @@ export function NonConformityModal({
         recommendation: recommendation.trim() || null,
         severity,
       });
-      if (result.error) {
-        setError(result.error);
+      if (result.error || !result.ncId) {
+        setError(result.error ?? "Échec de la création.");
         return;
       }
+
+      const failures = await uploadFiles(result.ncId);
+      if (failures.length > 0) {
+        // La NC est créée — on garde la modale ouverte pour informer.
+        setWarning(
+          `Non-conformité créée, mais ${failures.length} capture(s) en erreur : ${failures.join(" ; ")}`,
+        );
+        // On purge les fichiers déjà tentés pour éviter un double upload si
+        // l'utilisateur clique à nouveau.
+        setFiles([]);
+        onCreated(criterion.id, page.id);
+        return;
+      }
+
       reset();
       onCreated(criterion.id, page.id);
     });
@@ -109,6 +178,15 @@ export function NonConformityModal({
               className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
             >
               {error}
+            </p>
+          )}
+
+          {warning && (
+            <p
+              role="alert"
+              className="rounded-md bg-warning/10 p-3 text-sm text-warning"
+            >
+              {warning}
             </p>
           )}
 
@@ -170,6 +248,17 @@ export function NonConformityModal({
                 </SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Captures d&apos;écran</Label>
+            <FileDropZone
+              files={files}
+              onFilesChange={setFiles}
+              accept="image/png,image/jpeg,image/webp,application/pdf"
+              maxSizeMB={5}
+              disabled={isPending}
+            />
           </div>
 
           <DialogFooter>
