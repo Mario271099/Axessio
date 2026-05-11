@@ -25,7 +25,8 @@ export default async function AuditsPage() {
       project:projects(name, client:clients(name))
     `,
     )
-    .order("updated_at", { ascending: false });
+    .order("updated_at", { ascending: false })
+    .limit(100);
 
   const audits = data ?? [];
   const isAuditor = profile.role === "auditor";

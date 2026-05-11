@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import type { UserRole } from "@/types/domain";
 import { UsersList, type UserListItem, type ClientOption } from "./users-list";
 
@@ -13,17 +12,15 @@ export default async function UsersPage() {
   }
 
   const supabase = await createClient();
-  const admin = createAdminClient();
 
   const [
     { data: rows, error: usersError },
     { data: clientRows, error: clientsError },
-    authResult,
   ] = await Promise.all([
     supabase
       .from("profiles")
       .select(
-        "id, email, first_name, last_name, role, client_id, is_active, created_at, last_login_at, client:clients(id, name)",
+        "id, email, first_name, last_name, role, client_id, is_active, created_at, last_login_at, email_confirmed_at, client:clients(id, name)",
       )
       .order("created_at", { ascending: false }),
     supabase
@@ -31,7 +28,6 @@ export default async function UsersPage() {
       .select("id, name")
       .eq("is_active", true)
       .order("name"),
-    admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
   ]);
 
   if (usersError) {
@@ -59,15 +55,6 @@ export default async function UsersPage() {
     );
   }
 
-  // Carte id → email_confirmed_at (peut être indisponible si l'API admin échoue —
-  // dans ce cas on considère l'utilisateur comme non confirmé pour ne pas bloquer la page).
-  const confirmedById = new Map<string, boolean>();
-  if (!authResult.error) {
-    for (const u of authResult.data.users) {
-      confirmedById.set(u.id, u.email_confirmed_at !== null);
-    }
-  }
-
   type UserRow = {
     id: string;
     email: string;
@@ -78,6 +65,7 @@ export default async function UsersPage() {
     is_active: boolean | null;
     created_at: string;
     last_login_at: string | null;
+    email_confirmed_at: string | null;
     client: { id: string; name: string } | { id: string; name: string }[] | null;
   };
 
@@ -94,7 +82,7 @@ export default async function UsersPage() {
       isActive: u.is_active ?? true,
       createdAt: u.created_at,
       hasLoggedIn: u.last_login_at !== null,
-      isEmailConfirmed: confirmedById.get(u.id) ?? false,
+      isEmailConfirmed: u.email_confirmed_at !== null,
     };
   });
 

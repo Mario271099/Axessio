@@ -25,7 +25,8 @@ export default async function ClientsPage() {
     .select(
       "id, name, website, contact_email, is_active, created_at, projects(id, audits(id))",
     )
-    .order("name");
+    .order("name")
+    .limit(200);
 
   if (error) {
     return (

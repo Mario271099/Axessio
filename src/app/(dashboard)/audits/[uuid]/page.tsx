@@ -38,13 +38,14 @@ import type {
   ReferenceType,
   ServiceType,
 } from "@/types/domain";
+import { ExportReportButton } from "./export-report-button";
 
 interface PageProps {
   params: Promise<{ uuid: string }>;
 }
 
 export default async function AuditDetailPage({ params }: PageProps) {
-  await requireProfile();
+  const profile = await requireProfile();
   const { uuid } = await params;
   const supabase = await createClient();
 
@@ -54,7 +55,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
       `
       *,
       reference:references(type, version),
-      project:projects(name, url, client:clients(name))
+      project:projects(name, url, client:clients(id, name))
     `,
     )
     .eq("id", uuid)
@@ -78,6 +79,12 @@ export default async function AuditDetailPage({ params }: PageProps) {
 
   const score = audit.final_score ?? audit.initial_score ?? 0;
   const level = getConformityLevel(score);
+
+  const canExportReport =
+    profile.role === "auditor" ||
+    (profile.role === "client_admin" &&
+      client?.id != null &&
+      profile.clientId === client.id);
 
   // Counts annexes (best-effort)
   const [{ count: pageCount }, { count: ncCount }] = await Promise.all([
@@ -128,7 +135,14 @@ export default async function AuditDetailPage({ params }: PageProps) {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-start gap-2">
+          {canExportReport && (
+            <ExportReportButton
+              auditId={uuid}
+              projectName={project?.name ?? "audit"}
+              variant="outline"
+            />
+          )}
           <Button asChild variant="outline" className="gap-2">
             <Link href={`/audits/${uuid}/edit`}>
               <Pencil className="h-4 w-4" aria-hidden="true" />
