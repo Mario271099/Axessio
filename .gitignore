@@ -11,3 +11,8 @@ dist
 coverage
 .idea
 .vscode
+
+# Playwright (E2E)
+test-results/
+playwright-report/
+playwright/.cache/

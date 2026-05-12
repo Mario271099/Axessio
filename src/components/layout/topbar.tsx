@@ -1,6 +1,7 @@
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { Wordmark } from "@/components/brand";
 import { initials } from "@/lib/utils";
 import { USER_ROLE_LABELS } from "@/lib/constants";
 import type { Profile } from "@/types/domain";
@@ -8,9 +9,11 @@ import { signOut } from "@/app/(auth)/actions";
 
 export function Topbar({ profile }: { profile: Profile }) {
   return (
-    <header className="flex h-16 items-center justify-between border-b border-border bg-card px-4 md:px-6">
-      {/* Page title space — chaque page peut le surcharger via children */}
-      <div className="md:hidden text-lg font-semibold">Axessio</div>
+    <header className="flex h-20 items-center justify-between border-b border-border bg-card px-4 md:px-6">
+      {/* Wordmark mobile — la sidebar n'est pas visible en dessous de md */}
+      <div className="md:hidden">
+        <Wordmark scale={0.5} showSub={false} showRule={false} />
+      </div>
 
       <div className="ml-auto flex items-center gap-2">
         <ThemeToggle />

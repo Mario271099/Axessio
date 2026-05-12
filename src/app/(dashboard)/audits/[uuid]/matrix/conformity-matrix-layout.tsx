@@ -358,7 +358,7 @@ export function ConformityMatrixLayout({
           : "Tout est sauvegardé";
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] flex-col">
+    <div className="flex min-h-[calc(100vh-5rem)] flex-col">
       {/* Breadcrumb / titre ----------------------------------------------- */}
       <div className="border-b border-border bg-card/50 px-6 py-4">
         <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">

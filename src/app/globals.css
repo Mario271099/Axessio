@@ -52,6 +52,24 @@
   --score-partial: 22 90% 42%;
   --score-compliant: 142 71% 35%;
 
+  /* ===========================================================
+     Tokens de marque Axessio (logo system)
+     Les composants <Wordmark> et <AxIcon> les consomment via les
+     classes Tailwind `text-brand-*`, `bg-brand-*`. Identité visuelle
+     séparée des tokens fonctionnels (primary/secondary) pour ne pas
+     casser la palette B2B existante.
+     ========================================================= */
+  --brand-accent:        244 76% 52%;  /* #4338CA  indigo principal */
+  --brand-accent-mid:    239 84% 67%;  /* #6366F1 */
+  --brand-accent-light:  226 100% 96%; /* #EEF2FF */
+  --brand-indigo-200:    232 96% 82%;  /* #A5B4FC  dark scheme */
+  --brand-teal:          175 77% 26%;  /* #0F766E */
+  --brand-teal-mid:      173 80% 40%;  /* #14B8A6 */
+  --brand-teal-light:    165 75% 89%;  /* #CCFBF1 */
+  --brand-mint-300:      167 75% 64%;  /* #5EEAD4  dark/accent scheme */
+  --brand-text:          240 26% 13%;  /* #18192B */
+  --brand-text-muted:    232 13% 60%;  /* #8B8EA8 */
+
   --radius: 0.5rem;
 }
 
@@ -124,6 +142,25 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+
+  /* Brand tokens exposés à Tailwind : bg-brand-accent, text-brand-teal, etc. */
+  --color-brand-accent:       hsl(var(--brand-accent));
+  --color-brand-accent-mid:   hsl(var(--brand-accent-mid));
+  --color-brand-accent-light: hsl(var(--brand-accent-light));
+  --color-brand-indigo-200:   hsl(var(--brand-indigo-200));
+  --color-brand-teal:         hsl(var(--brand-teal));
+  --color-brand-teal-mid:     hsl(var(--brand-teal-mid));
+  --color-brand-teal-light:   hsl(var(--brand-teal-light));
+  --color-brand-mint-300:     hsl(var(--brand-mint-300));
+  --color-brand-text:         hsl(var(--brand-text));
+  --color-brand-text-muted:   hsl(var(--brand-text-muted));
+
+  /* Familles de fontes de marque (chargées via next/font/google dans layout.tsx) */
+  --font-brand-sans: var(--font-dm-sans, "DM Sans"), ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-brand-mono: var(--font-dm-mono, "DM Mono"), ui-monospace, "SF Mono",
+    Menlo, monospace;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

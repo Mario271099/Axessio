@@ -12,6 +12,7 @@ import {
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Wordmark } from "@/components/brand";
 import type { UserRole } from "@/types/domain";
 
 interface NavItem {
@@ -44,16 +45,14 @@ export function Sidebar({ userRole }: { userRole: UserRole }) {
       aria-label="Navigation principale"
       className="hidden w-64 shrink-0 border-r border-border bg-card md:flex md:flex-col"
     >
-      {/* Brand */}
-      <div className="flex h-16 items-center border-b border-border px-6">
+      {/* Brand — wordmark complet (badge + règle + sous-titre) */}
+      <div className="flex h-20 items-center border-b border-border px-6">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 text-lg font-semibold tracking-tight"
+          aria-label="Axessio — retour au tableau de bord"
+          className="-mx-1 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          <div className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
-            <span className="text-sm font-bold">A</span>
-          </div>
-          Axessio
+          <Wordmark scale={0.55} />
         </Link>
       </div>
 
