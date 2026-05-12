@@ -9,8 +9,12 @@ import { NC_CLOSED_STATUSES } from "@/lib/constants";
 import type {
   NCSeverity,
   NCStatus,
-  NonConformityEnriched,
 } from "@/types/domain";
+import type {
+  SimulatorNC,
+  SimulatorPage,
+  SimulatorThematic,
+} from "@/components/audit/remediation-simulator";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Simulateur de remédiation" };
@@ -56,12 +60,44 @@ export default async function SimulatorPage({ params }: PageProps) {
     })
     .eq("thematic.reference_id", audit.reference_id);
 
-  // 3. Conformités existantes (pour calculer le score initial)
-  const { data: conformities } = await supabase
-    .from("page_conformities")
-    .select("status, criteria_id")
-    .eq("audit_id", uuid);
+  // 3. Chargement parallèle : conformités, NC (toutes), pages, thématiques
+  const [
+    { data: conformities },
+    { data: ncs },
+    { data: pageRows },
+    { data: thematicRows },
+  ] = await Promise.all([
+    supabase
+      .from("page_conformities")
+      .select("status, criteria_id")
+      .eq("audit_id", uuid),
+    supabase
+      .from("non_conformities")
+      .select(
+        `
+        id, page_id, criteria_id, title, description,
+        severity, status,
+        criterion:criteria!inner(
+          id, identifier, name,
+          thematic:thematics!inner(id, identifier, name, sort_order)
+        ),
+        page:pages(id, name, sort_order)
+      `,
+      )
+      .eq("audit_id", uuid),
+    supabase
+      .from("pages")
+      .select("id, name, sort_order")
+      .eq("audit_id", uuid)
+      .order("sort_order"),
+    supabase
+      .from("thematics")
+      .select("id, identifier, name, sort_order")
+      .eq("reference_id", audit.reference_id)
+      .order("sort_order"),
+  ]);
 
+  // 4. Score initial (depuis page_conformities)
   const distinctCompliant = new Set<string>();
   const distinctNotApplicable = new Set<string>();
   for (const c of conformities ?? []) {
@@ -69,50 +105,79 @@ export default async function SimulatorPage({ params }: PageProps) {
     if (c.status === "NOT_APPLICABLE") distinctNotApplicable.add(c.criteria_id);
   }
 
-  // 4. NC ouvertes
-  const { data: ncs } = await supabase
-    .from("non_conformities")
-    .select(
-      `
-      id, audit_id, page_id, criteria_id, test_id, identifier, title, description,
-      recommendation, external_reference, severity, status, created_at, updated_at,
-      criterion:criteria!inner(id, identifier, name),
-      page:pages(id, name)
-    `,
-    )
-    .eq("audit_id", uuid)
-    .not("status", "in", `(${NC_CLOSED_STATUSES.map((s) => `"${s}"`).join(",")})`);
+  // 5. Normalisation des NC
+  type RawCriterionThematic = {
+    id: string;
+    identifier: string;
+    name: string;
+    sort_order: number;
+  };
+  type RawCriterion = {
+    id: string;
+    identifier: string;
+    name: string;
+    thematic: RawCriterionThematic | RawCriterionThematic[] | null;
+  };
+  type RawPage = { id: string; name: string; sort_order: number };
 
-  const openNCs: NonConformityEnriched[] = (ncs ?? []).map((n) => {
-    const criterion = Array.isArray(n.criterion) ? n.criterion[0] : n.criterion;
-    const page = Array.isArray(n.page) ? n.page[0] : n.page;
+  const allNCs: SimulatorNC[] = (ncs ?? []).map((n) => {
+    const criterion = (
+      Array.isArray(n.criterion) ? n.criterion[0] : n.criterion
+    ) as RawCriterion;
+    const page = (
+      Array.isArray(n.page) ? n.page[0] : n.page
+    ) as RawPage | null;
+    const thematic = criterion?.thematic
+      ? Array.isArray(criterion.thematic)
+        ? criterion.thematic[0]
+        : criterion.thematic
+      : null;
+
     return {
-      id: n.id,
-      auditId: n.audit_id,
-      pageId: n.page_id,
-      criteriaId: n.criteria_id,
-      testId: n.test_id,
-      identifier: n.identifier,
-      title: n.title,
-      description: n.description,
-      recommendation: n.recommendation,
-      externalReference: n.external_reference,
+      id: n.id as string,
+      criteriaId: n.criteria_id as string,
+      title: n.title as string,
+      description: (n.description as string | null) ?? null,
       severity: n.severity as NCSeverity,
       status: n.status as NCStatus,
-      createdAt: n.created_at,
-      updatedAt: n.updated_at,
+      isFixed: NC_CLOSED_STATUSES.includes(n.status as NCStatus),
       criterion: criterion
-        ? { id: criterion.id, identifier: criterion.identifier, name: criterion.name }
-        : { id: n.criteria_id, identifier: "?", name: "Critère inconnu" },
-      page: page ? { id: page.id, name: page.name } : null,
+        ? {
+            id: criterion.id,
+            identifier: criterion.identifier,
+            name: criterion.name,
+          }
+        : { id: n.criteria_id as string, identifier: "?", name: "Critère inconnu" },
+      thematic: thematic
+        ? {
+            id: thematic.id,
+            identifier: thematic.identifier,
+            name: thematic.name,
+            sortOrder: thematic.sort_order,
+          }
+        : null,
+      page: page ? { id: page.id, name: page.name, sortOrder: page.sort_order } : null,
     };
   });
 
-  // Mapping ncId → criteriaId : nécessaire pour calculer "tous les NC d'un critère cochés"
+  const auditPages: SimulatorPage[] = (pageRows ?? []).map((p) => ({
+    id: p.id as string,
+    name: p.name as string,
+    sortOrder: p.sort_order as number,
+  }));
+
+  const referenceThematics: SimulatorThematic[] = (thematicRows ?? []).map(
+    (t) => ({
+      id: t.id as string,
+      identifier: t.identifier as string,
+      name: t.name as string,
+      sortOrder: t.sort_order as number,
+    }),
+  );
+
+  // ncId → criteriaId pour le calcul de "tous les NC d'un critère cochés"
   const fixableCriteriaPerNC: Record<string, string> = {};
-  for (const nc of openNCs) {
-    fixableCriteriaPerNC[nc.id] = nc.criterion.id;
-  }
+  for (const nc of allNCs) fixableCriteriaPerNC[nc.id] = nc.criterion.id;
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
@@ -139,7 +204,9 @@ export default async function SimulatorPage({ params }: PageProps) {
       </header>
 
       <RemediationSimulator
-        openNCs={openNCs}
+        allNCs={allNCs}
+        auditPages={auditPages}
+        referenceThematics={referenceThematics}
         totalCriteria={totalCriteria ?? 0}
         initialCompliant={distinctCompliant.size}
         notApplicable={distinctNotApplicable.size}
