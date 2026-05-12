@@ -91,9 +91,9 @@ export interface GeneratePDFOptions {
  * `totalPages` interpolées au print).
  */
 export const DEFAULT_FOOTER_TEMPLATE = `
-<div style="
+<div role="presentation" aria-hidden="true" style="
   font-size: 8pt;
-  color: #6b7280;
+  color: #4b5563;
   width: 100%;
   padding: 0 20mm;
   display: flex;
@@ -141,6 +141,12 @@ export async function generatePDF(
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
+      // Tagged PDF : Puppeteer demande à Chromium d'écrire la structure
+      // sémantique (StructTreeRoot, MarkInfo, etc.) dans le fichier PDF.
+      // Combiné à un HTML sémantique correct (h1/h2/h3, table > thead/tbody
+      // avec scope, alt, lang, etc.), c'est ce qui permet aux lecteurs
+      // d'écran et aux outils PDF/UA d'exposer la structure du document.
+      tagged: true,
       displayHeaderFooter,
       headerTemplate: options.headerTemplate ?? "<span></span>",
       footerTemplate: options.footerTemplate ?? "<span></span>",

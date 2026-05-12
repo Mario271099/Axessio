@@ -203,7 +203,7 @@ const PRINT_CSS = `
     padding: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
       Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: 10.5pt;
+    font-size: 11pt;
     line-height: 1.55;
     color: ${COLORS.text};
     background: #ffffff;
@@ -214,9 +214,23 @@ const PRINT_CSS = `
     letter-spacing: -0.01em;
     margin: 0;
   }
-  h1 { font-size: 26pt; line-height: 1.15; }
-  h2 { font-size: 16pt; margin: 0 0 16px; }
-  h3 { font-size: 12pt; margin: 18px 0 8px; }
+  h1 { font-size: 22pt; line-height: 1.15; }
+  h2 { font-size: 15pt; margin: 0 0 14px; }
+  h3 { font-size: 12pt; margin: 16px 0 8px; }
+
+  /* Réservé aux lecteurs d'écran — n'apparaît pas visuellement, mais reste
+     dans l'arbre de structure du tagged PDF. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 
   /* ---------- Page de garde ---------- */
   .cover {
@@ -343,7 +357,7 @@ const PRINT_CSS = `
   }
   .stats-grid .stat .name {
     margin-top: 2px;
-    font-size: 8.5pt;
+    font-size: 9pt;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: ${COLORS.muted};
@@ -409,6 +423,18 @@ const PRINT_CSS = `
   .severity-row .sev.low .count { color: ${COLORS.muted}; }
 
   /* ---------- Détail par page (P3) ---------- */
+  section.pages-section {
+    page-break-before: always;
+    break-before: page;
+  }
+  section.pages-section > h1 {
+    margin-bottom: 8px;
+  }
+  section.pages-section > p.intro {
+    color: #4b5563;
+    margin-bottom: 24px;
+    font-size: 10.5pt;
+  }
   section.page-detail {
     page-break-before: always;
     break-before: page;
@@ -461,7 +487,7 @@ const PRINT_CSS = `
   }
   .page-head .score-mini .counts {
     margin-top: 6px;
-    font-size: 8.5pt;
+    font-size: 9pt;
     color: ${COLORS.muted};
   }
 
@@ -497,9 +523,8 @@ const PRINT_CSS = `
   table.criteria .crit-name-en {
     display: block;
     margin-top: 2px;
-    font-size: 8.5pt;
-    color: ${COLORS.muted};
-    font-style: italic;
+    font-size: 9pt;
+    color: #4b5563;
   }
   table.criteria td.identifier {
     font-variant-numeric: tabular-nums;
@@ -508,40 +533,44 @@ const PRINT_CSS = `
     white-space: nowrap;
   }
 
-  /* Badges */
+  /* Badges — l'information n'est jamais portée par la couleur seule :
+     chaque badge contient un libellé textuel explicite. */
   .badge {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 999px;
-    font-size: 8.5pt;
+    font-size: 9pt;
     font-weight: 600;
     letter-spacing: 0.02em;
     line-height: 1.4;
     white-space: nowrap;
   }
   .badge.compliant {
+    /* Contraste ~6.5:1 */
     background: #dcfce7;
     color: #15803d;
   }
   .badge.non-compliant {
+    /* Contraste ~6.4:1 */
     background: #fee2e2;
     color: #b91c1c;
   }
   .badge.not-applicable {
+    /* Contraste ~9:1 */
     background: #f3f4f6;
     color: #374151;
   }
   .badge.unevaluated {
+    /* Pas de fond — un libellé "Non évalué" suffit. */
     background: transparent;
-    color: ${COLORS.muted};
-    font-style: italic;
-    font-weight: 400;
+    color: #4b5563;
+    font-weight: 600;
   }
   .badge.level {
     background: ${COLORS.bg};
     color: ${COLORS.text};
-    border: 1px solid ${COLORS.light};
-    font-weight: 600;
+    border: 1px solid #9ca3af;
+    font-weight: 700;
   }
 
   .thematic-empty {
@@ -649,7 +678,7 @@ const PRINT_CSS = `
     font-weight: 600;
     color: ${COLORS.muted};
     text-transform: uppercase;
-    font-size: 8.5pt;
+    font-size: 9pt;
     letter-spacing: 0.04em;
   }
   .nc-meta a {
@@ -726,8 +755,8 @@ const PRINT_CSS = `
   }
   .nc-attach .caption {
     margin-top: 6px;
-    font-size: 8.5pt;
-    color: ${COLORS.muted};
+    font-size: 9pt;
+    color: #4b5563;
     word-break: break-all;
   }
 
@@ -768,16 +797,16 @@ const PRINT_CSS = `
 function renderCover(data: ReportData): string {
   const { audit, project, client, reference, auditor, generatedAt } = data;
   return `
-    <section class="cover">
-      <header class="brand">
-        <div class="logo">Axessio</div>
-        <div class="tagline">Rapport d'audit d'accessibilité</div>
-      </header>
+    <header class="cover" role="banner">
+      <div class="brand">
+        <p class="logo">Axessio</p>
+        <p class="tagline">Rapport d'audit d'accessibilité</p>
+      </div>
 
       <div class="hero">
-        <div class="kicker">Rapport d'audit</div>
+        <p class="kicker" aria-hidden="true">Rapport d'audit</p>
         <h1>${esc(project.name)}</h1>
-        <div class="client-name">${esc(client.name)}</div>
+        <p class="client-name">${esc(client.name)}</p>
 
         <dl>
           <dt>Type d'audit</dt>
@@ -791,11 +820,11 @@ function renderCover(data: ReportData): string {
         </dl>
       </div>
 
-      <div class="signature">
+      <p class="signature">
         Réalisé par <span class="auditor">${esc(auditor.name)}</span><br />
-        ${esc(formatDateFr(generatedAt))}
-      </div>
-    </section>
+        <time datetime="${esc(generatedAt)}">${esc(formatDateFr(generatedAt))}</time>
+      </p>
+    </header>
   `;
 }
 
@@ -838,7 +867,11 @@ function renderSynthesis(data: ReportData): string {
           <td class="num">${counts.nonCompliant}</td>
           <td class="num">${counts.notApplicable}</td>
           <td class="num" style="color: ${colorForScore(score)}; font-weight: 600;">
-            ${counts.total === 0 ? "—" : esc(formatRate(score))}
+            ${
+              counts.total === 0
+                ? `<span aria-hidden="true">—</span><span class="sr-only">Non évalué</span>`
+                : esc(formatRate(score))
+            }
           </td>
         </tr>`;
     })
@@ -865,7 +898,11 @@ function renderSynthesis(data: ReportData): string {
           <td>${esc(PAGE_TYPE_LABELS[p.pageType])}</td>
           <td class="num">${counts.total}</td>
           <td class="num" style="color: ${colorForScore(score)}; font-weight: 600;">
-            ${counts.total === 0 ? "—" : esc(formatRate(score))}
+            ${
+              counts.total === 0
+                ? `<span aria-hidden="true">—</span><span class="sr-only">Non évalué</span>`
+                : esc(formatRate(score))
+            }
           </td>
         </tr>`;
     })
@@ -881,55 +918,58 @@ function renderSynthesis(data: ReportData): string {
   for (const nc of nonConformities) ncBySeverity[nc.severity] += 1;
 
   return `
-    <section class="page">
-      <h2>Synthèse</h2>
+    <section class="page" aria-labelledby="synthese-title">
+      <h1 id="synthese-title">Synthèse</h1>
 
-      <div class="score-card">
+      <div class="score-card" role="group" aria-label="Score global de conformité">
         <div>
-          <div class="pct" style="color: ${globalColor};">
+          <p class="pct" style="color: ${globalColor};">
             ${esc(formatRate(globalScore))}
-          </div>
-          <div class="sub">Taux de conformité global</div>
+          </p>
+          <p class="sub">Taux de conformité global</p>
         </div>
         <div style="flex: 1;">
-          <div class="label" style="color: ${globalColor};">
+          <p class="label" style="color: ${globalColor};">
             ${esc(globalLabel)}
-          </div>
-          <div class="sub">
-            Formule : conformes / (total − non applicables) × 100
-          </div>
+          </p>
+          <p class="sub">
+            Formule : conformes <span aria-hidden="true">/</span><span class="sr-only"> divisé par </span> (total <span aria-hidden="true">−</span><span class="sr-only"> moins </span> non applicables) <span aria-hidden="true">×</span><span class="sr-only"> multiplié par </span> 100
+          </p>
         </div>
       </div>
 
-      <div class="stats-grid">
+      <dl class="stats-grid">
         <div class="stat">
-          <div class="value">${global.total}</div>
-          <div class="name">Évalués</div>
+          <dt class="name">Évalués</dt>
+          <dd class="value">${global.total}</dd>
         </div>
         <div class="stat">
-          <div class="value" style="color: ${COLORS.green};">${global.compliant}</div>
-          <div class="name">Conformes</div>
+          <dt class="name">Conformes</dt>
+          <dd class="value" style="color: ${COLORS.green};">${global.compliant}</dd>
         </div>
         <div class="stat">
-          <div class="value" style="color: ${COLORS.red};">${global.nonCompliant}</div>
-          <div class="name">Non conformes</div>
+          <dt class="name">Non conformes</dt>
+          <dd class="value" style="color: ${COLORS.red};">${global.nonCompliant}</dd>
         </div>
         <div class="stat">
-          <div class="value" style="color: ${COLORS.muted};">${global.notApplicable}</div>
-          <div class="name">Non applicables</div>
+          <dt class="name">Non applicables</dt>
+          <dd class="value" style="color: ${COLORS.muted};">${global.notApplicable}</dd>
         </div>
-      </div>
+      </dl>
 
-      <h3>Détail par thématique</h3>
+      <h2>Détail par thématique</h2>
       <table class="report">
+        <caption class="sr-only">
+          Taux de conformité par thématique du référentiel
+        </caption>
         <thead>
           <tr>
-            <th>Thématique</th>
-            <th class="num">Évalués</th>
-            <th class="num">Conformes</th>
-            <th class="num">NC</th>
-            <th class="num">NA</th>
-            <th class="num">Taux</th>
+            <th scope="col">Thématique</th>
+            <th scope="col" class="num">Évalués</th>
+            <th scope="col" class="num">Conformes</th>
+            <th scope="col" class="num">NC</th>
+            <th scope="col" class="num">NA</th>
+            <th scope="col" class="num">Taux</th>
           </tr>
         </thead>
         <tbody>
@@ -937,14 +977,17 @@ function renderSynthesis(data: ReportData): string {
         </tbody>
       </table>
 
-      <h3>Détail par page</h3>
+      <h2>Détail par page</h2>
       <table class="report">
+        <caption class="sr-only">
+          Taux de conformité par page de l'échantillon
+        </caption>
         <thead>
           <tr>
-            <th>Page</th>
-            <th>Type</th>
-            <th class="num">Évalués</th>
-            <th class="num">Taux</th>
+            <th scope="col">Page</th>
+            <th scope="col">Type</th>
+            <th scope="col" class="num">Évalués</th>
+            <th scope="col" class="num">Taux</th>
           </tr>
         </thead>
         <tbody>
@@ -952,25 +995,25 @@ function renderSynthesis(data: ReportData): string {
         </tbody>
       </table>
 
-      <h3>Répartition des non-conformités par sévérité</h3>
-      <div class="severity-row">
+      <h2>Répartition des non-conformités par sévérité</h2>
+      <dl class="severity-row" aria-label="Répartition des non-conformités par sévérité">
         <div class="sev critical">
-          <div class="count">${ncBySeverity.CRITICAL}</div>
-          <div class="name">${esc(NC_SEVERITY_LABELS.CRITICAL)}</div>
+          <dt class="name">${esc(NC_SEVERITY_LABELS.CRITICAL)}</dt>
+          <dd class="count">${ncBySeverity.CRITICAL}</dd>
         </div>
         <div class="sev high">
-          <div class="count">${ncBySeverity.HIGH}</div>
-          <div class="name">${esc(NC_SEVERITY_LABELS.HIGH)}</div>
+          <dt class="name">${esc(NC_SEVERITY_LABELS.HIGH)}</dt>
+          <dd class="count">${ncBySeverity.HIGH}</dd>
         </div>
         <div class="sev medium">
-          <div class="count">${ncBySeverity.MEDIUM}</div>
-          <div class="name">${esc(NC_SEVERITY_LABELS.MEDIUM)}</div>
+          <dt class="name">${esc(NC_SEVERITY_LABELS.MEDIUM)}</dt>
+          <dd class="count">${ncBySeverity.MEDIUM}</dd>
         </div>
         <div class="sev low">
-          <div class="count">${ncBySeverity.LOW}</div>
-          <div class="name">${esc(NC_SEVERITY_LABELS.LOW)}</div>
+          <dt class="name">${esc(NC_SEVERITY_LABELS.LOW)}</dt>
+          <dd class="count">${ncBySeverity.LOW}</dd>
         </div>
-      </div>
+      </dl>
     </section>
   `;
 }
@@ -988,7 +1031,7 @@ function statusBadge(status: ConformityStatus | null): string {
   if (status === "NOT_APPLICABLE") {
     return `<span class="badge not-applicable">Non applicable</span>`;
   }
-  return `<span class="badge unevaluated">—</span>`;
+  return `<span class="badge unevaluated">Non évalué</span>`;
 }
 
 function levelBadge(level: WCAGLevel | null): string {
@@ -1034,7 +1077,16 @@ function renderPagesDetail(data: ReportData): string {
     .slice()
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
-  return sortedPages
+  if (sortedPages.length === 0) {
+    return `
+      <section class="pages-section" aria-labelledby="pages-section-title">
+        <h1 id="pages-section-title">Détail par page</h1>
+        <p class="intro">Aucune page dans l'échantillon.</p>
+      </section>
+    `;
+  }
+
+  const pageBlocks = sortedPages
     .map((page, idx) => {
       const statusMap = statusByPage.get(page.id) ?? new Map();
 
@@ -1058,7 +1110,7 @@ function renderPagesDetail(data: ReportData): string {
 
           if (!hasEvaluated) {
             return `
-              <h3 class="thematic-title">${esc(t.identifier)} · ${esc(t.name)}</h3>
+              <h3 class="thematic-title">${esc(t.identifier)} <span aria-hidden="true">·</span> ${esc(t.name)}</h3>
               <p class="thematic-empty">Thématique non évaluée sur cette page.</p>
             `;
           }
@@ -1089,12 +1141,15 @@ function renderPagesDetail(data: ReportData): string {
             ? `<col class="col-level" />`
             : "";
           const levelHead = showLevelColumn
-            ? `<th>Niveau</th>`
+            ? `<th scope="col">Niveau</th>`
             : "";
 
           return `
-            <h3 class="thematic-title">${esc(t.identifier)} · ${esc(t.name)}</h3>
+            <h3 class="thematic-title">${esc(t.identifier)} <span aria-hidden="true">·</span> ${esc(t.name)}</h3>
             <table class="criteria">
+              <caption class="sr-only">
+                Critères de la thématique ${esc(t.identifier)} ${esc(t.name)}
+              </caption>
               <colgroup>
                 <col class="col-num" />
                 <col />
@@ -1103,9 +1158,9 @@ function renderPagesDetail(data: ReportData): string {
               </colgroup>
               <thead>
                 <tr>
-                  <th>N°</th>
-                  <th>Critère</th>
-                  <th>Statut</th>
+                  <th scope="col">N°</th>
+                  <th scope="col">Critère</th>
+                  <th scope="col">Statut</th>
                   ${levelHead}
                 </tr>
               </thead>
@@ -1117,34 +1172,37 @@ function renderPagesDetail(data: ReportData): string {
         .join("");
 
       const url = page.url
-        ? `<span class="url">·&nbsp;<a href="${esc(page.url)}">${esc(page.url)}</a></span>`
+        ? `<span class="url"><span aria-hidden="true">·&nbsp;</span><a href="${esc(page.url)}" rel="noopener noreferrer">${esc(page.url)}</a></span>`
         : "";
 
       // first-of-type est géré en CSS (pas de page-break-before pour la 1ʳᵉ).
       // On laisse Puppeteer respecter `page-break-before: always` sur les autres.
       void idx;
 
+      const headingId = `page-${esc(page.id)}-title`;
       return `
-        <section class="page-detail">
+        <section class="page-detail" aria-labelledby="${headingId}">
           <div class="page-head">
             <div class="titles">
-              <h2>Page : ${esc(page.name)}</h2>
-              <div class="subtitle">
+              <h2 id="${headingId}">Page : ${esc(page.name)}</h2>
+              <p class="subtitle">
                 ${esc(PAGE_TYPE_LABELS[page.pageType])}
                 ${url}
-              </div>
+              </p>
             </div>
-            <aside class="score-mini" aria-label="Score de la page">
-              <div class="pct" style="color: ${pageColor};">
+            <aside class="score-mini" aria-label="Score de la page ${esc(page.name)}">
+              <p class="pct" style="color: ${pageColor};"${hasAnyEval ? "" : ` aria-hidden="true"`}>
                 ${hasAnyEval ? esc(formatRate(pageScore)) : "—"}
-              </div>
-              <div class="lbl" style="color: ${hasAnyEval ? pageColor : COLORS.muted};">
+              </p>
+              <p class="lbl" style="color: ${hasAnyEval ? pageColor : COLORS.muted};">
                 ${hasAnyEval ? esc(pageLabel) : "Non évaluée"}
-              </div>
-              <div class="counts">
-                ${counts.compliant} conformes · ${counts.nonCompliant} NC ·
-                ${counts.notApplicable} NA · ${counts.total} évalués
-              </div>
+              </p>
+              <p class="counts">
+                ${counts.compliant} conformes
+                <span aria-hidden="true">·</span> ${counts.nonCompliant} NC
+                <span aria-hidden="true">·</span> ${counts.notApplicable} NA
+                <span aria-hidden="true">·</span> ${counts.total} évalués
+              </p>
             </aside>
           </div>
 
@@ -1153,6 +1211,17 @@ function renderPagesDetail(data: ReportData): string {
       `;
     })
     .join("");
+
+  return `
+    <section class="pages-section" aria-labelledby="pages-section-title">
+      <h1 id="pages-section-title">Détail par page</h1>
+      <p class="intro">
+        Conformité de chaque page de l'échantillon, critère par critère,
+        regroupée par thématique du référentiel.
+      </p>
+      ${pageBlocks}
+    </section>
+  `;
 }
 
 // ============================================================================
@@ -1203,26 +1272,31 @@ function attachmentDisplayName(
 
 function renderAttachment(
   attachment: ReportData["nonConformities"][number]["attachments"][number],
+  ncTitle: string,
 ): string {
   const name = attachmentDisplayName(attachment.fileName, attachment.storagePath);
-  const caption = `<div class="caption">${esc(name)}</div>`;
+  // figcaption (visible) + alt sur l'image qui contextualise la NC. Le tagged
+  // PDF expose alt à AT et figcaption comme légende ancrée à la figure.
+  const figcaption = `<figcaption class="caption">${esc(name)}</figcaption>`;
 
   if (isImage(attachment.mimeType) && attachment.signedUrl) {
+    const altText = `Capture d'écran liée à la non-conformité « ${ncTitle} » : ${name}`;
     return `
       <figure class="nc-attach">
-        <img src="${esc(attachment.signedUrl)}" alt="${esc(name)}" />
-        ${caption}
+        <img src="${esc(attachment.signedUrl)}" alt="${esc(altText)}" />
+        ${figcaption}
       </figure>`;
   }
 
-  // PDF ou autre type non affichable inline
+  // PDF ou autre type non affichable inline. Le libellé "PDF" est purement
+  // décoratif : l'info est portée par le nom du fichier juste à côté.
   return `
     <figure class="nc-attach">
-      <div class="pdf-fallback">
+      <div class="pdf-fallback" role="img" aria-label="Pièce jointe PDF : ${esc(name)}">
         <span class="pdf-icon" aria-hidden="true">PDF</span>
         <span class="pdf-name">${esc(name)}</span>
       </div>
-      ${caption}
+      ${figcaption}
     </figure>`;
 }
 
@@ -1231,61 +1305,72 @@ function renderNCBlock(
   number: number,
 ): string {
   const ncNumber = `NC-${String(number).padStart(3, "0")}`;
+  const ncTitleId = `nc-${esc(nc.id)}-title`;
 
-  const criterionLabel = `${esc(nc.criterion.identifier)} · ${esc(nc.criterion.name)}`;
+  const criterionLabel = `${esc(nc.criterion.identifier)} <span aria-hidden="true">·</span> ${esc(nc.criterion.name)}`;
   const criterionCell = nc.criterion.url
-    ? `<a href="${esc(nc.criterion.url)}">${criterionLabel}</a>`
+    ? `<a href="${esc(nc.criterion.url)}" rel="noopener noreferrer">${criterionLabel}</a>`
     : criterionLabel;
 
   const sections: string[] = [];
   if (nc.description?.trim()) {
     sections.push(`
-      <div class="nc-section-title">Description</div>
+      <p class="nc-section-title">Description</p>
       <p class="nc-prose">${esc(nc.description.trim())}</p>
     `);
   }
   if (nc.actualResult?.trim()) {
     sections.push(`
-      <div class="nc-section-title">Résultat obtenu</div>
+      <p class="nc-section-title">Résultat obtenu</p>
       <p class="nc-prose">${esc(nc.actualResult.trim())}</p>
     `);
   }
   if (nc.recommendation?.trim()) {
     sections.push(`
-      <div class="nc-section-title">Recommandation</div>
+      <p class="nc-section-title">Recommandation</p>
       <p class="nc-prose">${esc(nc.recommendation.trim())}</p>
     `);
   }
 
   const attachmentsBlock =
     nc.attachments.length > 0
-      ? `<div class="nc-attachments">${nc.attachments
-          .map(renderAttachment)
-          .join("")}</div>`
+      ? `
+        <section aria-label="Pièces jointes">
+          <p class="nc-section-title">Pièces jointes</p>
+          <div class="nc-attachments">
+            ${nc.attachments.map((a) => renderAttachment(a, nc.title)).join("")}
+          </div>
+        </section>`
       : "";
 
   const referenceRow = nc.criterion.url
-    ? `<tr><th>Référence officielle</th><td><a href="${esc(nc.criterion.url)}">${esc(nc.criterion.url)}</a></td></tr>`
+    ? `<tr><th scope="row">Référence officielle</th><td><a href="${esc(nc.criterion.url)}" rel="noopener noreferrer">${esc(nc.criterion.url)}</a></td></tr>`
     : "";
 
+  // Libellés des badges relus à voix haute dans l'ordre logique :
+  // sévérité, numéro, statut.
+  const severityAria = `Sévérité ${esc(NC_SEVERITY_LABELS[nc.severity])}`;
+  const statusAria = `Statut ${esc(NC_STATUS_LABELS[nc.status])}`;
+
   return `
-    <article class="nc-block">
+    <article class="nc-block" aria-labelledby="${ncTitleId}">
       <div class="nc-head-group">
-        <div class="nc-head">
-          ${severityBadge(nc.severity)}
-          <span class="nc-number">${esc(ncNumber)}</span>
-          ${ncStatusBadge(nc.status)}
-          <h3>${esc(nc.title)}</h3>
-        </div>
+        <p class="nc-head">
+          <span aria-label="${severityAria}">${severityBadge(nc.severity)}</span>
+          <span class="nc-number" aria-label="Référence ${esc(ncNumber)}">${esc(ncNumber)}</span>
+          <span aria-label="${statusAria}">${ncStatusBadge(nc.status)}</span>
+        </p>
+        <h3 id="${ncTitleId}">${esc(nc.title)}</h3>
 
         <table class="nc-meta">
+          <caption class="sr-only">Métadonnées de la non-conformité ${esc(ncNumber)}</caption>
           <tbody>
             <tr>
-              <th>Critère</th>
+              <th scope="row">Critère</th>
               <td>${criterionCell}</td>
             </tr>
             <tr>
-              <th>Page</th>
+              <th scope="row">Page</th>
               <td>${nc.page ? esc(nc.page.name) : "Transversale"}</td>
             </tr>
             ${referenceRow}
@@ -1304,8 +1389,8 @@ function renderNonConformities(data: ReportData): string {
 
   if (nonConformities.length === 0) {
     return `
-      <section class="nc-section">
-        <h1>Non-conformités détaillées</h1>
+      <section class="nc-section" aria-labelledby="ncs-section-title">
+        <h1 id="ncs-section-title">Non-conformités détaillées</h1>
         <p class="nc-empty">Aucune non-conformité relevée.</p>
       </section>
     `;
@@ -1328,18 +1413,52 @@ function renderNonConformities(data: ReportData): string {
     );
   });
 
-  const blocks = sorted
-    .map((nc, idx) => renderNCBlock(nc, idx + 1))
+  // Groupement par page tout en conservant l'ordre du tri.
+  type Group = { key: string; label: string; items: typeof sorted };
+  const groups: Group[] = [];
+  for (const nc of sorted) {
+    const key = nc.page?.name ?? "__transversal__";
+    const label = nc.page?.name ?? "Non-conformités transversales";
+    const last = groups[groups.length - 1];
+    if (last && last.key === key) {
+      last.items.push(nc);
+    } else {
+      groups.push({ key, label, items: [nc] });
+    }
+  }
+
+  // Numérotation séquentielle globale (NC-001, NC-002, ...).
+  let counter = 0;
+  const groupBlocks = groups
+    .map((group, gIdx) => {
+      const groupId = `nc-group-${gIdx}`;
+      const items = group.items
+        .map((nc) => {
+          counter += 1;
+          return renderNCBlock(nc, counter);
+        })
+        .join("");
+      const heading =
+        group.key === "__transversal__"
+          ? `Non-conformités transversales`
+          : `Page : ${esc(group.label)}`;
+      return `
+        <section class="nc-group" aria-labelledby="${groupId}">
+          <h2 id="${groupId}">${heading}</h2>
+          ${items}
+        </section>
+      `;
+    })
     .join("");
 
   return `
-    <section class="nc-section">
-      <h1>Non-conformités détaillées</h1>
+    <section class="nc-section" aria-labelledby="ncs-section-title">
+      <h1 id="ncs-section-title">Non-conformités détaillées</h1>
       <p class="nc-intro">
         ${sorted.length} non-conformité${sorted.length > 1 ? "s" : ""} relevée${sorted.length > 1 ? "s" : ""},
         ordonnée${sorted.length > 1 ? "s" : ""} par page puis par sévérité.
       </p>
-      ${blocks}
+      ${groupBlocks}
     </section>
   `;
 }
@@ -1349,18 +1468,54 @@ function renderNonConformities(data: ReportData): string {
 // ============================================================================
 export function renderReportHTML(data: ReportData): string {
   const title = `Rapport d'audit — ${data.project.name}`;
+  const subject = "Rapport d'audit d'accessibilité numérique";
+  const description = `Rapport d'audit d'accessibilité numérique pour ${data.project.name} (${data.client.name}). Référentiel ${REFERENCE_TYPE_LABELS[data.reference.type]} ${data.reference.version}, plateforme ${PLATFORM_LABELS[data.audit.platform]}.`;
+  const keywords = [
+    "accessibilité",
+    "audit",
+    REFERENCE_TYPE_LABELS[data.reference.type],
+    "WCAG",
+    "rapport",
+    data.client.name,
+    data.project.name,
+  ].join(", ");
+
+  // Métadonnées du PDF généré par Chromium :
+  //   <title>            → DocumentInfo /Title
+  //   <meta name="author">     → DocumentInfo /Author
+  //   <meta name="description">→ DocumentInfo /Subject
+  //   <meta name="keywords">   → DocumentInfo /Keywords
+  //   html lang="fr"          → catalogue /Lang
+  // Les <meta name="dc.*"> sont ajoutés pour couvrir XMP Dublin Core (PDF/UA-1
+  // les recommande même si Chromium ne sérialise pas tous les champs dans XMP).
   return `<!doctype html>
-<html lang="fr">
+<html lang="fr-FR">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${esc(title)}</title>
+    <meta name="description" content="${esc(subject)}" />
+    <meta name="author" content="Axessio" />
+    <meta name="keywords" content="${esc(keywords)}" />
+
+    <meta name="dc.title" content="${esc(title)}" />
+    <meta name="dc.creator" content="Axessio" />
+    <meta name="dc.subject" content="${esc(subject)}" />
+    <meta name="dc.description" content="${esc(description)}" />
+    <meta name="dc.language" content="fr-FR" />
+    <meta name="dc.date" content="${esc(data.generatedAt)}" />
+    <meta name="dc.publisher" content="Axessio" />
+    <meta name="dcterms.created" content="${esc(data.generatedAt)}" />
+
     <style>${PRINT_CSS}</style>
   </head>
   <body>
     ${renderCover(data)}
-    ${renderSynthesis(data)}
-    ${renderPagesDetail(data)}
-    ${renderNonConformities(data)}
+    <main>
+      ${renderSynthesis(data)}
+      ${renderPagesDetail(data)}
+      ${renderNonConformities(data)}
+    </main>
   </body>
 </html>`;
 }
