@@ -2,7 +2,19 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, FileText, Layers, Plus, Search } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  Layers,
+  MessageSquare,
+  MinusCircle,
+  Paperclip,
+  Plus,
+  RotateCcw,
+  Search,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { NC_SEVERITY_LABELS, NC_STATUS_LABELS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import type { NCSeverity, UserRole } from "@/types/domain";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -24,6 +37,16 @@ const STATUS_LABELS: Record<string, string> = {
   IN_PROGRESS: "En cours",
   FIXED: "Corrigée",
   FALSE_POSITIVE: "Faux positif",
+};
+
+const STATUS_BADGE_VARIANT: Record<
+  string,
+  "warning" | "secondary" | "success" | "muted" | "outline"
+> = {
+  TO_FIX: "warning",
+  IN_PROGRESS: "secondary",
+  FIXED: "success",
+  FALSE_POSITIVE: "muted",
 };
 
 const FILTER_STATUSES = [
@@ -46,15 +69,23 @@ export interface AnomalyListItem {
   createdAt: string;
   criterion: { identifier: string; name: string } | null;
   page: { name: string } | null;
+  messageCount: number;
+  attachmentCount: number;
 }
 
 interface AnomaliesListProps {
   ncs: AnomalyListItem[];
   auditId: string;
+  auditTitle: string;
   role: UserRole;
 }
 
-export function AnomaliesList({ ncs, auditId, role }: AnomaliesListProps) {
+export function AnomaliesList({
+  ncs,
+  auditId,
+  auditTitle,
+  role,
+}: AnomaliesListProps) {
   const [statusFilter, setStatusFilter] = useState<string>(ALL);
   const [severityFilter, setSeverityFilter] = useState<string>(ALL);
   const [pageFilter, setPageFilter] = useState<string>(ALL);
@@ -69,9 +100,14 @@ export function AnomaliesList({ ncs, auditId, role }: AnomaliesListProps) {
   }, [ncs]);
 
   const counters = useMemo(() => {
-    const c = { TO_FIX: 0, IN_PROGRESS: 0, FIXED: 0, FALSE_POSITIVE: 0 };
+    const c = {
+      TO_FIX: 0,
+      IN_PROGRESS: 0,
+      FIXED: 0,
+      FALSE_POSITIVE: 0,
+    } as Record<string, number>;
     for (const nc of ncs) {
-      if (nc.status in c) c[nc.status as keyof typeof c]++;
+      if (nc.status in c) c[nc.status]! += 1;
     }
     return c;
   }, [ncs]);
@@ -93,50 +129,55 @@ export function AnomaliesList({ ncs, auditId, role }: AnomaliesListProps) {
     });
   }, [ncs, statusFilter, severityFilter, pageFilter, search]);
 
+  const filtersActive =
+    statusFilter !== ALL ||
+    severityFilter !== ALL ||
+    pageFilter !== ALL ||
+    search.trim().length > 0;
+
+  const resetFilters = () => {
+    setStatusFilter(ALL);
+    setSeverityFilter(ALL);
+    setPageFilter(ALL);
+    setSearch("");
+  };
+
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
-        <Link href={`/audits/${auditId}`}>
-          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          Retour à l&apos;audit
+      {/* Breadcrumb -------------------------------------------------------- */}
+      <nav
+        aria-label="Fil d'Ariane"
+        className="flex items-center gap-1 text-xs text-muted-foreground"
+      >
+        <Link
+          href="/audits"
+          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
+        >
+          Audits
         </Link>
-      </Button>
+        <ChevronRight className="h-3 w-3" aria-hidden="true" />
+        <Link
+          href={`/audits/${auditId}`}
+          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
+        >
+          {auditTitle}
+        </Link>
+        <ChevronRight className="h-3 w-3" aria-hidden="true" />
+        <span className="rounded px-1 py-0.5 font-medium text-foreground">
+          Non-conformités
+        </span>
+      </nav>
 
+      {/* Header ------------------------------------------------------------ */}
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Non-conformités
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">Non-conformités</h1>
           <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">
-              {counters.TO_FIX}
-            </span>{" "}
-            À corriger
-            <span className="mx-2 text-muted-foreground/50" aria-hidden="true">
-              ·
-            </span>
-            <span className="font-medium text-foreground">
-              {counters.IN_PROGRESS}
-            </span>{" "}
-            En cours
-            <span className="mx-2 text-muted-foreground/50" aria-hidden="true">
-              ·
-            </span>
-            <span className="font-medium text-foreground">
-              {counters.FIXED}
-            </span>{" "}
-            Corrigées
-            <span className="mx-2 text-muted-foreground/50" aria-hidden="true">
-              ·
-            </span>
-            <span className="font-medium text-foreground">
-              {counters.FALSE_POSITIVE}
-            </span>{" "}
-            Faux positifs
+            {ncs.length} non-conformité{ncs.length > 1 ? "s" : ""} sur cet audit
           </p>
         </div>
         {role === "auditor" && (
-          <Button asChild size="sm">
+          <Button asChild size="default">
             <Link href={`/audits/${auditId}/anomalies/new`}>
               <Plus className="h-4 w-4" aria-hidden="true" />
               Nouvelle NC
@@ -145,8 +186,37 @@ export function AnomaliesList({ ncs, auditId, role }: AnomaliesListProps) {
         )}
       </header>
 
-      <Card>
-        <CardContent className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* KPIs -------------------------------------------------------------- */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard
+          icon={AlertTriangle}
+          tone="primary"
+          label="Total"
+          value={ncs.length}
+        />
+        <KpiCard
+          icon={Clock}
+          tone="warning"
+          label="À corriger"
+          value={counters.TO_FIX ?? 0}
+        />
+        <KpiCard
+          icon={CheckCircle2}
+          tone="success"
+          label="Corrigées"
+          value={counters.FIXED ?? 0}
+        />
+        <KpiCard
+          icon={MinusCircle}
+          tone="muted"
+          label="Faux positifs"
+          value={counters.FALSE_POSITIVE ?? 0}
+        />
+      </div>
+
+      {/* Barre de filtres sticky ------------------------------------------ */}
+      <Card className="sticky top-20 z-10 shadow-sm">
+        <CardContent className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <div className="relative">
             <Search
               className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -205,66 +275,200 @@ export function AnomaliesList({ ncs, auditId, role }: AnomaliesListProps) {
             </SelectContent>
           </Select>
         </CardContent>
+        {filtersActive && (
+          <div className="flex justify-end border-t border-border px-4 py-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={resetFilters}
+              className="gap-1.5"
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              Réinitialiser
+            </Button>
+          </div>
+        )}
       </Card>
 
-      <Card>
-        <CardContent className="p-0">
-          {filtered.length === 0 ? (
-            <p className="p-8 text-center text-sm text-muted-foreground">
-              {ncs.length === 0
-                ? "Aucune non-conformité enregistrée."
-                : "Aucune non-conformité ne correspond aux filtres."}
-            </p>
-          ) : (
-            <ul className="divide-y divide-border">
-              {filtered.map((nc) => (
-                <li key={nc.id}>
-                  <Link
-                    href={`/audits/${auditId}/anomalies/${nc.id}`}
-                    className="flex flex-wrap items-center gap-3 p-4 transition-colors hover:bg-accent/30 focus-visible:bg-accent/40 focus-visible:outline-none"
-                  >
-                    <SeverityBadge severity={nc.severity} />
-                    {nc.criterion && (
-                      <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
-                        {nc.criterion.identifier}
-                      </span>
-                    )}
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      {nc.page ? (
-                        <>
-                          <FileText className="h-3 w-3" aria-hidden="true" />
-                          {nc.page.name}
-                        </>
-                      ) : (
-                        <>
-                          <Layers className="h-3 w-3" aria-hidden="true" />
-                          Transversale
-                        </>
-                      )}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate font-medium">
-                      {nc.title}
-                    </span>
-                    <Badge variant="outline" className="text-xs">
-                      {STATUS_LABELS[nc.status] ?? nc.status}
-                    </Badge>
-                    <time
-                      dateTime={nc.createdAt}
-                      className="text-xs tabular-nums text-muted-foreground"
-                    >
-                      {new Date(nc.createdAt).toLocaleDateString("fr-FR", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </time>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+      {/* Liste des NC ------------------------------------------------------ */}
+      {filtered.length === 0 ? (
+        <EmptyState empty={ncs.length === 0} onReset={resetFilters} />
+      ) : (
+        <ul className="space-y-3">
+          {filtered.map((nc) => (
+            <li key={nc.id}>
+              <NCRow auditId={auditId} nc={nc} />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+
+const toneClasses = {
+  primary: "bg-primary/10 text-primary",
+  warning: "bg-warning/10 text-warning",
+  success: "bg-success/10 text-success",
+  muted: "bg-muted text-muted-foreground",
+} as const;
+
+function KpiCard({
+  icon: Icon,
+  tone,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  tone: keyof typeof toneClasses;
+  label: string;
+  value: number;
+}) {
+  return (
+    <Card className="p-6 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md">
+      <div
+        className={cn(
+          "flex h-10 w-10 items-center justify-center rounded-lg",
+          toneClasses[tone],
+        )}
+        aria-hidden="true"
+      >
+        <Icon className="h-5 w-5" />
+      </div>
+      <p className="mt-4 text-sm text-muted-foreground">{label}</p>
+      <p className="mt-1 text-3xl font-bold tabular-nums tracking-tight">
+        {value}
+      </p>
+    </Card>
+  );
+}
+
+function NCRow({ auditId, nc }: { auditId: string; nc: AnomalyListItem }) {
+  const statusVariant = STATUS_BADGE_VARIANT[nc.status] ?? "outline";
+  return (
+    <Link
+      href={`/audits/${auditId}/anomalies/${nc.id}`}
+      className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg"
+    >
+      <Card
+        interactive
+        className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <SeverityBadge severity={nc.severity} />
+            <Badge variant={statusVariant} className="text-[10px]">
+              {STATUS_LABELS[nc.status] ?? nc.status}
+            </Badge>
+            {nc.criterion && (
+              <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
+                {nc.criterion.identifier}
+              </span>
+            )}
+          </div>
+          <p className="truncate text-base font-semibold leading-snug">
+            {nc.title}
+          </p>
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              {nc.page ? (
+                <>Page : <span className="text-foreground">{nc.page.name}</span></>
+              ) : (
+                <>
+                  <Layers className="h-3.5 w-3.5" aria-hidden="true" />
+                  Transversale
+                </>
+              )}
+            </span>
+            <span aria-hidden="true">·</span>
+            <time
+              dateTime={nc.createdAt}
+              className="tabular-nums"
+            >
+              Créée le{" "}
+              {new Date(nc.createdAt).toLocaleDateString("fr-FR", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })}
+            </time>
+          </p>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-4 text-muted-foreground">
+          <Counter icon={MessageSquare} count={nc.messageCount} label="messages" />
+          <Counter icon={Paperclip} count={nc.attachmentCount} label="captures" />
+          <ChevronRight className="h-4 w-4" aria-hidden="true" />
+        </div>
+      </Card>
+    </Link>
+  );
+}
+
+function Counter({
+  icon: Icon,
+  count,
+  label,
+}: {
+  icon: React.ElementType;
+  count: number;
+  label: string;
+}) {
+  return (
+    <span
+      className="inline-flex items-center gap-1 text-xs tabular-nums"
+      aria-label={`${count} ${label}`}
+    >
+      <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+      {count}
+    </span>
+  );
+}
+
+function EmptyState({
+  empty,
+  onReset,
+}: {
+  empty: boolean;
+  onReset: () => void;
+}) {
+  return (
+    <Card>
+      <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+        <div
+          aria-hidden="true"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
+        >
+          <AlertTriangle className="h-6 w-6" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-sm font-medium">
+            {empty
+              ? "Aucune non-conformité enregistrée"
+              : "Aucune NC pour les filtres sélectionnés"}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {empty
+              ? "Créez votre première NC depuis la matrice de conformité."
+              : "Essayez d'élargir vos filtres."}
+          </p>
+        </div>
+        {!empty && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onReset}
+            className="gap-1.5"
+          >
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+            Réinitialiser
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   );
 }

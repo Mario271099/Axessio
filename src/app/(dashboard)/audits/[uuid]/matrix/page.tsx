@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import { ConformityMatrixLayout } from "./conformity-matrix-layout";
 import type {
   AuditPage,
@@ -8,6 +9,7 @@ import type {
   Criterion,
   DisabilityType,
   PageType,
+  ReferenceType,
   Thematic,
 } from "@/types/domain";
 
@@ -27,7 +29,8 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
     .from("audits")
     .select(
       `id, project_id, reference_id, language,
-       project:projects(name, client:clients(name))`,
+       project:projects(name, client:clients(name)),
+       reference:references(type, version)`,
     )
     .eq("id", uuid)
     .single();
@@ -42,6 +45,12 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
       ? project.client[0]
       : project.client
     : null;
+  const reference = Array.isArray(audit.reference)
+    ? audit.reference[0]
+    : audit.reference;
+  const referenceName = reference
+    ? `${REFERENCE_TYPE_LABELS[reference.type as ReferenceType]} ${reference.version}`.trim()
+    : "Référentiel inconnu";
 
   // 2) Thématiques + critères du référentiel
   const { data: thematicRows } = await supabase
@@ -140,6 +149,7 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
       auditId={uuid}
       auditTitle={project?.name ?? "Audit"}
       clientName={client?.name ?? null}
+      referenceName={referenceName}
       canEdit={profile.role === "auditor"}
       thematics={thematics}
       criteria={criteria}

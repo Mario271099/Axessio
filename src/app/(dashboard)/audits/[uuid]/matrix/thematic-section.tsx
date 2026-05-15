@@ -1,21 +1,17 @@
 "use client";
 
 import { useMemo } from "react";
-import { ExternalLink } from "lucide-react";
+import { BookOpen, ExternalLink, RotateCcw } from "lucide-react";
 import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ConformityCell } from "./conformity-cell";
-import type {
-  ConformityStatus,
-  Criterion,
-  Thematic,
-} from "@/types/domain";
+import type { ConformityStatus, Criterion, Thematic } from "@/types/domain";
 
 export type MatrixFilter =
   | "ALL"
@@ -69,7 +65,6 @@ export function ThematicSection({
   onClear,
   isProcessing,
 }: Props) {
-  // Critères filtrés selon le filtre actif
   const visibleCriteria = useMemo(() => {
     return criteria.filter((c) => {
       const status = conformityMap.get(`${pageId}:${c.id}`) ?? null;
@@ -86,11 +81,7 @@ export function ThematicSection({
     return { saisis, total: criteria.length };
   }, [criteria, conformityMap, pageId]);
 
-  // Si le filtre actif rend la thématique vide → on ne rend rien
   if (visibleCriteria.length === 0) return null;
-
-  const progressPercent =
-    counts.total > 0 ? Math.round((counts.saisis / counts.total) * 100) : 0;
 
   const indicatorClass =
     counts.saisis === 0
@@ -100,8 +91,8 @@ export function ThematicSection({
         : "bg-warning";
 
   return (
-    <AccordionItem value={thematic.id}>
-      <AccordionTrigger>
+    <AccordionItem value={thematic.id} className="my-3 shadow-sm">
+      <AccordionTrigger className="px-4 py-4">
         <span className="flex flex-1 items-center gap-3">
           <span
             aria-hidden="true"
@@ -110,18 +101,16 @@ export function ThematicSection({
           <span className="truncate font-mono text-xs text-muted-foreground">
             {thematic.identifier}
           </span>
-          <span className="truncate font-medium">{thematic.name}</span>
+          <span className="truncate font-semibold">·</span>
+          <span className="truncate font-semibold">{thematic.name}</span>
         </span>
-        <span className="ml-auto mr-2 hidden shrink-0 items-center gap-2 text-xs text-muted-foreground sm:flex">
-          <span className="tabular-nums">
-            {counts.saisis} / {counts.total}
-          </span>
-          <Progress
-            value={progressPercent}
-            className="h-1 w-16"
-            aria-hidden="true"
-          />
-        </span>
+        <Badge
+          variant="muted"
+          className="ml-auto mr-2 tabular-nums"
+          aria-label={`${counts.saisis} sur ${counts.total} critères saisis`}
+        >
+          {counts.saisis} / {counts.total} saisis
+        </Badge>
       </AccordionTrigger>
 
       <AccordionContent>
@@ -134,7 +123,7 @@ export function ThematicSection({
               onClick={onBulkSetNotApplicable}
               disabled={isProcessing}
             >
-              Tout marquer Non applicable
+              Tout marquer NA
             </Button>
             <Button
               type="button"
@@ -142,54 +131,58 @@ export function ThematicSection({
               size="sm"
               onClick={onClear}
               disabled={isProcessing}
+              className="gap-2"
             >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
               Tout effacer
             </Button>
           </div>
         )}
 
-        <ul role="list" className="divide-y divide-border">
+        <ul role="list" className="divide-y divide-border border-t border-border">
           {visibleCriteria.map((criterion) => {
             const key = `${pageId}:${criterion.id}`;
             const current = conformityMap.get(key) ?? null;
             return (
               <li
                 key={criterion.id}
-                className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 p-3 transition-colors hover:bg-accent/30 sm:flex-row sm:items-start sm:gap-4"
               >
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm font-semibold text-muted-foreground">
+                    {criterion.identifier}
+                  </span>
+                  {criterion.level && (
+                    <span
+                      className="rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-primary"
+                      aria-label={`Niveau WCAG ${criterion.level}`}
+                    >
+                      {criterion.level}
+                    </span>
+                  )}
+                </div>
+
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-baseline gap-2">
-                    <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
-                      {criterion.identifier}
-                    </span>
-                    {criterion.level && (
-                      <span
-                        className="rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-primary"
-                        aria-label={`Niveau WCAG ${criterion.level}`}
-                      >
-                        {criterion.level}
-                      </span>
-                    )}
-                    <span className="font-medium leading-snug">
-                      {criterion.name}
-                    </span>
-                  </div>
+                  <p className="font-medium leading-snug">{criterion.name}</p>
                   {criterion.nameEn && (
                     <p className="mt-0.5 text-xs italic text-muted-foreground">
                       {criterion.nameEn}
                     </p>
                   )}
-                  {criterion.url && (
-                    <a
-                      href={criterion.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                    >
-                      <ExternalLink className="h-3 w-3" aria-hidden="true" />
-                      Documentation officielle
-                    </a>
-                  )}
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    {criterion.url && (
+                      <a
+                        href={criterion.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        <BookOpen className="h-3 w-3" aria-hidden="true" />
+                        Voir la méthodologie
+                        <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                      </a>
+                    )}
+                  </div>
                 </div>
 
                 <ConformityCell

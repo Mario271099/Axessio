@@ -1,11 +1,22 @@
 import { notFound } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { ClientDetail, type ClientData, type ProjectItem } from "./client-detail";
+import {
+  ClientDetail,
+  type ActivityEvent,
+  type ClientData,
+  type ProjectItem,
+} from "./client-detail";
 
 interface PageProps {
   params: Promise<{ clientId: string }>;
 }
+
+const IN_PROGRESS_STATUSES = [
+  "IN_PROGRESS",
+  "REMEDIATION",
+  "COUNTER_AUDIT",
+] as const;
 
 export default async function ClientDetailPage({ params }: PageProps) {
   const profile = await requireProfile();
@@ -40,7 +51,7 @@ export default async function ClientDetailPage({ params }: PageProps) {
 
   const { data: projectRows, error: projectsError } = await supabase
     .from("projects")
-    .select("id, name, url, audits(id)")
+    .select("id, name, url, audits(id, status, updated_at)")
     .eq("client_id", clientId)
     .order("name");
 
@@ -61,17 +72,43 @@ export default async function ClientDetailPage({ params }: PageProps) {
     id: string;
     name: string;
     url: string | null;
-    audits: { id: string }[] | null;
+    audits:
+      | { id: string; status: string; updated_at: string }[]
+      | null;
   };
 
-  const projects: ProjectItem[] = ((projectRows ?? []) as ProjectRow[]).map(
-    (p) => ({
-      id: p.id,
-      name: p.name,
-      url: p.url,
-      auditCount: p.audits?.length ?? 0,
-    }),
-  );
+  const rawProjects = (projectRows ?? []) as ProjectRow[];
+
+  const projects: ProjectItem[] = rawProjects.map((p) => ({
+    id: p.id,
+    name: p.name,
+    url: p.url,
+    auditCount: p.audits?.length ?? 0,
+  }));
+
+  // ---- Statistiques agrégées --------------------------------------------
+  let totalAudits = 0;
+  let activeAudits = 0;
+  const recentActivity: ActivityEvent[] = [];
+  for (const p of rawProjects) {
+    for (const a of p.audits ?? []) {
+      totalAudits += 1;
+      if (
+        (IN_PROGRESS_STATUSES as readonly string[]).includes(a.status)
+      ) {
+        activeAudits += 1;
+      }
+      recentActivity.push({
+        id: a.id,
+        projectName: p.name,
+        auditId: a.id,
+        status: a.status,
+        at: a.updated_at,
+      });
+    }
+  }
+  recentActivity.sort((a, b) => (a.at > b.at ? -1 : 1));
+  const lastActivity = recentActivity.slice(0, 5);
 
   const client: ClientData = {
     id: clientRow.id as string,
@@ -83,5 +120,16 @@ export default async function ClientDetailPage({ params }: PageProps) {
     createdAt: clientRow.created_at as string,
   };
 
-  return <ClientDetail client={client} projects={projects} />;
+  return (
+    <ClientDetail
+      client={client}
+      projects={projects}
+      stats={{
+        projectCount: projects.length,
+        auditCount: totalAudits,
+        activeAuditCount: activeAudits,
+      }}
+      activity={lastActivity}
+    />
+  );
 }

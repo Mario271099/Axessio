@@ -3,16 +3,21 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
+  AlertCircle,
+  Building2,
+  CheckCircle2,
+  Clock,
   Loader2,
-  Mail,
   MoreHorizontal,
   Plus,
+  RotateCcw,
   Search,
   Send,
   ShieldCheck,
   UserCog,
   UserMinus,
   UserPlus,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +47,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { USER_ROLE_LABELS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/domain";
 import {
   inviteUser,
@@ -110,6 +116,26 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
     });
   }, [users, search, roleFilter, statusFilter]);
 
+  const kpis = useMemo(() => {
+    let auditors = 0;
+    let clientAdmins = 0;
+    let clientMembers = 0;
+    for (const u of users) {
+      if (u.role === "auditor") auditors += 1;
+      else if (u.role === "client_admin") clientAdmins += 1;
+      else if (u.role === "client_member") clientMembers += 1;
+    }
+    return { auditors, clientAdmins, clientMembers };
+  }, [users]);
+
+  const filtersActive =
+    roleFilter !== "ALL" || statusFilter !== "ALL" || search.trim().length > 0;
+  const resetFilters = () => {
+    setRoleFilter("ALL");
+    setStatusFilter("ALL");
+    setSearch("");
+  };
+
   const handleResend = (user: UserListItem) => {
     setPendingId(user.id);
     startTransition(async () => {
@@ -145,23 +171,45 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
+      {/* Header --------------------------------------------------------- */}
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Utilisateurs
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">Utilisateurs</h1>
           <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{users.length}</span>{" "}
-            utilisateur{users.length > 1 ? "s" : ""} au total
+            {users.length} utilisateur{users.length > 1 ? "s" : ""} au total
           </p>
         </div>
-        <Button size="sm" className="gap-2" onClick={() => setInviteOpen(true)}>
+        <Button onClick={() => setInviteOpen(true)}>
           <UserPlus className="h-4 w-4" aria-hidden="true" />
           Inviter un utilisateur
         </Button>
       </header>
 
-      <Card>
+      {/* KPIs ----------------------------------------------------------- */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard icon={Users} tone="primary" label="Total" value={users.length} />
+        <KpiCard
+          icon={ShieldCheck}
+          tone="success"
+          label="Auditeurs"
+          value={kpis.auditors}
+        />
+        <KpiCard
+          icon={Building2}
+          tone="violet"
+          label="Admins client"
+          value={kpis.clientAdmins}
+        />
+        <KpiCard
+          icon={UserCog}
+          tone="muted"
+          label="Membres client"
+          value={kpis.clientMembers}
+        />
+      </div>
+
+      {/* Filtres -------------------------------------------------------- */}
+      <Card className="sticky top-20 z-10 shadow-sm">
         <CardContent className="grid gap-3 p-4 sm:grid-cols-[1fr_200px_200px]">
           <div className="relative">
             <Search
@@ -208,30 +256,84 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
             </SelectContent>
           </Select>
         </CardContent>
+        {filtersActive && (
+          <div className="flex justify-end border-t border-border px-4 py-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={resetFilters}
+              className="gap-1.5"
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              Réinitialiser
+            </Button>
+          </div>
+        )}
       </Card>
 
+      {/* Tableau -------------------------------------------------------- */}
       <Card>
         <CardContent className="p-0">
           {filtered.length === 0 ? (
-            <p className="p-8 text-center text-sm text-muted-foreground">
-              {users.length === 0
-                ? "Aucun utilisateur n'a encore été invité."
-                : "Aucun utilisateur ne correspond aux filtres."}
-            </p>
+            <div className="flex flex-col items-center gap-3 py-12 text-center">
+              <div
+                aria-hidden="true"
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
+              >
+                <Users className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-medium">
+                {users.length === 0
+                  ? "Aucun utilisateur"
+                  : "Aucun résultat pour ces filtres"}
+              </p>
+              {users.length === 0 ? (
+                <Button size="sm" onClick={() => setInviteOpen(true)}>
+                  <UserPlus className="h-4 w-4" aria-hidden="true" />
+                  Inviter le premier utilisateur
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={resetFilters}
+                  className="gap-1.5"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                  Réinitialiser
+                </Button>
+              )}
+            </div>
           ) : (
-            <ul className="divide-y divide-border">
-              {filtered.map((user) => (
-                <UserRow
-                  key={user.id}
-                  user={user}
-                  isSelf={user.id === currentUserId}
-                  isPending={pendingId === user.id}
-                  onEditRole={() => setEditingUser(user)}
-                  onResend={() => handleResend(user)}
-                  onToggleActive={() => handleToggleActive(user)}
-                />
-              ))}
-            </ul>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border bg-muted/30 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <th className="px-4 py-3">Utilisateur</th>
+                    <th className="hidden px-4 py-3 md:table-cell">Rôle</th>
+                    <th className="hidden px-4 py-3 lg:table-cell">Client</th>
+                    <th className="px-4 py-3">Statut</th>
+                    <th className="w-12 px-4 py-3 text-right">
+                      <span className="sr-only">Actions</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((user) => (
+                    <UserRow
+                      key={user.id}
+                      user={user}
+                      isSelf={user.id === currentUserId}
+                      isPending={pendingId === user.id}
+                      onEditRole={() => setEditingUser(user)}
+                      onResend={() => handleResend(user)}
+                      onToggleActive={() => handleToggleActive(user)}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -253,6 +355,45 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
         onSuccess={() => router.refresh()}
       />
     </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+
+const toneClasses = {
+  primary: "bg-primary/10 text-primary",
+  success: "bg-success/10 text-success",
+  violet: "bg-violet-500/10 text-violet-500",
+  muted: "bg-muted text-muted-foreground",
+} as const;
+
+function KpiCard({
+  icon: Icon,
+  tone,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  tone: keyof typeof toneClasses;
+  label: string;
+  value: number;
+}) {
+  return (
+    <Card className="p-6 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md">
+      <div
+        className={cn(
+          "flex h-10 w-10 items-center justify-center rounded-lg",
+          toneClasses[tone],
+        )}
+        aria-hidden="true"
+      >
+        <Icon className="h-5 w-5" />
+      </div>
+      <p className="mt-4 text-sm text-muted-foreground">{label}</p>
+      <p className="mt-1 text-3xl font-bold tabular-nums tracking-tight">
+        {value}
+      </p>
+    </Card>
   );
 }
 
@@ -280,59 +421,64 @@ function UserRow({
   const displayName = fullName || user.email;
 
   return (
-    <li className="flex flex-wrap items-center gap-4 p-4">
-      <Avatar firstName={user.firstName} lastName={user.lastName} email={user.email} />
-
-      <div className="min-w-0 flex-1 space-y-1">
-        <div className="flex items-center gap-2">
-          <p className="truncate font-medium">{displayName}</p>
-          {isSelf && (
-            <Badge variant="outline" className="text-xs">
-              Vous
-            </Badge>
+    <tr className="border-b border-border transition-colors last:border-b-0 hover:bg-accent/50">
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-3">
+          <Avatar
+            firstName={user.firstName}
+            lastName={user.lastName}
+            email={user.email}
+          />
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="truncate text-sm font-medium">{displayName}</p>
+              {isSelf && (
+                <Badge variant="outline" className="text-[10px]">
+                  Vous
+                </Badge>
+              )}
+            </div>
+            <p className="truncate text-xs text-muted-foreground">
+              {user.email}
+            </p>
+          </div>
+        </div>
+      </td>
+      <td className="hidden px-4 py-3 md:table-cell">
+        <RoleBadge role={user.role} />
+      </td>
+      <td className="hidden px-4 py-3 text-sm text-muted-foreground lg:table-cell">
+        {user.clientName ?? "—"}
+      </td>
+      <td className="px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge status={status} />
+          {isAwaitingConfirmation && !isSelf && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden h-7 gap-1.5 border-warning/40 text-warning hover:bg-warning/10 hover:text-warning xl:inline-flex"
+              onClick={onResend}
+              disabled={isPending}
+            >
+              {isPending ? (
+                <Loader2
+                  className="h-3.5 w-3.5 animate-spin"
+                  aria-hidden="true"
+                />
+              ) : (
+                <Send className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+              Renvoyer l&apos;invitation
+            </Button>
           )}
         </div>
-        <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
-          <Mail className="h-3 w-3" aria-hidden="true" />
-          {user.email}
-        </p>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <RoleBadge role={user.role} />
-        <span className="hidden text-xs text-muted-foreground sm:inline">
-          {user.clientName ?? "—"}
-        </span>
-        <StatusBadge status={status} />
-        <span className="hidden text-xs text-muted-foreground md:inline">
-          {formatDate(user.createdAt)}
-        </span>
-      </div>
-
-      <div className="flex items-center justify-end gap-2">
+      </td>
+      <td className="px-4 py-3 text-right">
         {isSelf ? (
-          <span className="text-xs italic text-muted-foreground">
-            Aucune action
-          </span>
+          <span className="text-xs italic text-muted-foreground">—</span>
         ) : (
-          <>
-            {isAwaitingConfirmation && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2 border-warning/40 text-warning hover:bg-warning/10 hover:text-warning"
-                onClick={onResend}
-                disabled={isPending}
-              >
-                {isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                ) : (
-                  <Send className="h-4 w-4" aria-hidden="true" />
-                )}
-                Renvoyer l&apos;invitation
-              </Button>
-            )}
-            <DropdownMenu>
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
@@ -342,7 +488,10 @@ function UserRow({
                 aria-label={`Actions pour ${user.email}`}
               >
                 {isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <Loader2
+                    className="h-4 w-4 animate-spin"
+                    aria-hidden="true"
+                  />
                 ) : (
                   <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                 )}
@@ -353,7 +502,7 @@ function UserRow({
                 <>
                   <DropdownMenuItem
                     onSelect={onResend}
-                    className="gap-2 bg-warning/10 font-medium text-warning focus:bg-warning/15 focus:text-warning"
+                    className="gap-2 font-medium text-warning focus:bg-warning/10 focus:text-warning"
                   >
                     <Send className="h-4 w-4" aria-hidden="true" />
                     Renvoyer l&apos;invitation
@@ -370,7 +519,7 @@ function UserRow({
                 onSelect={onToggleActive}
                 className={
                   user.isActive
-                    ? "gap-2 text-destructive focus:text-destructive"
+                    ? "gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
                     : "gap-2"
                 }
               >
@@ -388,10 +537,9 @@ function UserRow({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          </>
         )}
-      </div>
-    </li>
+      </td>
+    </tr>
   );
 }
 
@@ -410,7 +558,7 @@ function Avatar({
   return (
     <div
       aria-hidden="true"
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary"
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary"
     >
       {initials}
     </div>
@@ -425,10 +573,45 @@ function RoleBadge({ role }: { role: UserRole }) {
 }
 
 function StatusBadge({ status }: { status: UserStatus }) {
-  if (status === "INACTIVE") return <Badge variant="destructive">Désactivé</Badge>;
-  if (status === "PENDING") return <Badge variant="warning">En attente</Badge>;
-  return <Badge variant="success">Actif</Badge>;
+  if (status === "INACTIVE") {
+    return (
+      <Badge variant="destructive" className="gap-1">
+        <UserMinus className="h-3 w-3" aria-hidden="true" />
+        Désactivé
+      </Badge>
+    );
+  }
+  if (status === "PENDING") {
+    return (
+      <Badge variant="warning" className="gap-1">
+        <Clock className="h-3 w-3" aria-hidden="true" />
+        En attente
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="success" className="gap-1">
+      <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+      Actif
+    </Badge>
+  );
 }
+
+function FormError({ message }: { message: string }) {
+  return (
+    <p
+      role="alert"
+      className="inline-flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+    >
+      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+      <span>{message}</span>
+    </p>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Dialogs                                                                    */
+/* -------------------------------------------------------------------------- */
 
 function InviteUserDialog({
   open,
@@ -511,14 +694,7 @@ function InviteUserDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <p
-              role="alert"
-              className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-            >
-              {error}
-            </p>
-          )}
+          {error && <FormError message={error} />}
 
           <div className="space-y-2">
             <Label htmlFor="invite-email">Email *</Label>
@@ -608,7 +784,7 @@ function InviteUserDialog({
             >
               Annuler
             </Button>
-            <Button type="submit" disabled={isPending} className="gap-2">
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               ) : (
@@ -641,7 +817,6 @@ function EditRoleDialog({
   const [clientId, setClientId] = useState<string>(user?.clientId ?? "");
   const [isPending, startTransition] = useTransition();
 
-  // Re-sync local state when the target user changes
   const userKey = user?.id ?? "";
   const lastKey = useMemoLastKey(userKey, () => {
     setRole(user?.role ?? "client_member");
@@ -693,14 +868,7 @@ function EditRoleDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <p
-              role="alert"
-              className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-            >
-              {error}
-            </p>
-          )}
+          {error && <FormError message={error} />}
 
           <div className="space-y-2">
             <Label>Email</Label>
@@ -762,7 +930,7 @@ function EditRoleDialog({
             >
               Annuler
             </Button>
-            <Button type="submit" disabled={isPending} className="gap-2">
+            <Button type="submit" disabled={isPending}>
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}
@@ -782,16 +950,4 @@ function useMemoLastKey(key: string, onChange: () => void) {
     onChange();
   }
   return last;
-}
-
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return iso;
-  }
 }

@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { Button } from "@/components/ui/button";
 import { AuditForm } from "./audit-form";
 import type { ReferenceType } from "@/types/domain";
 import type { Metadata } from "next";
@@ -48,16 +47,29 @@ export default async function NewAuditPage() {
   }));
 
   return (
-    <div className="container mx-auto max-w-3xl space-y-6 p-6 md:p-8">
-      <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
-        <Link href="/audits">
-          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          Retour aux audits
+    <div className="container mx-auto max-w-5xl space-y-6 p-6 md:p-8">
+      {/* Breadcrumb ----------------------------------------------------- */}
+      <nav
+        aria-label="Fil d'Ariane"
+        className="flex items-center gap-1 text-xs text-muted-foreground"
+      >
+        <Link
+          href="/audits"
+          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
+        >
+          Audits
         </Link>
-      </Button>
+        <ChevronRight className="h-3 w-3" aria-hidden="true" />
+        <span className="rounded px-1 py-0.5 font-medium text-foreground">
+          Nouvel audit
+        </span>
+      </nav>
 
+      {/* Header --------------------------------------------------------- */}
       <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Nouvel audit</h1>
+        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+          Nouvel audit
+        </h1>
         <p className="text-sm text-muted-foreground">
           Créez un audit en 3 étapes. Les pages obligatoires seront ajoutées
           automatiquement.

@@ -115,17 +115,31 @@ export default async function NCDetailPage({ params }: PageProps) {
     }),
   );
 
-  // 4) Pages de l'audit
-  const { data: auditPagesRows } = await supabase
-    .from("pages")
-    .select("id, name, sort_order")
-    .eq("audit_id", uuid)
-    .order("sort_order", { ascending: true });
+  // 4) Pages de l'audit + nom du projet (pour le breadcrumb)
+  const [auditPagesRes, auditRes] = await Promise.all([
+    supabase
+      .from("pages")
+      .select("id, name, sort_order")
+      .eq("audit_id", uuid)
+      .order("sort_order", { ascending: true }),
+    supabase
+      .from("audits")
+      .select(`project:projects(name)`)
+      .eq("id", uuid)
+      .maybeSingle(),
+  ]);
 
-  const auditPages = (auditPagesRows ?? []).map((p) => ({
+  const auditPages = (auditPagesRes.data ?? []).map((p) => ({
     id: p.id as string,
     name: p.name as string,
   }));
+
+  const projectRow = auditRes.data?.project
+    ? Array.isArray(auditRes.data.project)
+      ? auditRes.data.project[0]
+      : auditRes.data.project
+    : null;
+  const auditTitle = projectRow?.name ?? "Audit";
 
   return (
     <NCDetail
@@ -134,6 +148,7 @@ export default async function NCDetailPage({ params }: PageProps) {
       messages={messages}
       attachments={attachments}
       auditId={uuid}
+      auditTitle={auditTitle}
       profile={{ role: profile.role, id: profile.id }}
     />
   );

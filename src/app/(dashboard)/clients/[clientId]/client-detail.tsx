@@ -4,11 +4,15 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
+  Activity,
+  AlertCircle,
   CalendarDays,
+  ChevronRight,
+  ClipboardCheck,
   ClipboardList,
   ExternalLink,
   FolderKanban,
+  Info,
   Loader2,
   Mail,
   Pencil,
@@ -21,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +34,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
+import { cn } from "@/lib/utils";
+import type { AuditStatus } from "@/types/domain";
 import {
   createProject,
   deleteProject,
@@ -55,12 +62,33 @@ export interface ProjectItem {
   auditCount: number;
 }
 
+export interface ClientStats {
+  projectCount: number;
+  auditCount: number;
+  activeAuditCount: number;
+}
+
+export interface ActivityEvent {
+  id: string;
+  projectName: string;
+  auditId: string;
+  status: string;
+  at: string;
+}
+
 interface ClientDetailProps {
   client: ClientData;
   projects: ProjectItem[];
+  stats: ClientStats;
+  activity: ActivityEvent[];
 }
 
-export function ClientDetail({ client, projects }: ClientDetailProps) {
+export function ClientDetail({
+  client,
+  projects,
+  stats,
+  activity,
+}: ClientDetailProps) {
   const router = useRouter();
   const [editClientOpen, setEditClientOpen] = useState(false);
   const [createProjectOpen, setCreateProjectOpen] = useState(false);
@@ -125,41 +153,64 @@ export function ClientDetail({ client, projects }: ClientDetailProps) {
   };
 
   return (
-    <div className="container mx-auto max-w-5xl space-y-6 p-6 md:p-8">
-      <Button asChild variant="ghost" size="sm" className="gap-2 -ml-2">
-        <Link href="/clients" aria-label="Retour à la liste des clients">
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Retour aux clients
+    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
+      {/* Breadcrumb ----------------------------------------------------- */}
+      <nav
+        aria-label="Fil d'Ariane"
+        className="flex items-center gap-1 text-xs text-muted-foreground"
+      >
+        <Link
+          href="/clients"
+          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
+        >
+          Clients
         </Link>
-      </Button>
+        <ChevronRight className="h-3 w-3" aria-hidden="true" />
+        <span className="rounded px-1 py-0.5 font-medium text-foreground">
+          {client.name}
+        </span>
+      </nav>
 
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {client.name}
-            </h1>
-            <Badge variant={client.isActive ? "success" : "destructive"}>
-              {client.isActive ? "Actif" : "Désactivé"}
-            </Badge>
+      {/* Header --------------------------------------------------------- */}
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-start gap-4">
+          <div
+            aria-hidden="true"
+            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xl font-bold text-primary"
+          >
+            {clientInitials(client.name)}
+          </div>
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight">
+                {client.name}
+              </h1>
+              <Badge variant={client.isActive ? "success" : "muted"}>
+                {client.isActive ? "Actif" : "Désactivé"}
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Créé le {formatDate(client.createdAt)}
+            </p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            className="gap-2"
             onClick={() => setEditClientOpen(true)}
           >
             <Pencil className="h-4 w-4" aria-hidden="true" />
             Modifier
           </Button>
           <Button
-            variant={client.isActive ? "destructive" : "default"}
+            variant="ghost"
             size="sm"
-            className="gap-2"
             onClick={handleToggleActive}
             disabled={isToggling}
+            className={cn(
+              client.isActive && "text-destructive hover:text-destructive",
+            )}
           >
             {isToggling ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -171,88 +222,183 @@ export function ClientDetail({ client, projects }: ClientDetailProps) {
         </div>
       </header>
 
-      {toggleError && (
-        <p
-          role="alert"
-          className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-        >
-          {toggleError}
-        </p>
-      )}
+      {toggleError && <FormError message={toggleError} />}
 
-      <Card>
-        <CardContent className="grid gap-4 p-6 sm:grid-cols-2">
-          <InfoRow
-            icon={<ExternalLink className="h-4 w-4" aria-hidden="true" />}
-            label="Site web"
-          >
-            {client.website ? (
-              <a
-                href={normalizeUrl(client.website)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline"
-              >
-                {client.website}
-              </a>
-            ) : (
-              <span className="text-sm text-muted-foreground">—</span>
-            )}
-          </InfoRow>
-
-          <InfoRow
-            icon={<Mail className="h-4 w-4" aria-hidden="true" />}
-            label="Email du contact"
-          >
-            {client.contactEmail ? (
-              <a
-                href={`mailto:${client.contactEmail}`}
-                className="text-sm text-primary hover:underline"
-              >
-                {client.contactEmail}
-              </a>
-            ) : (
-              <span className="text-sm text-muted-foreground">—</span>
-            )}
-          </InfoRow>
-
-          <InfoRow
-            icon={<User className="h-4 w-4" aria-hidden="true" />}
-            label="Nom du contact"
-          >
-            <span className="text-sm">
-              {client.contactName ?? (
-                <span className="text-muted-foreground">—</span>
+      {/* 3 cards horizontales ------------------------------------------ */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Informations */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Info
+                className="h-4 w-4 text-muted-foreground"
+                aria-hidden="true"
+              />
+              Informations
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setEditClientOpen(true)}
+              className="h-7 px-2 text-xs"
+            >
+              Modifier
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <InfoRow
+              icon={<Mail className="h-3.5 w-3.5" aria-hidden="true" />}
+              label="Email"
+            >
+              {client.contactEmail ? (
+                <a
+                  href={`mailto:${client.contactEmail}`}
+                  className="text-sm text-primary hover:underline"
+                >
+                  {client.contactEmail}
+                </a>
+              ) : (
+                <span className="text-sm text-muted-foreground">—</span>
               )}
-            </span>
-          </InfoRow>
+            </InfoRow>
+            <InfoRow
+              icon={<User className="h-3.5 w-3.5" aria-hidden="true" />}
+              label="Contact"
+            >
+              <span className="text-sm">
+                {client.contactName ?? (
+                  <span className="text-muted-foreground">—</span>
+                )}
+              </span>
+            </InfoRow>
+            <InfoRow
+              icon={
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              }
+              label="Site web"
+            >
+              {client.website ? (
+                <a
+                  href={normalizeUrl(client.website)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="truncate text-sm text-primary hover:underline"
+                >
+                  {client.website}
+                </a>
+              ) : (
+                <span className="text-sm text-muted-foreground">—</span>
+              )}
+            </InfoRow>
+            <InfoRow
+              icon={
+                <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
+              }
+              label="Créé le"
+            >
+              <span className="text-sm tabular-nums">
+                {formatDate(client.createdAt)}
+              </span>
+            </InfoRow>
+          </CardContent>
+        </Card>
 
-          <InfoRow
-            icon={<CalendarDays className="h-4 w-4" aria-hidden="true" />}
-            label="Date de création"
-          >
-            <span className="text-sm">{formatDate(client.createdAt)}</span>
-          </InfoRow>
-        </CardContent>
-      </Card>
+        {/* Statistiques */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ClipboardList
+                className="h-4 w-4 text-muted-foreground"
+                aria-hidden="true"
+              />
+              Statistiques
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <StatRow
+              icon={FolderKanban}
+              tone="primary"
+              label="Projets"
+              value={stats.projectCount}
+            />
+            <StatRow
+              icon={ClipboardList}
+              tone="violet"
+              label="Audits"
+              value={stats.auditCount}
+            />
+            <StatRow
+              icon={ClipboardCheck}
+              tone="warning"
+              label="Audits actifs"
+              value={stats.activeAuditCount}
+            />
+          </CardContent>
+        </Card>
 
+        {/* Activité récente */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Activity
+                className="h-4 w-4 text-muted-foreground"
+                aria-hidden="true"
+              />
+              Activité récente
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {activity.length === 0 ? (
+              <p className="py-2 text-center text-xs text-muted-foreground">
+                Aucune activité récente
+              </p>
+            ) : (
+              <ul className="space-y-3">
+                {activity.map((ev) => (
+                  <li key={ev.id} className="flex items-start gap-2">
+                    <div
+                      aria-hidden="true"
+                      className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={`/audits/${ev.auditId}`}
+                        className="block truncate text-sm font-medium hover:underline"
+                      >
+                        {ev.projectName}
+                      </Link>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <AuditStatusBadge
+                          status={ev.status as AuditStatus}
+                          className="text-[10px]"
+                        />
+                        <time
+                          dateTime={ev.at}
+                          className="text-xs text-muted-foreground tabular-nums"
+                        >
+                          {formatRelative(ev.at)}
+                        </time>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Section Projets ------------------------------------------------ */}
       <section className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold tracking-tight">Projets</h2>
+            <h2 className="text-xl font-bold tracking-tight">Projets</h2>
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">
-                {projects.length}
-              </span>{" "}
-              projet{projects.length > 1 ? "s" : ""} rattaché
+              {projects.length} projet{projects.length > 1 ? "s" : ""} rattaché
               {projects.length > 1 ? "s" : ""}
             </p>
           </div>
-          <Button
-            size="sm"
-            className="gap-2"
-            onClick={() => setCreateProjectOpen(true)}
-          >
+          <Button size="sm" onClick={() => setCreateProjectOpen(true)}>
             <Plus className="h-4 w-4" aria-hidden="true" />
             Nouveau projet
           </Button>
@@ -260,13 +406,18 @@ export function ClientDetail({ client, projects }: ClientDetailProps) {
 
         {projects.length === 0 ? (
           <Card>
-            <CardContent className="flex flex-col items-center gap-3 p-12 text-center">
-              <p className="text-sm text-muted-foreground">
-                Aucun projet n&apos;est encore rattaché à ce client.
-              </p>
+            <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+              <div
+                aria-hidden="true"
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
+              >
+                <FolderKanban className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-medium">Aucun projet rattaché</p>
               <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setCreateProjectOpen(true)}
-                className="gap-2"
               >
                 <Plus className="h-4 w-4" aria-hidden="true" />
                 Créer le premier projet
@@ -274,88 +425,86 @@ export function ClientDetail({ client, projects }: ClientDetailProps) {
             </CardContent>
           </Card>
         ) : (
-          <Card>
-            <CardContent className="p-0">
-              <ul className="divide-y divide-border">
-                {projects.map((project) => (
-                  <li
-                    key={project.id}
-                    className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center"
-                  >
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <FolderKanban
-                          className="h-4 w-4 text-muted-foreground"
-                          aria-hidden="true"
-                        />
-                        <p className="truncate font-medium">{project.name}</p>
-                      </div>
-                      {project.url && (
-                        <a
-                          href={normalizeUrl(project.url)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline"
-                          aria-label={`Ouvrir ${project.name} dans un nouvel onglet`}
-                        >
-                          <ExternalLink
-                            className="h-3 w-3"
-                            aria-hidden="true"
-                          />
-                          {project.url}
-                        </a>
-                      )}
-                      {deleteError?.projectId === project.id && (
-                        <p
-                          role="alert"
-                          className="rounded-md bg-destructive/10 p-2 text-xs text-destructive"
-                        >
-                          {deleteError.message}
-                        </p>
-                      )}
-                    </div>
-
+          <ul className="space-y-2">
+            {projects.map((project) => (
+              <li key={project.id}>
+                <Card className="flex flex-col gap-3 p-4 transition-colors hover:bg-accent/50 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="gap-1">
-                        <ClipboardList
+                      <FolderKanban
+                        className="h-4 w-4 shrink-0 text-muted-foreground"
+                        aria-hidden="true"
+                      />
+                      <p className="truncate font-semibold">{project.name}</p>
+                    </div>
+                    {project.url && (
+                      <a
+                        href={normalizeUrl(project.url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline"
+                      >
+                        <ExternalLink
                           className="h-3 w-3"
                           aria-hidden="true"
                         />
-                        {project.auditCount} audit
-                        {project.auditCount > 1 ? "s" : ""}
-                      </Badge>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => setEditingProject(project)}
-                        aria-label={`Modifier le projet ${project.name}`}
+                        {project.url}
+                      </a>
+                    )}
+                    {deleteError?.projectId === project.id && (
+                      <p
+                        role="alert"
+                        className="inline-flex items-start gap-2 rounded-md bg-destructive/10 p-2 text-xs text-destructive"
                       >
-                        <Pencil className="h-4 w-4" aria-hidden="true" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => handleDeleteProject(project)}
-                        disabled={isDeleting && deletingId === project.id}
-                        aria-label={`Supprimer le projet ${project.name}`}
-                      >
-                        {isDeleting && deletingId === project.id ? (
-                          <Loader2
-                            className="h-4 w-4 animate-spin"
-                            aria-hidden="true"
-                          />
-                        ) : (
-                          <Trash2 className="h-4 w-4" aria-hidden="true" />
-                        )}
-                      </Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+                        <AlertCircle
+                          className="mt-0.5 h-3 w-3 shrink-0"
+                          aria-hidden="true"
+                        />
+                        {deleteError.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Badge variant="muted" className="gap-1">
+                      <ClipboardList
+                        className="h-3 w-3"
+                        aria-hidden="true"
+                      />
+                      {project.auditCount} audit
+                      {project.auditCount > 1 ? "s" : ""}
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setEditingProject(project)}
+                      aria-label={`Modifier le projet ${project.name}`}
+                    >
+                      <Pencil className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => handleDeleteProject(project)}
+                      disabled={isDeleting && deletingId === project.id}
+                      aria-label={`Supprimer le projet ${project.name}`}
+                    >
+                      {isDeleting && deletingId === project.id ? (
+                        <Loader2
+                          className="h-4 w-4 animate-spin"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                      )}
+                    </Button>
+                  </div>
+                </Card>
+              </li>
+            ))}
+          </ul>
         )}
       </section>
 
@@ -386,6 +535,44 @@ export function ClientDetail({ client, projects }: ClientDetailProps) {
   );
 }
 
+/* -------------------------------------------------------------------------- */
+
+const statToneClasses = {
+  primary: "bg-primary/10 text-primary",
+  warning: "bg-warning/10 text-warning",
+  violet: "bg-violet-500/10 text-violet-500",
+} as const;
+
+function StatRow({
+  icon: Icon,
+  tone,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  tone: keyof typeof statToneClasses;
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <div
+        aria-hidden="true"
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-md",
+          statToneClasses[tone],
+        )}
+      >
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="flex-1">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="text-xl font-bold tabular-nums">{value}</p>
+      </div>
+    </div>
+  );
+}
+
 function InfoRow({
   icon,
   label,
@@ -396,15 +583,52 @@ function InfoRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-1">
-      <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+    <div className="space-y-0.5">
+      <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
         {icon}
         {label}
       </p>
-      <div>{children}</div>
+      <div className="pl-5">{children}</div>
     </div>
   );
 }
+
+function FormError({ message }: { message: string }) {
+  return (
+    <p
+      role="alert"
+      className="inline-flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+    >
+      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+      <span>{message}</span>
+    </p>
+  );
+}
+
+function clientInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`.toUpperCase();
+  }
+  return (parts[0]?.slice(0, 2) ?? "?").toUpperCase();
+}
+
+const rtf = new Intl.RelativeTimeFormat("fr-FR", { numeric: "auto" });
+function formatRelative(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const minutes = Math.round(diffMs / 60_000);
+  if (minutes < 60) return rtf.format(-Math.max(1, minutes), "minute");
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return rtf.format(-hours, "hour");
+  const days = Math.round(hours / 24);
+  if (days < 30) return rtf.format(-days, "day");
+  const months = Math.round(days / 30);
+  return rtf.format(-months, "month");
+}
+
+/* -------------------------------------------------------------------------- */
+/* Dialogs                                                                    */
+/* -------------------------------------------------------------------------- */
 
 function EditClientDialog({
   client,
@@ -458,14 +682,7 @@ function EditClientDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <p
-              role="alert"
-              className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-            >
-              {error}
-            </p>
-          )}
+          {error && <FormError message={error} />}
 
           <div className="space-y-2">
             <Label htmlFor="edit-client-name">Nom *</Label>
@@ -519,7 +736,7 @@ function EditClientDialog({
             >
               Annuler
             </Button>
-            <Button type="submit" disabled={isPending} className="gap-2">
+            <Button type="submit" disabled={isPending}>
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}
@@ -585,14 +802,7 @@ function CreateProjectDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <p
-              role="alert"
-              className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-            >
-              {error}
-            </p>
-          )}
+          {error && <FormError message={error} />}
 
           <div className="space-y-2">
             <Label htmlFor="create-project-name">Nom *</Label>
@@ -624,7 +834,7 @@ function CreateProjectDialog({
             >
               Annuler
             </Button>
-            <Button type="submit" disabled={isPending} className="gap-2">
+            <Button type="submit" disabled={isPending}>
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}
@@ -694,14 +904,7 @@ function EditProjectDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <p
-              role="alert"
-              className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-            >
-              {error}
-            </p>
-          )}
+          {error && <FormError message={error} />}
 
           <div className="space-y-2">
             <Label htmlFor="edit-project-name">Nom *</Label>
@@ -734,7 +937,7 @@ function EditProjectDialog({
             >
               Annuler
             </Button>
-            <Button type="submit" disabled={isPending} className="gap-2">
+            <Button type="submit" disabled={isPending}>
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}

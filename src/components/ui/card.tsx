@@ -1,14 +1,21 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export function Card({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * Active le hover « lift » : ombre plus marquée + translation verticale
+   * subtile. À réserver aux cartes effectivement cliquables (lien, action).
+   */
+  interactive?: boolean;
+}
+
+export function Card({ className, interactive, ...props }: CardProps) {
   return (
     <div
       className={cn(
         "rounded-lg border border-border bg-card text-card-foreground shadow-sm",
+        interactive &&
+          "cursor-pointer transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md",
         className,
       )}
       {...props}
@@ -22,7 +29,7 @@ export function CardHeader({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("flex flex-col space-y-1.5 p-6", className)}
+      className={cn("flex flex-col space-y-1.5 p-6 pb-4", className)}
       {...props}
     />
   );

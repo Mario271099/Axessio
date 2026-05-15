@@ -11,21 +11,39 @@ export default async function AnomaliesPage({
   const { uuid } = await params;
   const supabase = await createClient();
 
+  // 1) Audit + projet (pour le breadcrumb)
+  const { data: audit } = await supabase
+    .from("audits")
+    .select(`id, project:projects(name)`)
+    .eq("id", uuid)
+    .single();
+  const project = audit?.project
+    ? Array.isArray(audit.project)
+      ? audit.project[0]
+      : audit.project
+    : null;
+
+  // 2) NC + comptages messages/attachements en une seule requête grâce à
+  //    l'agrégation PostgREST (count sur une jointure renvoyée comme tableau).
   const { data } = await supabase
     .from("non_conformities")
     .select(
-      `
-      id, title, status, severity, created_at,
-      criterion:criteria!inner(identifier, name),
-      page:pages(name)
-    `,
+      `id, title, status, severity, created_at,
+       criterion:criteria!inner(identifier, name),
+       page:pages(name),
+       messages:nc_messages(id),
+       attachments:nc_attachments(id)`,
     )
     .eq("audit_id", uuid)
     .order("created_at", { ascending: false });
 
   const ncs: AnomalyListItem[] = (data ?? []).map((nc) => {
-    const criterion = Array.isArray(nc.criterion) ? nc.criterion[0] : nc.criterion;
+    const criterion = Array.isArray(nc.criterion)
+      ? nc.criterion[0]
+      : nc.criterion;
     const page = Array.isArray(nc.page) ? nc.page[0] : nc.page;
+    const messages = Array.isArray(nc.messages) ? nc.messages : [];
+    const attachments = Array.isArray(nc.attachments) ? nc.attachments : [];
     return {
       id: nc.id as string,
       title: nc.title as string,
@@ -33,11 +51,23 @@ export default async function AnomaliesPage({
       severity: nc.severity as AnomalyListItem["severity"],
       createdAt: nc.created_at as string,
       criterion: criterion
-        ? { identifier: criterion.identifier as string, name: criterion.name as string }
+        ? {
+            identifier: criterion.identifier as string,
+            name: criterion.name as string,
+          }
         : null,
       page: page ? { name: page.name as string } : null,
+      messageCount: messages.length,
+      attachmentCount: attachments.length,
     };
   });
 
-  return <AnomaliesList ncs={ncs} auditId={uuid} role={profile.role} />;
+  return (
+    <AnomaliesList
+      ncs={ncs}
+      auditId={uuid}
+      auditTitle={project?.name ?? "Audit"}
+      role={profile.role}
+    />
+  );
 }

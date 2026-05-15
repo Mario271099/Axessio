@@ -1,13 +1,30 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Loader2, Save } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronRight,
+  CircleDot,
+  Loader2,
+  Save,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { MiniDonut } from "@/components/ui/mini-donut";
 import { PagesSidebar } from "./pages-sidebar";
 import { PageMatrixContent } from "./page-matrix-content";
 import { NonConformityModal } from "./non-conformity-modal";
+import { calculateScore } from "@/lib/score";
+import { cn } from "@/lib/utils";
 import {
   bulkSetThematicConformity,
   clearThematicConformity,
@@ -32,6 +49,7 @@ interface Props {
   auditId: string;
   auditTitle: string;
   clientName: string | null;
+  referenceName: string;
   canEdit: boolean;
   thematics: Thematic[];
   criteria: Criterion[];
@@ -47,6 +65,7 @@ export function ConformityMatrixLayout({
   auditId,
   auditTitle,
   clientName,
+  referenceName,
   canEdit,
   thematics,
   criteria,
@@ -57,7 +76,6 @@ export function ConformityMatrixLayout({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  // Map locale des statuts (clé "pageId:criteriaId" → status)
   const [conformityMap, setConformityMap] = useState<
     Map<string, ConformityStatus>
   >(() => {
@@ -68,42 +86,31 @@ export function ConformityMatrixLayout({
     return m;
   });
 
-  // Statuts précédents (avant édition non sauvegardée) — pour rollback en cas d'erreur
   const previousValuesRef = useRef<Map<string, ConformityStatus | null>>(
     new Map(),
   );
 
-  // Modifications en attente (clé "pageId:criteriaId")
   const [pendingChanges, setPendingChanges] = useState<Set<string>>(
     () => new Set(),
   );
 
-  // Modale NC
   const [ncModalOpen, setNcModalOpen] = useState(false);
   const [ncTarget, setNcTarget] = useState<{
     criterion: Criterion;
     page: AuditPage;
   } | null>(null);
 
-  // Indicateur de sauvegarde
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "saved" | "error"
   >("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // ==========================================================================
-  // Optimistic update + tracking de pending
-  // ==========================================================================
   const updateLocal = useCallback(
     (pageId: string, criteriaId: string, status: ConformityStatus | null) => {
       const key = conformityKey(pageId, criteriaId);
 
-      // Capture la valeur précédente une seule fois pour rollback
       if (!previousValuesRef.current.has(key)) {
-        previousValuesRef.current.set(
-          key,
-          conformityMap.get(key) ?? null,
-        );
+        previousValuesRef.current.set(key, conformityMap.get(key) ?? null);
       }
 
       setConformityMap((prev) => {
@@ -123,9 +130,6 @@ export function ConformityMatrixLayout({
     [conformityMap],
   );
 
-  // ==========================================================================
-  // Flush des modifications pending (une à une, parallèle)
-  // ==========================================================================
   const flushPending = useCallback(async (): Promise<boolean> => {
     if (pendingChanges.size === 0) return true;
 
@@ -153,7 +157,6 @@ export function ConformityMatrixLayout({
     const errored = results.filter((r) => r.error !== null);
 
     if (errored.length > 0) {
-      // Rollback des erreurs
       setConformityMap((prev) => {
         const next = new Map(prev);
         for (const { key } of errored) {
@@ -168,7 +171,6 @@ export function ConformityMatrixLayout({
       return false;
     }
 
-    // Succès : on retire les clés flushées de la pending list
     setPendingChanges((prev) => {
       const next = new Set(prev);
       for (const k of keys) next.delete(k);
@@ -179,9 +181,6 @@ export function ConformityMatrixLayout({
     return true;
   }, [auditId, conformityMap, pendingChanges]);
 
-  // ==========================================================================
-  // Sauvegarde au changement de page
-  // ==========================================================================
   const handlePageChange = useCallback(
     async (pageId: string) => {
       if (pageId === currentPageId) return;
@@ -191,9 +190,6 @@ export function ConformityMatrixLayout({
     [auditId, currentPageId, flushPending, router],
   );
 
-  // ==========================================================================
-  // Sauvegarde au unmount (best effort)
-  // ==========================================================================
   const flushPendingRef = useRef(flushPending);
   useEffect(() => {
     flushPendingRef.current = flushPending;
@@ -201,24 +197,16 @@ export function ConformityMatrixLayout({
 
   useEffect(() => {
     return () => {
-      // Tente une sauvegarde finale à la destruction du composant.
-      // Best-effort : pas d'await possible dans cleanup, mais le résultat
-      // côté serveur reste cohérent grâce au revalidatePath.
       void flushPendingRef.current();
     };
   }, []);
 
-  // ==========================================================================
-  // Actions groupées par thématique (avec optimistic update)
-  // ==========================================================================
   const handleBulkThematic = useCallback(
     async (thematicId: string, status: ConformityStatus) => {
       const thematicCriteria = criteria.filter(
         (c) => c.thematicId === thematicId,
       );
 
-      // Optimistic : on définit le statut sur tous les critères qui n'ont pas
-      // déjà COMPLIANT ou NON_COMPLIANT
       const previous = new Map<string, ConformityStatus | null>();
       setConformityMap((prev) => {
         const next = new Map(prev);
@@ -240,7 +228,6 @@ export function ConformityMatrixLayout({
           status,
         );
         if (result.error) {
-          // Rollback
           setConformityMap((prev) => {
             const next = new Map(prev);
             for (const [key, val] of previous.entries()) {
@@ -277,7 +264,6 @@ export function ConformityMatrixLayout({
         return next;
       });
 
-      // Retire les pending de cette thématique aussi
       setPendingChanges((prev) => {
         const next = new Set(prev);
         for (const c of thematicCriteria) {
@@ -306,9 +292,6 @@ export function ConformityMatrixLayout({
     [auditId, currentPageId, criteria],
   );
 
-  // ==========================================================================
-  // Click sur "Non conforme" → ouvre la modale
-  // ==========================================================================
   const handleNonCompliantClick = useCallback(
     (criterion: Criterion, page: AuditPage) => {
       setNcTarget({ criterion, page });
@@ -319,14 +302,12 @@ export function ConformityMatrixLayout({
 
   const handleNCCreated = useCallback(
     (criteriaId: string, pageId: string) => {
-      // Le serveur a déjà upsert NON_COMPLIANT, on aligne le state local
       const key = conformityKey(pageId, criteriaId);
       setConformityMap((prev) => {
         const next = new Map(prev);
         next.set(key, "NON_COMPLIANT");
         return next;
       });
-      // Retire de pending si on l'avait ajouté
       setPendingChanges((prev) => {
         const next = new Set(prev);
         next.delete(key);
@@ -339,14 +320,31 @@ export function ConformityMatrixLayout({
     [],
   );
 
-  // ==========================================================================
-  // Total et page courante
-  // ==========================================================================
   const totalCriteria = criteria.length;
   const currentPage = useMemo(
     () => pages.find((p) => p.id === currentPageId) ?? pages[0],
     [pages, currentPageId],
   );
+
+  // Score global de l'audit : agrégation sur toutes les pages.
+  const auditScore = useMemo(() => {
+    let compliant = 0;
+    let notApplicable = 0;
+    for (const page of pages) {
+      for (const c of criteria) {
+        const status = conformityMap.get(conformityKey(page.id, c.id));
+        if (status === "COMPLIANT") compliant += 1;
+        else if (status === "NOT_APPLICABLE") notApplicable += 1;
+      }
+    }
+    return calculateScore({
+      compliant,
+      notApplicable,
+      totalCriteria: pages.length * totalCriteria,
+    });
+  }, [pages, criteria, conformityMap, totalCriteria]);
+
+  const hasAnyEntry = useMemo(() => conformityMap.size > 0, [conformityMap]);
 
   const indicatorMessage =
     saveStatus === "saving"
@@ -357,28 +355,81 @@ export function ConformityMatrixLayout({
           ? `${pendingChanges.size} modification${pendingChanges.size > 1 ? "s" : ""} en attente`
           : "Tout est sauvegardé";
 
+  const hasPending = pendingChanges.size > 0;
+
   return (
-    <div className="flex min-h-[calc(100vh-5rem)] flex-col">
-      {/* Breadcrumb / titre ----------------------------------------------- */}
-      <div className="border-b border-border bg-card/50 px-6 py-4">
-        <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
-          <Link href={`/audits/${auditId}`}>
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-            Retour à l&apos;audit
+    <div className="flex min-h-[calc(100vh-4rem)] flex-col">
+      {/* En-tête : breadcrumb + titre + score global -------------------- */}
+      <div className="border-b border-border bg-card/50 px-4 py-4 md:px-8">
+        <nav
+          aria-label="Fil d'Ariane"
+          className="flex items-center gap-1 text-xs text-muted-foreground"
+        >
+          <Link
+            href="/audits"
+            className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
+          >
+            Audits
           </Link>
-        </Button>
-        <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h1 className="text-xl font-semibold tracking-tight">
-            Matrice de conformité
-          </h1>
-          <span className="text-sm text-muted-foreground">
-            {clientName ? `${clientName} · ` : ""}
+          <ChevronRight className="h-3 w-3" aria-hidden="true" />
+          <Link
+            href={`/audits/${auditId}`}
+            className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
+          >
             {auditTitle}
+          </Link>
+          <ChevronRight className="h-3 w-3" aria-hidden="true" />
+          <span className="rounded px-1 py-0.5 font-medium text-foreground">
+            Matrice de conformité
           </span>
+        </nav>
+
+        <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight">
+              Matrice de conformité
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">
+                {referenceName}
+              </span>
+              <span aria-hidden="true"> · </span>
+              <span>
+                {totalCriteria} critère{totalCriteria > 1 ? "s" : ""} à évaluer
+              </span>
+              {clientName && (
+                <>
+                  <span aria-hidden="true"> · </span>
+                  <span>{clientName}</span>
+                </>
+              )}
+            </p>
+          </div>
+
+          <Card className="flex items-center gap-3 p-3 shadow-sm">
+            <MiniDonut
+              value={hasAnyEntry ? auditScore : null}
+              size={64}
+              tone="score"
+              ariaLabel={
+                hasAnyEntry
+                  ? `Score global de l'audit : ${Math.round(auditScore)}%`
+                  : "Score global non disponible"
+              }
+            />
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Score global
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {hasAnyEntry ? "audit en cours" : "aucune saisie"}
+              </p>
+            </div>
+          </Card>
         </div>
       </div>
 
-      {/* Layout matrix ---------------------------------------------------- */}
+      {/* Layout matrix --------------------------------------------------- */}
       <div className="flex flex-1 flex-col lg:flex-row">
         <PagesSidebar
           pages={pages}
@@ -406,7 +457,6 @@ export function ConformityMatrixLayout({
               onBulkThematic={handleBulkThematic}
               onClearThematic={handleClearThematic}
               onAccordionClose={() => {
-                // Auto-save 300ms après la fermeture d'un accordéon
                 window.setTimeout(() => {
                   void flushPending();
                 }, 300);
@@ -417,25 +467,34 @@ export function ConformityMatrixLayout({
         </main>
       </div>
 
-      {/* Footer sticky ---------------------------------------------------- */}
-      <div className="sticky bottom-0 z-10 border-t border-border bg-background/95 px-4 py-3 backdrop-blur md:px-6">
+      {/* Footer sticky --------------------------------------------------- */}
+      <div className="sticky bottom-0 z-20 border-t border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 md:px-6">
         <div className="flex items-center justify-between gap-4">
           <p
             aria-live="polite"
-            className={
-              saveStatus === "error"
-                ? "text-sm font-medium text-destructive"
-                : pendingChanges.size > 0
-                  ? "text-sm font-medium text-warning"
-                  : "text-sm text-muted-foreground"
-            }
+            className={cn(
+              "inline-flex items-center gap-2 text-sm font-medium",
+              saveStatus === "error" && "text-destructive",
+              saveStatus !== "error" && hasPending && "text-warning",
+              saveStatus !== "error" && !hasPending && "text-success",
+            )}
           >
-            {indicatorMessage}
+            {saveStatus === "saving" ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : hasPending || saveStatus === "error" ? (
+              <CircleDot
+                className="h-4 w-4 animate-pulse"
+                aria-hidden="true"
+              />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+            )}
+            <span>{indicatorMessage}</span>
           </p>
           <Button
             type="button"
             onClick={() => void flushPending()}
-            disabled={pendingChanges.size === 0 || saveStatus === "saving"}
+            disabled={!hasPending || saveStatus === "saving"}
             className="gap-2"
           >
             {saveStatus === "saving" ? (

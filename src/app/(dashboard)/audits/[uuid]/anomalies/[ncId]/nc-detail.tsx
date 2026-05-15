@@ -4,13 +4,16 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ChevronLeft,
+  BookOpen,
+  ChevronRight,
   ExternalLink,
   FileText,
   Loader2,
+  MessageSquare,
   Pencil,
   Send,
   Trash2,
+  Upload,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,6 +44,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { NC_SEVERITY_LABELS, NC_STATUS_LABELS } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
 import type { NCSeverity, UserRole } from "@/types/domain";
 import {
   addAttachment,
@@ -59,12 +63,12 @@ const MIME_TO_EXT: Record<string, string> = {
 };
 
 const AVATAR_COLORS = [
-  "bg-blue-500/15 text-blue-700",
-  "bg-emerald-500/15 text-emerald-700",
-  "bg-amber-500/15 text-amber-700",
-  "bg-violet-500/15 text-violet-700",
-  "bg-rose-500/15 text-rose-700",
-  "bg-cyan-500/15 text-cyan-700",
+  "bg-blue-500/15 text-blue-700 dark:text-blue-300",
+  "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+  "bg-violet-500/15 text-violet-700 dark:text-violet-300",
+  "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+  "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300",
 ];
 
 function avatarColor(authorId: string): string {
@@ -103,6 +107,16 @@ const STATUS_LABELS: Record<string, string> = {
   IN_PROGRESS: "En cours",
   FIXED: "Corrigée",
   FALSE_POSITIVE: "Faux positif",
+};
+
+const STATUS_BADGE_VARIANT: Record<
+  string,
+  "warning" | "secondary" | "success" | "muted" | "outline"
+> = {
+  TO_FIX: "warning",
+  IN_PROGRESS: "secondary",
+  FIXED: "success",
+  FALSE_POSITIVE: "muted",
 };
 
 const NEW_STATUSES = [
@@ -169,6 +183,7 @@ export interface NCDetailProps {
   messages: MessageData[];
   attachments: AttachmentData[];
   auditId: string;
+  auditTitle: string;
   profile: { role: UserRole; id: string };
 }
 
@@ -178,6 +193,7 @@ export function NCDetail({
   messages,
   attachments,
   auditId,
+  auditTitle,
   profile,
 }: NCDetailProps) {
   const router = useRouter();
@@ -235,6 +251,14 @@ export function NCDetail({
     });
   };
 
+  const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      const form = e.currentTarget.form;
+      if (form) form.requestSubmit();
+    }
+  };
+
   const handleDeleteMessage = async (messageId: string) => {
     if (deletingMessageId) return;
     if (!window.confirm("Supprimer ce message ?")) return;
@@ -290,7 +314,6 @@ export function NCDetail({
           file.type,
         );
         if (result.error) {
-          // Best-effort : on tente de retirer le fichier orphelin du bucket.
           await supabase.storage.from("nc-attachments").remove([path]);
           failures.push(`${file.name}: ${result.error}`);
         }
@@ -330,11 +353,7 @@ export function NCDetail({
     setStatus(next);
     setStatusError(null);
     startStatusTransition(async () => {
-      const result = await updateNCStatus(
-        nc.id,
-        auditId,
-        next as NewStatus,
-      );
+      const result = await updateNCStatus(nc.id, auditId, next as NewStatus);
       if (result.error) {
         setStatusError(result.error);
         setStatus(previous);
@@ -375,28 +394,53 @@ export function NCDetail({
     });
   };
 
-  // Affiche les 4 nouveaux statuts ; si l'actuel est un legacy, on l'ajoute en
-  // tête pour que le Select puisse le représenter sans bug d'affichage.
   const isLegacyStatus = !NEW_STATUSES.includes(status as NewStatus);
   const statusOptions: string[] = isLegacyStatus
     ? [status, ...NEW_STATUSES]
     : [...NEW_STATUSES];
 
+  const statusBadgeVariant = STATUS_BADGE_VARIANT[status] ?? "outline";
+
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
-        <Link href={`/audits/${auditId}/anomalies`}>
-          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          Retour aux non-conformités
+      {/* Breadcrumb -------------------------------------------------------- */}
+      <nav
+        aria-label="Fil d'Ariane"
+        className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+      >
+        <Link
+          href="/audits"
+          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
+        >
+          Audits
         </Link>
-      </Button>
+        <ChevronRight className="h-3 w-3" aria-hidden="true" />
+        <Link
+          href={`/audits/${auditId}`}
+          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
+        >
+          {auditTitle}
+        </Link>
+        <ChevronRight className="h-3 w-3" aria-hidden="true" />
+        <Link
+          href={`/audits/${auditId}/anomalies`}
+          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
+        >
+          Non-conformités
+        </Link>
+        <ChevronRight className="h-3 w-3" aria-hidden="true" />
+        <span className="rounded px-1 py-0.5 font-medium text-foreground">
+          Détail
+        </span>
+      </nav>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Colonne gauche (2/3) ----------------------------------------- */}
+        {/* Colonne gauche (2/3) -------------------------------------------- */}
         <div className="space-y-4 lg:col-span-2">
+          {/* Header NC ---------------------------------------------------- */}
           <header className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
-              <SeverityBadge severity={nc.severity} />
+              <SeverityBadge severity={nc.severity} className="text-sm" />
               {isAuditor ? (
                 <Select
                   value={status}
@@ -420,7 +464,7 @@ export function NCDetail({
                   </SelectContent>
                 </Select>
               ) : (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant={statusBadgeVariant} className="text-xs">
                   {STATUS_LABELS[status] ?? status}
                 </Badge>
               )}
@@ -430,19 +474,18 @@ export function NCDetail({
                 {statusError}
               </p>
             )}
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {nc.title}
-            </h1>
+            <h1 className="text-2xl font-bold tracking-tight">{nc.title}</h1>
           </header>
 
+          {/* Critère lié -------------------------------------------------- */}
           {nc.criterion && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Critère lié</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
+                  <span className="rounded bg-muted px-2 py-1 font-mono text-sm font-semibold text-muted-foreground">
                     {nc.criterion.identifier}
                   </span>
                   <span className="font-medium">{nc.criterion.name}</span>
@@ -471,9 +514,18 @@ export function NCDetail({
             </Card>
           )}
 
+          {/* Méthodologie ------------------------------------------------- */}
           <Accordion type="single" collapsible>
             <AccordionItem value="methodology">
-              <AccordionTrigger>Voir la méthodologie</AccordionTrigger>
+              <AccordionTrigger>
+                <span className="flex items-center gap-2">
+                  <BookOpen
+                    className="h-4 w-4 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                  Méthodologie de test
+                </span>
+              </AccordionTrigger>
               <AccordionContent>
                 {nc.criterion?.methodology ? (
                   <p className="whitespace-pre-wrap text-sm leading-relaxed">
@@ -488,10 +540,11 @@ export function NCDetail({
             </AccordionItem>
           </Accordion>
 
+          {/* Détails NC --------------------------------------------------- */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
               <CardTitle className="text-base">
-                Détail de l&apos;anomalie
+                Détails de la non-conformité
               </CardTitle>
               {isAuditor && !editing && (
                 <Button
@@ -612,18 +665,9 @@ export function NCDetail({
                 </form>
               ) : (
                 <div className="space-y-4">
-                  <ReadField
-                    label="Description"
-                    value={nc.description}
-                  />
-                  <ReadField
-                    label="Résultat obtenu"
-                    value={nc.actualResult}
-                  />
-                  <ReadField
-                    label="Recommandation"
-                    value={nc.recommendation}
-                  />
+                  <ReadField label="Description" value={nc.description} />
+                  <ReadField label="Résultat obtenu" value={nc.actualResult} />
+                  <ReadField label="Recommandation" value={nc.recommendation} />
                   <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-muted-foreground">
                     <span>
                       Page :{" "}
@@ -637,24 +681,21 @@ export function NCDetail({
             </CardContent>
           </Card>
 
+          {/* Captures d'écran -------------------------------------------- */}
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
               <CardTitle className="text-base">Captures d&apos;écran</CardTitle>
+              <span className="text-xs text-muted-foreground tabular-nums">
+                {attachments.length} fichier{attachments.length > 1 ? "s" : ""}
+              </span>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {canUpload && (
-                <FileDropZone
-                  files={[]}
-                  onFilesChange={handleFilesChange}
-                  accept="image/png,image/jpeg,image/webp,application/pdf"
-                  maxSizeMB={5}
-                  disabled={uploading}
-                />
-              )}
-
+            <CardContent className="space-y-4">
               {uploading && (
-                <p className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                <p className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                  <Loader2
+                    className="h-3.5 w-3.5 animate-spin"
+                    aria-hidden="true"
+                  />
                   Envoi des captures…
                 </p>
               )}
@@ -668,11 +709,7 @@ export function NCDetail({
                 </p>
               )}
 
-              {attachments.length === 0 ? (
-                <p className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-                  Aucune capture pour l&apos;instant.
-                </p>
-              ) : (
+              {attachments.length > 0 && (
                 <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {attachments.map((att) => {
                     const canDelete =
@@ -681,11 +718,13 @@ export function NCDetail({
                     const isImage = !!att.mimeType?.startsWith("image/");
                     const isDeleting = deletingId === att.id;
                     const displayName =
-                      att.fileName ?? att.storagePath.split("/").pop() ?? "fichier";
+                      att.fileName ??
+                      att.storagePath.split("/").pop() ??
+                      "fichier";
 
                     return (
                       <li key={att.id} className="space-y-1.5">
-                        <div className="group relative aspect-square overflow-hidden rounded-md border border-border bg-muted">
+                        <div className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-muted">
                           {isImage && att.signedUrl ? (
                             <button
                               type="button"
@@ -696,7 +735,7 @@ export function NCDetail({
                               <img
                                 src={att.signedUrl}
                                 alt={displayName}
-                                className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                                className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
                               />
                             </button>
                           ) : att.signedUrl ? (
@@ -726,7 +765,7 @@ export function NCDetail({
                               type="button"
                               size="icon"
                               variant="destructive"
-                              className="absolute right-1.5 top-1.5 h-7 w-7 opacity-0 shadow transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                              className="absolute right-1.5 top-1.5 h-7 w-7 rounded-full opacity-0 shadow transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                               onClick={() => handleDeleteAttachment(att)}
                               disabled={isDeleting}
                               aria-label={`Supprimer ${displayName}`}
@@ -756,142 +795,213 @@ export function NCDetail({
                   })}
                 </ul>
               )}
+
+              {attachments.length === 0 && (
+                <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 p-8 text-center">
+                  <div
+                    aria-hidden="true"
+                    className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
+                  >
+                    <Upload className="h-6 w-6" />
+                  </div>
+                  <p className="text-sm font-medium">Aucune capture</p>
+                  <p className="text-xs text-muted-foreground">
+                    Glissez-déposez ou cliquez ci-dessous pour ajouter une
+                    capture.
+                  </p>
+                </div>
+              )}
+
+              {canUpload && (
+                <FileDropZone
+                  files={[]}
+                  onFilesChange={handleFilesChange}
+                  accept="image/png,image/jpeg,image/webp,application/pdf"
+                  maxSizeMB={5}
+                  disabled={uploading}
+                />
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Colonne droite (1/3) ----------------------------------------- */}
+        {/* Colonne droite (1/3) — Discussion ------------------------------ */}
         <aside className="lg:col-span-1">
-          <Card className="flex h-full flex-col lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)]">
-            <CardHeader>
-              <CardTitle className="text-base">Discussion</CardTitle>
+          <Card className="flex flex-col lg:sticky lg:top-20 lg:h-[calc(100vh-12rem)]">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <MessageSquare
+                  className="h-4 w-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                Discussion
+                {messages.length > 0 && (
+                  <Badge variant="secondary" className="ml-1 tabular-nums">
+                    {messages.length}
+                  </Badge>
+                )}
+              </CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-1 flex-col gap-3 overflow-hidden">
-              <div className="flex-1 space-y-4 overflow-y-auto pr-1">
-                {messages.length === 0 ? (
-                  <p className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-                    Aucun message pour l&apos;instant.
-                  </p>
-                ) : (
-                  <ul className="space-y-4">
-                    {messages.map((m) => {
-                      const initials = avatarInitials(m.author);
-                      const fullName = m.author
-                        ? `${m.author.firstName} ${m.author.lastName}`.trim() ||
-                          "Utilisateur"
-                        : "Utilisateur";
-                      const isMine = m.authorId === profile.id;
-                      const isDeleting = deletingMessageId === m.id;
 
-                      return (
-                        <li key={m.id} className="flex gap-3">
+            <div className="flex-1 space-y-4 overflow-y-auto p-4">
+              {messages.length === 0 ? (
+                <div className="flex flex-col items-center gap-2 py-8 text-center">
+                  <div
+                    aria-hidden="true"
+                    className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
+                  >
+                    <MessageSquare className="h-6 w-6" />
+                  </div>
+                  <p className="text-sm font-medium">
+                    Aucun message pour l&apos;instant
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Démarrez la discussion ci-dessous.
+                  </p>
+                </div>
+              ) : (
+                <ul className="space-y-4">
+                  {messages.map((m) => {
+                    const initials = avatarInitials(m.author);
+                    const fullName = m.author
+                      ? `${m.author.firstName} ${m.author.lastName}`.trim() ||
+                        "Utilisateur"
+                      : "Utilisateur";
+                    const isMine = m.authorId === profile.id;
+                    const isDeleting = deletingMessageId === m.id;
+
+                    return (
+                      <li
+                        key={m.id}
+                        className={cn(
+                          "group flex gap-2",
+                          isMine ? "flex-row-reverse" : "flex-row",
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                            avatarColor(m.authorId),
+                          )}
+                          aria-hidden="true"
+                          title={fullName}
+                        >
+                          {initials}
+                        </div>
+                        <div
+                          className={cn(
+                            "flex max-w-[80%] flex-col gap-1",
+                            isMine ? "items-end" : "items-start",
+                          )}
+                        >
                           <div
-                            className={
-                              "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold " +
-                              avatarColor(m.authorId)
-                            }
-                            aria-hidden="true"
+                            className={cn(
+                              "rounded-2xl px-3 py-2 text-sm leading-relaxed",
+                              isMine
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted text-foreground",
+                            )}
                           >
-                            {initials}
-                          </div>
-                          <div className="min-w-0 flex-1 space-y-1">
-                            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                              <span className="text-sm font-medium">
-                                {fullName}
-                              </span>
-                              <time
-                                dateTime={m.createdAt}
-                                className="text-xs text-muted-foreground"
-                              >
-                                {formatMessageDate(m.createdAt)}
-                              </time>
-                              {isMine && (
-                                <Button
-                                  type="button"
-                                  size="icon"
-                                  variant="ghost"
-                                  className="ml-auto h-6 w-6 text-muted-foreground hover:text-destructive"
-                                  onClick={() => handleDeleteMessage(m.id)}
-                                  disabled={isDeleting}
-                                  aria-label="Supprimer le message"
-                                >
-                                  {isDeleting ? (
-                                    <Loader2
-                                      className="h-3.5 w-3.5 animate-spin"
-                                      aria-hidden="true"
-                                    />
-                                  ) : (
-                                    <Trash2
-                                      className="h-3.5 w-3.5"
-                                      aria-hidden="true"
-                                    />
-                                  )}
-                                </Button>
-                              )}
-                            </div>
-                            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                            <p className="whitespace-pre-wrap break-words">
                               {m.body}
                             </p>
                           </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {sendError && (
-                <p
-                  role="alert"
-                  className="rounded-md bg-destructive/10 p-2 text-xs text-destructive"
-                >
-                  {sendError}
-                </p>
+                          <div
+                            className={cn(
+                              "flex items-center gap-1.5 text-[11px] text-muted-foreground",
+                              isMine ? "flex-row-reverse" : "flex-row",
+                            )}
+                          >
+                            <span className="font-medium">{fullName}</span>
+                            <span aria-hidden="true">·</span>
+                            <time dateTime={m.createdAt}>
+                              {formatMessageDate(m.createdAt)}
+                            </time>
+                            {isMine && (
+                              <button
+                                type="button"
+                                className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-md opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 group-hover:opacity-100"
+                                onClick={() => handleDeleteMessage(m.id)}
+                                disabled={isDeleting}
+                                aria-label="Supprimer le message"
+                              >
+                                {isDeleting ? (
+                                  <Loader2
+                                    className="h-3 w-3 animate-spin"
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  <Trash2
+                                    className="h-3 w-3"
+                                    aria-hidden="true"
+                                  />
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
               )}
+              <div ref={messagesEndRef} />
+            </div>
 
-              {canDiscuss ? (
-                <form
-                  onSubmit={handleSendMessage}
-                  className="space-y-2 border-t border-border pt-3"
-                >
-                  <Label htmlFor="nc-message" className="sr-only">
-                    Nouveau message
-                  </Label>
+            {sendError && (
+              <p
+                role="alert"
+                className="mx-3 rounded-md bg-destructive/10 p-2 text-xs text-destructive"
+              >
+                {sendError}
+              </p>
+            )}
+
+            {canDiscuss ? (
+              <form
+                onSubmit={handleSendMessage}
+                className="border-t border-border bg-background/95 p-3 backdrop-blur"
+              >
+                <Label htmlFor="nc-message" className="sr-only">
+                  Nouveau message
+                </Label>
+                <div className="flex items-end gap-2">
                   <Textarea
                     id="nc-message"
                     value={messageBody}
                     onChange={(e) => setMessageBody(e.target.value)}
-                    rows={3}
+                    onKeyDown={handleMessageKeyDown}
+                    rows={2}
                     placeholder="Écrire un message…"
                     disabled={sending}
+                    className="min-h-9 resize-none"
                   />
-                  <div className="flex justify-end">
-                    <Button
-                      type="submit"
-                      size="sm"
-                      disabled={sending || !messageBody.trim()}
-                      className="gap-1"
-                    >
-                      {sending ? (
-                        <Loader2
-                          className="h-3.5 w-3.5 animate-spin"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <Send className="h-3.5 w-3.5" aria-hidden="true" />
-                      )}
-                      Envoyer
-                    </Button>
-                  </div>
-                </form>
-              ) : (
-                <p className="rounded-md border border-dashed p-3 text-center text-xs text-muted-foreground">
-                  Seuls l&apos;auditeur et l&apos;administrateur client peuvent
-                  poster un message.
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={sending || !messageBody.trim()}
+                    aria-label="Envoyer le message"
+                  >
+                    {sending ? (
+                      <Loader2
+                        className="h-4 w-4 animate-spin"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <Send className="h-4 w-4" aria-hidden="true" />
+                    )}
+                  </Button>
+                </div>
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  Entrée pour envoyer · Maj+Entrée pour aller à la ligne
                 </p>
-              )}
-            </CardContent>
+              </form>
+            ) : (
+              <p className="m-3 rounded-md border border-dashed p-3 text-center text-xs text-muted-foreground">
+                Seuls l&apos;auditeur et l&apos;administrateur client peuvent
+                poster un message.
+              </p>
+            )}
           </Card>
         </aside>
       </div>
@@ -933,7 +1043,7 @@ function ReadField({
 }) {
   return (
     <div className="space-y-1">
-      <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </div>
       {value ? (

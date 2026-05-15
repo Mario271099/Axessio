@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
-import { DM_Mono, DM_Sans } from "next/font/google";
+import { DM_Mono, DM_Sans, Geist } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
-// Polices de marque — utilisées par le wordmark <Wordmark> et l'icône
-// <AxIcon>. Le reste de l'UI reste sur ui-sans-serif via globals.css.
+// Police principale de l'UI — Geist Sans (style « Linear / Stripe / Vercel »).
+// `--font-geist-sans` est référencée dans globals.css en tant que famille
+// par défaut du body et exposée à Tailwind via @theme inline → --font-sans.
+const geistSans = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
+  display: "swap",
+});
+
+// Polices de marque — utilisées exclusivement par le wordmark <Wordmark> et
+// l'icône <AxIcon>. Le reste de l'UI tourne sur Geist Sans.
 const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -36,7 +45,7 @@ export default function RootLayout({
     <html
       lang="fr"
       suppressHydrationWarning
-      className={`${dmSans.variable} ${dmMono.variable}`}
+      className={`${geistSans.variable} ${dmSans.variable} ${dmMono.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground antialiased">
         <ThemeProvider

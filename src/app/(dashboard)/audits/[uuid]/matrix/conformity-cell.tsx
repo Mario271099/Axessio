@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Check, Minus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CONFORMITY_STATUS_LABELS } from "@/lib/constants";
@@ -14,22 +15,26 @@ interface Props {
   ariaLabelPrefix: string;
 }
 
+// Layout : 3 boutons côte à côte, premier arrondi à gauche, dernier à droite.
 const baseBtn =
-  "inline-flex h-8 min-w-[2.25rem] items-center justify-center gap-1 border border-input px-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex h-9 items-center justify-center gap-1.5 border px-2 text-xs font-medium " +
+  "transition-all duration-150 active:scale-95 " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 " +
+  "disabled:cursor-not-allowed disabled:opacity-50";
 
-export function ConformityCell({
+const ConformityCellInner = ({
   current,
   disabled,
   onSelectCompliant,
   onSelectNonCompliant,
   onSelectNotApplicable,
   ariaLabelPrefix,
-}: Props) {
+}: Props) => {
   return (
     <div
       role="group"
       aria-label={`${ariaLabelPrefix} : statut de conformité`}
-      className="inline-flex items-stretch overflow-hidden rounded-md"
+      className="inline-flex items-stretch overflow-hidden rounded-md shadow-xs"
     >
       <button
         type="button"
@@ -41,8 +46,8 @@ export function ConformityCell({
           baseBtn,
           "rounded-l-md border-r-0",
           current === "COMPLIANT"
-            ? "border-success bg-success text-white hover:bg-success/90"
-            : "bg-background text-success hover:bg-success/10",
+            ? "border-success bg-success text-success-foreground hover:bg-success/90"
+            : "border-input bg-background text-success hover:bg-success/10",
         )}
       >
         <Check className="h-3.5 w-3.5" aria-hidden="true" />
@@ -58,8 +63,8 @@ export function ConformityCell({
           baseBtn,
           "border-r-0",
           current === "NON_COMPLIANT"
-            ? "border-destructive bg-destructive text-white hover:bg-destructive/90"
-            : "bg-background text-destructive hover:bg-destructive/10",
+            ? "border-destructive bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            : "border-input bg-background text-destructive hover:bg-destructive/10",
         )}
       >
         <X className="h-3.5 w-3.5" aria-hidden="true" />
@@ -75,8 +80,8 @@ export function ConformityCell({
           baseBtn,
           "rounded-r-md",
           current === "NOT_APPLICABLE"
-            ? "border-foreground bg-foreground text-background hover:bg-foreground/90"
-            : "bg-background text-muted-foreground hover:bg-muted",
+            ? "border-muted-foreground bg-muted-foreground text-background hover:bg-muted-foreground/90"
+            : "border-input bg-background text-muted-foreground hover:bg-muted",
         )}
       >
         <Minus className="h-3.5 w-3.5" aria-hidden="true" />
@@ -84,4 +89,7 @@ export function ConformityCell({
       </button>
     </div>
   );
-}
+};
+
+// 436 critères × N pages → on évite le rerender quand seul un autre critère change.
+export const ConformityCell = memo(ConformityCellInner);

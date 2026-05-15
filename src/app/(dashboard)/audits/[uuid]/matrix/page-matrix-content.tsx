@@ -1,9 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ExternalLink } from "lucide-react";
+import {
+  CheckCircle2,
+  Circle,
+  ExternalLink,
+  LayoutGrid,
+  MinusCircle,
+  XCircle,
+} from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { Accordion } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatScore } from "@/lib/utils";
 import {
@@ -34,17 +41,33 @@ interface Props {
   isProcessing: boolean;
 }
 
+type FilterIconKey =
+  | "all"
+  | "pending"
+  | "compliant"
+  | "non-compliant"
+  | "not-applicable";
+
+const FILTER_ICONS = {
+  all: LayoutGrid,
+  pending: Circle,
+  compliant: CheckCircle2,
+  "non-compliant": XCircle,
+  "not-applicable": MinusCircle,
+} as const;
+
 interface FilterOption {
   value: MatrixFilter;
+  iconKey: FilterIconKey;
   label: string;
 }
 
 const FILTER_OPTIONS: FilterOption[] = [
-  { value: "ALL", label: "Tout" },
-  { value: "PENDING", label: "À saisir" },
-  { value: "COMPLIANT", label: "Conformes" },
-  { value: "NON_COMPLIANT", label: "Non conformes" },
-  { value: "NOT_APPLICABLE", label: "Non applicables" },
+  { value: "ALL", iconKey: "all", label: "Tout" },
+  { value: "PENDING", iconKey: "pending", label: "À saisir" },
+  { value: "COMPLIANT", iconKey: "compliant", label: "Conformes" },
+  { value: "NON_COMPLIANT", iconKey: "non-compliant", label: "Non conformes" },
+  { value: "NOT_APPLICABLE", iconKey: "not-applicable", label: "Non applicables" },
 ];
 
 export function PageMatrixContent({
@@ -64,7 +87,6 @@ export function PageMatrixContent({
   const [filter, setFilter] = useState<MatrixFilter>("ALL");
   const [openThematics, setOpenThematics] = useState<string[]>([]);
 
-  // Score de la page courante
   const score = useMemo(() => {
     let compliant = 0;
     let notApplicable = 0;
@@ -84,7 +106,6 @@ export function PageMatrixContent({
     };
   }, [criteria, conformityMap, currentPageId]);
 
-  // Compteurs par filtre (pour les badges)
   const counters = useMemo(() => {
     let pending = 0;
     let compliant = 0;
@@ -106,10 +127,14 @@ export function PageMatrixContent({
     } as const;
   }, [criteria, conformityMap, currentPageId]);
 
-  const evaluated = score.compliant + score.notApplicable;
-  const applicable = criteria.length - score.notApplicable;
+  // Gradient subtil sur la card hero selon le niveau de conformité.
+  const heroGradient =
+    score.value >= 100
+      ? "from-success/10 via-card to-card"
+      : score.value >= 50
+        ? "from-warning/10 via-card to-card"
+        : "from-destructive/10 via-card to-card";
 
-  // Détecte la fermeture d'un accordéon
   const handleAccordionChange = (value: string[]) => {
     const wasOpen = openThematics;
     const closed = wasOpen.filter((v) => !value.includes(v));
@@ -123,90 +148,127 @@ export function PageMatrixContent({
     <div className="space-y-6">
       {/* En-tête : titre + URL ------------------------------------------- */}
       <header className="space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Page sélectionnée
-        </p>
-        <h2 className="text-xl font-semibold tracking-tight">{page.name}</h2>
+        <h2 className="text-xl font-bold tracking-tight">{page.name}</h2>
         {page.url && (
           <a
             href={page.url}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+            className="inline-flex max-w-full items-center gap-1 truncate text-sm text-primary hover:underline"
           >
-            <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-            {page.url}
+            <span className="truncate">{page.url}</span>
+            <ExternalLink
+              className="h-3.5 w-3.5 shrink-0"
+              aria-hidden="true"
+            />
           </a>
         )}
       </header>
 
-      {/* Score de la page ------------------------------------------------ */}
-      <div className="rounded-lg border border-border bg-card p-4">
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <span
-            className="text-4xl font-bold tabular-nums"
-            style={{ color: `hsl(${getScoreColorVar(score.value)})` }}
-          >
-            {formatScore(score.value)}
-          </span>
-          <span className="text-sm font-medium text-muted-foreground">
-            Score de la page · {getConformityLabel(score.value)}
-          </span>
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {evaluated} critère{evaluated > 1 ? "s" : ""} évalué
-          {evaluated > 1 ? "s" : ""} sur {applicable} applicable
-          {applicable > 1 ? "s" : ""} ({criteria.length} au total ·{" "}
-          {score.notApplicable} non applicable
-          {score.notApplicable > 1 ? "s" : ""})
-        </p>
-      </div>
-
-      {/* Filtres --------------------------------------------------------- */}
-      <div
-        role="radiogroup"
-        aria-label="Filtrer les critères"
-        className="flex flex-wrap gap-2"
+      {/* Card hero : score de la page + compteurs visuels -------------- */}
+      <Card
+        className={cn(
+          "bg-gradient-to-br p-6",
+          heroGradient,
+        )}
       >
-        {FILTER_OPTIONS.map((opt) => {
-          const isActive = filter === opt.value;
-          const count = counters[opt.value];
-          return (
-            <Button
-              key={opt.value}
-              type="button"
-              role="radio"
-              aria-checked={isActive}
-              variant={isActive ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilter(opt.value)}
-              className={cn(
-                "gap-2",
-                isActive && "shadow-sm",
-              )}
-            >
-              {opt.label}
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Score de la page
+            </p>
+            <div className="mt-1 flex items-baseline gap-3">
               <span
+                className="text-4xl font-bold tabular-nums tracking-tight"
+                style={{ color: `hsl(${getScoreColorVar(score.value)})` }}
+              >
+                {formatScore(score.value)}
+              </span>
+              <span className="text-sm font-medium text-muted-foreground">
+                {getConformityLabel(score.value)}
+              </span>
+            </div>
+          </div>
+
+          <ul className="grid grid-cols-2 gap-x-6 gap-y-2 sm:flex sm:items-center sm:gap-6">
+            <CounterPill
+              icon={CheckCircle2}
+              tone="text-success"
+              count={counters.COMPLIANT}
+              label="Conformes"
+            />
+            <CounterPill
+              icon={XCircle}
+              tone="text-destructive"
+              count={counters.NON_COMPLIANT}
+              label="Non conformes"
+            />
+            <CounterPill
+              icon={MinusCircle}
+              tone="text-muted-foreground"
+              count={counters.NOT_APPLICABLE}
+              label="Non applicables"
+            />
+            <CounterPill
+              icon={Circle}
+              tone="text-muted-foreground/70"
+              count={counters.PENDING}
+              label="Non évalués"
+            />
+          </ul>
+        </div>
+      </Card>
+
+      {/* Barre de filtres ------------------------------------------------ */}
+      <Card className="sticky top-20 z-10 flex flex-wrap gap-2 p-2 shadow-sm">
+        <div
+          role="radiogroup"
+          aria-label="Filtrer les critères"
+          className="flex flex-wrap gap-1"
+        >
+          {FILTER_OPTIONS.map((opt) => {
+            const isActive = filter === opt.value;
+            const count = counters[opt.value];
+            const Icon = FILTER_ICONS[opt.iconKey];
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                role="radio"
+                aria-checked={isActive}
+                onClick={() => setFilter(opt.value)}
                 className={cn(
-                  "rounded px-1.5 py-0.5 text-[11px] font-mono tabular-nums",
+                  "inline-flex h-8 items-center gap-2 rounded-md border px-3 text-xs font-medium transition-all duration-150",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   isActive
-                    ? "bg-primary-foreground/15 text-primary-foreground"
-                    : "bg-muted text-muted-foreground",
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-transparent bg-background text-muted-foreground hover:bg-accent hover:text-foreground",
                 )}
               >
-                {count}
-              </span>
-            </Button>
-          );
-        })}
-      </div>
+                <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>{opt.label}</span>
+                <span
+                  className={cn(
+                    "tabular-nums",
+                    isActive
+                      ? "rounded bg-primary/20 px-1 py-0.5 text-[10px]"
+                      : "rounded bg-muted px-1 py-0.5 text-[10px]",
+                  )}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </Card>
 
       {/* Accordéons des thématiques ------------------------------------- */}
       <Accordion
         type="multiple"
         value={openThematics}
         onValueChange={handleAccordionChange}
-        className="space-y-2"
+        className="space-y-0"
       >
         {thematics.map((thematic) => {
           const thematicCriteria = criteria.filter(
@@ -233,5 +295,27 @@ export function PageMatrixContent({
         })}
       </Accordion>
     </div>
+  );
+}
+
+function CounterPill({
+  icon: Icon,
+  tone,
+  count,
+  label,
+}: {
+  icon: React.ElementType;
+  tone: string;
+  count: number;
+  label: string;
+}) {
+  return (
+    <li className="flex items-center gap-2">
+      <Icon className={cn("h-4 w-4 shrink-0", tone)} aria-hidden="true" />
+      <span className="text-sm">
+        <span className={cn("font-semibold tabular-nums", tone)}>{count}</span>
+        <span className="ml-1 text-muted-foreground">{label}</span>
+      </span>
+    </li>
   );
 }

@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { Progress } from "@/components/ui/progress";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MiniDonut } from "@/components/ui/mini-donut";
 import { cn } from "@/lib/utils";
 import { PAGE_TYPE_LABELS } from "@/lib/constants";
-import type { AuditPage, ConformityStatus } from "@/types/domain";
+import type { AuditPage, ConformityStatus, PageType } from "@/types/domain";
 
 interface Props {
   pages: AuditPage[];
@@ -14,6 +16,12 @@ interface Props {
   onPageChange: (pageId: string) => void;
 }
 
+const PAGE_TYPE_BADGE: Record<PageType, "secondary" | "muted" | "outline"> = {
+  MANDATORY: "secondary",
+  REPRESENTATIVE: "outline",
+  TRANSVERSAL: "muted",
+};
+
 export function PagesSidebar({
   pages,
   conformityMap,
@@ -21,7 +29,6 @@ export function PagesSidebar({
   currentPageId,
   onPageChange,
 }: Props) {
-  // Calcul du nombre de critères saisis pour chaque page
   const pageCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const page of pages) counts.set(page.id, 0);
@@ -32,6 +39,15 @@ export function PagesSidebar({
     }
     return counts;
   }, [pages, conformityMap]);
+
+  const fullySaisiCount = useMemo(() => {
+    let n = 0;
+    for (const page of pages) {
+      const c = pageCounts.get(page.id) ?? 0;
+      if (c >= totalCriteria && totalCriteria > 0) n += 1;
+    }
+    return n;
+  }, [pages, pageCounts, totalCriteria]);
 
   const globalCount = useMemo(() => {
     let total = 0;
@@ -46,80 +62,101 @@ export function PagesSidebar({
   return (
     <aside
       aria-label="Pages de l'audit"
-      className="w-full shrink-0 border-b border-border bg-card/40 lg:w-72 lg:border-b-0 lg:border-r"
+      className="w-full shrink-0 px-4 py-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:w-72 lg:overflow-y-auto"
     >
-      <div className="flex flex-col">
-        <div className="flex-1 overflow-y-auto px-3 py-4">
-          <h2 className="px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Pages ({pages.length})
+      <Card className="flex flex-col shadow-sm">
+        {/* Header sidebar */}
+        <div className="border-b border-border p-4">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Pages
           </h2>
-          <ul role="list" className="mt-2 space-y-1">
-            {pages.map((page) => {
-              const count = pageCounts.get(page.id) ?? 0;
-              const percent =
-                totalCriteria > 0
-                  ? Math.round((count / totalCriteria) * 100)
-                  : 0;
-              const isActive = page.id === currentPageId;
-              const isTransversal = page.pageType === "TRANSVERSAL";
-              return (
-                <li key={page.id}>
-                  <button
-                    type="button"
-                    onClick={() => onPageChange(page.id)}
-                    aria-current={isActive ? "page" : undefined}
-                    className={cn(
-                      "block w-full rounded-md px-3 py-2 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                      isActive
-                        ? "bg-primary/10 text-primary"
-                        : "hover:bg-accent/40",
-                    )}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate font-medium">{page.name}</span>
-                      {isTransversal && (
-                        <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                          {PAGE_TYPE_LABELS.TRANSVERSAL}
-                        </span>
-                      )}
-                    </div>
-                    <div
-                      className={cn(
-                        "mt-1 text-xs",
-                        isActive
-                          ? "text-primary/80"
-                          : "text-muted-foreground",
-                      )}
-                    >
-                      {count} / {totalCriteria} critères saisis
-                    </div>
-                    <Progress
-                      value={percent}
-                      className="mt-1.5 h-1"
-                      aria-label={`Progression de la page ${page.name} : ${percent}%`}
-                    />
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+          <p className="mt-1 text-sm font-medium tabular-nums">
+            {fullySaisiCount} / {pages.length} pages saisies
+          </p>
         </div>
 
+        {/* Liste des pages */}
+        <ul role="list" className="flex-1 space-y-1 p-2">
+          {pages.map((page) => {
+            const count = pageCounts.get(page.id) ?? 0;
+            const percent =
+              totalCriteria > 0
+                ? Math.round((count / totalCriteria) * 100)
+                : 0;
+            const isActive = page.id === currentPageId;
+            return (
+              <li key={page.id}>
+                <button
+                  type="button"
+                  onClick={() => onPageChange(page.id)}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "relative flex w-full flex-col items-start gap-2 rounded-md p-3 text-left transition-colors duration-150",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                    isActive
+                      ? "bg-primary/10 text-foreground"
+                      : "hover:bg-accent",
+                  )}
+                >
+                  {isActive && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-primary"
+                    />
+                  )}
+                  <div className="flex w-full items-center justify-between gap-2">
+                    <span className="truncate text-sm font-medium">
+                      {page.name}
+                    </span>
+                    <Badge
+                      variant={PAGE_TYPE_BADGE[page.pageType]}
+                      className="shrink-0 text-[10px]"
+                    >
+                      {PAGE_TYPE_LABELS[page.pageType]}
+                    </Badge>
+                  </div>
+                  <div
+                    className="h-1.5 w-full overflow-hidden rounded-full bg-secondary"
+                    role="progressbar"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={percent}
+                    aria-label={`Progression : ${percent}%`}
+                  >
+                    <div
+                      className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                  <p className="text-xs tabular-nums text-muted-foreground">
+                    {count} / {totalCriteria} critères
+                  </p>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* Footer : progression globale */}
         <div className="border-t border-border p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Progression globale
-          </p>
-          <p className="mt-1 text-sm font-medium">
-            {globalCount} / {globalTotal} saisies
-            <span className="ml-2 text-muted-foreground">({globalPercent}%)</span>
-          </p>
-          <Progress
-            value={globalPercent}
-            className="mt-2 h-1.5"
-            aria-label={`Progression globale de l'audit : ${globalPercent}%`}
-          />
+          <Card className="flex items-center gap-3 bg-secondary/40 p-3 shadow-none">
+            <MiniDonut
+              value={globalPercent}
+              size={48}
+              tone="primary"
+              ariaLabel={`Progression globale ${globalPercent}%`}
+            />
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Progression globale
+              </p>
+              <p className="mt-0.5 truncate text-sm font-medium tabular-nums">
+                {globalCount} / {globalTotal} critères
+              </p>
+            </div>
+          </Card>
         </div>
-      </div>
+      </Card>
     </aside>
   );
 }

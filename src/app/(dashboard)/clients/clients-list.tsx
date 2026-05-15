@@ -3,14 +3,17 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import {
+  AlertCircle,
+  Building2,
+  CheckCircle2,
+  ClipboardCheck,
+  ClipboardList,
   ExternalLink,
-  Eye,
   FolderKanban,
   Loader2,
-  Mail,
   Plus,
+  RotateCcw,
   Search,
-  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { createClient } from "./actions";
 
 export interface ClientListItem {
@@ -67,25 +71,62 @@ export function ClientsList({ clients }: ClientsListProps) {
     });
   }, [clients, search, statusFilter]);
 
+  const totals = useMemo(() => {
+    let active = 0;
+    let audits = 0;
+    for (const c of clients) {
+      if (c.isActive) active += 1;
+      audits += c.auditCount;
+    }
+    return { active, audits };
+  }, [clients]);
+
+  const filtersActive = statusFilter !== "ALL" || search.trim().length > 0;
+  const resetFilters = () => {
+    setStatusFilter("ALL");
+    setSearch("");
+  };
+
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
+      {/* Header --------------------------------------------------------- */}
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Clients</h1>
           <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">
-              {clients.length}
-            </span>{" "}
-            client{clients.length > 1 ? "s" : ""} au total
+            {clients.length} client{clients.length > 1 ? "s" : ""} au total
           </p>
         </div>
-        <Button size="sm" onClick={() => setDialogOpen(true)} className="gap-2">
+        <Button onClick={() => setDialogOpen(true)}>
           <Plus className="h-4 w-4" aria-hidden="true" />
           Nouveau client
         </Button>
       </header>
 
-      <Card>
+      {/* KPIs ----------------------------------------------------------- */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <KpiCard
+          icon={Building2}
+          tone="primary"
+          label="Total clients"
+          value={clients.length}
+        />
+        <KpiCard
+          icon={CheckCircle2}
+          tone="success"
+          label="Clients actifs"
+          value={totals.active}
+        />
+        <KpiCard
+          icon={ClipboardCheck}
+          tone="violet"
+          label="Total audits"
+          value={totals.audits}
+        />
+      </div>
+
+      {/* Barre de filtres ---------------------------------------------- */}
+      <Card className="sticky top-20 z-10 shadow-sm">
         <CardContent className="grid gap-3 p-4 sm:grid-cols-[1fr_220px]">
           <div className="relative">
             <Search
@@ -116,26 +157,54 @@ export function ClientsList({ clients }: ClientsListProps) {
             </SelectContent>
           </Select>
         </CardContent>
+        {filtersActive && (
+          <div className="flex justify-end border-t border-border px-4 py-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={resetFilters}
+              className="gap-1.5"
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              Réinitialiser
+            </Button>
+          </div>
+        )}
       </Card>
 
+      {/* Grille ou empty ----------------------------------------------- */}
       {clients.length === 0 ? (
         <EmptyState onCreate={() => setDialogOpen(true)} />
-      ) : (
+      ) : filtered.length === 0 ? (
         <Card>
-          <CardContent className="p-0">
-            {filtered.length === 0 ? (
-              <p className="p-8 text-center text-sm text-muted-foreground">
-                Aucun client ne correspond aux filtres.
-              </p>
-            ) : (
-              <ul className="divide-y divide-border">
-                {filtered.map((c) => (
-                  <ClientRow key={c.id} client={c} />
-                ))}
-              </ul>
-            )}
+          <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+            <div
+              aria-hidden="true"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
+            >
+              <Building2 className="h-6 w-6" />
+            </div>
+            <p className="text-sm font-medium">Aucun client ne correspond</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetFilters}
+              className="gap-1.5"
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              Réinitialiser
+            </Button>
           </CardContent>
         </Card>
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((c) => (
+            <li key={c.id}>
+              <ClientCard client={c} />
+            </li>
+          ))}
+        </ul>
       )}
 
       <CreateClientDialog open={dialogOpen} onOpenChange={setDialogOpen} />
@@ -143,69 +212,132 @@ export function ClientsList({ clients }: ClientsListProps) {
   );
 }
 
-function ClientRow({ client }: { client: ClientListItem }) {
+/* -------------------------------------------------------------------------- */
+
+const toneClasses = {
+  primary: "bg-primary/10 text-primary",
+  success: "bg-success/10 text-success",
+  violet: "bg-violet-500/10 text-violet-500",
+} as const;
+
+function KpiCard({
+  icon: Icon,
+  tone,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  tone: keyof typeof toneClasses;
+  label: string;
+  value: number;
+}) {
   return (
-    <li className="flex flex-wrap items-center gap-4 p-4">
-      <div className="min-w-0 flex-1 space-y-1">
-        <div className="flex items-center gap-2">
-          <p className="truncate font-medium">{client.name}</p>
+    <Card className="p-6 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md">
+      <div
+        className={cn(
+          "flex h-10 w-10 items-center justify-center rounded-lg",
+          toneClasses[tone],
+        )}
+        aria-hidden="true"
+      >
+        <Icon className="h-5 w-5" />
+      </div>
+      <p className="mt-4 text-sm text-muted-foreground">{label}</p>
+      <p className="mt-1 text-3xl font-bold tabular-nums tracking-tight">
+        {value}
+      </p>
+    </Card>
+  );
+}
+
+function clientInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`.toUpperCase();
+  }
+  return (parts[0]?.slice(0, 2) ?? "?").toUpperCase();
+}
+
+function ClientCard({ client }: { client: ClientListItem }) {
+  return (
+    <Link
+      href={`/clients/${client.id}`}
+      className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      aria-label={`Voir le client ${client.name}`}
+    >
+      <Card
+        interactive
+        className="flex h-full flex-col gap-4 p-5"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div
+            aria-hidden="true"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-base font-bold text-primary"
+          >
+            {clientInitials(client.name)}
+          </div>
+          <Badge variant={client.isActive ? "success" : "muted"}>
+            {client.isActive ? "Actif" : "Désactivé"}
+          </Badge>
+        </div>
+
+        <div className="space-y-1">
+          <p className="truncate text-lg font-bold tracking-tight">
+            {client.name}
+          </p>
+          {client.contactEmail && (
+            <p className="truncate text-sm text-muted-foreground">
+              {client.contactEmail}
+            </p>
+          )}
           {client.website && (
-            <a
-              href={normalizeUrl(client.website)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline"
-              aria-label={`Site web de ${client.name} (nouvelle fenêtre)`}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ExternalLink className="h-3 w-3" aria-hidden="true" />
-              {client.website}
-            </a>
+            <span className="inline-flex max-w-full items-center gap-1 truncate text-xs text-primary">
+              <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
+              <span className="truncate">{client.website}</span>
+            </span>
           )}
         </div>
-        {client.contactEmail && (
-          <p className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Mail className="h-3 w-3" aria-hidden="true" />
-            {client.contactEmail}
-          </p>
-        )}
-      </div>
 
-      <div className="flex items-center gap-2">
-        <Badge variant="outline" className="gap-1">
-          <FolderKanban className="h-3 w-3" aria-hidden="true" />
-          {client.projectCount} projet{client.projectCount > 1 ? "s" : ""}
-        </Badge>
-        <Badge variant="outline" className="gap-1">
-          <ClipboardList className="h-3 w-3" aria-hidden="true" />
-          {client.auditCount} audit{client.auditCount > 1 ? "s" : ""}
-        </Badge>
-        <Badge variant={client.isActive ? "success" : "destructive"}>
-          {client.isActive ? "Actif" : "Désactivé"}
-        </Badge>
-      </div>
-
-      <Button asChild variant="ghost" size="sm" className="gap-1">
-        <Link
-          href={`/clients/${client.id}`}
-          aria-label={`Voir le client ${client.name}`}
-        >
-          <Eye className="h-4 w-4" aria-hidden="true" />
-          Voir
-        </Link>
-      </Button>
-    </li>
+        <div className="mt-auto border-t border-border pt-3">
+          <div className="flex items-center justify-between gap-4 text-sm">
+            <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+              <FolderKanban className="h-4 w-4" aria-hidden="true" />
+              <span className="font-semibold text-foreground tabular-nums">
+                {client.projectCount}
+              </span>{" "}
+              projet{client.projectCount > 1 ? "s" : ""}
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+              <ClipboardList className="h-4 w-4" aria-hidden="true" />
+              <span className="font-semibold text-foreground tabular-nums">
+                {client.auditCount}
+              </span>{" "}
+              audit{client.auditCount > 1 ? "s" : ""}
+            </span>
+          </div>
+        </div>
+      </Card>
+    </Link>
   );
 }
 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
     <Card>
-      <CardContent className="flex flex-col items-center gap-3 p-12 text-center">
-        <p className="text-sm text-muted-foreground">
-          Aucun client n&apos;a encore été créé.
-        </p>
-        <Button onClick={onCreate} className="gap-2">
+      <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
+        <div
+          aria-hidden="true"
+          className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary"
+        >
+          <Building2 className="h-8 w-8" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-base font-semibold">Aucun client</p>
+          <p className="text-sm text-muted-foreground">
+            Créez votre premier client pour démarrer.
+          </p>
+        </div>
+        <Button onClick={onCreate} className="mt-2">
           <Plus className="h-4 w-4" aria-hidden="true" />
           Créer le premier client
         </Button>
@@ -263,14 +395,7 @@ function CreateClientDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <p
-              role="alert"
-              className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-            >
-              {error}
-            </p>
-          )}
+          {error && <FormError message={error} />}
 
           <div className="space-y-2">
             <Label htmlFor="client-name">Nom *</Label>
@@ -321,7 +446,7 @@ function CreateClientDialog({
             >
               Annuler
             </Button>
-            <Button type="submit" disabled={isPending} className="gap-2">
+            <Button type="submit" disabled={isPending}>
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}
@@ -334,7 +459,14 @@ function CreateClientDialog({
   );
 }
 
-function normalizeUrl(raw: string): string {
-  if (/^https?:\/\//i.test(raw)) return raw;
-  return `https://${raw}`;
+function FormError({ message }: { message: string }) {
+  return (
+    <p
+      role="alert"
+      className="inline-flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+    >
+      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+      <span>{message}</span>
+    </p>
+  );
 }
