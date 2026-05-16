@@ -16,6 +16,14 @@
     "yes": "Yes",
     "no": "No"
   },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notification",
+    "emptyDesc": "You'll be notified as soon as a new reply lands on one of your NCs.",
+    "markAllRead": "Mark all as read",
+    "replied": "posted a message",
+    "unknownSender": "Someone"
+  },
   "notFound": {
     "code": "404",
     "title": "Page not found",

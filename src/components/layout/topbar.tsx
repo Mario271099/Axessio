@@ -1,26 +1,23 @@
 import Link from "next/link";
-import { Bell } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { LanguageToggle } from "@/components/layout/language-toggle";
+import { NotificationsBell } from "@/components/layout/notifications-bell";
 import { AxIcon } from "@/components/brand";
 import { initials } from "@/lib/utils";
+import { fetchNotifications } from "@/app/(dashboard)/notifications/actions";
 import type { Profile } from "@/types/domain";
 
 interface TopbarProps {
   profile: Profile;
-  /** Active la pastille rouge sur la cloche. */
-  hasUnread?: boolean;
 }
 
-export async function Topbar({ profile, hasUnread = false }: TopbarProps) {
-  const t = await getTranslations("topbar");
+export async function Topbar({ profile }: TopbarProps) {
   const tSidebar = await getTranslations("sidebar");
+  const initialNotifications = await fetchNotifications();
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/75 md:px-6">
-      {/* Brand mobile — la sidebar est cachée sous lg */}
       <Link
         href="/dashboard"
         aria-label={tSidebar("brandHomeAria")}
@@ -31,23 +28,7 @@ export async function Topbar({ profile, hasUnread = false }: TopbarProps) {
       </Link>
 
       <div className="ml-auto flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative"
-          aria-label={
-            hasUnread ? t("notificationsWithUnread") : t("notifications")
-          }
-          title={t("notifications")}
-        >
-          <Bell className="h-4 w-4" aria-hidden="true" />
-          {hasUnread && (
-            <span
-              aria-hidden="true"
-              className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-background"
-            />
-          )}
-        </Button>
+        <NotificationsBell initial={initialNotifications} />
 
         <LanguageToggle />
         <ThemeToggle />

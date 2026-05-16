@@ -16,6 +16,14 @@
     "yes": "Oui",
     "no": "Non"
   },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "Aucune notification",
+    "emptyDesc": "Tu seras prévenu·e dès qu'une nouvelle réponse arrive sur une de tes NC.",
+    "markAllRead": "Tout marquer comme lu",
+    "replied": "a posté un message",
+    "unknownSender": "Quelqu'un"
+  },
   "notFound": {
     "code": "404",
     "title": "Page introuvable",
