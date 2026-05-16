@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, Plus, Trash2, Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +21,6 @@ import {
   updatePage,
   type ActionState,
 } from "@/app/(dashboard)/audits/actions";
-import { COMPLEXITY_LABELS, PAGE_TYPE_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { ComplexityLevel, PageType } from "@/types/domain";
 
@@ -41,6 +41,8 @@ interface Props {
 const initialState: ActionState = { error: null };
 
 export function SampleActionsBar({ auditId, pages, canEdit }: Props) {
+  const t = useTranslations("audits.sample");
+  const tComplexity = useTranslations("constants.complexity");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
 
@@ -58,7 +60,7 @@ export function SampleActionsBar({ auditId, pages, canEdit }: Props) {
       {canEdit && !showAddForm && (
         <Button onClick={() => setShowAddForm(true)} size="sm">
           <Plus className="h-4 w-4" aria-hidden="true" />
-          Ajouter une page
+          {t("addPage")}
         </Button>
       )}
 
@@ -77,34 +79,34 @@ export function SampleActionsBar({ auditId, pages, canEdit }: Props) {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="page-name">Nom de la page *</Label>
+                  <Label htmlFor="page-name">{t("pageName")} *</Label>
                   <Input
                     id="page-name"
                     name="name"
                     required
-                    placeholder="Page contact, Liste produits…"
+                    placeholder={t("pageNamePlaceholder")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="page-complexity">Complexité</Label>
+                  <Label htmlFor="page-complexity">{t("complexity")}</Label>
                   <Select name="complexity" defaultValue="NONE">
                     <SelectTrigger id="page-complexity">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="NONE">— Non définie —</SelectItem>
+                      <SelectItem value="NONE">{t("complexityNone")}</SelectItem>
                       <SelectItem value="ULTRA_SIMPLE">
-                        {COMPLEXITY_LABELS.ULTRA_SIMPLE}
+                        {tComplexity("ULTRA_SIMPLE")}
                       </SelectItem>
                       <SelectItem value="SIMPLE">
-                        {COMPLEXITY_LABELS.SIMPLE}
+                        {tComplexity("SIMPLE")}
                       </SelectItem>
                       <SelectItem value="MINIMAL">
-                        {COMPLEXITY_LABELS.MINIMAL}
+                        {tComplexity("MINIMAL")}
                       </SelectItem>
                       <SelectItem value="COMPLEX">
-                        {COMPLEXITY_LABELS.COMPLEX}
+                        {tComplexity("COMPLEX")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -112,12 +114,12 @@ export function SampleActionsBar({ auditId, pages, canEdit }: Props) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="page-url">URL de la page</Label>
+                <Label htmlFor="page-url">{t("pageUrl")}</Label>
                 <Input
                   id="page-url"
                   name="url"
                   type="url"
-                  placeholder="https://exemple.com/contact"
+                  placeholder={t("pageUrlPlaceholder")}
                 />
               </div>
 
@@ -126,12 +128,12 @@ export function SampleActionsBar({ auditId, pages, canEdit }: Props) {
                   {addPending ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Ajout en cours…
+                      {t("adding")}
                     </>
                   ) : (
                     <>
                       <Plus className="h-4 w-4" />
-                      Ajouter
+                      {t("add")}
                     </>
                   )}
                 </Button>
@@ -140,7 +142,7 @@ export function SampleActionsBar({ auditId, pages, canEdit }: Props) {
                   variant="ghost"
                   onClick={() => setShowAddForm(false)}
                 >
-                  Annuler
+                  {t("cancel")}
                 </Button>
               </div>
             </form>
@@ -174,7 +176,7 @@ export function SampleActionsBar({ auditId, pages, canEdit }: Props) {
 
         {pages.length === 0 && (
           <p className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
-            Aucune page configurée pour cet audit.
+            {t("empty")}
           </p>
         )}
       </div>
@@ -193,18 +195,19 @@ function PageRowItem({
   canEdit: boolean;
   onEdit: () => void;
 }) {
+  const t = useTranslations("audits.sample");
+  const tPageType = useTranslations("constants.pageType");
+  const tComplexity = useTranslations("constants.complexity");
   const [pending, setPending] = useState(false);
   const isTransversal = page.page_type === "TRANSVERSAL";
 
   async function handleDelete() {
-    const ok = confirm(
-      `Supprimer la page « ${page.name} » ? Cette action est irréversible.`,
-    );
+    const ok = confirm(t("confirmDelete", { name: page.name }));
     if (!ok) return;
     setPending(true);
     const result = await deletePage(page.id, auditId);
     setPending(false);
-    if (result.error) alert(`Erreur : ${result.error}`);
+    if (result.error) alert(t("errorPrefix", { message: result.error }));
   }
 
   return (
@@ -221,9 +224,9 @@ function PageRowItem({
 
       <div className="flex shrink-0 items-center gap-2">
         <div className="flex flex-col items-end gap-1.5">
-          <Badge variant="outline">{PAGE_TYPE_LABELS[page.page_type]}</Badge>
+          <Badge variant="outline">{tPageType(page.page_type)}</Badge>
           {page.complexity && (
-            <Badge variant="muted">{COMPLEXITY_LABELS[page.complexity]}</Badge>
+            <Badge variant="muted">{tComplexity(page.complexity)}</Badge>
           )}
         </div>
 
@@ -233,7 +236,7 @@ function PageRowItem({
               size="icon"
               variant="ghost"
               onClick={onEdit}
-              aria-label={`Modifier la page ${page.name}`}
+              aria-label={t("editAria", { name: page.name })}
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -242,7 +245,7 @@ function PageRowItem({
               variant="ghost"
               onClick={handleDelete}
               disabled={pending}
-              aria-label={`Supprimer la page ${page.name}`}
+              aria-label={t("deleteAria", { name: page.name })}
               className="text-destructive hover:text-destructive"
             >
               <Trash2 className="h-4 w-4" />
@@ -261,6 +264,7 @@ function PageUrlDisplay({
   url: string | null;
   isTransversal: boolean;
 }) {
+  const t = useTranslations("audits.sample");
   if (url) {
     return (
       <a
@@ -275,9 +279,7 @@ function PageUrlDisplay({
   }
   if (!isTransversal) {
     return (
-      <p className="text-xs italic text-muted-foreground">
-        Aucune URL renseignée
-      </p>
+      <p className="text-xs italic text-muted-foreground">{t("noUrl")}</p>
     );
   }
   return null;
@@ -294,6 +296,8 @@ function PageEditForm({
   onCancel: () => void;
   onSaved: () => void;
 }) {
+  const t = useTranslations("audits.sample");
+  const tComplexity = useTranslations("constants.complexity");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -326,7 +330,7 @@ function PageEditForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor={`name-${page.id}`}>Nom de la page *</Label>
+              <Label htmlFor={`name-${page.id}`}>{t("pageName")} *</Label>
               <Input
                 id={`name-${page.id}`}
                 name="name"
@@ -336,7 +340,7 @@ function PageEditForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`complexity-${page.id}`}>Complexité</Label>
+              <Label htmlFor={`complexity-${page.id}`}>{t("complexity")}</Label>
               <Select
                 name="complexity"
                 defaultValue={page.complexity ?? "NONE"}
@@ -345,18 +349,18 @@ function PageEditForm({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="NONE">— Non définie —</SelectItem>
+                  <SelectItem value="NONE">{t("complexityNone")}</SelectItem>
                   <SelectItem value="ULTRA_SIMPLE">
-                    {COMPLEXITY_LABELS.ULTRA_SIMPLE}
+                    {tComplexity("ULTRA_SIMPLE")}
                   </SelectItem>
                   <SelectItem value="SIMPLE">
-                    {COMPLEXITY_LABELS.SIMPLE}
+                    {tComplexity("SIMPLE")}
                   </SelectItem>
                   <SelectItem value="MINIMAL">
-                    {COMPLEXITY_LABELS.MINIMAL}
+                    {tComplexity("MINIMAL")}
                   </SelectItem>
                   <SelectItem value="COMPLEX">
-                    {COMPLEXITY_LABELS.COMPLEX}
+                    {tComplexity("COMPLEX")}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -364,13 +368,13 @@ function PageEditForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`url-${page.id}`}>URL de la page</Label>
+            <Label htmlFor={`url-${page.id}`}>{t("pageUrl")}</Label>
             <Input
               id={`url-${page.id}`}
               name="url"
               type="url"
               defaultValue={page.url ?? ""}
-              placeholder="https://exemple.com/page"
+              placeholder={t("pageUrlPlaceholder")}
             />
           </div>
 
@@ -379,15 +383,15 @@ function PageEditForm({
               {pending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Sauvegarde…
+                  {t("saving")}
                 </>
               ) : (
-                "Sauvegarder"
+                t("save")
               )}
             </Button>
             <Button type="button" variant="ghost" onClick={onCancel}>
               <X className="h-4 w-4" />
-              Annuler
+              {t("cancel")}
             </Button>
           </div>
         </form>

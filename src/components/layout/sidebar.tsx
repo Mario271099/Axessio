@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   BookMarked,
   Building2,
@@ -44,9 +45,19 @@ const ICONS = {
   settings: Settings,
 } as const;
 
+type ItemKey =
+  | "dashboard"
+  | "audits"
+  | "clients"
+  | "users"
+  | "references"
+  | "settings";
+
+type SectionKey = "main" | "management" | "other";
+
 interface NavItem {
   href: string;
-  label: string;
+  itemKey: ItemKey;
   iconKey: IconKey;
   /** Si null, visible pour tous. */
   roles: UserRole[] | null;
@@ -55,30 +66,30 @@ interface NavItem {
 }
 
 interface NavSection {
-  title: string;
+  sectionKey: SectionKey;
   items: NavItem[];
 }
 
 const SECTIONS: NavSection[] = [
   {
-    title: "Principal",
+    sectionKey: "main",
     items: [
-      { href: "/dashboard", label: "Tableau de bord", iconKey: "dashboard", roles: null },
-      { href: "/audits", label: "Audits", iconKey: "audits", roles: null, badgeKey: "inProgressAudits" },
+      { href: "/dashboard", itemKey: "dashboard", iconKey: "dashboard", roles: null },
+      { href: "/audits", itemKey: "audits", iconKey: "audits", roles: null, badgeKey: "inProgressAudits" },
     ],
   },
   {
-    title: "Gestion",
+    sectionKey: "management",
     items: [
-      { href: "/clients", label: "Clients", iconKey: "clients", roles: ["auditor"] },
-      { href: "/users", label: "Utilisateurs", iconKey: "users", roles: ["auditor"] },
-      { href: "/references", label: "Référentiels", iconKey: "references", roles: ["auditor"] },
+      { href: "/clients", itemKey: "clients", iconKey: "clients", roles: ["auditor"] },
+      { href: "/users", itemKey: "users", iconKey: "users", roles: ["auditor"] },
+      { href: "/references", itemKey: "references", iconKey: "references", roles: ["auditor"] },
     ],
   },
   {
-    title: "Autres",
+    sectionKey: "other",
     items: [
-      { href: "/settings", label: "Paramètres", iconKey: "settings", roles: null },
+      { href: "/settings", itemKey: "settings", iconKey: "settings", roles: null },
     ],
   },
 ];
@@ -95,6 +106,7 @@ interface SidebarProps {
 export function Sidebar({ profile, counts }: SidebarProps) {
   const pathname = usePathname();
   const userRole = profile.role;
+  const t = useTranslations("sidebar");
 
   return (
     <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
@@ -102,7 +114,7 @@ export function Sidebar({ profile, counts }: SidebarProps) {
       <div className="flex h-16 items-center border-b border-border px-4">
         <Link
           href="/dashboard"
-          aria-label="Axessio — retour au tableau de bord"
+          aria-label={t("brandHomeAria")}
           className="-mx-2 inline-flex items-center gap-2 rounded-md px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <AxIcon size={28} aria-label="" />
@@ -112,7 +124,7 @@ export function Sidebar({ profile, counts }: SidebarProps) {
 
       {/* Navigation */}
       <nav
-        aria-label="Navigation principale"
+        aria-label={t("navAria")}
         className="flex-1 space-y-5 overflow-y-auto p-3"
       >
         {SECTIONS.map((section) => {
@@ -121,9 +133,9 @@ export function Sidebar({ profile, counts }: SidebarProps) {
           );
           if (visibleItems.length === 0) return null;
           return (
-            <div key={section.title}>
+            <div key={section.sectionKey}>
               <h2 className="px-3 pb-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {section.title}
+                {t(`sections.${section.sectionKey}`)}
               </h2>
               <ul className="space-y-0.5">
                 {visibleItems.map((item) => {
@@ -153,7 +165,9 @@ export function Sidebar({ profile, counts }: SidebarProps) {
                           />
                         )}
                         <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                        <span className="flex-1 truncate">{item.label}</span>
+                        <span className="flex-1 truncate">
+                          {t(`items.${item.itemKey}`)}
+                        </span>
                         {badgeValue > 0 && (
                           <Badge
                             variant="secondary"
@@ -204,13 +218,13 @@ export function Sidebar({ profile, counts }: SidebarProps) {
             <DropdownMenuItem asChild>
               <Link href="/settings">
                 <UserCircle className="h-4 w-4" aria-hidden="true" />
-                Mon profil
+                {t("user.profile")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/settings">
                 <Settings className="h-4 w-4" aria-hidden="true" />
-                Paramètres
+                {t("user.settings")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -221,7 +235,7 @@ export function Sidebar({ profile, counts }: SidebarProps) {
               className="text-destructive focus:bg-destructive/10 focus:text-destructive"
             >
               <LogOut className="h-4 w-4" aria-hidden="true" />
-              Déconnexion
+              {t("user.logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

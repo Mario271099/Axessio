@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default async function ProjectsPage() {
   await requireProfile();
   const supabase = await createClient();
+  const t = await getTranslations("projects");
 
   const { data: projects } = await supabase
     .from("projects")
@@ -13,11 +15,11 @@ export default async function ProjectsPage() {
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Projets</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Vos projets</CardTitle>
+          <CardTitle className="text-base">{t("yours")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {(projects ?? []).map((p) => {
@@ -39,7 +41,7 @@ export default async function ProjectsPage() {
           })}
           {(projects ?? []).length === 0 && (
             <p className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
-              Aucun projet pour l&apos;instant.
+              {t("empty")}
             </p>
           )}
         </CardContent>

@@ -10,6 +10,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   CheckCircle2,
   ChevronRight,
@@ -74,6 +75,9 @@ export function ConformityMatrixLayout({
   currentPageId,
 }: Props) {
   const router = useRouter();
+  const t = useTranslations("audits.matrix");
+  const tList = useTranslations("audits.list");
+  const tSave = useTranslations("audits.matrix.save");
   const [isPending, startTransition] = useTransition();
 
   const [conformityMap, setConformityMap] = useState<
@@ -167,7 +171,7 @@ export function ConformityMatrixLayout({
         return next;
       });
       setSaveStatus("error");
-      setSaveError(errored[0]?.error ?? "Sauvegarde impossible.");
+      setSaveError(errored[0]?.error ?? tSave("fallbackError"));
       return false;
     }
 
@@ -348,12 +352,14 @@ export function ConformityMatrixLayout({
 
   const indicatorMessage =
     saveStatus === "saving"
-      ? "Sauvegarde en cours…"
+      ? tSave("saving")
       : saveStatus === "error"
-        ? `Erreur : ${saveError ?? "sauvegarde impossible"}`
+        ? tSave("errorPrefix", {
+            message: saveError ?? tSave("fallbackError"),
+          })
         : pendingChanges.size > 0
-          ? `${pendingChanges.size} modification${pendingChanges.size > 1 ? "s" : ""} en attente`
-          : "Tout est sauvegardé";
+          ? tSave("pending", { count: pendingChanges.size })
+          : tSave("allSaved");
 
   const hasPending = pendingChanges.size > 0;
 
@@ -362,14 +368,14 @@ export function ConformityMatrixLayout({
       {/* En-tête : breadcrumb + titre + score global -------------------- */}
       <div className="border-b border-border bg-card/50 px-4 py-4 md:px-8">
         <nav
-          aria-label="Fil d'Ariane"
+          aria-label="Breadcrumb"
           className="flex items-center gap-1 text-xs text-muted-foreground"
         >
           <Link
             href="/audits"
             className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
           >
-            Audits
+            {tList("title")}
           </Link>
           <ChevronRight className="h-3 w-3" aria-hidden="true" />
           <Link
@@ -380,23 +386,19 @@ export function ConformityMatrixLayout({
           </Link>
           <ChevronRight className="h-3 w-3" aria-hidden="true" />
           <span className="rounded px-1 py-0.5 font-medium text-foreground">
-            Matrice de conformité
+            {t("breadcrumbCurrent")}
           </span>
         </nav>
 
         <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight">
-              Matrice de conformité
-            </h1>
+            <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               <span className="font-medium text-foreground">
                 {referenceName}
               </span>
               <span aria-hidden="true"> · </span>
-              <span>
-                {totalCriteria} critère{totalCriteria > 1 ? "s" : ""} à évaluer
-              </span>
+              <span>{t("subtitleCriteria", { count: totalCriteria })}</span>
               {clientName && (
                 <>
                   <span aria-hidden="true"> · </span>
@@ -413,16 +415,16 @@ export function ConformityMatrixLayout({
               tone="score"
               ariaLabel={
                 hasAnyEntry
-                  ? `Score global de l'audit : ${Math.round(auditScore)}%`
-                  : "Score global non disponible"
+                  ? t("globalScoreAria", { score: Math.round(auditScore) })
+                  : t("noScoreAria")
               }
             />
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Score global
+                {t("globalScore")}
               </p>
               <p className="text-xs text-muted-foreground">
-                {hasAnyEntry ? "audit en cours" : "aucune saisie"}
+                {hasAnyEntry ? t("auditInProgress") : t("noEntry")}
               </p>
             </div>
           </Card>
@@ -502,7 +504,7 @@ export function ConformityMatrixLayout({
             ) : (
               <Save className="h-4 w-4" aria-hidden="true" />
             )}
-            Sauvegarder tout
+            {tSave("saveAll")}
           </Button>
         </div>
       </div>

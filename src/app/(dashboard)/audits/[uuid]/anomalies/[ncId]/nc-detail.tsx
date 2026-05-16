@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import {
   BookOpen,
   ChevronRight,
@@ -42,7 +43,6 @@ import {
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { FileDropZone } from "@/components/ui/file-drop-zone";
-import { NC_SEVERITY_LABELS, NC_STATUS_LABELS } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { NCSeverity, UserRole } from "@/types/domain";
@@ -88,26 +88,6 @@ function avatarInitials(
   const initials = `${a}${b}`.toUpperCase();
   return initials || "?";
 }
-
-function formatMessageDate(iso: string): string {
-  const d = new Date(iso);
-  const date = d.toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mm = String(d.getMinutes()).padStart(2, "0");
-  return `${date} à ${hh}h${mm}`;
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  ...NC_STATUS_LABELS,
-  TO_FIX: "À corriger",
-  IN_PROGRESS: "En cours",
-  FIXED: "Corrigée",
-  FALSE_POSITIVE: "Faux positif",
-};
 
 const STATUS_BADGE_VARIANT: Record<
   string,
@@ -197,7 +177,26 @@ export function NCDetail({
   profile,
 }: NCDetailProps) {
   const router = useRouter();
+  const t = useTranslations("audits.ncDetail");
+  const tNcStatus = useTranslations("constants.ncStatus");
+  const tNcSeverity = useTranslations("constants.ncSeverity");
+  const tList = useTranslations("audits.list");
+  const tAnomalies = useTranslations("audits.anomalies");
+  const locale = useLocale();
+  const intl = locale === "en" ? "en-US" : "fr-FR";
   const isAuditor = profile.role === "auditor";
+
+  function formatMessageDate(iso: string): string {
+    const d = new Date(iso);
+    const date = d.toLocaleDateString(intl, {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mm = String(d.getMinutes()).padStart(2, "0");
+    return t("messageDateAt", { date, hh, mm });
+  }
 
   const [status, setStatus] = useState<string>(nc.status);
   const [statusPending, startStatusTransition] = useTransition();
@@ -261,7 +260,7 @@ export function NCDetail({
 
   const handleDeleteMessage = async (messageId: string) => {
     if (deletingMessageId) return;
-    if (!window.confirm("Supprimer ce message ?")) return;
+    if (!window.confirm(t("confirmDeleteMessage"))) return;
     setDeletingMessageId(messageId);
     setSendError(null);
     try {
@@ -327,7 +326,7 @@ export function NCDetail({
 
   const handleDeleteAttachment = async (attachment: AttachmentData) => {
     if (deletingId) return;
-    if (!window.confirm("Supprimer cette capture ?")) return;
+    if (!window.confirm(t("confirmDeleteCapture"))) return;
 
     setDeletingId(attachment.id);
     setUploadError(null);
@@ -405,14 +404,14 @@ export function NCDetail({
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
       {/* Breadcrumb -------------------------------------------------------- */}
       <nav
-        aria-label="Fil d'Ariane"
+        aria-label="Breadcrumb"
         className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
       >
         <Link
           href="/audits"
           className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
         >
-          Audits
+          {tList("title")}
         </Link>
         <ChevronRight className="h-3 w-3" aria-hidden="true" />
         <Link
@@ -426,11 +425,11 @@ export function NCDetail({
           href={`/audits/${auditId}/anomalies`}
           className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
         >
-          Non-conformités
+          {tAnomalies("breadcrumb")}
         </Link>
         <ChevronRight className="h-3 w-3" aria-hidden="true" />
         <span className="rounded px-1 py-0.5 font-medium text-foreground">
-          Détail
+          {t("breadcrumbDetail")}
         </span>
       </nav>
 
@@ -449,23 +448,21 @@ export function NCDetail({
                 >
                   <SelectTrigger
                     className="h-8 w-44 text-xs"
-                    aria-label="Statut de la non-conformité"
+                    aria-label={t("statusAria")}
                   >
-                    <SelectValue>
-                      {STATUS_LABELS[status] ?? status}
-                    </SelectValue>
+                    <SelectValue>{tNcStatus(status)}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {statusOptions.map((s) => (
                       <SelectItem key={s} value={s}>
-                        {STATUS_LABELS[s] ?? s}
+                        {tNcStatus(s)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               ) : (
                 <Badge variant={statusBadgeVariant} className="text-xs">
-                  {STATUS_LABELS[status] ?? status}
+                  {tNcStatus(status)}
                 </Badge>
               )}
             </div>
@@ -481,7 +478,9 @@ export function NCDetail({
           {nc.criterion && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Critère lié</CardTitle>
+                <CardTitle className="text-base">
+                  {t("linkedCriterion")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
@@ -502,7 +501,7 @@ export function NCDetail({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Documentation officielle
+                      {t("officialDocs")}
                       <ExternalLink
                         className="h-3 w-3"
                         aria-hidden="true"
@@ -523,7 +522,7 @@ export function NCDetail({
                     className="h-4 w-4 text-muted-foreground"
                     aria-hidden="true"
                   />
-                  Méthodologie de test
+                  {t("methodology")}
                 </span>
               </AccordionTrigger>
               <AccordionContent>
@@ -533,7 +532,7 @@ export function NCDetail({
                   </p>
                 ) : (
                   <p className="text-sm italic text-muted-foreground">
-                    Aucune méthodologie disponible.
+                    {t("noMethodology")}
                   </p>
                 )}
               </AccordionContent>
@@ -543,9 +542,7 @@ export function NCDetail({
           {/* Détails NC --------------------------------------------------- */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-              <CardTitle className="text-base">
-                Détails de la non-conformité
-              </CardTitle>
+              <CardTitle className="text-base">{t("ncDetails")}</CardTitle>
               {isAuditor && !editing && (
                 <Button
                   size="sm"
@@ -554,7 +551,7 @@ export function NCDetail({
                   className="gap-1"
                 >
                   <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-                  Modifier
+                  {t("edit")}
                 </Button>
               )}
             </CardHeader>
@@ -571,7 +568,7 @@ export function NCDetail({
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="nc-description">Description</Label>
+                    <Label htmlFor="nc-description">{t("description")}</Label>
                     <Textarea
                       id="nc-description"
                       value={description}
@@ -581,7 +578,7 @@ export function NCDetail({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="nc-actual-result">Résultat obtenu</Label>
+                    <Label htmlFor="nc-actual-result">{t("actualResult")}</Label>
                     <Textarea
                       id="nc-actual-result"
                       value={actualResult}
@@ -591,7 +588,9 @@ export function NCDetail({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="nc-recommendation">Recommandation</Label>
+                    <Label htmlFor="nc-recommendation">
+                      {t("recommendation")}
+                    </Label>
                     <Textarea
                       id="nc-recommendation"
                       value={recommendation}
@@ -602,7 +601,7 @@ export function NCDetail({
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="nc-severity">Sévérité</Label>
+                      <Label htmlFor="nc-severity">{t("severity")}</Label>
                       <Select
                         value={severity}
                         onValueChange={(v) => setSeverity(v as NCSeverity)}
@@ -613,7 +612,7 @@ export function NCDetail({
                         <SelectContent>
                           {SEVERITIES.map((s) => (
                             <SelectItem key={s} value={s}>
-                              {NC_SEVERITY_LABELS[s]}
+                              {tNcSeverity(s)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -621,14 +620,14 @@ export function NCDetail({
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="nc-page">Page liée</Label>
+                      <Label htmlFor="nc-page">{t("linkedPage")}</Label>
                       <Select value={pageId} onValueChange={setPageId}>
                         <SelectTrigger id="nc-page">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value={TRANSVERSAL_VALUE}>
-                            Transversale (aucune page)
+                            {t("transversal")}
                           </SelectItem>
                           {pages.map((p) => (
                             <SelectItem key={p.id} value={p.id}>
@@ -648,7 +647,7 @@ export function NCDetail({
                           aria-hidden="true"
                         />
                       )}
-                      Sauvegarder
+                      {t("save")}
                     </Button>
                     <Button
                       type="button"
@@ -659,20 +658,23 @@ export function NCDetail({
                       className="gap-1"
                     >
                       <X className="h-3.5 w-3.5" aria-hidden="true" />
-                      Annuler
+                      {t("cancel")}
                     </Button>
                   </div>
                 </form>
               ) : (
                 <div className="space-y-4">
-                  <ReadField label="Description" value={nc.description} />
-                  <ReadField label="Résultat obtenu" value={nc.actualResult} />
-                  <ReadField label="Recommandation" value={nc.recommendation} />
+                  <ReadField label={t("description")} value={nc.description} />
+                  <ReadField label={t("actualResult")} value={nc.actualResult} />
+                  <ReadField
+                    label={t("recommendation")}
+                    value={nc.recommendation}
+                  />
                   <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-muted-foreground">
                     <span>
-                      Page :{" "}
+                      {t("page")}{" "}
                       <span className="text-foreground">
-                        {nc.page?.name ?? "Transversale"}
+                        {nc.page?.name ?? t("transversalShort")}
                       </span>
                     </span>
                   </div>
@@ -684,9 +686,9 @@ export function NCDetail({
           {/* Captures d'écran -------------------------------------------- */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-              <CardTitle className="text-base">Captures d&apos;écran</CardTitle>
+              <CardTitle className="text-base">{t("screenshots")}</CardTitle>
               <span className="text-xs text-muted-foreground tabular-nums">
-                {attachments.length} fichier{attachments.length > 1 ? "s" : ""}
+                {t("filesCount", { count: attachments.length })}
               </span>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -696,7 +698,7 @@ export function NCDetail({
                     className="h-3.5 w-3.5 animate-spin"
                     aria-hidden="true"
                   />
-                  Envoi des captures…
+                  {t("uploading")}
                 </p>
               )}
 
@@ -730,7 +732,7 @@ export function NCDetail({
                               type="button"
                               onClick={() => setPreviewAttachment(att)}
                               className="block h-full w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                              aria-label={`Agrandir ${displayName}`}
+                              aria-label={t("enlargeAria", { name: displayName })}
                             >
                               <img
                                 src={att.signedUrl}
@@ -744,19 +746,19 @@ export function NCDetail({
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex h-full w-full flex-col items-center justify-center gap-2 p-3 text-center text-xs text-muted-foreground hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                              aria-label={`Ouvrir ${displayName}`}
+                              aria-label={t("openAria", { name: displayName })}
                             >
                               <FileText
                                 className="h-8 w-8"
                                 aria-hidden="true"
                               />
                               <span className="line-clamp-2 break-all">
-                                Ouvrir le PDF
+                                {t("openPdf")}
                               </span>
                             </a>
                           ) : (
                             <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                              Indisponible
+                              {t("unavailable")}
                             </div>
                           )}
 
@@ -768,7 +770,7 @@ export function NCDetail({
                               className="absolute right-1.5 top-1.5 h-7 w-7 rounded-full opacity-0 shadow transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                               onClick={() => handleDeleteAttachment(att)}
                               disabled={isDeleting}
-                              aria-label={`Supprimer ${displayName}`}
+                              aria-label={t("deleteAria", { name: displayName })}
                             >
                               {isDeleting ? (
                                 <Loader2
@@ -804,10 +806,9 @@ export function NCDetail({
                   >
                     <Upload className="h-6 w-6" />
                   </div>
-                  <p className="text-sm font-medium">Aucune capture</p>
+                  <p className="text-sm font-medium">{t("noScreenshots")}</p>
                   <p className="text-xs text-muted-foreground">
-                    Glissez-déposez ou cliquez ci-dessous pour ajouter une
-                    capture.
+                    {t("noScreenshotsDesc")}
                   </p>
                 </div>
               )}
@@ -834,7 +835,7 @@ export function NCDetail({
                   className="h-4 w-4 text-muted-foreground"
                   aria-hidden="true"
                 />
-                Discussion
+                {t("discussion")}
                 {messages.length > 0 && (
                   <Badge variant="secondary" className="ml-1 tabular-nums">
                     {messages.length}
@@ -852,11 +853,9 @@ export function NCDetail({
                   >
                     <MessageSquare className="h-6 w-6" />
                   </div>
-                  <p className="text-sm font-medium">
-                    Aucun message pour l&apos;instant
-                  </p>
+                  <p className="text-sm font-medium">{t("noMessages")}</p>
                   <p className="text-xs text-muted-foreground">
-                    Démarrez la discussion ci-dessous.
+                    {t("noMessagesDesc")}
                   </p>
                 </div>
               ) : (
@@ -865,8 +864,8 @@ export function NCDetail({
                     const initials = avatarInitials(m.author);
                     const fullName = m.author
                       ? `${m.author.firstName} ${m.author.lastName}`.trim() ||
-                        "Utilisateur"
-                      : "Utilisateur";
+                        t("user")
+                      : t("user");
                     const isMine = m.authorId === profile.id;
                     const isDeleting = deletingMessageId === m.id;
 
@@ -923,7 +922,7 @@ export function NCDetail({
                                 className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-md opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 group-hover:opacity-100"
                                 onClick={() => handleDeleteMessage(m.id)}
                                 disabled={isDeleting}
-                                aria-label="Supprimer le message"
+                                aria-label={t("deleteMessageAria")}
                               >
                                 {isDeleting ? (
                                   <Loader2
@@ -963,7 +962,7 @@ export function NCDetail({
                 className="border-t border-border bg-background/95 p-3 backdrop-blur"
               >
                 <Label htmlFor="nc-message" className="sr-only">
-                  Nouveau message
+                  {t("newMessageLabel")}
                 </Label>
                 <div className="flex items-end gap-2">
                   <Textarea
@@ -972,7 +971,7 @@ export function NCDetail({
                     onChange={(e) => setMessageBody(e.target.value)}
                     onKeyDown={handleMessageKeyDown}
                     rows={2}
-                    placeholder="Écrire un message…"
+                    placeholder={t("messagePlaceholder")}
                     disabled={sending}
                     className="min-h-9 resize-none"
                   />
@@ -980,7 +979,7 @@ export function NCDetail({
                     type="submit"
                     size="icon"
                     disabled={sending || !messageBody.trim()}
-                    aria-label="Envoyer le message"
+                    aria-label={t("sendAria")}
                   >
                     {sending ? (
                       <Loader2
@@ -993,13 +992,12 @@ export function NCDetail({
                   </Button>
                 </div>
                 <p className="mt-1 text-[10px] text-muted-foreground">
-                  Entrée pour envoyer · Maj+Entrée pour aller à la ligne
+                  {t("messageHint")}
                 </p>
               </form>
             ) : (
               <p className="m-3 rounded-md border border-dashed p-3 text-center text-xs text-muted-foreground">
-                Seuls l&apos;auditeur et l&apos;administrateur client peuvent
-                poster un message.
+                {t("canDiscussNotice")}
               </p>
             )}
           </Card>
@@ -1014,12 +1012,12 @@ export function NCDetail({
       >
         <DialogContent className="max-w-5xl gap-2 p-3 sm:p-4">
           <DialogTitle className="sr-only">
-            {previewAttachment?.fileName ?? "Aperçu de la capture"}
+            {previewAttachment?.fileName ?? t("previewTitle")}
           </DialogTitle>
           {previewAttachment?.signedUrl && (
             <img
               src={previewAttachment.signedUrl}
-              alt={previewAttachment.fileName ?? "Aperçu"}
+              alt={previewAttachment.fileName ?? t("previewTitle")}
               className="mx-auto max-h-[80vh] w-auto rounded-md object-contain"
             />
           )}
@@ -1041,6 +1039,7 @@ function ReadField({
   label: string;
   value: string | null;
 }) {
+  const t = useTranslations("audits.ncDetail");
   return (
     <div className="space-y-1">
       <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -1049,7 +1048,7 @@ function ReadField({
       {value ? (
         <p className="whitespace-pre-wrap text-sm leading-relaxed">{value}</p>
       ) : (
-        <p className="text-sm italic text-muted-foreground">Non renseigné.</p>
+        <p className="text-sm italic text-muted-foreground">{t("notFilled")}</p>
       )}
     </div>
   );

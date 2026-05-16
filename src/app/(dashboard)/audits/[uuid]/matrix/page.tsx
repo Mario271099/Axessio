@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
@@ -23,8 +24,9 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
   const { uuid } = await params;
   const sp = await searchParams;
   const supabase = await createClient();
+  const t = await getTranslations("audits.matrix");
+  const tDetail = await getTranslations("audits.detail");
 
-  // 1) Audit + référentiel
   const { data: audit, error: auditError } = await supabase
     .from("audits")
     .select(
@@ -50,9 +52,8 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
     : audit.reference;
   const referenceName = reference
     ? `${REFERENCE_TYPE_LABELS[reference.type as ReferenceType]} ${reference.version}`.trim()
-    : "Référentiel inconnu";
+    : tDetail("unknownReference");
 
-  // 2) Thématiques + critères du référentiel
   const { data: thematicRows } = await supabase
     .from("thematics")
     .select("id, reference_id, identifier, name, sort_order")
@@ -91,7 +92,6 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
     guideline: c.guideline ?? null,
   }));
 
-  // 3) Pages de l'audit
   const { data: pageRows } = await supabase
     .from("pages")
     .select("id, audit_id, name, url, page_type, complexity, sort_order")
@@ -111,16 +111,12 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
   if (pages.length === 0) {
     return (
       <div className="container mx-auto max-w-3xl p-6 md:p-8">
-        <h1 className="text-xl font-semibold">Matrice de conformité</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Aucune page n&apos;a encore été configurée pour cet audit.
-          Ajoutez d&apos;abord des pages dans l&apos;échantillon.
-        </p>
+        <h1 className="text-xl font-semibold">{t("noPagesTitle")}</h1>
+        <p className="mt-3 text-sm text-muted-foreground">{t("noPagesDesc")}</p>
       </div>
     );
   }
 
-  // 4) Toutes les conformités saisies sur l'audit
   const { data: conformityRows } = await supabase
     .from("page_conformities")
     .select("id, audit_id, page_id, criteria_id, status")
@@ -134,7 +130,6 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
     status: row.status as ConformityStatus,
   }));
 
-  // 5) Redirection si pas de page sélectionnée ou page inconnue
   const requested = sp.page;
   const validPage =
     requested && pages.find((p) => p.id === requested) ? requested : null;

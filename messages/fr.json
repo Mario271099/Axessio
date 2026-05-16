@@ -1,0 +1,817 @@
+{
+  "common": {
+    "appName": "Axessio",
+    "loading": "Chargement…",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "search": "Rechercher",
+    "filters": "Filtres",
+    "reset": "Réinitialiser",
+    "viewAll": "Voir tout",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "notFound": {
+    "code": "404",
+    "title": "Page introuvable",
+    "description": "La ressource demandée n'existe pas ou vous n'y avez pas accès.",
+    "cta": "Retour au tableau de bord"
+  },
+  "fileDropZone": {
+    "dropZoneAria": "Glissez vos fichiers ici ou cliquez pour sélectionner",
+    "dropHint": "Glissez vos fichiers ici",
+    "clickHint": " ou cliquez pour sélectionner",
+    "fileTypes": "PNG, JPEG, WebP ou PDF · {max} Mo max par fichier.",
+    "unsupportedFormat": "« {name} » : format non supporté.",
+    "tooLarge": "« {name} » : trop volumineux ({max} Mo max).",
+    "removeAria": "Retirer {name}",
+    "bytes": "{size} o",
+    "kilobytes": "{size} Ko",
+    "megabytes": "{size} Mo"
+  },
+  "sidebar": {
+    "navAria": "Navigation principale",
+    "sections": {
+      "main": "Principal",
+      "management": "Gestion",
+      "other": "Autres"
+    },
+    "items": {
+      "dashboard": "Tableau de bord",
+      "audits": "Audits",
+      "clients": "Clients",
+      "users": "Utilisateurs",
+      "references": "Référentiels",
+      "settings": "Paramètres"
+    },
+    "user": {
+      "profile": "Mon profil",
+      "settings": "Paramètres",
+      "logout": "Déconnexion"
+    },
+    "brandHomeAria": "Axessio — retour au tableau de bord"
+  },
+  "topbar": {
+    "notifications": "Notifications",
+    "notificationsWithUnread": "Notifications — nouvelles activités",
+    "theme": {
+      "switchToLight": "Activer le thème clair",
+      "switchToDark": "Activer le thème sombre"
+    },
+    "language": {
+      "label": "Langue",
+      "current": "Langue : {language}"
+    }
+  },
+  "auth": {
+    "marketing": {
+      "tagline": "Mesurez, suivez, améliorez l'accessibilité de vos produits numériques.",
+      "subtitle": "La plateforme de référence pour vos audits RGAA, WCAG, RAWeb et RAAM.",
+      "benefits": {
+        "compliance": "Conforme aux 4 référentiels officiels",
+        "criteria": "436 critères pré-importés",
+        "reports": "Rapports PDF en un clic",
+        "collaboration": "Collaboration en temps réel"
+      }
+    },
+    "login": {
+      "title": "Bon retour",
+      "subtitle": "Connectez-vous à votre espace Axessio",
+      "email": "Adresse email",
+      "emailPlaceholder": "vous@entreprise.com",
+      "password": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
+      "submit": "Se connecter",
+      "submitting": "Connexion en cours…",
+      "footer": "Pas encore de compte ?",
+      "footerCta": "Contactez votre administrateur.",
+      "errors": {
+        "missing": "Email et mot de passe requis.",
+        "sessionFailed": "La session n'a pas pu être créée. Vérifie tes paramètres Supabase.",
+        "signIn": "Erreur : {message}"
+      }
+    },
+    "setupPassword": {
+      "title": "Bienvenue !",
+      "subtitle": "Définissez votre mot de passe pour activer votre compte.",
+      "footerPrefix": "Connecté en tant que",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "strength": "Force du mot de passe : {label}",
+      "strengthLevels": {
+        "tooShort": "Trop court",
+        "weak": "Faible",
+        "medium": "Moyen",
+        "strong": "Fort"
+      },
+      "criteria": {
+        "minLength": "8 caractères minimum",
+        "uppercase": "Une majuscule",
+        "digit": "Un chiffre"
+      },
+      "mismatch": "Les mots de passe ne correspondent pas.",
+      "submit": "Activer mon compte",
+      "submitting": "Activation en cours…",
+      "errors": {
+        "notMet": "Le mot de passe ne respecte pas les critères requis.",
+        "mismatch": "Les deux mots de passe ne correspondent pas.",
+        "update": "Erreur : {message}"
+      }
+    }
+  },
+  "dashboard": {
+    "hero": {
+      "kicker": "Tableau de bord",
+      "greeting": "Bonjour, {name}",
+      "greetingFallback": "bienvenue",
+      "lastLogin": "Dernière connexion : {date}",
+      "newAudit": "Nouvel audit"
+    },
+    "kpi": {
+      "recentAudits": "Audits récents",
+      "totalSuffix": "sur {total} au total",
+      "inProgress": "En cours",
+      "completed": "Terminés",
+      "averageScore": "Score moyen",
+      "scoreNote": "sur {count, plural, =0 {aucun audit évalué} one {# audit évalué} other {# audits évalués}}"
+    },
+    "evolution": {
+      "title": "Évolution des scores",
+      "ranges": {
+        "7d": "7 j",
+        "30d": "30 j",
+        "90d": "90 j"
+      },
+      "tooltipScore": "Score moyen :"
+    },
+    "statusPie": {
+      "title": "Audits par statut",
+      "empty": "Aucun audit à afficher.",
+      "auditCount": "{count, plural, one {# audit} other {# audits}}",
+      "labels": {
+        "pending": "En attente",
+        "inProgress": "En cours",
+        "completed": "Terminés",
+        "archived": "Archivés"
+      }
+    },
+    "activity": {
+      "title": "Activité récente",
+      "empty": "Aucune activité récente"
+    },
+    "recent": {
+      "title": "Audits récents",
+      "emptyTitle": "Aucun audit pour le moment",
+      "emptyDesc": "Créez votre premier audit pour commencer.",
+      "createCta": "Créer un audit",
+      "noClient": "Sans client",
+      "unknownProject": "Projet inconnu",
+      "updatedOn": "Mis à jour le {date}"
+    }
+  },
+  "roles": {
+    "auditor": "Auditeur",
+    "client_admin": "Administrateur client",
+    "client_member": "Membre"
+  },
+  "clients": {
+    "title": "Clients",
+    "subtitle": "{count, plural, =0 {Aucun client au total} one {# client au total} other {# clients au total}}",
+    "newClient": "Nouveau client",
+    "auditorOnly": "Accès réservé aux auditeurs internes.",
+    "loadError": "Erreur de chargement des clients : {message}",
+    "searchPlaceholder": "Rechercher par nom ou email…",
+    "searchAria": "Rechercher un client",
+    "filterStatusAria": "Filtrer par statut",
+    "filterAll": "Tous",
+    "filterActive": "Actifs",
+    "filterInactive": "Désactivés",
+    "kpi": {
+      "total": "Total clients",
+      "active": "Clients actifs",
+      "audits": "Total audits"
+    },
+    "empty": {
+      "title": "Aucun client",
+      "desc": "Créez votre premier client pour démarrer.",
+      "cta": "Créer le premier client"
+    },
+    "noResults": "Aucun client ne correspond",
+    "active": "Actif",
+    "inactive": "Désactivé",
+    "viewClient": "Voir le client {name}",
+    "projectCount": "{count, plural, one {# projet} other {# projets}}",
+    "auditCount": "{count, plural, one {# audit} other {# audits}}",
+    "dialog": {
+      "createTitle": "Nouveau client",
+      "createDesc": "Créez une nouvelle organisation cliente. Vous pourrez ensuite y rattacher des projets et des audits.",
+      "nameRequired": "Le nom du client est requis.",
+      "name": "Nom",
+      "namePlaceholder": "Ex : Ministère de la Culture",
+      "website": "Site web",
+      "websitePlaceholder": "https://exemple.fr",
+      "contactName": "Nom du contact",
+      "contactNamePlaceholder": "Ex : Camille Martin",
+      "contactEmail": "Email du contact",
+      "contactEmailPlaceholder": "contact@exemple.fr",
+      "submitCreate": "Créer le client"
+    }
+  },
+  "clientDetail": {
+    "breadcrumb": "Fil d'Ariane",
+    "backToClients": "Clients",
+    "createdOn": "Créé le {date}",
+    "edit": "Modifier",
+    "deactivate": "Désactiver",
+    "reactivate": "Réactiver",
+    "confirmReactivate": "Réactiver le client « {name} » ?",
+    "confirmDeactivate": "Désactiver le client « {name} » ?",
+    "active": "Actif",
+    "inactive": "Désactivé",
+    "infoTitle": "Informations",
+    "email": "Email",
+    "contact": "Contact",
+    "website": "Site web",
+    "createdLabel": "Créé le",
+    "statsTitle": "Statistiques",
+    "stats": {
+      "projects": "Projets",
+      "audits": "Audits",
+      "activeAudits": "Audits actifs"
+    },
+    "activityTitle": "Activité récente",
+    "activityEmpty": "Aucune activité récente",
+    "projectsTitle": "Projets",
+    "projectsCount": "{count, plural, =0 {Aucun projet rattaché} one {# projet rattaché} other {# projets rattachés}}",
+    "newProject": "Nouveau projet",
+    "noProjectsTitle": "Aucun projet rattaché",
+    "noProjectsCta": "Créer le premier projet",
+    "auditCount": "{count, plural, one {# audit} other {# audits}}",
+    "editProjectAria": "Modifier le projet {name}",
+    "deleteProjectAria": "Supprimer le projet {name}",
+    "confirmDeleteProject": "Supprimer définitivement le projet « {name} » ?",
+    "projectHasAudits": "{count, plural, one {Ce projet a # audit associé.} other {Ce projet a # audits associés.}}",
+    "loadError": "Erreur de chargement des projets : {message}",
+    "editClient": {
+      "title": "Modifier le client",
+      "desc": "Mettez à jour les informations de cette organisation cliente.",
+      "nameRequired": "Le nom du client est requis."
+    },
+    "createProject": {
+      "title": "Nouveau projet",
+      "desc": "Rattachez un projet (site, application, intranet…) à ce client.",
+      "nameRequired": "Le nom du projet est requis.",
+      "name": "Nom",
+      "namePlaceholder": "Ex : Site institutionnel",
+      "url": "URL",
+      "urlPlaceholder": "https://exemple.fr",
+      "submit": "Créer le projet"
+    },
+    "editProject": {
+      "title": "Modifier le projet",
+      "desc": "Mettez à jour les informations de ce projet."
+    }
+  },
+  "projects": {
+    "title": "Projets",
+    "yours": "Vos projets",
+    "empty": "Aucun projet pour l'instant."
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "subtitle": "{count, plural, =0 {Aucun utilisateur au total} one {# utilisateur au total} other {# utilisateurs au total}}",
+    "inviteUser": "Inviter un utilisateur",
+    "loadError": "Erreur de chargement des utilisateurs : {message}",
+    "loadClientsError": "Erreur de chargement des clients : {message}",
+    "searchPlaceholder": "Rechercher par nom ou email…",
+    "searchAria": "Rechercher un utilisateur",
+    "filterRoleAria": "Filtrer par rôle",
+    "filterStatusAria": "Filtrer par statut",
+    "filterAllRoles": "Tous les rôles",
+    "filterAllStatuses": "Tous les statuts",
+    "kpi": {
+      "total": "Total",
+      "auditors": "Auditeurs",
+      "clientAdmins": "Admins client",
+      "clientMembers": "Membres client"
+    },
+    "table": {
+      "user": "Utilisateur",
+      "role": "Rôle",
+      "client": "Client",
+      "status": "Statut",
+      "actions": "Actions",
+      "you": "Vous"
+    },
+    "status": {
+      "pending": "En attente",
+      "active": "Actif",
+      "inactive": "Désactivé"
+    },
+    "rolesOption": {
+      "auditor": "Auditeur (interne)",
+      "client_admin": "Administrateur client",
+      "client_member": "Membre client"
+    },
+    "empty": {
+      "noUsers": "Aucun utilisateur",
+      "noResults": "Aucun résultat pour ces filtres",
+      "inviteFirst": "Inviter le premier utilisateur"
+    },
+    "actionsAria": "Actions pour {email}",
+    "resendInvite": "Renvoyer l'invitation",
+    "editRole": "Modifier le rôle",
+    "deactivate": "Désactiver",
+    "reactivate": "Réactiver",
+    "confirmReactivate": "Réactiver l'utilisateur {email} ?",
+    "confirmDeactivate": "Désactiver l'utilisateur {email} ? Il ne pourra plus se connecter.",
+    "errorPrefix": "Erreur : {message}",
+    "resendSuccess": "Invitation renvoyée à {email}.",
+    "inviteDialog": {
+      "title": "Inviter un utilisateur",
+      "desc": "L'utilisateur recevra un email avec un lien pour activer son compte.",
+      "emailRequired": "L'email est requis.",
+      "firstNameRequired": "Le prénom est requis.",
+      "lastNameRequired": "Le nom est requis.",
+      "clientRequired": "Sélectionnez un client de rattachement.",
+      "email": "Email",
+      "emailPlaceholder": "prenom.nom@exemple.fr",
+      "firstName": "Prénom",
+      "firstNamePlaceholder": "Camille",
+      "lastName": "Nom",
+      "lastNamePlaceholder": "Martin",
+      "role": "Rôle",
+      "client": "Client de rattachement",
+      "clientPlaceholder": "Sélectionner un client",
+      "noClients": "Aucun client actif disponible.",
+      "submit": "Envoyer l'invitation",
+      "successAlert": "Invitation envoyée."
+    },
+    "editRoleDialog": {
+      "title": "Modifier le rôle",
+      "desc": "Mettez à jour le rôle et le client de rattachement.",
+      "successAlert": "Rôle mis à jour."
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "myProfile": "Mon profil",
+    "name": "Nom",
+    "email": "Email",
+    "role": "Rôle",
+    "language": "Langue",
+    "languageFr": "Français",
+    "languageEn": "English"
+  },
+  "constants": {
+    "auditStatus": {
+      "PENDING": "En attente",
+      "PLANNED": "Planifié",
+      "IN_PROGRESS": "En cours",
+      "DELIVERED": "Livré",
+      "REMEDIATION": "Remédiation",
+      "COUNTER_AUDIT": "Contre-audit",
+      "ONLINE": "En ligne",
+      "COMPLETED": "Terminé",
+      "ARCHIVED": "Archivé"
+    },
+    "ncStatus": {
+      "OPEN": "Ouverte",
+      "IN_PROGRESS": "En cours",
+      "CORRECTED": "Corrigée",
+      "NON_REPRODUCIBLE": "Non reproductible",
+      "RESOLVED": "Résolue",
+      "REJECTED": "Rejetée",
+      "CANCELLED": "Annulée",
+      "TO_FIX": "À corriger",
+      "FIXED": "Corrigée",
+      "FALSE_POSITIVE": "Faux positif"
+    },
+    "ncSeverity": {
+      "LOW": "Faible",
+      "MEDIUM": "Moyenne",
+      "HIGH": "Haute",
+      "CRITICAL": "Critique"
+    },
+    "conformity": {
+      "COMPLIANT": "Conforme",
+      "NON_COMPLIANT": "Non conforme",
+      "NOT_APPLICABLE": "Non applicable"
+    },
+    "pageType": {
+      "MANDATORY": "Obligatoire",
+      "REPRESENTATIVE": "Représentative",
+      "TRANSVERSAL": "Transversale"
+    },
+    "complexity": {
+      "ULTRA_SIMPLE": "Très simple",
+      "SIMPLE": "Simple",
+      "MINIMAL": "Minimale",
+      "COMPLEX": "Complexe"
+    },
+    "platform": {
+      "WEB": "Web",
+      "MOBILE": "Mobile"
+    },
+    "serviceType": {
+      "AUDIT": "Audit avec contre-audit",
+      "NO_COUNTER_AUDIT": "Audit sans contre-audit",
+      "COMPLIANCE_AUDIT": "Audit de conformité"
+    }
+  },
+  "audits": {
+    "list": {
+      "title": "Audits",
+      "subtitle": "{count, plural, =0 {Aucun audit accessible} one {# audit accessible} other {# audits accessibles}}.",
+      "newAudit": "Nouvel audit",
+      "cardTitle": "Tous les audits",
+      "empty": "Aucun audit pour l'instant.",
+      "caption": "Liste des audits",
+      "columns": {
+        "project": "Projet",
+        "client": "Client",
+        "reference": "Référentiel",
+        "platform": "Plateforme",
+        "status": "Statut",
+        "score": "Score",
+        "updated": "Mis à jour",
+        "action": "Action"
+      },
+      "viewAudit": "Voir l'audit du projet {name}"
+    },
+    "new": {
+      "metaTitle": "Nouvel audit",
+      "breadcrumbBack": "Audits",
+      "breadcrumbCurrent": "Nouvel audit",
+      "title": "Nouvel audit",
+      "subtitle": "Créez un audit en 3 étapes. Les pages obligatoires seront ajoutées automatiquement.",
+      "stepLabel": "Étape",
+      "stepCount": "Étape {current} sur {total}",
+      "stepsAria": "Étapes du formulaire",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "creating": "Création en cours…",
+      "create": "Créer l'audit",
+      "steps": {
+        "project": {
+          "label": "Projet",
+          "title": "Choisir un projet",
+          "description": "Le projet doit déjà exister. Si ce n'est pas le cas, créez-le d'abord depuis la fiche client.",
+          "field": "Projet à auditer",
+          "placeholder": "Sélectionner un projet…",
+          "clientLabel": "Client :",
+          "emptyTitle": "Aucun projet disponible",
+          "emptyDesc": "Créez un projet depuis la fiche client avant de lancer un audit.",
+          "emptyCta": "Voir mes clients"
+        },
+        "reference": {
+          "label": "Référentiel",
+          "title": "Référentiel et type de service",
+          "description": "Le référentiel détermine la liste des critères à évaluer.",
+          "field": "Référentiel d'accessibilité",
+          "placeholder": "Choisir un référentiel…",
+          "platform": "Plateforme",
+          "serviceType": "Type de prestation",
+          "language": "Langue de l'audit"
+        },
+        "planning": {
+          "label": "Planning",
+          "title": "Planning et informations",
+          "description": "Toutes les informations de cette étape sont optionnelles.",
+          "startDate": "Démarrage prévu",
+          "endDate": "Fin prévue",
+          "a11yLink": "Lien vers la page d'accessibilité",
+          "a11yLinkPlaceholder": "https://exemple.com/accessibilite",
+          "notes": "Notes internes",
+          "notesPlaceholder": "Contexte, contraintes particulières…",
+          "mandatoryPagesTitle": "Pages obligatoires",
+          "mandatoryPagesDesc": "Les 5 pages obligatoires (Accueil, Contact, Mentions légales, Plan du site, Page d'accessibilité) seront créées automatiquement. Vous pourrez les supprimer ensuite si elles ne correspondent pas à votre site."
+        }
+      },
+      "recap": {
+        "title": "Récapitulatif",
+        "project": "Projet",
+        "reference": "Référentiel",
+        "platform": "Plateforme",
+        "serviceType": "Type de prestation",
+        "language": "Langue"
+      }
+    },
+    "detail": {
+      "back": "Retour aux audits",
+      "noProjectTitle": "Audit sans projet",
+      "unknownReference": "Référentiel inconnu",
+      "edit": "Modifier",
+      "openSimulator": "Ouvrir le simulateur",
+      "conformityRate": "Taux de conformité",
+      "conformityAria": "Conformité : {score}%",
+      "scoreInitial": "Score initial",
+      "scoreFinal": "Score final",
+      "samplePages": "Pages échantillon",
+      "openNCs": "NC ouvertes",
+      "planning": "Planning",
+      "startDate": "Démarrage prévu",
+      "endDate": "Fin prévue",
+      "deliveredAt": "Livré le",
+      "onlineAt": "Mis en ligne",
+      "quickLinks": {
+        "matrixTitle": "Matrice de conformité",
+        "matrixDesc": "Saisir le statut de conformité pour chaque critère et chaque page.",
+        "sampleTitle": "Échantillon",
+        "sampleDesc": "Pages testées et leur complexité.",
+        "anomaliesTitle": "Non-conformités",
+        "anomaliesDesc": "Toutes les NC, par sévérité et par page.",
+        "simulatorTitle": "Simulateur de remédiation",
+        "simulatorDesc": "Voir l'impact de corrections virtuelles sur le score."
+      }
+    },
+    "edit": {
+      "back": "Retour à l'audit",
+      "title": "Modifier l'audit",
+      "subtitle": "Mettez à jour les paramètres et le statut de l'audit.",
+      "section1": "Référentiel et configuration",
+      "reference": "Référentiel",
+      "platform": "Plateforme",
+      "serviceType": "Type de prestation",
+      "status": "Statut",
+      "language": "Langue",
+      "section2": "Planning et informations",
+      "startDate": "Démarrage prévu",
+      "endDate": "Fin prévue",
+      "a11yLink": "Lien vers la page d'accessibilité",
+      "notes": "Notes internes",
+      "saving": "Sauvegarde…",
+      "save": "Sauvegarder",
+      "cancel": "Annuler"
+    },
+    "sample": {
+      "back": "Retour à l'audit",
+      "title": "Échantillon",
+      "subtitle": "{count, plural, =0 {Aucune page testée} one {# page testée} other {# pages testées}}.",
+      "cardTitle": "Pages de l'échantillon",
+      "addPage": "Ajouter une page",
+      "pageName": "Nom de la page",
+      "pageNamePlaceholder": "Page contact, Liste produits…",
+      "complexity": "Complexité",
+      "complexityNone": "— Non définie —",
+      "pageUrl": "URL de la page",
+      "pageUrlPlaceholder": "https://exemple.com/contact",
+      "adding": "Ajout en cours…",
+      "add": "Ajouter",
+      "cancel": "Annuler",
+      "saving": "Sauvegarde…",
+      "save": "Sauvegarder",
+      "empty": "Aucune page configurée pour cet audit.",
+      "noUrl": "Aucune URL renseignée",
+      "editAria": "Modifier la page {name}",
+      "deleteAria": "Supprimer la page {name}",
+      "confirmDelete": "Supprimer la page « {name} » ? Cette action est irréversible.",
+      "errorPrefix": "Erreur : {message}"
+    },
+    "report": {
+      "exportPdf": "Exporter le rapport PDF",
+      "generating": "Génération en cours…",
+      "unknownError": "Erreur inconnue lors de l'export.",
+      "errorPrefix": "Erreur {status}"
+    },
+    "matrix": {
+      "breadcrumbCurrent": "Matrice de conformité",
+      "noPagesTitle": "Matrice de conformité",
+      "noPagesDesc": "Aucune page n'a encore été configurée pour cet audit. Ajoutez d'abord des pages dans l'échantillon.",
+      "title": "Matrice de conformité",
+      "subtitleCriteria": "{count, plural, one {# critère à évaluer} other {# critères à évaluer}}",
+      "globalScore": "Score global",
+      "auditInProgress": "audit en cours",
+      "noEntry": "aucune saisie",
+      "globalScoreAria": "Score global de l'audit : {score}%",
+      "noScoreAria": "Score global non disponible",
+      "save": {
+        "saving": "Sauvegarde en cours…",
+        "errorPrefix": "Erreur : {message}",
+        "fallbackError": "sauvegarde impossible",
+        "pending": "{count, plural, one {# modification en attente} other {# modifications en attente}}",
+        "allSaved": "Tout est sauvegardé",
+        "saveAll": "Sauvegarder tout"
+      },
+      "sidebar": {
+        "aria": "Pages de l'audit",
+        "title": "Pages",
+        "pagesSaisi": "{filled} / {total} pages saisies",
+        "progressAria": "Progression : {percent}%",
+        "criteriaCount": "{filled} / {total} critères",
+        "globalProgress": "Progression globale",
+        "globalAria": "Progression globale {percent}%"
+      },
+      "content": {
+        "scoreLabel": "Score de la page",
+        "compliant": "Conformes",
+        "nonCompliant": "Non conformes",
+        "notApplicable": "Non applicables",
+        "pending": "Non évalués",
+        "filterAria": "Filtrer les critères",
+        "filterAll": "Tout",
+        "filterPending": "À saisir",
+        "filterCompliant": "Conformes",
+        "filterNonCompliant": "Non conformes",
+        "filterNotApplicable": "Non applicables"
+      },
+      "thematic": {
+        "saisiAria": "{filled} sur {total} critères saisis",
+        "saisiLabel": "{filled} / {total} saisis",
+        "bulkNA": "Tout marquer NA",
+        "clearAll": "Tout effacer",
+        "viewMethodology": "Voir la méthodologie",
+        "wcagLevelAria": "Niveau WCAG {level}"
+      },
+      "cell": {
+        "groupAria": "{prefix} : statut de conformité",
+        "compliantAria": "{prefix} : marquer {label}",
+        "compliantText": "Conforme",
+        "nonCompliantText": "Non conforme",
+        "notApplicableText": "Non applicable"
+      },
+      "ncModal": {
+        "title": "Créer une non-conformité",
+        "criterion": "Critère {identifier}",
+        "page": "Page : {name}",
+        "ncTitle": "Titre",
+        "ncTitlePlaceholder": "Ex : Lien sans intitulé dans le pied de page",
+        "description": "Description",
+        "descriptionPlaceholder": "Décrire le problème observé.",
+        "recommendation": "Recommandation",
+        "recommendationPlaceholder": "Décrire la correction attendue.",
+        "severity": "Sévérité",
+        "screenshots": "Captures d'écran",
+        "titleRequired": "Le titre est requis.",
+        "creationFailed": "Échec de la création.",
+        "captureErrors": "Non-conformité créée, mais {count} capture(s) en erreur : {errors}",
+        "submit": "Créer la NC"
+      }
+    },
+    "anomalies": {
+      "breadcrumb": "Non-conformités",
+      "title": "Non-conformités",
+      "subtitle": "{count, plural, =0 {Aucune non-conformité sur cet audit} one {# non-conformité sur cet audit} other {# non-conformités sur cet audit}}",
+      "newNC": "Nouvelle NC",
+      "kpi": {
+        "total": "Total",
+        "toFix": "À corriger",
+        "fixed": "Corrigées",
+        "falsePositive": "Faux positifs"
+      },
+      "searchPlaceholder": "Rechercher par titre…",
+      "searchAria": "Rechercher par titre",
+      "filterStatusAria": "Filtrer par statut",
+      "filterStatusPlaceholder": "Statut",
+      "filterAllStatuses": "Tous les statuts",
+      "filterSeverityAria": "Filtrer par sévérité",
+      "filterSeverityPlaceholder": "Sévérité",
+      "filterAllSeverities": "Toutes les sévérités",
+      "filterPageAria": "Filtrer par page",
+      "filterPagePlaceholder": "Page",
+      "filterAllPages": "Toutes les pages",
+      "filterTransversal": "Transversale",
+      "page": "Page :",
+      "transversal": "Transversale",
+      "createdOn": "Créée le {date}",
+      "messages": "messages",
+      "captures": "captures",
+      "counterAria": "{count} {label}",
+      "emptyTitle": "Aucune non-conformité enregistrée",
+      "emptyDesc": "Créez votre première NC depuis la matrice de conformité.",
+      "noResultsTitle": "Aucune NC pour les filtres sélectionnés",
+      "noResultsDesc": "Essayez d'élargir vos filtres."
+    },
+    "ncDetail": {
+      "breadcrumbDetail": "Détail",
+      "statusAria": "Statut de la non-conformité",
+      "linkedCriterion": "Critère lié",
+      "officialDocs": "Documentation officielle",
+      "methodology": "Méthodologie de test",
+      "noMethodology": "Aucune méthodologie disponible.",
+      "ncDetails": "Détails de la non-conformité",
+      "edit": "Modifier",
+      "description": "Description",
+      "actualResult": "Résultat obtenu",
+      "recommendation": "Recommandation",
+      "severity": "Sévérité",
+      "linkedPage": "Page liée",
+      "transversal": "Transversale (aucune page)",
+      "save": "Sauvegarder",
+      "cancel": "Annuler",
+      "page": "Page :",
+      "transversalShort": "Transversale",
+      "notFilled": "Non renseigné.",
+      "screenshots": "Captures d'écran",
+      "filesCount": "{count, plural, one {# fichier} other {# fichiers}}",
+      "uploading": "Envoi des captures…",
+      "openPdf": "Ouvrir le PDF",
+      "unavailable": "Indisponible",
+      "enlargeAria": "Agrandir {name}",
+      "openAria": "Ouvrir {name}",
+      "deleteAria": "Supprimer {name}",
+      "noScreenshots": "Aucune capture",
+      "noScreenshotsDesc": "Glissez-déposez ou cliquez ci-dessous pour ajouter une capture.",
+      "confirmDeleteCapture": "Supprimer cette capture ?",
+      "discussion": "Discussion",
+      "noMessages": "Aucun message pour l'instant",
+      "noMessagesDesc": "Démarrez la discussion ci-dessous.",
+      "messageDateAt": "{date} à {hh}h{mm}",
+      "newMessageLabel": "Nouveau message",
+      "messagePlaceholder": "Écrire un message…",
+      "sendAria": "Envoyer le message",
+      "messageHint": "Entrée pour envoyer · Maj+Entrée pour aller à la ligne",
+      "canDiscussNotice": "Seuls l'auditeur et l'administrateur client peuvent poster un message.",
+      "deleteMessageAria": "Supprimer le message",
+      "confirmDeleteMessage": "Supprimer ce message ?",
+      "previewTitle": "Aperçu de la capture",
+      "user": "Utilisateur"
+    },
+    "anomaliesNew": {
+      "back": "Retour aux non-conformités",
+      "title": "Nouvelle non-conformité",
+      "subtitle": "Renseignez le critère concerné, la page testée et la description de l'anomalie.",
+      "info": "Informations",
+      "noPages": "Cet audit n'a aucune page configurée. Ajoutez d'abord des pages dans l'échantillon.",
+      "noCriteria": "Aucun critère trouvé pour le référentiel de cet audit.",
+      "criterion": "Critère",
+      "criterionPlaceholder": "Sélectionner un critère",
+      "page": "Page",
+      "pagePlaceholder": "Sélectionner une page",
+      "ncTitle": "Titre",
+      "ncTitlePlaceholder": "Résumé court de l'anomalie",
+      "description": "Description",
+      "descriptionPlaceholder": "Décrivez le contexte et le problème observé.",
+      "actualResult": "Résultat obtenu",
+      "actualResultPlaceholder": "Ce qui se produit aujourd'hui (constat factuel).",
+      "recommendation": "Recommandation",
+      "recommendationPlaceholder": "Action corrective proposée.",
+      "severity": "Sévérité",
+      "screenshots": "Captures d'écran",
+      "titleRequired": "Le titre est requis.",
+      "criterionRequired": "Le critère est requis.",
+      "pageRequired": "La page est requise.",
+      "creationFailed": "Échec de la création.",
+      "captureWarning": "Non-conformité créée, mais {count} capture(s) en erreur : {errors}",
+      "cancel": "Annuler",
+      "submit": "Créer la non-conformité"
+    },
+    "simulator": {
+      "metaTitle": "Simulateur de remédiation",
+      "back": "Retour à l'audit",
+      "title": "Simulateur de remédiation",
+      "subtitle": "Cochez des non-conformités pour visualiser l'impact sur le score, sans rien modifier dans l'audit officiel.",
+      "initialScore": "Score initial",
+      "criteriaCompliant": "{compliant} / {total} critères conformes",
+      "simulatedScore": "Score simulé",
+      "simulatedAria": "Score simulé : {score}%",
+      "extraCompliant": "{count, plural, one {# critère supplémentaire conforme} other {# critères supplémentaires conformes}}",
+      "quickSelect": "Sélection rapide",
+      "checkAll": "Tout cocher ({count})",
+      "criticalOnly": "Critiques uniquement",
+      "highOnly": "Hautes uniquement",
+      "reset": "Réinitialiser",
+      "ncsTitle": "Non-conformités à simuler comme corrigées",
+      "ncsSubtitle": "{checked} cochée{plural} sur {total}. Aucune modification n'est enregistrée.",
+      "searchPlaceholder": "Rechercher dans le titre…",
+      "searchAria": "Rechercher dans le titre des non-conformités",
+      "sortAria": "Trier par",
+      "filterSeverityAria": "Filtrer par sévérité",
+      "filterStatusAria": "Filtrer par statut",
+      "filterPageAria": "Filtrer par page",
+      "filterThematicAria": "Filtrer par thématique",
+      "allSeverities": "Toutes sévérités",
+      "allPages": "Toutes les pages",
+      "transversalPages": "Transversales",
+      "allThematics": "Toutes thématiques",
+      "ncCountShown": "NC affichée{plural}",
+      "resetFilters": "Réinitialiser les filtres",
+      "emptyAll": "Aucune non-conformité sur cet audit.",
+      "emptyFilters": "Aucune non-conformité ne correspond aux filtres.",
+      "alreadyFixed": "Déjà corrigée",
+      "transversal": "Transversale",
+      "simulateAria": "Simuler la correction de {identifier} : {title}",
+      "sort": {
+        "ALL": "Tous les statuts",
+        "TODO": "À corriger",
+        "IN_PROGRESS": "En cours",
+        "FIXED": "Corrigée",
+        "FALSE_POSITIVE": "Faux positif",
+        "SEVERITY_DESC": "Sévérité (décroissante)",
+        "SEVERITY_ASC": "Sévérité (croissante)",
+        "BY_PAGE": "Grouper par page",
+        "BY_THEMATIC": "Grouper par thématique",
+        "BY_CRITERION": "Numéro de critère",
+        "noThematic": "Sans thématique"
+      },
+      "noProjectAccess": "—"
+    }
+  }
+}

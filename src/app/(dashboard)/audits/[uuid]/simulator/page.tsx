@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,10 @@ import type {
 } from "@/components/audit/remediation-simulator";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Simulateur de remédiation" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("audits.simulator");
+  return { title: t("metaTitle") };
+}
 
 interface PageProps {
   params: Promise<{ uuid: string }>;
@@ -27,8 +31,8 @@ export default async function SimulatorPage({ params }: PageProps) {
   await requireProfile();
   const { uuid } = await params;
   const supabase = await createClient();
+  const t = await getTranslations("audits.simulator");
 
-  // 1. L'audit lui-même (pour le titre et le référentiel)
   const { data: audit, error } = await supabase
     .from("audits")
     .select(
@@ -51,7 +55,6 @@ export default async function SimulatorPage({ params }: PageProps) {
       : project.client
     : null;
 
-  // 2. Total de critères du référentiel
   const { count: totalCriteria } = await supabase
     .from("criteria")
     .select("id, thematic:thematics!inner(reference_id)", {
@@ -60,7 +63,6 @@ export default async function SimulatorPage({ params }: PageProps) {
     })
     .eq("thematic.reference_id", audit.reference_id);
 
-  // 3. Chargement parallèle : conformités, NC (toutes), pages, thématiques
   const [
     { data: conformities },
     { data: ncs },
@@ -97,7 +99,6 @@ export default async function SimulatorPage({ params }: PageProps) {
       .order("sort_order"),
   ]);
 
-  // 4. Score initial (depuis page_conformities)
   const distinctCompliant = new Set<string>();
   const distinctNotApplicable = new Set<string>();
   for (const c of conformities ?? []) {
@@ -105,7 +106,6 @@ export default async function SimulatorPage({ params }: PageProps) {
     if (c.status === "NOT_APPLICABLE") distinctNotApplicable.add(c.criteria_id);
   }
 
-  // 5. Normalisation des NC
   type RawCriterionThematic = {
     id: string;
     identifier: string;
@@ -147,7 +147,7 @@ export default async function SimulatorPage({ params }: PageProps) {
             identifier: criterion.identifier,
             name: criterion.name,
           }
-        : { id: n.criteria_id as string, identifier: "?", name: "Critère inconnu" },
+        : { id: n.criteria_id as string, identifier: "?", name: "?" },
       thematic: thematic
         ? {
             id: thematic.id,
@@ -167,25 +167,24 @@ export default async function SimulatorPage({ params }: PageProps) {
   }));
 
   const referenceThematics: SimulatorThematic[] = (thematicRows ?? []).map(
-    (t) => ({
-      id: t.id as string,
-      identifier: t.identifier as string,
-      name: t.name as string,
-      sortOrder: t.sort_order as number,
+    (tm) => ({
+      id: tm.id as string,
+      identifier: tm.identifier as string,
+      name: tm.name as string,
+      sortOrder: tm.sort_order as number,
     }),
   );
 
-  // ncId → criteriaId pour le calcul de "tous les NC d'un critère cochés"
   const fixableCriteriaPerNC: Record<string, string> = {};
   for (const nc of allNCs) fixableCriteriaPerNC[nc.id] = nc.criterion.id;
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <nav aria-label="Fil d'Ariane">
+      <nav aria-label="Breadcrumb">
         <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
           <Link href={`/audits/${uuid}`}>
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-            Retour à l&apos;audit
+            {t("back")}
           </Link>
         </Button>
       </nav>
@@ -194,13 +193,8 @@ export default async function SimulatorPage({ params }: PageProps) {
         <p className="text-xs text-muted-foreground">
           {client?.name ?? "—"} · {project?.name ?? "—"}
         </p>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Simulateur de remédiation
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Cochez des non-conformités pour visualiser l&apos;impact sur le score, sans
-          rien modifier dans l&apos;audit officiel.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </header>
 
       <RemediationSimulator

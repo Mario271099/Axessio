@@ -1,20 +1,26 @@
 import Link from "next/link";
 import { ChevronRight, Plus } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
 import { formatDate, formatScore } from "@/lib/utils";
-import { PLATFORM_LABELS, REFERENCE_TYPE_LABELS } from "@/lib/constants";
+import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import type { Metadata } from "next";
 import type { AuditStatus, PlatformType, ReferenceType } from "@/types/domain";
 
-export const metadata: Metadata = { title: "Audits" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("audits.list");
+  return { title: t("title") };
+}
 
 export default async function AuditsPage() {
   const profile = await requireProfile();
   const supabase = await createClient();
+  const t = await getTranslations("audits.list");
+  const tPlatform = await getTranslations("constants.platform");
 
   const { data } = await supabase
     .from("audits")
@@ -35,9 +41,9 @@ export default async function AuditsPage() {
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Audits</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {audits.length} audit{audits.length > 1 ? "s" : ""} accessible{audits.length > 1 ? "s" : ""}.
+            {t("subtitle", { count: audits.length })}
           </p>
         </div>
 
@@ -45,7 +51,7 @@ export default async function AuditsPage() {
           <Button asChild>
             <Link href="/audits/new">
               <Plus className="h-4 w-4" aria-hidden="true" />
-              Nouvel audit
+              {t("newAudit")}
             </Link>
           </Button>
         )}
@@ -53,27 +59,43 @@ export default async function AuditsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Tous les audits</CardTitle>
+          <CardTitle className="text-base">{t("cardTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {audits.length === 0 ? (
             <div className="p-8 text-center text-sm text-muted-foreground">
-              Aucun audit pour l&apos;instant.
+              {t("empty")}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <caption className="sr-only">Liste des audits</caption>
+                <caption className="sr-only">{t("caption")}</caption>
                 <thead className="border-b border-border bg-muted/40">
                   <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                    <th scope="col" className="px-4 py-2 font-medium">Projet</th>
-                    <th scope="col" className="px-4 py-2 font-medium">Client</th>
-                    <th scope="col" className="px-4 py-2 font-medium">Référentiel</th>
-                    <th scope="col" className="px-4 py-2 font-medium">Plateforme</th>
-                    <th scope="col" className="px-4 py-2 font-medium">Statut</th>
-                    <th scope="col" className="px-4 py-2 font-medium tabular-nums">Score</th>
-                    <th scope="col" className="px-4 py-2 font-medium">Mis à jour</th>
-                    <th scope="col" className="px-4 py-2"><span className="sr-only">Action</span></th>
+                    <th scope="col" className="px-4 py-2 font-medium">
+                      {t("columns.project")}
+                    </th>
+                    <th scope="col" className="px-4 py-2 font-medium">
+                      {t("columns.client")}
+                    </th>
+                    <th scope="col" className="px-4 py-2 font-medium">
+                      {t("columns.reference")}
+                    </th>
+                    <th scope="col" className="px-4 py-2 font-medium">
+                      {t("columns.platform")}
+                    </th>
+                    <th scope="col" className="px-4 py-2 font-medium">
+                      {t("columns.status")}
+                    </th>
+                    <th scope="col" className="px-4 py-2 font-medium tabular-nums">
+                      {t("columns.score")}
+                    </th>
+                    <th scope="col" className="px-4 py-2 font-medium">
+                      {t("columns.updated")}
+                    </th>
+                    <th scope="col" className="px-4 py-2">
+                      <span className="sr-only">{t("columns.action")}</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -109,7 +131,7 @@ export default async function AuditsPage() {
                           ) : "—"}
                         </td>
                         <td className="px-4 py-3 text-muted-foreground">
-                          {PLATFORM_LABELS[a.platform as PlatformType]}
+                          {tPlatform(a.platform as PlatformType)}
                         </td>
                         <td className="px-4 py-3">
                           <AuditStatusBadge status={a.status as AuditStatus} />
@@ -121,7 +143,7 @@ export default async function AuditsPage() {
                         <td className="px-4 py-3 text-right">
                           <Link
                             href={`/audits/${a.id}`}
-                            aria-label={`Voir l'audit du projet ${project?.name ?? ""}`}
+                            aria-label={t("viewAudit", { name: project?.name ?? "" })}
                             className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
                           >
                             <ChevronRight className="h-4 w-4" aria-hidden="true" />

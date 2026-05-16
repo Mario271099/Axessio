@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
   Check,
@@ -41,15 +42,24 @@ function passwordStrength(criteria: PasswordCriteria): number {
   );
 }
 
-const STRENGTH_META = [
-  { label: "Trop court", color: "bg-muted-foreground/30" },
-  { label: "Faible", color: "bg-destructive" },
-  { label: "Moyen", color: "bg-warning" },
-  { label: "Fort", color: "bg-success" },
+const STRENGTH_KEYS = [
+  "tooShort",
+  "weak",
+  "medium",
+  "strong",
+] as const;
+
+const STRENGTH_COLORS = [
+  "bg-muted-foreground/30",
+  "bg-destructive",
+  "bg-warning",
+  "bg-success",
 ] as const;
 
 export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
   void email; // affiché dans le footer parent
+  const t = useTranslations("auth.setupPassword");
+  const tLogin = useTranslations("auth.login");
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -59,7 +69,9 @@ export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
 
   const criteria = useMemo(() => evaluatePassword(password), [password]);
   const strength = passwordStrength(criteria);
-  const meta = STRENGTH_META[strength] ?? STRENGTH_META[0];
+  const strengthKey = STRENGTH_KEYS[strength] ?? STRENGTH_KEYS[0];
+  const strengthColor = STRENGTH_COLORS[strength] ?? STRENGTH_COLORS[0];
+  const strengthLabel = t(`strengthLevels.${strengthKey}`);
 
   const allCriteriaMet =
     criteria.minLength && criteria.hasUppercase && criteria.hasDigit;
@@ -70,11 +82,11 @@ export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
     setError(null);
 
     if (!allCriteriaMet) {
-      setError("Le mot de passe ne respecte pas les critères requis.");
+      setError(t("errors.notMet"));
       return;
     }
     if (!passwordsMatch) {
-      setError("Les deux mots de passe ne correspondent pas.");
+      setError(t("errors.mismatch"));
       return;
     }
 
@@ -85,7 +97,7 @@ export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
     });
 
     if (updateError) {
-      setError(`Erreur : ${updateError.message}`);
+      setError(t("errors.update", { message: updateError.message }));
       setPending(false);
       return;
     }
@@ -110,7 +122,7 @@ export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="new-password">Nouveau mot de passe</Label>
+        <Label htmlFor="new-password">{t("newPassword")}</Label>
         <div className="relative">
           <Lock
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -135,9 +147,7 @@ export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
             onClick={() => setShowPassword((v) => !v)}
             className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={
-              showPassword
-                ? "Masquer le mot de passe"
-                : "Afficher le mot de passe"
+              showPassword ? tLogin("hidePassword") : tLogin("showPassword")
             }
             aria-pressed={showPassword}
             tabIndex={-1}
@@ -158,7 +168,7 @@ export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
                 key={i}
                 className={cn(
                   "h-1.5 flex-1 rounded-full transition-colors",
-                  i < strength ? meta.color : "bg-muted",
+                  i < strength ? strengthColor : "bg-muted",
                 )}
               />
             ))}
@@ -173,7 +183,7 @@ export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
             )}
             aria-live="polite"
           >
-            Force du mot de passe : {meta.label}
+            {t("strength", { label: strengthLabel })}
           </p>
         </div>
 
@@ -182,14 +192,14 @@ export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
           id="password-criteria"
           className="space-y-1 pt-1 text-xs text-muted-foreground"
         >
-          <Criterion ok={criteria.minLength}>8 caractères minimum</Criterion>
-          <Criterion ok={criteria.hasUppercase}>Une majuscule</Criterion>
-          <Criterion ok={criteria.hasDigit}>Un chiffre</Criterion>
+          <Criterion ok={criteria.minLength}>{t("criteria.minLength")}</Criterion>
+          <Criterion ok={criteria.hasUppercase}>{t("criteria.uppercase")}</Criterion>
+          <Criterion ok={criteria.hasDigit}>{t("criteria.digit")}</Criterion>
         </ul>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
+        <Label htmlFor="confirm-password">{t("confirmPassword")}</Label>
         <div className="relative">
           <Lock
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -211,7 +221,7 @@ export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
         </div>
         {confirm.length > 0 && !passwordsMatch && (
           <p className="text-xs text-destructive" aria-live="polite">
-            Les mots de passe ne correspondent pas.
+            {t("mismatch")}
           </p>
         )}
       </div>
@@ -225,10 +235,10 @@ export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
         {pending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            Activation en cours…
+            {t("submitting")}
           </>
         ) : (
-          "Activer mon compte"
+          t("submit")
         )}
       </Button>
     </form>

@@ -1,0 +1,817 @@
+{
+  "common": {
+    "appName": "Axessio",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filters": "Filters",
+    "reset": "Reset",
+    "viewAll": "View all",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "notFound": {
+    "code": "404",
+    "title": "Page not found",
+    "description": "The requested resource does not exist or you don't have access to it.",
+    "cta": "Back to dashboard"
+  },
+  "fileDropZone": {
+    "dropZoneAria": "Drag your files here or click to select",
+    "dropHint": "Drag your files here",
+    "clickHint": " or click to select",
+    "fileTypes": "PNG, JPEG, WebP or PDF · {max} MB max per file.",
+    "unsupportedFormat": "\"{name}\": unsupported format.",
+    "tooLarge": "\"{name}\": too large ({max} MB max).",
+    "removeAria": "Remove {name}",
+    "bytes": "{size} B",
+    "kilobytes": "{size} KB",
+    "megabytes": "{size} MB"
+  },
+  "sidebar": {
+    "navAria": "Main navigation",
+    "sections": {
+      "main": "Main",
+      "management": "Management",
+      "other": "Other"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "audits": "Audits",
+      "clients": "Clients",
+      "users": "Users",
+      "references": "Standards",
+      "settings": "Settings"
+    },
+    "user": {
+      "profile": "My profile",
+      "settings": "Settings",
+      "logout": "Sign out"
+    },
+    "brandHomeAria": "Axessio — back to dashboard"
+  },
+  "topbar": {
+    "notifications": "Notifications",
+    "notificationsWithUnread": "Notifications — new activity",
+    "theme": {
+      "switchToLight": "Switch to light theme",
+      "switchToDark": "Switch to dark theme"
+    },
+    "language": {
+      "label": "Language",
+      "current": "Language: {language}"
+    }
+  },
+  "auth": {
+    "marketing": {
+      "tagline": "Measure, track and improve the accessibility of your digital products.",
+      "subtitle": "The reference platform for your RGAA, WCAG, RAWeb and RAAM audits.",
+      "benefits": {
+        "compliance": "Compliant with the 4 official standards",
+        "criteria": "436 pre-imported criteria",
+        "reports": "PDF reports in one click",
+        "collaboration": "Real-time collaboration"
+      }
+    },
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your Axessio workspace",
+      "email": "Email address",
+      "emailPlaceholder": "you@company.com",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "footer": "Don't have an account yet?",
+      "footerCta": "Contact your administrator.",
+      "errors": {
+        "missing": "Email and password are required.",
+        "sessionFailed": "Session could not be created. Check your Supabase configuration.",
+        "signIn": "Error: {message}"
+      }
+    },
+    "setupPassword": {
+      "title": "Welcome!",
+      "subtitle": "Set a password to activate your account.",
+      "footerPrefix": "Signed in as",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "strength": "Password strength: {label}",
+      "strengthLevels": {
+        "tooShort": "Too short",
+        "weak": "Weak",
+        "medium": "Medium",
+        "strong": "Strong"
+      },
+      "criteria": {
+        "minLength": "At least 8 characters",
+        "uppercase": "One uppercase letter",
+        "digit": "One digit"
+      },
+      "mismatch": "Passwords do not match.",
+      "submit": "Activate my account",
+      "submitting": "Activating…",
+      "errors": {
+        "notMet": "Password does not meet the required criteria.",
+        "mismatch": "The two passwords do not match.",
+        "update": "Error: {message}"
+      }
+    }
+  },
+  "dashboard": {
+    "hero": {
+      "kicker": "Dashboard",
+      "greeting": "Hello, {name}",
+      "greetingFallback": "welcome",
+      "lastLogin": "Last sign-in: {date}",
+      "newAudit": "New audit"
+    },
+    "kpi": {
+      "recentAudits": "Recent audits",
+      "totalSuffix": "out of {total} total",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "averageScore": "Average score",
+      "scoreNote": "{count, plural, =0 {no audits evaluated} one {# audit evaluated} other {# audits evaluated}}"
+    },
+    "evolution": {
+      "title": "Score evolution",
+      "ranges": {
+        "7d": "7d",
+        "30d": "30d",
+        "90d": "90d"
+      },
+      "tooltipScore": "Average score:"
+    },
+    "statusPie": {
+      "title": "Audits by status",
+      "empty": "No audits to display.",
+      "auditCount": "{count, plural, one {# audit} other {# audits}}",
+      "labels": {
+        "pending": "Pending",
+        "inProgress": "In progress",
+        "completed": "Completed",
+        "archived": "Archived"
+      }
+    },
+    "activity": {
+      "title": "Recent activity",
+      "empty": "No recent activity"
+    },
+    "recent": {
+      "title": "Recent audits",
+      "emptyTitle": "No audits yet",
+      "emptyDesc": "Create your first audit to get started.",
+      "createCta": "Create an audit",
+      "noClient": "No client",
+      "unknownProject": "Unknown project",
+      "updatedOn": "Updated on {date}"
+    }
+  },
+  "roles": {
+    "auditor": "Auditor",
+    "client_admin": "Client administrator",
+    "client_member": "Member"
+  },
+  "clients": {
+    "title": "Clients",
+    "subtitle": "{count, plural, =0 {No clients in total} one {# client in total} other {# clients in total}}",
+    "newClient": "New client",
+    "auditorOnly": "Access reserved for internal auditors.",
+    "loadError": "Failed to load clients: {message}",
+    "searchPlaceholder": "Search by name or email…",
+    "searchAria": "Search a client",
+    "filterStatusAria": "Filter by status",
+    "filterAll": "All",
+    "filterActive": "Active",
+    "filterInactive": "Inactive",
+    "kpi": {
+      "total": "Total clients",
+      "active": "Active clients",
+      "audits": "Total audits"
+    },
+    "empty": {
+      "title": "No clients",
+      "desc": "Create your first client to get started.",
+      "cta": "Create the first client"
+    },
+    "noResults": "No client matches",
+    "active": "Active",
+    "inactive": "Inactive",
+    "viewClient": "View client {name}",
+    "projectCount": "{count, plural, one {# project} other {# projects}}",
+    "auditCount": "{count, plural, one {# audit} other {# audits}}",
+    "dialog": {
+      "createTitle": "New client",
+      "createDesc": "Create a new client organization. You can then attach projects and audits to it.",
+      "nameRequired": "Client name is required.",
+      "name": "Name",
+      "namePlaceholder": "e.g., Ministry of Culture",
+      "website": "Website",
+      "websitePlaceholder": "https://example.com",
+      "contactName": "Contact name",
+      "contactNamePlaceholder": "e.g., Camille Martin",
+      "contactEmail": "Contact email",
+      "contactEmailPlaceholder": "contact@example.com",
+      "submitCreate": "Create client"
+    }
+  },
+  "clientDetail": {
+    "breadcrumb": "Breadcrumb",
+    "backToClients": "Clients",
+    "createdOn": "Created on {date}",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "confirmReactivate": "Reactivate client \"{name}\"?",
+    "confirmDeactivate": "Deactivate client \"{name}\"?",
+    "active": "Active",
+    "inactive": "Inactive",
+    "infoTitle": "Information",
+    "email": "Email",
+    "contact": "Contact",
+    "website": "Website",
+    "createdLabel": "Created on",
+    "statsTitle": "Statistics",
+    "stats": {
+      "projects": "Projects",
+      "audits": "Audits",
+      "activeAudits": "Active audits"
+    },
+    "activityTitle": "Recent activity",
+    "activityEmpty": "No recent activity",
+    "projectsTitle": "Projects",
+    "projectsCount": "{count, plural, =0 {No attached project} one {# attached project} other {# attached projects}}",
+    "newProject": "New project",
+    "noProjectsTitle": "No attached project",
+    "noProjectsCta": "Create the first project",
+    "auditCount": "{count, plural, one {# audit} other {# audits}}",
+    "editProjectAria": "Edit project {name}",
+    "deleteProjectAria": "Delete project {name}",
+    "confirmDeleteProject": "Permanently delete project \"{name}\"?",
+    "projectHasAudits": "{count, plural, one {This project has # associated audit.} other {This project has # associated audits.}}",
+    "loadError": "Failed to load projects: {message}",
+    "editClient": {
+      "title": "Edit client",
+      "desc": "Update the information of this client organization.",
+      "nameRequired": "Client name is required."
+    },
+    "createProject": {
+      "title": "New project",
+      "desc": "Attach a project (site, application, intranet…) to this client.",
+      "nameRequired": "Project name is required.",
+      "name": "Name",
+      "namePlaceholder": "e.g., Institutional website",
+      "url": "URL",
+      "urlPlaceholder": "https://example.com",
+      "submit": "Create project"
+    },
+    "editProject": {
+      "title": "Edit project",
+      "desc": "Update the information of this project."
+    }
+  },
+  "projects": {
+    "title": "Projects",
+    "yours": "Your projects",
+    "empty": "No project yet."
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "{count, plural, =0 {No users in total} one {# user in total} other {# users in total}}",
+    "inviteUser": "Invite a user",
+    "loadError": "Failed to load users: {message}",
+    "loadClientsError": "Failed to load clients: {message}",
+    "searchPlaceholder": "Search by name or email…",
+    "searchAria": "Search a user",
+    "filterRoleAria": "Filter by role",
+    "filterStatusAria": "Filter by status",
+    "filterAllRoles": "All roles",
+    "filterAllStatuses": "All statuses",
+    "kpi": {
+      "total": "Total",
+      "auditors": "Auditors",
+      "clientAdmins": "Client admins",
+      "clientMembers": "Client members"
+    },
+    "table": {
+      "user": "User",
+      "role": "Role",
+      "client": "Client",
+      "status": "Status",
+      "actions": "Actions",
+      "you": "You"
+    },
+    "status": {
+      "pending": "Pending",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "rolesOption": {
+      "auditor": "Auditor (internal)",
+      "client_admin": "Client administrator",
+      "client_member": "Client member"
+    },
+    "empty": {
+      "noUsers": "No users",
+      "noResults": "No results for these filters",
+      "inviteFirst": "Invite the first user"
+    },
+    "actionsAria": "Actions for {email}",
+    "resendInvite": "Resend invitation",
+    "editRole": "Edit role",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "confirmReactivate": "Reactivate user {email}?",
+    "confirmDeactivate": "Deactivate user {email}? They will no longer be able to sign in.",
+    "errorPrefix": "Error: {message}",
+    "resendSuccess": "Invitation resent to {email}.",
+    "inviteDialog": {
+      "title": "Invite a user",
+      "desc": "The user will receive an email with a link to activate their account.",
+      "emailRequired": "Email is required.",
+      "firstNameRequired": "First name is required.",
+      "lastNameRequired": "Last name is required.",
+      "clientRequired": "Select a client to attach to.",
+      "email": "Email",
+      "emailPlaceholder": "first.last@example.com",
+      "firstName": "First name",
+      "firstNamePlaceholder": "Camille",
+      "lastName": "Last name",
+      "lastNamePlaceholder": "Martin",
+      "role": "Role",
+      "client": "Attached client",
+      "clientPlaceholder": "Select a client",
+      "noClients": "No active client available.",
+      "submit": "Send invitation",
+      "successAlert": "Invitation sent."
+    },
+    "editRoleDialog": {
+      "title": "Edit role",
+      "desc": "Update the role and the attached client.",
+      "successAlert": "Role updated."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "myProfile": "My profile",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "language": "Language",
+    "languageFr": "Français",
+    "languageEn": "English"
+  },
+  "constants": {
+    "auditStatus": {
+      "PENDING": "Pending",
+      "PLANNED": "Planned",
+      "IN_PROGRESS": "In progress",
+      "DELIVERED": "Delivered",
+      "REMEDIATION": "Remediation",
+      "COUNTER_AUDIT": "Counter-audit",
+      "ONLINE": "Online",
+      "COMPLETED": "Completed",
+      "ARCHIVED": "Archived"
+    },
+    "ncStatus": {
+      "OPEN": "Open",
+      "IN_PROGRESS": "In progress",
+      "CORRECTED": "Corrected",
+      "NON_REPRODUCIBLE": "Not reproducible",
+      "RESOLVED": "Resolved",
+      "REJECTED": "Rejected",
+      "CANCELLED": "Cancelled",
+      "TO_FIX": "To fix",
+      "FIXED": "Fixed",
+      "FALSE_POSITIVE": "False positive"
+    },
+    "ncSeverity": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "conformity": {
+      "COMPLIANT": "Compliant",
+      "NON_COMPLIANT": "Non-compliant",
+      "NOT_APPLICABLE": "Not applicable"
+    },
+    "pageType": {
+      "MANDATORY": "Mandatory",
+      "REPRESENTATIVE": "Representative",
+      "TRANSVERSAL": "Transversal"
+    },
+    "complexity": {
+      "ULTRA_SIMPLE": "Very simple",
+      "SIMPLE": "Simple",
+      "MINIMAL": "Minimal",
+      "COMPLEX": "Complex"
+    },
+    "platform": {
+      "WEB": "Web",
+      "MOBILE": "Mobile"
+    },
+    "serviceType": {
+      "AUDIT": "Audit with counter-audit",
+      "NO_COUNTER_AUDIT": "Audit without counter-audit",
+      "COMPLIANCE_AUDIT": "Compliance audit"
+    }
+  },
+  "audits": {
+    "list": {
+      "title": "Audits",
+      "subtitle": "{count, plural, =0 {No accessible audit} one {# accessible audit} other {# accessible audits}}.",
+      "newAudit": "New audit",
+      "cardTitle": "All audits",
+      "empty": "No audit yet.",
+      "caption": "Audit list",
+      "columns": {
+        "project": "Project",
+        "client": "Client",
+        "reference": "Reference",
+        "platform": "Platform",
+        "status": "Status",
+        "score": "Score",
+        "updated": "Updated",
+        "action": "Action"
+      },
+      "viewAudit": "View the audit for project {name}"
+    },
+    "new": {
+      "metaTitle": "New audit",
+      "breadcrumbBack": "Audits",
+      "breadcrumbCurrent": "New audit",
+      "title": "New audit",
+      "subtitle": "Create an audit in 3 steps. Mandatory pages will be added automatically.",
+      "stepLabel": "Step",
+      "stepCount": "Step {current} of {total}",
+      "stepsAria": "Form steps",
+      "previous": "Previous",
+      "next": "Next",
+      "creating": "Creating…",
+      "create": "Create audit",
+      "steps": {
+        "project": {
+          "label": "Project",
+          "title": "Choose a project",
+          "description": "The project must already exist. If not, create it first from the client page.",
+          "field": "Project to audit",
+          "placeholder": "Select a project…",
+          "clientLabel": "Client:",
+          "emptyTitle": "No project available",
+          "emptyDesc": "Create a project from a client page before starting an audit.",
+          "emptyCta": "View my clients"
+        },
+        "reference": {
+          "label": "Reference",
+          "title": "Reference and service type",
+          "description": "The reference determines the list of criteria to evaluate.",
+          "field": "Accessibility reference",
+          "placeholder": "Choose a reference…",
+          "platform": "Platform",
+          "serviceType": "Service type",
+          "language": "Audit language"
+        },
+        "planning": {
+          "label": "Planning",
+          "title": "Schedule and information",
+          "description": "All fields in this step are optional.",
+          "startDate": "Expected start",
+          "endDate": "Expected end",
+          "a11yLink": "Link to the accessibility page",
+          "a11yLinkPlaceholder": "https://example.com/accessibility",
+          "notes": "Internal notes",
+          "notesPlaceholder": "Context, particular constraints…",
+          "mandatoryPagesTitle": "Mandatory pages",
+          "mandatoryPagesDesc": "The 5 mandatory pages (Home, Contact, Legal notices, Sitemap, Accessibility page) will be created automatically. You can remove them later if they don't apply to your site."
+        }
+      },
+      "recap": {
+        "title": "Summary",
+        "project": "Project",
+        "reference": "Reference",
+        "platform": "Platform",
+        "serviceType": "Service type",
+        "language": "Language"
+      }
+    },
+    "detail": {
+      "back": "Back to audits",
+      "noProjectTitle": "Audit without project",
+      "unknownReference": "Unknown reference",
+      "edit": "Edit",
+      "openSimulator": "Open simulator",
+      "conformityRate": "Conformity rate",
+      "conformityAria": "Conformity: {score}%",
+      "scoreInitial": "Initial score",
+      "scoreFinal": "Final score",
+      "samplePages": "Sample pages",
+      "openNCs": "Open NCs",
+      "planning": "Schedule",
+      "startDate": "Expected start",
+      "endDate": "Expected end",
+      "deliveredAt": "Delivered on",
+      "onlineAt": "Online since",
+      "quickLinks": {
+        "matrixTitle": "Conformity matrix",
+        "matrixDesc": "Set the conformity status for each criterion and page.",
+        "sampleTitle": "Sample",
+        "sampleDesc": "Tested pages and their complexity.",
+        "anomaliesTitle": "Non-conformities",
+        "anomaliesDesc": "All NCs, by severity and page.",
+        "simulatorTitle": "Remediation simulator",
+        "simulatorDesc": "See the impact of virtual fixes on the score."
+      }
+    },
+    "edit": {
+      "back": "Back to audit",
+      "title": "Edit audit",
+      "subtitle": "Update the audit settings and status.",
+      "section1": "Reference and configuration",
+      "reference": "Reference",
+      "platform": "Platform",
+      "serviceType": "Service type",
+      "status": "Status",
+      "language": "Language",
+      "section2": "Schedule and information",
+      "startDate": "Expected start",
+      "endDate": "Expected end",
+      "a11yLink": "Link to the accessibility page",
+      "notes": "Internal notes",
+      "saving": "Saving…",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "sample": {
+      "back": "Back to audit",
+      "title": "Sample",
+      "subtitle": "{count, plural, =0 {No page tested} one {# page tested} other {# pages tested}}.",
+      "cardTitle": "Sample pages",
+      "addPage": "Add a page",
+      "pageName": "Page name",
+      "pageNamePlaceholder": "Contact page, Product list…",
+      "complexity": "Complexity",
+      "complexityNone": "— Not set —",
+      "pageUrl": "Page URL",
+      "pageUrlPlaceholder": "https://example.com/contact",
+      "adding": "Adding…",
+      "add": "Add",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "save": "Save",
+      "empty": "No page configured for this audit.",
+      "noUrl": "No URL provided",
+      "editAria": "Edit page {name}",
+      "deleteAria": "Delete page {name}",
+      "confirmDelete": "Delete page \"{name}\"? This action is irreversible.",
+      "errorPrefix": "Error: {message}"
+    },
+    "report": {
+      "exportPdf": "Export PDF report",
+      "generating": "Generating…",
+      "unknownError": "Unknown error during export.",
+      "errorPrefix": "Error {status}"
+    },
+    "matrix": {
+      "breadcrumbCurrent": "Conformity matrix",
+      "noPagesTitle": "Conformity matrix",
+      "noPagesDesc": "No page has been configured for this audit yet. Add pages to the sample first.",
+      "title": "Conformity matrix",
+      "subtitleCriteria": "{count, plural, one {# criterion to evaluate} other {# criteria to evaluate}}",
+      "globalScore": "Global score",
+      "auditInProgress": "audit in progress",
+      "noEntry": "no entry",
+      "globalScoreAria": "Audit global score: {score}%",
+      "noScoreAria": "Global score not available",
+      "save": {
+        "saving": "Saving…",
+        "errorPrefix": "Error: {message}",
+        "fallbackError": "save failed",
+        "pending": "{count, plural, one {# pending change} other {# pending changes}}",
+        "allSaved": "All saved",
+        "saveAll": "Save all"
+      },
+      "sidebar": {
+        "aria": "Audit pages",
+        "title": "Pages",
+        "pagesSaisi": "{filled} / {total} pages filled",
+        "progressAria": "Progress: {percent}%",
+        "criteriaCount": "{filled} / {total} criteria",
+        "globalProgress": "Overall progress",
+        "globalAria": "Overall progress {percent}%"
+      },
+      "content": {
+        "scoreLabel": "Page score",
+        "compliant": "Compliant",
+        "nonCompliant": "Non-compliant",
+        "notApplicable": "Not applicable",
+        "pending": "Not evaluated",
+        "filterAria": "Filter criteria",
+        "filterAll": "All",
+        "filterPending": "Pending",
+        "filterCompliant": "Compliant",
+        "filterNonCompliant": "Non-compliant",
+        "filterNotApplicable": "Not applicable"
+      },
+      "thematic": {
+        "saisiAria": "{filled} of {total} criteria filled",
+        "saisiLabel": "{filled} / {total} filled",
+        "bulkNA": "Mark all NA",
+        "clearAll": "Clear all",
+        "viewMethodology": "View methodology",
+        "wcagLevelAria": "WCAG Level {level}"
+      },
+      "cell": {
+        "groupAria": "{prefix}: conformity status",
+        "compliantAria": "{prefix}: mark {label}",
+        "compliantText": "Compliant",
+        "nonCompliantText": "Non-compliant",
+        "notApplicableText": "Not applicable"
+      },
+      "ncModal": {
+        "title": "Create a non-conformity",
+        "criterion": "Criterion {identifier}",
+        "page": "Page: {name}",
+        "ncTitle": "Title",
+        "ncTitlePlaceholder": "e.g., Link without label in footer",
+        "description": "Description",
+        "descriptionPlaceholder": "Describe the observed problem.",
+        "recommendation": "Recommendation",
+        "recommendationPlaceholder": "Describe the expected fix.",
+        "severity": "Severity",
+        "screenshots": "Screenshots",
+        "titleRequired": "Title is required.",
+        "creationFailed": "Creation failed.",
+        "captureErrors": "Non-conformity created, but {count} capture(s) failed: {errors}",
+        "submit": "Create NC"
+      }
+    },
+    "anomalies": {
+      "breadcrumb": "Non-conformities",
+      "title": "Non-conformities",
+      "subtitle": "{count, plural, =0 {No non-conformity in this audit} one {# non-conformity in this audit} other {# non-conformities in this audit}}",
+      "newNC": "New NC",
+      "kpi": {
+        "total": "Total",
+        "toFix": "To fix",
+        "fixed": "Fixed",
+        "falsePositive": "False positives"
+      },
+      "searchPlaceholder": "Search by title…",
+      "searchAria": "Search by title",
+      "filterStatusAria": "Filter by status",
+      "filterStatusPlaceholder": "Status",
+      "filterAllStatuses": "All statuses",
+      "filterSeverityAria": "Filter by severity",
+      "filterSeverityPlaceholder": "Severity",
+      "filterAllSeverities": "All severities",
+      "filterPageAria": "Filter by page",
+      "filterPagePlaceholder": "Page",
+      "filterAllPages": "All pages",
+      "filterTransversal": "Transversal",
+      "page": "Page:",
+      "transversal": "Transversal",
+      "createdOn": "Created on {date}",
+      "messages": "messages",
+      "captures": "captures",
+      "counterAria": "{count} {label}",
+      "emptyTitle": "No non-conformity recorded",
+      "emptyDesc": "Create your first NC from the conformity matrix.",
+      "noResultsTitle": "No NC matches the selected filters",
+      "noResultsDesc": "Try broadening your filters."
+    },
+    "ncDetail": {
+      "breadcrumbDetail": "Detail",
+      "statusAria": "Non-conformity status",
+      "linkedCriterion": "Related criterion",
+      "officialDocs": "Official documentation",
+      "methodology": "Test methodology",
+      "noMethodology": "No methodology available.",
+      "ncDetails": "Non-conformity details",
+      "edit": "Edit",
+      "description": "Description",
+      "actualResult": "Actual result",
+      "recommendation": "Recommendation",
+      "severity": "Severity",
+      "linkedPage": "Linked page",
+      "transversal": "Transversal (no page)",
+      "save": "Save",
+      "cancel": "Cancel",
+      "page": "Page:",
+      "transversalShort": "Transversal",
+      "notFilled": "Not provided.",
+      "screenshots": "Screenshots",
+      "filesCount": "{count, plural, one {# file} other {# files}}",
+      "uploading": "Uploading screenshots…",
+      "openPdf": "Open PDF",
+      "unavailable": "Unavailable",
+      "enlargeAria": "Enlarge {name}",
+      "openAria": "Open {name}",
+      "deleteAria": "Delete {name}",
+      "noScreenshots": "No screenshot",
+      "noScreenshotsDesc": "Drag-and-drop or click below to add a screenshot.",
+      "confirmDeleteCapture": "Delete this screenshot?",
+      "discussion": "Discussion",
+      "noMessages": "No message yet",
+      "noMessagesDesc": "Start the discussion below.",
+      "messageDateAt": "{date} at {hh}:{mm}",
+      "newMessageLabel": "New message",
+      "messagePlaceholder": "Write a message…",
+      "sendAria": "Send the message",
+      "messageHint": "Enter to send · Shift+Enter for a new line",
+      "canDiscussNotice": "Only the auditor and the client administrator can post a message.",
+      "deleteMessageAria": "Delete the message",
+      "confirmDeleteMessage": "Delete this message?",
+      "previewTitle": "Screenshot preview",
+      "user": "User"
+    },
+    "anomaliesNew": {
+      "back": "Back to non-conformities",
+      "title": "New non-conformity",
+      "subtitle": "Provide the affected criterion, the tested page and the description of the anomaly.",
+      "info": "Information",
+      "noPages": "This audit has no page configured. Add pages to the sample first.",
+      "noCriteria": "No criterion found for the reference of this audit.",
+      "criterion": "Criterion",
+      "criterionPlaceholder": "Select a criterion",
+      "page": "Page",
+      "pagePlaceholder": "Select a page",
+      "ncTitle": "Title",
+      "ncTitlePlaceholder": "Short summary of the anomaly",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the context and observed problem.",
+      "actualResult": "Actual result",
+      "actualResultPlaceholder": "What happens today (factual observation).",
+      "recommendation": "Recommendation",
+      "recommendationPlaceholder": "Proposed corrective action.",
+      "severity": "Severity",
+      "screenshots": "Screenshots",
+      "titleRequired": "Title is required.",
+      "criterionRequired": "Criterion is required.",
+      "pageRequired": "Page is required.",
+      "creationFailed": "Creation failed.",
+      "captureWarning": "Non-conformity created, but {count} capture(s) failed: {errors}",
+      "cancel": "Cancel",
+      "submit": "Create the non-conformity"
+    },
+    "simulator": {
+      "metaTitle": "Remediation simulator",
+      "back": "Back to audit",
+      "title": "Remediation simulator",
+      "subtitle": "Check non-conformities to see the impact on the score, without modifying the official audit.",
+      "initialScore": "Initial score",
+      "criteriaCompliant": "{compliant} / {total} compliant criteria",
+      "simulatedScore": "Simulated score",
+      "simulatedAria": "Simulated score: {score}%",
+      "extraCompliant": "{count, plural, one {# additional compliant criterion} other {# additional compliant criteria}}",
+      "quickSelect": "Quick selection",
+      "checkAll": "Check all ({count})",
+      "criticalOnly": "Critical only",
+      "highOnly": "High only",
+      "reset": "Reset",
+      "ncsTitle": "Non-conformities to simulate as fixed",
+      "ncsSubtitle": "{checked} checked{plural} out of {total}. Nothing is saved.",
+      "searchPlaceholder": "Search by title…",
+      "searchAria": "Search in non-conformity titles",
+      "sortAria": "Sort by",
+      "filterSeverityAria": "Filter by severity",
+      "filterStatusAria": "Filter by status",
+      "filterPageAria": "Filter by page",
+      "filterThematicAria": "Filter by thematic",
+      "allSeverities": "All severities",
+      "allPages": "All pages",
+      "transversalPages": "Transversal",
+      "allThematics": "All thematics",
+      "ncCountShown": "NC shown{plural}",
+      "resetFilters": "Reset filters",
+      "emptyAll": "No non-conformity on this audit.",
+      "emptyFilters": "No non-conformity matches the filters.",
+      "alreadyFixed": "Already fixed",
+      "transversal": "Transversal",
+      "simulateAria": "Simulate fixing {identifier}: {title}",
+      "sort": {
+        "ALL": "All statuses",
+        "TODO": "To fix",
+        "IN_PROGRESS": "In progress",
+        "FIXED": "Fixed",
+        "FALSE_POSITIVE": "False positive",
+        "SEVERITY_DESC": "Severity (descending)",
+        "SEVERITY_ASC": "Severity (ascending)",
+        "BY_PAGE": "Group by page",
+        "BY_THEMATIC": "Group by thematic",
+        "BY_CRITERION": "Criterion number",
+        "noThematic": "No thematic"
+      },
+      "noProjectAccess": "—"
+    }
+  }
+}

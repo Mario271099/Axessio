@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Area,
   AreaChart,
@@ -49,19 +50,26 @@ function mulberry32(seed: number) {
   };
 }
 
-const RANGES: { value: Range; label: string; days: number }[] = [
-  { value: "7d", label: "7 j", days: 7 },
-  { value: "30d", label: "30 j", days: 30 },
-  { value: "90d", label: "90 j", days: 90 },
+const RANGES: { value: Range; days: number }[] = [
+  { value: "7d", days: 7 },
+  { value: "30d", days: 30 },
+  { value: "90d", days: 90 },
 ];
-
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
-  day: "2-digit",
-  month: "short",
-});
 
 export function EvolutionChart() {
   const [range, setRange] = useState<Range>("30d");
+  const t = useTranslations("dashboard.evolution");
+  const locale = useLocale();
+  const intl = locale === "en" ? "en-US" : "fr-FR";
+
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(intl, {
+        day: "2-digit",
+        month: "short",
+      }),
+    [intl],
+  );
 
   const data = useMemo(() => {
     const def = RANGES.find((r) => r.value === range);
@@ -78,17 +86,17 @@ export function EvolutionChart() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <div>
-          <CardTitle>Évolution des scores</CardTitle>
+          <CardTitle>{t("title")}</CardTitle>
         </div>
         <Tabs
           value={range}
           onValueChange={(v) => setRange(v as Range)}
-          aria-label="Plage de temps"
+          aria-label={t("title")}
         >
           <TabsList>
             {RANGES.map((r) => (
               <TabsTrigger key={r.value} value={r.value}>
-                {r.label}
+                {t(`ranges.${r.value}`)}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -137,7 +145,10 @@ export function EvolutionChart() {
                 fontSize={12}
                 width={32}
               />
-              <Tooltip content={<EvolutionTooltip />} cursor={{ stroke: "hsl(var(--border))" }} />
+              <Tooltip
+                content={<EvolutionTooltip intl={intl} label={t("tooltipScore")} />}
+                cursor={{ stroke: "hsl(var(--border))" }}
+              />
               <Area
                 type="monotone"
                 dataKey="score"
@@ -163,9 +174,13 @@ interface TooltipPayloadEntry {
 function EvolutionTooltip({
   active,
   payload,
+  intl,
+  label,
 }: {
   active?: boolean;
   payload?: TooltipPayloadEntry[];
+  intl: string;
+  label: string;
 }) {
   if (!active || !payload || payload.length === 0) return null;
   const entry = payload[0];
@@ -174,14 +189,14 @@ function EvolutionTooltip({
   return (
     <div className="rounded-md border border-border bg-card p-3 text-xs shadow-md">
       <p className="font-medium text-foreground">
-        {new Intl.DateTimeFormat("fr-FR", {
+        {new Intl.DateTimeFormat(intl, {
           day: "2-digit",
           month: "long",
           year: "numeric",
         }).format(d)}
       </p>
       <p className="mt-1 text-muted-foreground">
-        Score moyen :{" "}
+        {label}{" "}
         <span className="font-semibold text-foreground tabular-nums">
           {entry.value}%
         </span>

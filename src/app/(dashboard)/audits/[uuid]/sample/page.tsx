@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ export default async function SamplePage({
   const profile = await requireProfile();
   const { uuid } = await params;
   const supabase = await createClient();
+  const t = await getTranslations("audits.sample");
 
   const { data: pages } = await supabase
     .from("pages")
@@ -37,23 +39,20 @@ export default async function SamplePage({
       <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
         <Link href={`/audits/${uuid}`}>
           <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          Retour à l&apos;audit
+          {t("back")}
         </Link>
       </Button>
 
       <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Échantillon</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">
-          {list.length} page{list.length > 1 ? "s" : ""} testée
-          {list.length > 1 ? "s" : ""}.
+          {t("subtitle", { count: list.length })}
         </p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">
-            Pages de l&apos;échantillon
-          </CardTitle>
+          <CardTitle className="text-base">{t("cardTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <SampleActionsBar auditId={uuid} pages={list} canEdit={canEdit} />

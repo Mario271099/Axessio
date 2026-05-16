@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { LoginForm } from "./login-form";
 
@@ -7,17 +8,17 @@ export const metadata: Metadata = {
   description: "Connectez-vous à votre espace Axessio.",
 };
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const t = await getTranslations("auth.login");
+
   return (
     <AuthLayout
-      title="Bon retour"
-      subtitle="Connectez-vous à votre espace Axessio"
+      title={t("title")}
+      subtitle={t("subtitle")}
       footer={
         <>
-          Pas encore de compte ?{" "}
-          <span className="font-medium text-foreground">
-            Contactez votre administrateur.
-          </span>
+          {t("footer")}{" "}
+          <span className="font-medium text-foreground">{t("footerCta")}</span>
         </>
       }
     >

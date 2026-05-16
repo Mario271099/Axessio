@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   CheckCircle2,
   Circle,
@@ -59,15 +60,28 @@ const FILTER_ICONS = {
 interface FilterOption {
   value: MatrixFilter;
   iconKey: FilterIconKey;
-  label: string;
+  labelKey:
+    | "filterAll"
+    | "filterPending"
+    | "filterCompliant"
+    | "filterNonCompliant"
+    | "filterNotApplicable";
 }
 
 const FILTER_OPTIONS: FilterOption[] = [
-  { value: "ALL", iconKey: "all", label: "Tout" },
-  { value: "PENDING", iconKey: "pending", label: "À saisir" },
-  { value: "COMPLIANT", iconKey: "compliant", label: "Conformes" },
-  { value: "NON_COMPLIANT", iconKey: "non-compliant", label: "Non conformes" },
-  { value: "NOT_APPLICABLE", iconKey: "not-applicable", label: "Non applicables" },
+  { value: "ALL", iconKey: "all", labelKey: "filterAll" },
+  { value: "PENDING", iconKey: "pending", labelKey: "filterPending" },
+  { value: "COMPLIANT", iconKey: "compliant", labelKey: "filterCompliant" },
+  {
+    value: "NON_COMPLIANT",
+    iconKey: "non-compliant",
+    labelKey: "filterNonCompliant",
+  },
+  {
+    value: "NOT_APPLICABLE",
+    iconKey: "not-applicable",
+    labelKey: "filterNotApplicable",
+  },
 ];
 
 export function PageMatrixContent({
@@ -84,6 +98,7 @@ export function PageMatrixContent({
   onAccordionClose,
   isProcessing,
 }: Props) {
+  const t = useTranslations("audits.matrix.content");
   const [filter, setFilter] = useState<MatrixFilter>("ALL");
   const [openThematics, setOpenThematics] = useState<string[]>([]);
 
@@ -175,7 +190,7 @@ export function PageMatrixContent({
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Score de la page
+              {t("scoreLabel")}
             </p>
             <div className="mt-1 flex items-baseline gap-3">
               <span
@@ -195,25 +210,25 @@ export function PageMatrixContent({
               icon={CheckCircle2}
               tone="text-success"
               count={counters.COMPLIANT}
-              label="Conformes"
+              label={t("compliant")}
             />
             <CounterPill
               icon={XCircle}
               tone="text-destructive"
               count={counters.NON_COMPLIANT}
-              label="Non conformes"
+              label={t("nonCompliant")}
             />
             <CounterPill
               icon={MinusCircle}
               tone="text-muted-foreground"
               count={counters.NOT_APPLICABLE}
-              label="Non applicables"
+              label={t("notApplicable")}
             />
             <CounterPill
               icon={Circle}
               tone="text-muted-foreground/70"
               count={counters.PENDING}
-              label="Non évalués"
+              label={t("pending")}
             />
           </ul>
         </div>
@@ -223,7 +238,7 @@ export function PageMatrixContent({
       <Card className="sticky top-20 z-10 flex flex-wrap gap-2 p-2 shadow-sm">
         <div
           role="radiogroup"
-          aria-label="Filtrer les critères"
+          aria-label={t("filterAria")}
           className="flex flex-wrap gap-1"
         >
           {FILTER_OPTIONS.map((opt) => {
@@ -246,7 +261,7 @@ export function PageMatrixContent({
                 )}
               >
                 <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>{opt.label}</span>
+                <span>{t(opt.labelKey)}</span>
                 <span
                   className={cn(
                     "tabular-nums",

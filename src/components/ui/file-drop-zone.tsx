@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FileText, Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -12,12 +13,6 @@ export interface FileDropZoneProps {
   maxSizeMB?: number;
   disabled?: boolean;
   className?: string;
-}
-
-function formatBytes(size: number): string {
-  if (size < 1024) return `${size} o`;
-  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} Ko`;
-  return `${(size / (1024 * 1024)).toFixed(1)} Mo`;
 }
 
 function fileKey(file: File): string {
@@ -32,9 +27,17 @@ export function FileDropZone({
   disabled = false,
   className,
 }: FileDropZoneProps) {
+  const t = useTranslations("fileDropZone");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const formatBytes = (size: number): string => {
+    if (size < 1024) return t("bytes", { size });
+    if (size < 1024 * 1024)
+      return t("kilobytes", { size: (size / 1024).toFixed(1) });
+    return t("megabytes", { size: (size / (1024 * 1024)).toFixed(1) });
+  };
 
   const acceptedSet = useMemo(
     () =>
@@ -49,8 +52,6 @@ export function FileDropZone({
 
   const maxBytes = maxSizeMB * 1024 * 1024;
 
-  // Génère une URL d'aperçu locale par fichier image et la révoque au démontage
-  // / changement de la liste pour éviter les fuites mémoire.
   const previews = useMemo(() => {
     const map = new Map<string, string>();
     for (const f of files) {
@@ -76,11 +77,11 @@ export function FileDropZone({
 
     for (const file of list) {
       if (acceptedSet.size > 0 && !acceptedSet.has(file.type)) {
-        errors.push(`"${file.name}" : format non supporté.`);
+        errors.push(t("unsupportedFormat", { name: file.name }));
         continue;
       }
       if (file.size > maxBytes) {
-        errors.push(`"${file.name}" : trop volumineux (${maxSizeMB} Mo max).`);
+        errors.push(t("tooLarge", { name: file.name, max: maxSizeMB }));
         continue;
       }
       accepted.push(file);
@@ -116,7 +117,6 @@ export function FileDropZone({
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    // Évite les flickers quand on survole un enfant.
     if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
     setDragOver(false);
   };
@@ -138,7 +138,7 @@ export function FileDropZone({
       <div
         role="button"
         tabIndex={disabled ? -1 : 0}
-        aria-label="Glissez vos fichiers ici ou cliquez pour sélectionner"
+        aria-label={t("dropZoneAria")}
         aria-disabled={disabled}
         onClick={openPicker}
         onKeyDown={handleKeyDown}
@@ -163,11 +163,11 @@ export function FileDropZone({
           aria-hidden="true"
         />
         <p className="text-sm">
-          <span className="font-medium">Glissez vos fichiers ici</span>
-          <span className="text-muted-foreground"> ou cliquez pour sélectionner</span>
+          <span className="font-medium">{t("dropHint")}</span>
+          <span className="text-muted-foreground">{t("clickHint")}</span>
         </p>
         <p className="text-xs text-muted-foreground">
-          PNG, JPEG, WebP ou PDF · {maxSizeMB} Mo max par fichier.
+          {t("fileTypes", { max: maxSizeMB })}
         </p>
       </div>
 
@@ -226,7 +226,7 @@ export function FileDropZone({
                       handleRemove(key);
                     }}
                     disabled={disabled}
-                    aria-label={`Retirer ${file.name}`}
+                    aria-label={t("removeAria", { name: file.name })}
                   >
                     <X className="h-3.5 w-3.5" aria-hidden="true" />
                   </Button>

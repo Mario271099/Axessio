@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { AlertCircle, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm() {
+  const t = useTranslations("auth.login");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +25,7 @@ export function LoginForm() {
     const password = formData.get("password")?.toString() ?? "";
 
     if (!email || !password) {
-      setError("Email et mot de passe requis.");
+      setError(t("errors.missing"));
       setPending(false);
       return;
     }
@@ -34,16 +36,14 @@ export function LoginForm() {
       await supabase.auth.signInWithPassword({ email, password });
 
     if (signInError) {
-      setError(`Erreur : ${signInError.message}`);
+      setError(t("errors.signIn", { message: signInError.message }));
       setPending(false);
       return;
     }
 
     const { data: sessionCheck } = await supabase.auth.getSession();
     if (!sessionCheck.session && !data.session) {
-      setError(
-        "La session n'a pas pu être créée. Vérifie tes paramètres Supabase.",
-      );
+      setError(t("errors.sessionFailed"));
       setPending(false);
       return;
     }
@@ -70,7 +70,7 @@ export function LoginForm() {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="email">Adresse email</Label>
+        <Label htmlFor="email">{t("email")}</Label>
         <div className="relative">
           <Mail
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -85,7 +85,7 @@ export function LoginForm() {
             aria-required="true"
             aria-invalid={error ? "true" : undefined}
             aria-describedby={error ? "form-error" : undefined}
-            placeholder="vous@entreprise.com"
+            placeholder={t("emailPlaceholder")}
             className="pl-9"
             disabled={pending}
           />
@@ -94,13 +94,13 @@ export function LoginForm() {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password">Mot de passe</Label>
+          <Label htmlFor="password">{t("password")}</Label>
           <Link
             href="/login"
             tabIndex={-1}
             className="text-xs text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded"
           >
-            Mot de passe oublié ?
+            {t("forgotPassword")}
           </Link>
         </div>
         <div className="relative">
@@ -125,11 +125,7 @@ export function LoginForm() {
             type="button"
             onClick={() => setShowPassword((v) => !v)}
             className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={
-              showPassword
-                ? "Masquer le mot de passe"
-                : "Afficher le mot de passe"
-            }
+            aria-label={showPassword ? t("hidePassword") : t("showPassword")}
             aria-pressed={showPassword}
             tabIndex={-1}
           >
@@ -151,10 +147,10 @@ export function LoginForm() {
         {pending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            Connexion en cours…
+            {t("submitting")}
           </>
         ) : (
-          "Se connecter"
+          t("submit")
         )}
       </Button>
     </form>

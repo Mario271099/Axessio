@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ export default async function EditAuditPage({
   params: Promise<{ uuid: string }>;
 }) {
   const profile = await requireProfile();
+  const t = await getTranslations("audits.edit");
 
   if (profile.role !== "auditor") {
     redirect(`/audits/${(await params).uuid}`);
@@ -62,7 +64,7 @@ export default async function EditAuditPage({
       <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
         <Link href={`/audits/${uuid}`}>
           <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          Retour à l&apos;audit
+          {t("back")}
         </Link>
       </Button>
 
@@ -70,12 +72,8 @@ export default async function EditAuditPage({
         <p className="text-xs text-muted-foreground">
           {client?.name ?? "—"} · {project?.name ?? "—"}
         </p>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Modifier l&apos;audit
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Mettez à jour les paramètres et le statut de l&apos;audit.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </header>
 
       <EditAuditForm

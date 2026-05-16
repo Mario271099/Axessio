@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { FileDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ExportReportButtonProps {
   auditId: string;
   projectName: string;
-  /** Variante du bouton — utile pour discrétion dans une sous-page. */
   variant?: "default" | "outline";
-  /** Taille du bouton. */
   size?: "default" | "sm";
 }
 
@@ -34,6 +33,7 @@ export function ExportReportButton({
   variant = "default",
   size = "default",
 }: ExportReportButtonProps) {
+  const t = useTranslations("audits.report");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,13 +48,12 @@ export function ExportReportButton({
       });
 
       if (!response.ok) {
-        // L'API renvoie un JSON d'erreur sur le chemin d'échec.
-        let message = `Erreur ${response.status}`;
+        let message = t("errorPrefix", { status: response.status });
         try {
           const data = (await response.json()) as { error?: string };
           if (data.error) message = data.error;
         } catch {
-          // Réponse non-JSON — on garde le code HTTP
+          // Non-JSON response — keep HTTP code
         }
         throw new Error(message);
       }
@@ -69,12 +68,10 @@ export function ExportReportButton({
       anchor.click();
       anchor.remove();
 
-      // Libère la mémoire associée à l'Object URL après le déclenchement
-      // (Safari a parfois besoin d'un tick avant de pouvoir révoquer).
       setTimeout(() => URL.revokeObjectURL(url), 0);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Erreur inconnue lors de l'export.";
+        err instanceof Error ? err.message : t("unknownError");
       setError(message);
     } finally {
       setPending(false);
@@ -95,12 +92,12 @@ export function ExportReportButton({
         {pending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            Génération en cours…
+            {t("generating")}
           </>
         ) : (
           <>
             <FileDown className="h-4 w-4" aria-hidden="true" />
-            Exporter le rapport PDF
+            {t("exportPdf")}
           </>
         )}
       </Button>

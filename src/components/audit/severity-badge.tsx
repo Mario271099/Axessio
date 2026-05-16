@@ -1,4 +1,6 @@
-import { NC_SEVERITY_LABELS } from "@/lib/constants";
+"use client";
+
+import { useTranslations } from "next-intl";
 import type { NCSeverity } from "@/types/domain";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +19,7 @@ interface SeverityBadgeProps {
 }
 
 export function SeverityBadge({ severity, className }: SeverityBadgeProps) {
+  const t = useTranslations("constants.ncSeverity");
   return (
     <span
       className={cn(
@@ -25,7 +28,7 @@ export function SeverityBadge({ severity, className }: SeverityBadgeProps) {
         className,
       )}
     >
-      {NC_SEVERITY_LABELS[severity]}
+      {t(severity)}
     </span>
   );
 }

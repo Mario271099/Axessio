@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
   Briefcase,
@@ -32,11 +33,7 @@ import {
   createAudit,
   type ActionState,
 } from "@/app/(dashboard)/audits/actions";
-import {
-  PLATFORM_LABELS,
-  REFERENCE_TYPE_LABELS,
-  SERVICE_TYPE_LABELS,
-} from "@/lib/constants";
+import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { PlatformType, ReferenceType, ServiceType } from "@/types/domain";
 
@@ -61,35 +58,23 @@ const initialState: ActionState = { error: null };
 
 type StepId = 1 | 2 | 3;
 
-const STEPS = [
-  {
-    id: 1 as const,
-    icon: FolderKanban,
-    label: "Projet",
-    description: "Sélectionnez le projet à auditer",
-  },
-  {
-    id: 2 as const,
-    icon: Library,
-    label: "Référentiel",
-    description: "Choisissez le cadre de référence",
-  },
-  {
-    id: 3 as const,
-    icon: CalendarDays,
-    label: "Planning",
-    description: "Dates et informations complémentaires",
-  },
-];
+const STEP_ICONS = {
+  1: FolderKanban,
+  2: Library,
+  3: CalendarDays,
+} as const;
 
 export function AuditForm({ projects, references }: AuditFormProps) {
+  const t = useTranslations("audits.new");
+  const tPlatform = useTranslations("constants.platform");
+  const tServiceType = useTranslations("constants.serviceType");
+
   const [step, setStep] = useState<StepId>(1);
   const [state, formAction, pending] = useActionState(
     createAudit,
     initialState,
   );
 
-  // Valeurs locales — préservées entre étapes
   const [projectId, setProjectId] = useState("");
   const [referenceId, setReferenceId] = useState("");
   const [platform, setPlatform] = useState<PlatformType>("WEB");
@@ -111,10 +96,6 @@ export function AuditForm({ projects, references }: AuditFormProps) {
 
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  // Avance d'étape (1→2, 2→3) ou déclenche la soumission à l'étape 3.
-  // On garde toujours type="button" sur le bouton principal pour éviter
-  // qu'une transition type="button" → type="submit" en place dans le DOM
-  // ne déclenche un submit involontaire lors du clic « Suivant ».
   function handlePrimaryAction() {
     if (pending) return;
     if (step === 3) {
@@ -126,8 +107,6 @@ export function AuditForm({ projects, references }: AuditFormProps) {
     setStep((step + 1) as StepId);
   }
 
-  // Bloque la touche Entrée pour éviter toute soumission accidentelle.
-  // Le textarea (notes, étape 3) accepte les sauts de ligne.
   function handleKeyDown(e: React.KeyboardEvent<HTMLFormElement>) {
     if (e.key === "Enter" && (e.target as HTMLElement).tagName !== "TEXTAREA") {
       e.preventDefault();
@@ -141,7 +120,6 @@ export function AuditForm({ projects, references }: AuditFormProps) {
       onKeyDown={handleKeyDown}
       className="space-y-6"
     >
-      {/* Champs cachés persistants ------------------------------------- */}
       <input type="hidden" name="projectId" value={projectId} />
       <input type="hidden" name="referenceId" value={referenceId} />
       <input type="hidden" name="platform" value={platform} />
@@ -149,10 +127,13 @@ export function AuditForm({ projects, references }: AuditFormProps) {
       <input type="hidden" name="language" value={language} />
 
       <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-        {/* Stepper ----------------------------------------------------- */}
-        <Stepper currentStep={step} onStepClick={setStep} canGoNext1={canGoNext1} canGoNext2={canGoNext2} />
+        <Stepper
+          currentStep={step}
+          onStepClick={setStep}
+          canGoNext1={canGoNext1}
+          canGoNext2={canGoNext2}
+        />
 
-        {/* Contenu de l'étape courante ---------------------------------- */}
         <div className="space-y-6">
           {state.error && (
             <p
@@ -171,17 +152,21 @@ export function AuditForm({ projects, references }: AuditFormProps) {
             <StepCard
               icon={FolderKanban}
               tone="primary"
-              title="Choisir un projet"
-              description="Le projet doit déjà exister. Si ce n'est pas le cas, créez-le d'abord depuis la fiche client."
+              title={t("steps.project.title")}
+              description={t("steps.project.description")}
             >
               {projects.length === 0 ? (
                 <EmptyProjectsState />
               ) : (
                 <div className="space-y-2">
-                  <Label htmlFor="project-select">Projet à auditer *</Label>
+                  <Label htmlFor="project-select">
+                    {t("steps.project.field")} *
+                  </Label>
                   <Select value={projectId} onValueChange={setProjectId}>
                     <SelectTrigger id="project-select" aria-required="true">
-                      <SelectValue placeholder="Sélectionner un projet…" />
+                      <SelectValue
+                        placeholder={t("steps.project.placeholder")}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {projects.map((p) => (
@@ -197,7 +182,7 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                   </Select>
                   {selectedProject && (
                     <p className="text-xs text-muted-foreground">
-                      Client :{" "}
+                      {t("steps.project.clientLabel")}{" "}
                       <span className="text-foreground">
                         {selectedProject.clientName}
                       </span>
@@ -212,16 +197,18 @@ export function AuditForm({ projects, references }: AuditFormProps) {
             <StepCard
               icon={Library}
               tone="violet"
-              title="Référentiel et type de service"
-              description="Le référentiel détermine la liste des critères à évaluer."
+              title={t("steps.reference.title")}
+              description={t("steps.reference.description")}
             >
               <div className="space-y-2">
                 <Label htmlFor="ref-select">
-                  Référentiel d&apos;accessibilité *
+                  {t("steps.reference.field")} *
                 </Label>
                 <Select value={referenceId} onValueChange={setReferenceId}>
                   <SelectTrigger id="ref-select" aria-required="true">
-                    <SelectValue placeholder="Choisir un référentiel…" />
+                    <SelectValue
+                      placeholder={t("steps.reference.placeholder")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {references.map((r) => (
@@ -235,7 +222,9 @@ export function AuditForm({ projects, references }: AuditFormProps) {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="platform-select">Plateforme *</Label>
+                  <Label htmlFor="platform-select">
+                    {t("steps.reference.platform")} *
+                  </Label>
                   <Select
                     value={platform}
                     onValueChange={(v) => setPlatform(v as PlatformType)}
@@ -244,16 +233,18 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="WEB">{PLATFORM_LABELS.WEB}</SelectItem>
+                      <SelectItem value="WEB">{tPlatform("WEB")}</SelectItem>
                       <SelectItem value="MOBILE">
-                        {PLATFORM_LABELS.MOBILE}
+                        {tPlatform("MOBILE")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="service-select">Type de prestation *</Label>
+                  <Label htmlFor="service-select">
+                    {t("steps.reference.serviceType")} *
+                  </Label>
                   <Select
                     value={serviceType}
                     onValueChange={(v) => setServiceType(v as ServiceType)}
@@ -263,13 +254,13 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="AUDIT">
-                        {SERVICE_TYPE_LABELS.AUDIT}
+                        {tServiceType("AUDIT")}
                       </SelectItem>
                       <SelectItem value="NO_COUNTER_AUDIT">
-                        {SERVICE_TYPE_LABELS.NO_COUNTER_AUDIT}
+                        {tServiceType("NO_COUNTER_AUDIT")}
                       </SelectItem>
                       <SelectItem value="COMPLIANCE_AUDIT">
-                        {SERVICE_TYPE_LABELS.COMPLIANCE_AUDIT}
+                        {tServiceType("COMPLIANCE_AUDIT")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -277,14 +268,16 @@ export function AuditForm({ projects, references }: AuditFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="language-select">Langue de l&apos;audit</Label>
+                <Label htmlFor="language-select">
+                  {t("steps.reference.language")}
+                </Label>
                 <Select value={language} onValueChange={setLanguage}>
                   <SelectTrigger id="language-select">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="fr">Français</SelectItem>
-                    <SelectItem value="en">Anglais</SelectItem>
+                    <SelectItem value="en">English</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -296,44 +289,47 @@ export function AuditForm({ projects, references }: AuditFormProps) {
               <StepCard
                 icon={CalendarDays}
                 tone="warning"
-                title="Planning et informations"
-                description="Toutes les informations de cette étape sont optionnelles."
+                title={t("steps.planning.title")}
+                description={t("steps.planning.description")}
               >
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="start-date">Démarrage prévu</Label>
+                    <Label htmlFor="start-date">
+                      {t("steps.planning.startDate")}
+                    </Label>
                     <Input id="start-date" name="expectedStartAt" type="date" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="end-date">Fin prévue</Label>
+                    <Label htmlFor="end-date">
+                      {t("steps.planning.endDate")}
+                    </Label>
                     <Input id="end-date" name="expectedEndAt" type="date" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="a11y-link">
-                    Lien vers la page d&apos;accessibilité
+                    {t("steps.planning.a11yLink")}
                   </Label>
                   <Input
                     id="a11y-link"
                     name="accessibilityLink"
                     type="url"
-                    placeholder="https://exemple.com/accessibilite"
+                    placeholder={t("steps.planning.a11yLinkPlaceholder")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="notes">Notes internes</Label>
+                  <Label htmlFor="notes">{t("steps.planning.notes")}</Label>
                   <Textarea
                     id="notes"
                     name="notes"
-                    placeholder="Contexte, contraintes particulières…"
+                    placeholder={t("steps.planning.notesPlaceholder")}
                     rows={4}
                   />
                 </div>
               </StepCard>
 
-              {/* Recap des choix précédents */}
               <Recap
                 project={selectedProject}
                 reference={selectedReference}
@@ -342,26 +338,23 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                 language={language}
               />
 
-              {/* Note pages obligatoires */}
               <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
                 <Layers
                   className="mt-0.5 h-4 w-4 shrink-0 text-primary"
                   aria-hidden="true"
                 />
                 <div>
-                  <p className="font-medium">Pages obligatoires</p>
+                  <p className="font-medium">
+                    {t("steps.planning.mandatoryPagesTitle")}
+                  </p>
                   <p className="mt-0.5 text-muted-foreground">
-                    Les 5 pages obligatoires (Accueil, Contact, Mentions
-                    légales, Plan du site, Page d&apos;accessibilité) seront
-                    créées automatiquement. Vous pourrez les supprimer ensuite
-                    si elles ne correspondent pas à votre site.
+                    {t("steps.planning.mandatoryPagesDesc")}
                   </p>
                 </div>
               </div>
             </>
           )}
 
-          {/* Boutons de navigation -------------------------------------- */}
           <div className="sticky bottom-0 -mx-4 flex items-center justify-between gap-3 border-t border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 md:-mx-6 md:px-6">
             <Button
               type="button"
@@ -370,11 +363,11 @@ export function AuditForm({ projects, references }: AuditFormProps) {
               disabled={step === 1 || pending}
             >
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-              Précédent
+              {t("previous")}
             </Button>
 
             <span className="text-xs text-muted-foreground tabular-nums">
-              Étape {step} sur 3
+              {t("stepCount", { current: step, total: 3 })}
             </span>
 
             <Button
@@ -393,17 +386,17 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                       className="h-4 w-4 animate-spin"
                       aria-hidden="true"
                     />
-                    Création en cours…
+                    {t("creating")}
                   </>
                 ) : (
                   <>
                     <Plus className="h-4 w-4" aria-hidden="true" />
-                    Créer l&apos;audit
+                    {t("create")}
                   </>
                 )
               ) : (
                 <>
-                  Suivant
+                  {t("next")}
                   <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </>
               )}
@@ -414,10 +407,6 @@ export function AuditForm({ projects, references }: AuditFormProps) {
     </form>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/* Stepper                                                                     */
-/* -------------------------------------------------------------------------- */
 
 function Stepper({
   currentStep,
@@ -430,8 +419,13 @@ function Stepper({
   canGoNext1: boolean;
   canGoNext2: boolean;
 }) {
-  // On autorise un retour libre vers une étape déjà ouverte, mais on ne
-  // permet pas de sauter une étape non validée vers l'avant.
+  const t = useTranslations("audits.new");
+  const stepDefs: { id: StepId; labelKey: "project" | "reference" | "planning" }[] = [
+    { id: 1, labelKey: "project" },
+    { id: 2, labelKey: "reference" },
+    { id: 3, labelKey: "planning" },
+  ];
+
   const canAccess = (id: StepId): boolean => {
     if (id <= currentStep) return true;
     if (id === 2) return canGoNext1;
@@ -440,15 +434,18 @@ function Stepper({
   };
 
   return (
-    <aside aria-label="Étapes du formulaire" className="lg:sticky lg:top-20 lg:self-start">
+    <aside
+      aria-label={t("stepsAria")}
+      className="lg:sticky lg:top-20 lg:self-start"
+    >
       <Card className="p-2">
         <ol className="space-y-1">
-          {STEPS.map((s, idx) => {
+          {stepDefs.map((s, idx) => {
             const completed = currentStep > s.id;
             const current = currentStep === s.id;
             const accessible = canAccess(s.id);
 
-            const Icon = s.icon;
+            const Icon = STEP_ICONS[s.id];
 
             return (
               <li key={s.id}>
@@ -484,15 +481,10 @@ function Stepper({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Étape {idx + 1}
+                      {t("stepLabel")} {idx + 1}
                     </span>
-                    <span
-                      className={cn(
-                        "block truncate text-sm font-medium",
-                        current ? "text-foreground" : "text-foreground",
-                      )}
-                    >
-                      {s.label}
+                    <span className="block truncate text-sm font-medium text-foreground">
+                      {t(`steps.${s.labelKey}.label`)}
                     </span>
                   </span>
                 </button>
@@ -504,10 +496,6 @@ function Stepper({
     </aside>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/* StepCard                                                                    */
-/* -------------------------------------------------------------------------- */
 
 const stepToneClasses = {
   primary: "bg-primary/10 text-primary",
@@ -553,10 +541,6 @@ function StepCard({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Recap                                                                       */
-/* -------------------------------------------------------------------------- */
-
 function Recap({
   project,
   reference,
@@ -570,29 +554,29 @@ function Recap({
   serviceType: ServiceType;
   language: string;
 }) {
+  const t = useTranslations("audits.new.recap");
+  const tPlatform = useTranslations("constants.platform");
+  const tServiceType = useTranslations("constants.serviceType");
   return (
     <Card>
       <CardContent className="space-y-4 p-6">
         <div className="flex items-center gap-2">
-          <CheckCircle2
-            className="h-4 w-4 text-success"
-            aria-hidden="true"
-          />
+          <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
           <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Récapitulatif
+            {t("title")}
           </h3>
         </div>
 
         <dl className="grid gap-3 sm:grid-cols-2">
           <RecapItem
             icon={Briefcase}
-            label="Projet"
+            label={t("project")}
             value={project ? project.name : "—"}
             sub={project?.clientName}
           />
           <RecapItem
             icon={Library}
-            label="Référentiel"
+            label={t("reference")}
             value={
               reference
                 ? `${REFERENCE_TYPE_LABELS[reference.type]} ${reference.version}`
@@ -601,18 +585,18 @@ function Recap({
           />
           <RecapItem
             icon={Layers}
-            label="Plateforme"
-            value={PLATFORM_LABELS[platform]}
+            label={t("platform")}
+            value={tPlatform(platform)}
           />
           <RecapItem
             icon={Briefcase}
-            label="Type de prestation"
-            value={SERVICE_TYPE_LABELS[serviceType]}
+            label={t("serviceType")}
+            value={tServiceType(serviceType)}
           />
           <RecapItem
             icon={Languages}
-            label="Langue"
-            value={language === "fr" ? "Français" : "Anglais"}
+            label={t("language")}
+            value={language === "fr" ? "Français" : "English"}
           />
         </dl>
       </CardContent>
@@ -650,11 +634,8 @@ function RecapItem({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Empty state                                                                 */
-/* -------------------------------------------------------------------------- */
-
 function EmptyProjectsState() {
+  const t = useTranslations("audits.new.steps.project");
   return (
     <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-muted/30 p-8 text-center">
       <div
@@ -664,13 +645,11 @@ function EmptyProjectsState() {
         <FolderKanban className="h-6 w-6" />
       </div>
       <div className="space-y-1">
-        <p className="text-sm font-medium">Aucun projet disponible</p>
-        <p className="text-xs text-muted-foreground">
-          Créez un projet depuis la fiche client avant de lancer un audit.
-        </p>
+        <p className="text-sm font-medium">{t("emptyTitle")}</p>
+        <p className="text-xs text-muted-foreground">{t("emptyDesc")}</p>
       </div>
       <Button asChild variant="outline" size="sm">
-        <a href="/clients">Voir mes clients</a>
+        <a href="/clients">{t("emptyCta")}</a>
       </Button>
     </div>
   );

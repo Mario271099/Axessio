@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { BookOpen, ExternalLink, RotateCcw } from "lucide-react";
 import {
   AccordionContent,
@@ -65,6 +66,7 @@ export function ThematicSection({
   onClear,
   isProcessing,
 }: Props) {
+  const t = useTranslations("audits.matrix.thematic");
   const visibleCriteria = useMemo(() => {
     return criteria.filter((c) => {
       const status = conformityMap.get(`${pageId}:${c.id}`) ?? null;
@@ -107,9 +109,12 @@ export function ThematicSection({
         <Badge
           variant="muted"
           className="ml-auto mr-2 tabular-nums"
-          aria-label={`${counts.saisis} sur ${counts.total} critères saisis`}
+          aria-label={t("saisiAria", {
+            filled: counts.saisis,
+            total: counts.total,
+          })}
         >
-          {counts.saisis} / {counts.total} saisis
+          {t("saisiLabel", { filled: counts.saisis, total: counts.total })}
         </Badge>
       </AccordionTrigger>
 
@@ -123,7 +128,7 @@ export function ThematicSection({
               onClick={onBulkSetNotApplicable}
               disabled={isProcessing}
             >
-              Tout marquer NA
+              {t("bulkNA")}
             </Button>
             <Button
               type="button"
@@ -134,7 +139,7 @@ export function ThematicSection({
               className="gap-2"
             >
               <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-              Tout effacer
+              {t("clearAll")}
             </Button>
           </div>
         )}
@@ -155,7 +160,7 @@ export function ThematicSection({
                   {criterion.level && (
                     <span
                       className="rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-primary"
-                      aria-label={`Niveau WCAG ${criterion.level}`}
+                      aria-label={t("wcagLevelAria", { level: criterion.level })}
                     >
                       {criterion.level}
                     </span>
@@ -178,7 +183,7 @@ export function ThematicSection({
                         className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
                       >
                         <BookOpen className="h-3 w-3" aria-hidden="true" />
-                        Voir la méthodologie
+                        {t("viewMethodology")}
                         <ExternalLink className="h-3 w-3" aria-hidden="true" />
                       </a>
                     )}

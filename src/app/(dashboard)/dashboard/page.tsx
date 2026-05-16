@@ -1,4 +1,5 @@
 import { ClipboardList, Plus } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import {
   Card,
   CardContent,
@@ -9,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
-import { formatDate, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { AuditStatus, NCSeverity } from "@/types/domain";
 import { KpiCard } from "@/components/dashboard/kpi-card";
@@ -22,6 +23,10 @@ import {
   ActivityTimeline,
   type ActivityEvent,
 } from "@/components/dashboard/activity-timeline";
+
+function intlLocale(locale: string): string {
+  return locale === "en" ? "en-US" : "fr-FR";
+}
 
 const STATUS_GROUPS = {
   pending: ["PENDING", "PLANNED"] as AuditStatus[],
@@ -38,6 +43,10 @@ const STATUS_GROUPS = {
 export default async function DashboardPage() {
   const profile = await requireProfile();
   const supabase = await createClient();
+  const locale = await getLocale();
+  const t = await getTranslations("dashboard");
+  const tCommon = await getTranslations("common");
+  const intl = intlLocale(locale);
 
   // Toutes les requêtes en parallèle.
   const [
@@ -111,29 +120,41 @@ export default async function DashboardPage() {
   );
 
   // ---- Activité récente : on dérive des NC fraîches ----------------------
+  const tActivity = await getTranslations("dashboard.activity");
   const activityEvents: ActivityEvent[] = (recentNcRes.data ?? []).map(
     (nc) => {
       const author = Array.isArray(nc.author) ? nc.author[0] : nc.author;
+      const fallbackAuthor =
+        locale === "en" ? "Someone" : "Quelqu'un";
       const authorName = author
         ? `${author.first_name ?? ""} ${author.last_name ?? ""}`.trim() ||
-          "Quelqu'un"
-        : "Quelqu'un";
+          fallbackAuthor
+        : fallbackAuthor;
       const severity = nc.severity as NCSeverity;
       const isCritical = severity === "CRITICAL" || severity === "HIGH";
+      const action =
+        locale === "en"
+          ? isCritical
+            ? "created a critical NC"
+            : "created an NC"
+          : isCritical
+            ? "a créé une NC critique"
+            : "a créé une NC";
       return {
         id: nc.id,
         kind: isCritical ? "nc-critical" : "nc-created",
         author: authorName,
-        action: isCritical ? "a créé une NC critique" : "a créé une NC",
+        action,
         target: nc.title,
         href: `/audits/${nc.audit_id}/anomalies/${nc.id}`,
         at: nc.created_at,
       } satisfies ActivityEvent;
     },
   );
+  void tActivity;
 
   // ---- Hero : date du jour + dernière connexion --------------------------
-  const today = new Intl.DateTimeFormat("fr-FR", {
+  const today = new Intl.DateTimeFormat(intl, {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -142,13 +163,24 @@ export default async function DashboardPage() {
   const capitalizedToday = today.charAt(0).toUpperCase() + today.slice(1);
 
   const lastLoginLabel = lastLoginAt
-    ? `Dernière connexion : ${new Intl.DateTimeFormat("fr-FR", {
-        day: "2-digit",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(new Date(lastLoginAt))}`
+    ? t("hero.lastLogin", {
+        date: new Intl.DateTimeFormat(intl, {
+          day: "2-digit",
+          month: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+        }).format(new Date(lastLoginAt)),
+      })
     : null;
+
+  const formatShortDate = (iso: string | null | undefined): string => {
+    if (!iso) return "—";
+    return new Intl.DateTimeFormat(intl, {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(new Date(iso));
+  };
 
   const recentAudits = auditList.slice(0, 5);
 
@@ -165,10 +197,12 @@ export default async function DashboardPage() {
         <div className="relative flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-              Tableau de bord
+              {t("hero.kicker")}
             </p>
             <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-              Bonjour, {profile.firstName || "bienvenue"}
+              {t("hero.greeting", {
+                name: profile.firstName || t("hero.greetingFallback"),
+              })}
             </h1>
             <p className="text-sm text-muted-foreground">
               <span>{capitalizedToday}</span>
@@ -183,7 +217,7 @@ export default async function DashboardPage() {
           <Button asChild size="lg" className="shrink-0">
             <Link href="/audits/new">
               <Plus aria-hidden="true" className="h-4 w-4" />
-              Nouvel audit
+              {t("hero.newAudit")}
             </Link>
           </Button>
         </div>
@@ -196,17 +230,17 @@ export default async function DashboardPage() {
         <div className="fade-in-up" style={{ animationDelay: "0ms" }}>
           <KpiCard
             iconKey="clipboard-list"
-            label="Audits récents"
+            label={t("kpi.recentAudits")}
             value={total}
             tone="primary"
             delta={null}
-            note={`sur ${totalAudits} au total`}
+            note={t("kpi.totalSuffix", { total: totalAudits })}
           />
         </div>
         <div className="fade-in-up" style={{ animationDelay: "75ms" }}>
           <KpiCard
             iconKey="clock"
-            label="En cours"
+            label={t("kpi.inProgress")}
             value={inProgress}
             tone="warning"
             delta={null}
@@ -215,7 +249,7 @@ export default async function DashboardPage() {
         <div className="fade-in-up" style={{ animationDelay: "150ms" }}>
           <KpiCard
             iconKey="check-circle"
-            label="Terminés"
+            label={t("kpi.completed")}
             value={completed}
             tone="success"
             delta={null}
@@ -224,16 +258,12 @@ export default async function DashboardPage() {
         <div className="fade-in-up" style={{ animationDelay: "225ms" }}>
           <KpiCard
             iconKey="trending-up"
-            label="Score moyen"
+            label={t("kpi.averageScore")}
             value={avgScore}
             tone="violet"
             delta={null}
             suffix="%"
-            note={
-              evaluatedScores.length > 0
-                ? `sur ${evaluatedScores.length} audit${evaluatedScores.length > 1 ? "s" : ""} évalué${evaluatedScores.length > 1 ? "s" : ""}`
-                : "Aucun score disponible"
-            }
+            note={t("kpi.scoreNote", { count: evaluatedScores.length })}
           />
         </div>
       </div>
@@ -258,16 +288,20 @@ export default async function DashboardPage() {
       {/* ============================================================== */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle>Audits récents</CardTitle>
+          <CardTitle>{t("recent.title")}</CardTitle>
           {auditList.length > 0 && (
             <Button asChild variant="link" size="sm" className="h-auto p-0">
-              <Link href="/audits">Voir tout</Link>
+              <Link href="/audits">{tCommon("viewAll")}</Link>
             </Button>
           )}
         </CardHeader>
         <CardContent>
           {recentAudits.length === 0 ? (
-            <EmptyState />
+            <EmptyState
+              title={t("recent.emptyTitle")}
+              description={t("recent.emptyDesc")}
+              cta={t("recent.createCta")}
+            />
           ) : (
             <ul className="-mx-2 divide-y divide-border">
               {recentAudits.map((audit) => {
@@ -280,8 +314,8 @@ export default async function DashboardPage() {
                     : project.client
                   : null;
                 const score = audit.final_score ?? audit.initial_score;
-                const clientName = client?.name ?? "Sans client";
-                const projectName = project?.name ?? "Projet inconnu";
+                const clientName = client?.name ?? t("recent.noClient");
+                const projectName = project?.name ?? t("recent.unknownProject");
 
                 return (
                   <li key={audit.id}>
@@ -298,7 +332,9 @@ export default async function DashboardPage() {
                           <span>{clientName}</span>
                           <span aria-hidden="true"> · </span>
                           <span>
-                            Mis à jour le {formatDate(audit.updated_at)}
+                            {t("recent.updatedOn", {
+                              date: formatShortDate(audit.updated_at),
+                            })}
                           </span>
                         </p>
                       </div>
@@ -357,7 +393,15 @@ function ScoreText({ score }: { score: number | null | undefined }) {
   );
 }
 
-function EmptyState() {
+function EmptyState({
+  title,
+  description,
+  cta,
+}: {
+  title: string;
+  description: string;
+  cta: string;
+}) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border py-12 text-center">
       <div
@@ -367,15 +411,13 @@ function EmptyState() {
         <ClipboardList className="h-6 w-6" />
       </div>
       <div className="space-y-1">
-        <p className="text-sm font-medium">Aucun audit pour le moment</p>
-        <p className="text-xs text-muted-foreground">
-          Créez votre premier audit pour commencer.
-        </p>
+        <p className="text-sm font-medium">{title}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
       </div>
       <Button asChild size="sm" className="mt-2">
         <Link href="/audits/new">
           <Plus aria-hidden="true" className="h-4 w-4" />
-          Créer un audit
+          {cta}
         </Link>
       </Button>
     </div>

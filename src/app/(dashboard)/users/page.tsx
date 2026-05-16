@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/types/domain";
@@ -6,6 +7,7 @@ import { UsersList, type UserListItem, type ClientOption } from "./users-list";
 
 export default async function UsersPage() {
   const profile = await requireProfile();
+  const t = await getTranslations("users");
 
   if (profile.role !== "auditor") {
     redirect("/dashboard");
@@ -37,7 +39,7 @@ export default async function UsersPage() {
           role="alert"
           className="rounded-md border border-destructive/40 bg-destructive/5 p-6 text-sm text-destructive"
         >
-          Erreur de chargement des utilisateurs : {usersError.message}
+          {t("loadError", { message: usersError.message })}
         </div>
       </div>
     );
@@ -49,7 +51,7 @@ export default async function UsersPage() {
           role="alert"
           className="rounded-md border border-destructive/40 bg-destructive/5 p-6 text-sm text-destructive"
         >
-          Erreur de chargement des clients : {clientsError.message}
+          {t("loadClientsError", { message: clientsError.message })}
         </div>
       </div>
     );

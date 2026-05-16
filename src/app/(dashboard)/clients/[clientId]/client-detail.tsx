@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Activity,
   AlertCircle,
@@ -83,6 +84,10 @@ interface ClientDetailProps {
   activity: ActivityEvent[];
 }
 
+function intlLocale(locale: string): string {
+  return locale === "en" ? "en-US" : "fr-FR";
+}
+
 export function ClientDetail({
   client,
   projects,
@@ -90,6 +95,9 @@ export function ClientDetail({
   activity,
 }: ClientDetailProps) {
   const router = useRouter();
+  const t = useTranslations("clientDetail");
+  const locale = useLocale();
+  const intl = intlLocale(locale);
   const [editClientOpen, setEditClientOpen] = useState(false);
   const [createProjectOpen, setCreateProjectOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectItem | null>(null);
@@ -105,8 +113,8 @@ export function ClientDetail({
   const handleToggleActive = () => {
     const next = !client.isActive;
     const message = next
-      ? `Réactiver le client « ${client.name} » ?`
-      : `Désactiver le client « ${client.name} » ?`;
+      ? t("confirmReactivate", { name: client.name })
+      : t("confirmDeactivate", { name: client.name });
     if (!window.confirm(message)) return;
 
     setToggleError(null);
@@ -124,16 +132,12 @@ export function ClientDetail({
     if (project.auditCount > 0) {
       setDeleteError({
         projectId: project.id,
-        message: `Ce projet a ${project.auditCount} audit${
-          project.auditCount > 1 ? "s" : ""
-        } associé${project.auditCount > 1 ? "s" : ""}.`,
+        message: t("projectHasAudits", { count: project.auditCount }),
       });
       return;
     }
     if (
-      !window.confirm(
-        `Supprimer définitivement le projet « ${project.name} » ?`,
-      )
+      !window.confirm(t("confirmDeleteProject", { name: project.name }))
     ) {
       return;
     }
@@ -156,14 +160,14 @@ export function ClientDetail({
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
       {/* Breadcrumb ----------------------------------------------------- */}
       <nav
-        aria-label="Fil d'Ariane"
+        aria-label={t("breadcrumb")}
         className="flex items-center gap-1 text-xs text-muted-foreground"
       >
         <Link
           href="/clients"
           className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
         >
-          Clients
+          {t("backToClients")}
         </Link>
         <ChevronRight className="h-3 w-3" aria-hidden="true" />
         <span className="rounded px-1 py-0.5 font-medium text-foreground">
@@ -186,11 +190,11 @@ export function ClientDetail({
                 {client.name}
               </h1>
               <Badge variant={client.isActive ? "success" : "muted"}>
-                {client.isActive ? "Actif" : "Désactivé"}
+                {client.isActive ? t("active") : t("inactive")}
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              Créé le {formatDate(client.createdAt)}
+              {t("createdOn", { date: formatDate(client.createdAt, intl) })}
             </p>
           </div>
         </div>
@@ -201,7 +205,7 @@ export function ClientDetail({
             onClick={() => setEditClientOpen(true)}
           >
             <Pencil className="h-4 w-4" aria-hidden="true" />
-            Modifier
+            {t("edit")}
           </Button>
           <Button
             variant="ghost"
@@ -217,7 +221,7 @@ export function ClientDetail({
             ) : (
               <Power className="h-4 w-4" aria-hidden="true" />
             )}
-            {client.isActive ? "Désactiver" : "Réactiver"}
+            {client.isActive ? t("deactivate") : t("reactivate")}
           </Button>
         </div>
       </header>
@@ -234,7 +238,7 @@ export function ClientDetail({
                 className="h-4 w-4 text-muted-foreground"
                 aria-hidden="true"
               />
-              Informations
+              {t("infoTitle")}
             </CardTitle>
             <Button
               variant="ghost"
@@ -242,13 +246,13 @@ export function ClientDetail({
               onClick={() => setEditClientOpen(true)}
               className="h-7 px-2 text-xs"
             >
-              Modifier
+              {t("edit")}
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">
             <InfoRow
               icon={<Mail className="h-3.5 w-3.5" aria-hidden="true" />}
-              label="Email"
+              label={t("email")}
             >
               {client.contactEmail ? (
                 <a
@@ -263,7 +267,7 @@ export function ClientDetail({
             </InfoRow>
             <InfoRow
               icon={<User className="h-3.5 w-3.5" aria-hidden="true" />}
-              label="Contact"
+              label={t("contact")}
             >
               <span className="text-sm">
                 {client.contactName ?? (
@@ -275,7 +279,7 @@ export function ClientDetail({
               icon={
                 <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
               }
-              label="Site web"
+              label={t("website")}
             >
               {client.website ? (
                 <a
@@ -294,10 +298,10 @@ export function ClientDetail({
               icon={
                 <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
               }
-              label="Créé le"
+              label={t("createdLabel")}
             >
               <span className="text-sm tabular-nums">
-                {formatDate(client.createdAt)}
+                {formatDate(client.createdAt, intl)}
               </span>
             </InfoRow>
           </CardContent>
@@ -311,26 +315,26 @@ export function ClientDetail({
                 className="h-4 w-4 text-muted-foreground"
                 aria-hidden="true"
               />
-              Statistiques
+              {t("statsTitle")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <StatRow
               icon={FolderKanban}
               tone="primary"
-              label="Projets"
+              label={t("stats.projects")}
               value={stats.projectCount}
             />
             <StatRow
               icon={ClipboardList}
               tone="violet"
-              label="Audits"
+              label={t("stats.audits")}
               value={stats.auditCount}
             />
             <StatRow
               icon={ClipboardCheck}
               tone="warning"
-              label="Audits actifs"
+              label={t("stats.activeAudits")}
               value={stats.activeAuditCount}
             />
           </CardContent>
@@ -344,13 +348,13 @@ export function ClientDetail({
                 className="h-4 w-4 text-muted-foreground"
                 aria-hidden="true"
               />
-              Activité récente
+              {t("activityTitle")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {activity.length === 0 ? (
               <p className="py-2 text-center text-xs text-muted-foreground">
-                Aucune activité récente
+                {t("activityEmpty")}
               </p>
             ) : (
               <ul className="space-y-3">
@@ -376,7 +380,7 @@ export function ClientDetail({
                           dateTime={ev.at}
                           className="text-xs text-muted-foreground tabular-nums"
                         >
-                          {formatRelative(ev.at)}
+                          {formatRelative(ev.at, intl)}
                         </time>
                       </div>
                     </div>
@@ -392,15 +396,16 @@ export function ClientDetail({
       <section className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="space-y-1">
-            <h2 className="text-xl font-bold tracking-tight">Projets</h2>
+            <h2 className="text-xl font-bold tracking-tight">
+              {t("projectsTitle")}
+            </h2>
             <p className="text-sm text-muted-foreground">
-              {projects.length} projet{projects.length > 1 ? "s" : ""} rattaché
-              {projects.length > 1 ? "s" : ""}
+              {t("projectsCount", { count: projects.length })}
             </p>
           </div>
           <Button size="sm" onClick={() => setCreateProjectOpen(true)}>
             <Plus className="h-4 w-4" aria-hidden="true" />
-            Nouveau projet
+            {t("newProject")}
           </Button>
         </div>
 
@@ -413,14 +418,14 @@ export function ClientDetail({
               >
                 <FolderKanban className="h-6 w-6" />
               </div>
-              <p className="text-sm font-medium">Aucun projet rattaché</p>
+              <p className="text-sm font-medium">{t("noProjectsTitle")}</p>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setCreateProjectOpen(true)}
               >
                 <Plus className="h-4 w-4" aria-hidden="true" />
-                Créer le premier projet
+                {t("noProjectsCta")}
               </Button>
             </CardContent>
           </Card>
@@ -471,15 +476,14 @@ export function ClientDetail({
                         className="h-3 w-3"
                         aria-hidden="true"
                       />
-                      {project.auditCount} audit
-                      {project.auditCount > 1 ? "s" : ""}
+                      {t("auditCount", { count: project.auditCount })}
                     </Badge>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
                       onClick={() => setEditingProject(project)}
-                      aria-label={`Modifier le projet ${project.name}`}
+                      aria-label={t("editProjectAria", { name: project.name })}
                     >
                       <Pencil className="h-4 w-4" aria-hidden="true" />
                     </Button>
@@ -489,7 +493,7 @@ export function ClientDetail({
                       className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                       onClick={() => handleDeleteProject(project)}
                       disabled={isDeleting && deletingId === project.id}
-                      aria-label={`Supprimer le projet ${project.name}`}
+                      aria-label={t("deleteProjectAria", { name: project.name })}
                     >
                       {isDeleting && deletingId === project.id ? (
                         <Loader2
@@ -613,8 +617,8 @@ function clientInitials(name: string): string {
   return (parts[0]?.slice(0, 2) ?? "?").toUpperCase();
 }
 
-const rtf = new Intl.RelativeTimeFormat("fr-FR", { numeric: "auto" });
-function formatRelative(iso: string): string {
+function formatRelative(iso: string, intl: string): string {
+  const rtf = new Intl.RelativeTimeFormat(intl, { numeric: "auto" });
   const diffMs = Date.now() - new Date(iso).getTime();
   const minutes = Math.round(diffMs / 60_000);
   if (minutes < 60) return rtf.format(-Math.max(1, minutes), "minute");
@@ -641,6 +645,9 @@ function EditClientDialog({
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }) {
+  const t = useTranslations("clientDetail");
+  const tClients = useTranslations("clients");
+  const tCommon = useTranslations("common");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -655,7 +662,7 @@ function EditClientDialog({
     const formData = new FormData(form);
     const name = formData.get("name")?.toString().trim();
     if (!name) {
-      setError("Le nom du client est requis.");
+      setError(t("editClient.nameRequired"));
       return;
     }
     setError(null);
@@ -675,17 +682,15 @@ function EditClientDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Modifier le client</DialogTitle>
-          <DialogDescription>
-            Mettez à jour les informations de cette organisation cliente.
-          </DialogDescription>
+          <DialogTitle>{t("editClient.title")}</DialogTitle>
+          <DialogDescription>{t("editClient.desc")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
-            <Label htmlFor="edit-client-name">Nom *</Label>
+            <Label htmlFor="edit-client-name">{tClients("dialog.name")} *</Label>
             <Input
               id="edit-client-name"
               name="name"
@@ -696,34 +701,40 @@ function EditClientDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-client-website">Site web</Label>
+            <Label htmlFor="edit-client-website">
+              {tClients("dialog.website")}
+            </Label>
             <Input
               id="edit-client-website"
               name="website"
               type="url"
               defaultValue={client.website ?? ""}
-              placeholder="https://exemple.fr"
+              placeholder={tClients("dialog.websitePlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-client-contact-name">Nom du contact</Label>
+            <Label htmlFor="edit-client-contact-name">
+              {tClients("dialog.contactName")}
+            </Label>
             <Input
               id="edit-client-contact-name"
               name="contact_name"
               defaultValue={client.contactName ?? ""}
-              placeholder="Ex : Camille Martin"
+              placeholder={tClients("dialog.contactNamePlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-client-contact-email">Email du contact</Label>
+            <Label htmlFor="edit-client-contact-email">
+              {tClients("dialog.contactEmail")}
+            </Label>
             <Input
               id="edit-client-contact-email"
               name="contact_email"
               type="email"
               defaultValue={client.contactEmail ?? ""}
-              placeholder="contact@exemple.fr"
+              placeholder={tClients("dialog.contactEmailPlaceholder")}
             />
           </div>
 
@@ -734,13 +745,13 @@ function EditClientDialog({
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
-              Annuler
+              {tCommon("cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}
-              Enregistrer
+              {tCommon("save")}
             </Button>
           </DialogFooter>
         </form>
@@ -760,6 +771,8 @@ function CreateProjectDialog({
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }) {
+  const t = useTranslations("clientDetail");
+  const tCommon = useTranslations("common");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -774,7 +787,7 @@ function CreateProjectDialog({
     const formData = new FormData(form);
     const name = formData.get("name")?.toString().trim();
     if (!name) {
-      setError("Le nom du projet est requis.");
+      setError(t("createProject.nameRequired"));
       return;
     }
     setError(null);
@@ -795,33 +808,33 @@ function CreateProjectDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Nouveau projet</DialogTitle>
-          <DialogDescription>
-            Rattachez un projet (site, application, intranet…) à ce client.
-          </DialogDescription>
+          <DialogTitle>{t("createProject.title")}</DialogTitle>
+          <DialogDescription>{t("createProject.desc")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
-            <Label htmlFor="create-project-name">Nom *</Label>
+            <Label htmlFor="create-project-name">
+              {t("createProject.name")} *
+            </Label>
             <Input
               id="create-project-name"
               name="name"
               required
               autoFocus
-              placeholder="Ex : Site institutionnel"
+              placeholder={t("createProject.namePlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="create-project-url">URL</Label>
+            <Label htmlFor="create-project-url">{t("createProject.url")}</Label>
             <Input
               id="create-project-url"
               name="url"
               type="url"
-              placeholder="https://exemple.fr"
+              placeholder={t("createProject.urlPlaceholder")}
             />
           </div>
 
@@ -832,13 +845,13 @@ function CreateProjectDialog({
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
-              Annuler
+              {tCommon("cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}
-              Créer le projet
+              {t("createProject.submit")}
             </Button>
           </DialogFooter>
         </form>
@@ -860,6 +873,8 @@ function EditProjectDialog({
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }) {
+  const t = useTranslations("clientDetail");
+  const tCommon = useTranslations("common");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -875,7 +890,7 @@ function EditProjectDialog({
     const formData = new FormData(form);
     const name = formData.get("name")?.toString().trim();
     if (!name) {
-      setError("Le nom du projet est requis.");
+      setError(t("createProject.nameRequired"));
       return;
     }
     setError(null);
@@ -897,17 +912,17 @@ function EditProjectDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Modifier le projet</DialogTitle>
-          <DialogDescription>
-            Mettez à jour les informations de ce projet.
-          </DialogDescription>
+          <DialogTitle>{t("editProject.title")}</DialogTitle>
+          <DialogDescription>{t("editProject.desc")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
-            <Label htmlFor="edit-project-name">Nom *</Label>
+            <Label htmlFor="edit-project-name">
+              {t("createProject.name")} *
+            </Label>
             <Input
               id="edit-project-name"
               name="name"
@@ -918,13 +933,13 @@ function EditProjectDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-project-url">URL</Label>
+            <Label htmlFor="edit-project-url">{t("createProject.url")}</Label>
             <Input
               id="edit-project-url"
               name="url"
               type="url"
               defaultValue={project.url ?? ""}
-              placeholder="https://exemple.fr"
+              placeholder={t("createProject.urlPlaceholder")}
             />
           </div>
 
@@ -935,13 +950,13 @@ function EditProjectDialog({
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
-              Annuler
+              {tCommon("cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}
-              Enregistrer
+              {tCommon("save")}
             </Button>
           </DialogFooter>
         </form>
@@ -955,9 +970,9 @@ function normalizeUrl(raw: string): string {
   return `https://${raw}`;
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, intl: string): string {
   try {
-    return new Date(iso).toLocaleDateString("fr-FR", {
+    return new Date(iso).toLocaleDateString(intl, {
       day: "2-digit",
       month: "long",
       year: "numeric",

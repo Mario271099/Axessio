@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
   Building2,
@@ -56,6 +57,8 @@ interface ClientsListProps {
 }
 
 export function ClientsList({ clients }: ClientsListProps) {
+  const t = useTranslations("clients");
+  const tCommon = useTranslations("common");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -92,14 +95,14 @@ export function ClientsList({ clients }: ClientsListProps) {
       {/* Header --------------------------------------------------------- */}
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">Clients</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">
-            {clients.length} client{clients.length > 1 ? "s" : ""} au total
+            {t("subtitle", { count: clients.length })}
           </p>
         </div>
         <Button onClick={() => setDialogOpen(true)}>
           <Plus className="h-4 w-4" aria-hidden="true" />
-          Nouveau client
+          {t("newClient")}
         </Button>
       </header>
 
@@ -108,19 +111,19 @@ export function ClientsList({ clients }: ClientsListProps) {
         <KpiCard
           icon={Building2}
           tone="primary"
-          label="Total clients"
+          label={t("kpi.total")}
           value={clients.length}
         />
         <KpiCard
           icon={CheckCircle2}
           tone="success"
-          label="Clients actifs"
+          label={t("kpi.active")}
           value={totals.active}
         />
         <KpiCard
           icon={ClipboardCheck}
           tone="violet"
-          label="Total audits"
+          label={t("kpi.audits")}
           value={totals.audits}
         />
       </div>
@@ -135,11 +138,11 @@ export function ClientsList({ clients }: ClientsListProps) {
             />
             <Input
               type="search"
-              placeholder="Rechercher par nom ou email…"
+              placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9"
-              aria-label="Rechercher un client"
+              aria-label={t("searchAria")}
             />
           </div>
 
@@ -147,13 +150,13 @@ export function ClientsList({ clients }: ClientsListProps) {
             value={statusFilter}
             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
           >
-            <SelectTrigger aria-label="Filtrer par statut">
+            <SelectTrigger aria-label={t("filterStatusAria")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Tous</SelectItem>
-              <SelectItem value="ACTIVE">Actifs</SelectItem>
-              <SelectItem value="INACTIVE">Désactivés</SelectItem>
+              <SelectItem value="ALL">{t("filterAll")}</SelectItem>
+              <SelectItem value="ACTIVE">{t("filterActive")}</SelectItem>
+              <SelectItem value="INACTIVE">{t("filterInactive")}</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -167,7 +170,7 @@ export function ClientsList({ clients }: ClientsListProps) {
               className="gap-1.5"
             >
               <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-              Réinitialiser
+              {tCommon("reset")}
             </Button>
           </div>
         )}
@@ -185,7 +188,7 @@ export function ClientsList({ clients }: ClientsListProps) {
             >
               <Building2 className="h-6 w-6" />
             </div>
-            <p className="text-sm font-medium">Aucun client ne correspond</p>
+            <p className="text-sm font-medium">{t("noResults")}</p>
             <Button
               variant="outline"
               size="sm"
@@ -193,7 +196,7 @@ export function ClientsList({ clients }: ClientsListProps) {
               className="gap-1.5"
             >
               <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-              Réinitialiser
+              {tCommon("reset")}
             </Button>
           </CardContent>
         </Card>
@@ -259,11 +262,12 @@ function clientInitials(name: string): string {
 }
 
 function ClientCard({ client }: { client: ClientListItem }) {
+  const t = useTranslations("clients");
   return (
     <Link
       href={`/clients/${client.id}`}
       className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      aria-label={`Voir le client ${client.name}`}
+      aria-label={t("viewClient", { name: client.name })}
     >
       <Card
         interactive
@@ -277,7 +281,7 @@ function ClientCard({ client }: { client: ClientListItem }) {
             {clientInitials(client.name)}
           </div>
           <Badge variant={client.isActive ? "success" : "muted"}>
-            {client.isActive ? "Actif" : "Désactivé"}
+            {client.isActive ? t("active") : t("inactive")}
           </Badge>
         </div>
 
@@ -299,20 +303,18 @@ function ClientCard({ client }: { client: ClientListItem }) {
         </div>
 
         <div className="mt-auto border-t border-border pt-3">
-          <div className="flex items-center justify-between gap-4 text-sm">
-            <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+          <div className="flex items-center justify-between gap-4 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
               <FolderKanban className="h-4 w-4" aria-hidden="true" />
-              <span className="font-semibold text-foreground tabular-nums">
-                {client.projectCount}
-              </span>{" "}
-              projet{client.projectCount > 1 ? "s" : ""}
+              <span className="tabular-nums">
+                {t("projectCount", { count: client.projectCount })}
+              </span>
             </span>
-            <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
               <ClipboardList className="h-4 w-4" aria-hidden="true" />
-              <span className="font-semibold text-foreground tabular-nums">
-                {client.auditCount}
-              </span>{" "}
-              audit{client.auditCount > 1 ? "s" : ""}
+              <span className="tabular-nums">
+                {t("auditCount", { count: client.auditCount })}
+              </span>
             </span>
           </div>
         </div>
@@ -322,6 +324,7 @@ function ClientCard({ client }: { client: ClientListItem }) {
 }
 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
+  const t = useTranslations("clients");
   return (
     <Card>
       <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
@@ -332,14 +335,12 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
           <Building2 className="h-8 w-8" />
         </div>
         <div className="space-y-1">
-          <p className="text-base font-semibold">Aucun client</p>
-          <p className="text-sm text-muted-foreground">
-            Créez votre premier client pour démarrer.
-          </p>
+          <p className="text-base font-semibold">{t("empty.title")}</p>
+          <p className="text-sm text-muted-foreground">{t("empty.desc")}</p>
         </div>
         <Button onClick={onCreate} className="mt-2">
           <Plus className="h-4 w-4" aria-hidden="true" />
-          Créer le premier client
+          {t("empty.cta")}
         </Button>
       </CardContent>
     </Card>
@@ -353,6 +354,8 @@ function CreateClientDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const t = useTranslations("clients");
+  const tCommon = useTranslations("common");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -367,7 +370,7 @@ function CreateClientDialog({
     const formData = new FormData(form);
     const name = formData.get("name")?.toString().trim();
     if (!name) {
-      setError("Le nom du client est requis.");
+      setError(t("dialog.nameRequired"));
       return;
     }
     setError(null);
@@ -387,53 +390,54 @@ function CreateClientDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Nouveau client</DialogTitle>
-          <DialogDescription>
-            Créez une nouvelle organisation cliente. Vous pourrez ensuite y
-            rattacher des projets et des audits.
-          </DialogDescription>
+          <DialogTitle>{t("dialog.createTitle")}</DialogTitle>
+          <DialogDescription>{t("dialog.createDesc")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
-            <Label htmlFor="client-name">Nom *</Label>
+            <Label htmlFor="client-name">{t("dialog.name")} *</Label>
             <Input
               id="client-name"
               name="name"
               required
               autoFocus
-              placeholder="Ex : Ministère de la Culture"
+              placeholder={t("dialog.namePlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="client-website">Site web</Label>
+            <Label htmlFor="client-website">{t("dialog.website")}</Label>
             <Input
               id="client-website"
               name="website"
               type="url"
-              placeholder="https://exemple.fr"
+              placeholder={t("dialog.websitePlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="client-contact-name">Nom du contact</Label>
+            <Label htmlFor="client-contact-name">
+              {t("dialog.contactName")}
+            </Label>
             <Input
               id="client-contact-name"
               name="contact_name"
-              placeholder="Ex : Camille Martin"
+              placeholder={t("dialog.contactNamePlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="client-contact-email">Email du contact</Label>
+            <Label htmlFor="client-contact-email">
+              {t("dialog.contactEmail")}
+            </Label>
             <Input
               id="client-contact-email"
               name="contact_email"
               type="email"
-              placeholder="contact@exemple.fr"
+              placeholder={t("dialog.contactEmailPlaceholder")}
             />
           </div>
 
@@ -444,13 +448,13 @@ function CreateClientDialog({
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
-              Annuler
+              {tCommon("cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}
-              Créer le client
+              {t("dialog.submitCreate")}
             </Button>
           </DialogFooter>
         </form>

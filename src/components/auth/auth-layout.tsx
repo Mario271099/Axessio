@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { AxIcon } from "@/components/brand";
 import { cn } from "@/lib/utils";
 
@@ -13,12 +14,12 @@ interface AuthLayoutProps {
   footer?: React.ReactNode;
 }
 
-const BENEFITS = [
-  "Conforme aux 4 référentiels officiels",
-  "436 critères pré-importés",
-  "Rapports PDF en un clic",
-  "Collaboration en temps réel",
-];
+const BENEFIT_KEYS = [
+  "compliance",
+  "criteria",
+  "reports",
+  "collaboration",
+] as const;
 
 const VERSION_BADGES = [
   "RGAA 4.1.2",
@@ -33,6 +34,9 @@ export function AuthLayout({
   subtitle,
   footer,
 }: AuthLayoutProps) {
+  const tMarketing = useTranslations("auth.marketing");
+  const tSidebar = useTranslations("sidebar");
+
   return (
     <main className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       {/* Panneau gauche — formulaire ------------------------------------ */}
@@ -40,7 +44,7 @@ export function AuthLayout({
         <div className="mx-auto w-full max-w-md fade-in-up">
           <Link
             href="/"
-            aria-label="Axessio — accueil"
+            aria-label={tSidebar("brandHomeAria")}
             className="inline-flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <AxIcon size={36} aria-label="" />
@@ -85,18 +89,16 @@ export function AuthLayout({
 
         <div className="relative max-w-lg">
           <p className="text-3xl font-bold tracking-tight text-white md:text-4xl">
-            Mesurez, suivez, améliorez l&apos;accessibilité de vos produits
-            numériques.
+            {tMarketing("tagline")}
           </p>
           <p className="mt-4 text-lg text-white/80">
-            La plateforme de référence pour vos audits RGAA, WCAG, RAWeb et
-            RAAM.
+            {tMarketing("subtitle")}
           </p>
 
           <ul className="mt-8 space-y-3">
-            {BENEFITS.map((benefit, i) => (
+            {BENEFIT_KEYS.map((key, i) => (
               <li
-                key={benefit}
+                key={key}
                 className={cn(
                   "fade-in-up flex items-center gap-3 text-white",
                 )}
@@ -106,7 +108,9 @@ export function AuthLayout({
                   className="h-5 w-5 shrink-0 text-white"
                   aria-hidden="true"
                 />
-                <span className="text-base">{benefit}</span>
+                <span className="text-base">
+                  {tMarketing(`benefits.${key}`)}
+                </span>
               </li>
             ))}
           </ul>

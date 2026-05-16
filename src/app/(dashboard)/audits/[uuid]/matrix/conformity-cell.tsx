@@ -1,9 +1,9 @@
 "use client";
 
 import { memo } from "react";
+import { useTranslations } from "next-intl";
 import { Check, Minus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CONFORMITY_STATUS_LABELS } from "@/lib/constants";
 import type { ConformityStatus } from "@/types/domain";
 
 interface Props {
@@ -15,7 +15,6 @@ interface Props {
   ariaLabelPrefix: string;
 }
 
-// Layout : 3 boutons côte à côte, premier arrondi à gauche, dernier à droite.
 const baseBtn =
   "inline-flex h-9 items-center justify-center gap-1.5 border px-2 text-xs font-medium " +
   "transition-all duration-150 active:scale-95 " +
@@ -30,17 +29,22 @@ const ConformityCellInner = ({
   onSelectNotApplicable,
   ariaLabelPrefix,
 }: Props) => {
+  const t = useTranslations("audits.matrix.cell");
+  const tConformity = useTranslations("constants.conformity");
   return (
     <div
       role="group"
-      aria-label={`${ariaLabelPrefix} : statut de conformité`}
+      aria-label={t("groupAria", { prefix: ariaLabelPrefix })}
       className="inline-flex items-stretch overflow-hidden rounded-md shadow-xs"
     >
       <button
         type="button"
         onClick={onSelectCompliant}
         aria-pressed={current === "COMPLIANT"}
-        aria-label={`${ariaLabelPrefix} : marquer ${CONFORMITY_STATUS_LABELS.COMPLIANT}`}
+        aria-label={t("compliantAria", {
+          prefix: ariaLabelPrefix,
+          label: tConformity("COMPLIANT"),
+        })}
         disabled={disabled}
         className={cn(
           baseBtn,
@@ -51,13 +55,16 @@ const ConformityCellInner = ({
         )}
       >
         <Check className="h-3.5 w-3.5" aria-hidden="true" />
-        <span className="hidden sm:inline">Conforme</span>
+        <span className="hidden sm:inline">{t("compliantText")}</span>
       </button>
       <button
         type="button"
         onClick={onSelectNonCompliant}
         aria-pressed={current === "NON_COMPLIANT"}
-        aria-label={`${ariaLabelPrefix} : marquer ${CONFORMITY_STATUS_LABELS.NON_COMPLIANT}`}
+        aria-label={t("compliantAria", {
+          prefix: ariaLabelPrefix,
+          label: tConformity("NON_COMPLIANT"),
+        })}
         disabled={disabled}
         className={cn(
           baseBtn,
@@ -68,13 +75,16 @@ const ConformityCellInner = ({
         )}
       >
         <X className="h-3.5 w-3.5" aria-hidden="true" />
-        <span className="hidden sm:inline">Non conforme</span>
+        <span className="hidden sm:inline">{t("nonCompliantText")}</span>
       </button>
       <button
         type="button"
         onClick={onSelectNotApplicable}
         aria-pressed={current === "NOT_APPLICABLE"}
-        aria-label={`${ariaLabelPrefix} : marquer ${CONFORMITY_STATUS_LABELS.NOT_APPLICABLE}`}
+        aria-label={t("compliantAria", {
+          prefix: ariaLabelPrefix,
+          label: tConformity("NOT_APPLICABLE"),
+        })}
         disabled={disabled}
         className={cn(
           baseBtn,
@@ -85,11 +95,10 @@ const ConformityCellInner = ({
         )}
       >
         <Minus className="h-3.5 w-3.5" aria-hidden="true" />
-        <span className="hidden sm:inline">Non applicable</span>
+        <span className="hidden sm:inline">{t("notApplicableText")}</span>
       </button>
     </div>
   );
 };
 
-// 436 critères × N pages → on évite le rerender quand seul un autre critère change.
 export const ConformityCell = memo(ConformityCellInner);

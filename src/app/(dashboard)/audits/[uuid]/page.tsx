@@ -8,6 +8,7 @@ import {
   ListChecks,
   Pencil,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -22,11 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
 import { Progress } from "@/components/ui/progress";
 import { formatDate, formatScore, cn } from "@/lib/utils";
-import {
-  PLATFORM_LABELS,
-  REFERENCE_TYPE_LABELS,
-  SERVICE_TYPE_LABELS,
-} from "@/lib/constants";
+import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import {
   getConformityLabel,
   getConformityLevel,
@@ -48,6 +45,9 @@ export default async function AuditDetailPage({ params }: PageProps) {
   const profile = await requireProfile();
   const { uuid } = await params;
   const supabase = await createClient();
+  const t = await getTranslations("audits.detail");
+  const tPlatform = await getTranslations("constants.platform");
+  const tServiceType = await getTranslations("constants.serviceType");
 
   const { data: audit, error } = await supabase
     .from("audits")
@@ -86,7 +86,6 @@ export default async function AuditDetailPage({ params }: PageProps) {
       client?.id != null &&
       profile.clientId === client.id);
 
-  // Counts annexes (best-effort)
   const [{ count: pageCount }, { count: ncCount }] = await Promise.all([
     supabase
       .from("pages")
@@ -101,17 +100,15 @@ export default async function AuditDetailPage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      {/* Breadcrumb -------------------------------------------------------- */}
-      <nav aria-label="Fil d'Ariane">
+      <nav aria-label="Breadcrumb">
         <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
           <Link href="/audits">
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-            Retour aux audits
+            {t("back")}
           </Link>
         </Button>
       </nav>
 
-      {/* En-tête ---------------------------------------------------------- */}
       <header className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
@@ -120,18 +117,18 @@ export default async function AuditDetailPage({ params }: PageProps) {
               /
             </span>
             <Badge variant="muted">
-              {PLATFORM_LABELS[audit.platform as PlatformType]}
+              {tPlatform(audit.platform as PlatformType)}
             </Badge>
             <AuditStatusBadge status={audit.status as AuditStatus} />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            {project?.name ?? "Audit sans projet"}
+            {project?.name ?? t("noProjectTitle")}
           </h1>
           <p className="text-sm text-muted-foreground">
             {ref
               ? `${REFERENCE_TYPE_LABELS[ref.type as ReferenceType]} ${ref.version}`
-              : "Référentiel inconnu"}{" "}
-            · {SERVICE_TYPE_LABELS[audit.service_type as ServiceType]}
+              : t("unknownReference")}{" "}
+            · {tServiceType(audit.service_type as ServiceType)}
           </p>
         </div>
 
@@ -146,23 +143,22 @@ export default async function AuditDetailPage({ params }: PageProps) {
           <Button asChild variant="outline" className="gap-2">
             <Link href={`/audits/${uuid}/edit`}>
               <Pencil className="h-4 w-4" aria-hidden="true" />
-              Modifier
+              {t("edit")}
             </Link>
           </Button>
           <Button asChild className="gap-2">
             <Link href={`/audits/${uuid}/simulator`}>
               <Sparkles className="h-4 w-4" aria-hidden="true" />
-              Ouvrir le simulateur
+              {t("openSimulator")}
             </Link>
           </Button>
         </div>
       </header>
 
-      {/* Cartes principales ---------------------------------------------- */}
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <Card>
           <CardHeader>
-            <CardDescription>Taux de conformité</CardDescription>
+            <CardDescription>{t("conformityRate")}</CardDescription>
             <CardTitle className="flex items-baseline gap-3">
               <span
                 className="text-5xl font-bold tabular-nums"
@@ -186,67 +182,75 @@ export default async function AuditDetailPage({ params }: PageProps) {
             <Progress
               value={score}
               fillColor={getScoreColorVar(score)}
-              aria-label={`Conformité : ${score}%`}
+              aria-label={t("conformityAria", { score })}
             />
             <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
               <Stat
-                label="Score initial"
+                label={t("scoreInitial")}
                 value={formatScore(audit.initial_score)}
               />
               <Stat
-                label="Score final"
+                label={t("scoreFinal")}
                 value={formatScore(audit.final_score)}
               />
               <Stat
-                label="Pages échantillon"
+                label={t("samplePages")}
                 value={(pageCount ?? 0).toString()}
               />
-              <Stat label="NC ouvertes" value={(ncCount ?? 0).toString()} />
+              <Stat
+                label={t("openNCs")}
+                value={(ncCount ?? 0).toString()}
+              />
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Planning</CardTitle>
+            <CardTitle className="text-base">{t("planning")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <Row
-              label="Démarrage prévu"
+              label={t("startDate")}
               value={formatDate(audit.expected_start_at)}
             />
-            <Row label="Fin prévue" value={formatDate(audit.expected_end_at)} />
-            <Row label="Livré le" value={formatDate(audit.delivered_at)} />
-            <Row label="Mis en ligne" value={formatDate(audit.online_at)} />
+            <Row
+              label={t("endDate")}
+              value={formatDate(audit.expected_end_at)}
+            />
+            <Row
+              label={t("deliveredAt")}
+              value={formatDate(audit.delivered_at)}
+            />
+            <Row label={t("onlineAt")} value={formatDate(audit.online_at)} />
           </CardContent>
         </Card>
       </div>
 
-      {/* Liens rapides --------------------------------------------------- */}
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <QuickLink
           href={`/audits/${uuid}/matrix`}
           icon={ClipboardList}
-          title="Matrice de conformité"
-          description="Saisir le statut de conformité pour chaque critère et chaque page."
+          title={t("quickLinks.matrixTitle")}
+          description={t("quickLinks.matrixDesc")}
         />
         <QuickLink
           href={`/audits/${uuid}/sample`}
           icon={FileSearch}
-          title="Échantillon"
-          description="Pages testées et leur complexité."
+          title={t("quickLinks.sampleTitle")}
+          description={t("quickLinks.sampleDesc")}
         />
         <QuickLink
           href={`/audits/${uuid}/anomalies`}
           icon={ListChecks}
-          title="Non-conformités"
-          description="Toutes les NC, par sévérité et par page."
+          title={t("quickLinks.anomaliesTitle")}
+          description={t("quickLinks.anomaliesDesc")}
         />
         <QuickLink
           href={`/audits/${uuid}/simulator`}
           icon={Sparkles}
-          title="Simulateur de remédiation"
-          description="Voir l'impact de corrections virtuelles sur le score."
+          title={t("quickLinks.simulatorTitle")}
+          description={t("quickLinks.simulatorDesc")}
           highlight
         />
       </div>

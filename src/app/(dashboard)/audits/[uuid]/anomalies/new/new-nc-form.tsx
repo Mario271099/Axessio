@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FileDropZone } from "@/components/ui/file-drop-zone";
-import { NC_SEVERITY_LABELS } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 import { addAttachment } from "@/app/(dashboard)/audits/[uuid]/anomalies/[ncId]/actions";
 import type { NCSeverity } from "@/types/domain";
@@ -71,6 +71,8 @@ export function NewNCForm({
   criteria,
 }: NewNCFormProps) {
   const router = useRouter();
+  const t = useTranslations("audits.anomaliesNew");
+  const tSeverity = useTranslations("constants.ncSeverity");
   const [criteriaId, setCriteriaId] = useState<string>("");
   const [pageId, setPageId] = useState<string>("");
   const [title, setTitle] = useState("");
@@ -114,7 +116,6 @@ export function NewNCForm({
         file.type,
       );
       if (result.error) {
-        // Best-effort : on tente de retirer le fichier orphelin du bucket.
         await supabase.storage.from("nc-attachments").remove([path]);
         failures.push(`${file.name}: ${result.error}`);
       }
@@ -124,24 +125,24 @@ export function NewNCForm({
   };
 
   const groupedCriteria = useMemo(() => {
-    return thematics.map((t) => ({
-      thematic: t,
-      items: criteria.filter((c) => c.thematicId === t.id),
+    return thematics.map((tm) => ({
+      thematic: tm,
+      items: criteria.filter((c) => c.thematicId === tm.id),
     }));
   }, [thematics, criteria]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!title.trim()) {
-      setError("Le titre est requis.");
+      setError(t("titleRequired"));
       return;
     }
     if (!criteriaId) {
-      setError("Le critère est requis.");
+      setError(t("criterionRequired"));
       return;
     }
     if (!pageId) {
-      setError("La page est requise.");
+      setError(t("pageRequired"));
       return;
     }
     setError(null);
@@ -158,17 +159,18 @@ export function NewNCForm({
         severity,
       });
       if (result.error || !result.ncId) {
-        setError(result.error ?? "Échec de la création.");
+        setError(result.error ?? t("creationFailed"));
         return;
       }
 
       const ncId = result.ncId;
       const failures = await uploadFiles(ncId);
       if (failures.length > 0) {
-        // La NC est créée — on navigue quand même mais on prévient des
-        // captures qui n'ont pas pu être attachées.
         setWarning(
-          `Non-conformité créée, mais ${failures.length} capture(s) en erreur : ${failures.join(" ; ")}`,
+          t("captureWarning", {
+            count: failures.length,
+            errors: failures.join(" ; "),
+          }),
         );
       }
 
@@ -184,23 +186,18 @@ export function NewNCForm({
       <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
         <Link href={`/audits/${auditId}/anomalies`}>
           <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          Retour aux non-conformités
+          {t("back")}
         </Link>
       </Button>
 
       <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Nouvelle non-conformité
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Renseignez le critère concerné, la page testée et la description de
-          l&apos;anomalie.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Informations</CardTitle>
+          <CardTitle className="text-base">{t("info")}</CardTitle>
         </CardHeader>
         <CardContent>
           {(noPages || noCriteria) && (
@@ -208,9 +205,7 @@ export function NewNCForm({
               role="alert"
               className="mb-4 rounded-md bg-warning/10 p-3 text-sm text-warning"
             >
-              {noPages
-                ? "Cet audit n'a aucune page configurée. Ajoutez d'abord des pages dans l'échantillon."
-                : "Aucun critère trouvé pour le référentiel de cet audit."}
+              {noPages ? t("noPages") : t("noCriteria")}
             </p>
           )}
 
@@ -235,10 +230,10 @@ export function NewNCForm({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="nc-criteria">Critère *</Label>
+                <Label htmlFor="nc-criteria">{t("criterion")} *</Label>
                 <Select value={criteriaId} onValueChange={setCriteriaId}>
                   <SelectTrigger id="nc-criteria">
-                    <SelectValue placeholder="Sélectionner un critère" />
+                    <SelectValue placeholder={t("criterionPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent className="max-h-[60vh]">
                     {groupedCriteria.map(({ thematic, items }) =>
@@ -263,10 +258,10 @@ export function NewNCForm({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="nc-page">Page *</Label>
+                <Label htmlFor="nc-page">{t("page")} *</Label>
                 <Select value={pageId} onValueChange={setPageId}>
                   <SelectTrigger id="nc-page">
-                    <SelectValue placeholder="Sélectionner une page" />
+                    <SelectValue placeholder={t("pagePlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {pages.map((p) => (
@@ -280,52 +275,52 @@ export function NewNCForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nc-title">Titre *</Label>
+              <Label htmlFor="nc-title">{t("ncTitle")} *</Label>
               <Input
                 id="nc-title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Résumé court de l'anomalie"
+                placeholder={t("ncTitlePlaceholder")}
                 required
                 maxLength={200}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nc-description">Description</Label>
+              <Label htmlFor="nc-description">{t("description")}</Label>
               <Textarea
                 id="nc-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
-                placeholder="Décrivez le contexte et le problème observé."
+                placeholder={t("descriptionPlaceholder")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nc-actual-result">Résultat obtenu</Label>
+              <Label htmlFor="nc-actual-result">{t("actualResult")}</Label>
               <Textarea
                 id="nc-actual-result"
                 value={actualResult}
                 onChange={(e) => setActualResult(e.target.value)}
                 rows={4}
-                placeholder="Ce qui se produit aujourd'hui (constat factuel)."
+                placeholder={t("actualResultPlaceholder")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nc-recommendation">Recommandation</Label>
+              <Label htmlFor="nc-recommendation">{t("recommendation")}</Label>
               <Textarea
                 id="nc-recommendation"
                 value={recommendation}
                 onChange={(e) => setRecommendation(e.target.value)}
                 rows={4}
-                placeholder="Action corrective proposée."
+                placeholder={t("recommendationPlaceholder")}
               />
             </div>
 
             <div className="space-y-2 sm:max-w-xs">
-              <Label htmlFor="nc-severity">Sévérité</Label>
+              <Label htmlFor="nc-severity">{t("severity")}</Label>
               <Select
                 value={severity}
                 onValueChange={(v) => setSeverity(v as NCSeverity)}
@@ -336,7 +331,7 @@ export function NewNCForm({
                 <SelectContent>
                   {SEVERITIES.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {NC_SEVERITY_LABELS[s]}
+                      {tSeverity(s)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -344,7 +339,7 @@ export function NewNCForm({
             </div>
 
             <div className="space-y-2">
-              <Label>Captures d&apos;écran</Label>
+              <Label>{t("screenshots")}</Label>
               <FileDropZone
                 files={files}
                 onFilesChange={setFiles}
@@ -362,7 +357,7 @@ export function NewNCForm({
                 size="sm"
                 disabled={submitting}
               >
-                <Link href={`/audits/${auditId}/anomalies`}>Annuler</Link>
+                <Link href={`/audits/${auditId}/anomalies`}>{t("cancel")}</Link>
               </Button>
               <Button
                 type="submit"
@@ -376,7 +371,7 @@ export function NewNCForm({
                     aria-hidden="true"
                   />
                 )}
-                Créer la non-conformité
+                {t("submit")}
               </Button>
             </div>
           </form>

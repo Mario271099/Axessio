@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -17,16 +18,13 @@ const COLORS = {
   archived: "hsl(var(--muted-foreground))",
 } as const;
 
-const LABELS = {
-  pending: "En attente",
-  inProgress: "En cours",
-  completed: "Terminés",
-  archived: "Archivés",
-} as const;
-
 type Key = keyof StatusBreakdown;
 
 export function StatusPie({ breakdown }: { breakdown: StatusBreakdown }) {
+  const t = useTranslations("dashboard.statusPie");
+
+  const labelFor = (k: Key): string => t(`labels.${k}`);
+
   const total =
     breakdown.pending +
     breakdown.inProgress +
@@ -40,12 +38,12 @@ export function StatusPie({ breakdown }: { breakdown: StatusBreakdown }) {
   return (
     <Card className="flex h-full flex-col">
       <CardHeader>
-        <CardTitle>Audits par statut</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col">
         {total === 0 ? (
           <div className="flex flex-1 items-center justify-center py-8 text-sm text-muted-foreground">
-            Aucun audit à afficher.
+            {t("empty")}
           </div>
         ) : (
           <>
@@ -67,7 +65,17 @@ export function StatusPie({ breakdown }: { breakdown: StatusBreakdown }) {
                       <Cell key={entry.key} fill={COLORS[entry.key]} />
                     ))}
                   </Pie>
-                  <Tooltip content={<PieTooltip total={total} />} />
+                  <Tooltip
+                    content={
+                      <PieTooltip
+                        total={total}
+                        labelFor={labelFor}
+                        countText={(value) =>
+                          t("auditCount", { count: value })
+                        }
+                      />
+                    }
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -86,7 +94,7 @@ export function StatusPie({ breakdown }: { breakdown: StatusBreakdown }) {
                         style={{ background: COLORS[entry.key] }}
                       />
                       <span className="text-muted-foreground">
-                        {LABELS[entry.key]}
+                        {labelFor(entry.key)}
                       </span>
                     </span>
                     <span className="tabular-nums">
@@ -115,10 +123,14 @@ function PieTooltip({
   active,
   payload,
   total,
+  labelFor,
+  countText,
 }: {
   active?: boolean;
   payload?: TooltipPayloadEntry[];
   total: number;
+  labelFor: (k: Key) => string;
+  countText: (count: number) => string;
 }) {
   if (!active || !payload || payload.length === 0) return null;
   const entry = payload[0];
@@ -126,9 +138,11 @@ function PieTooltip({
   const pct = total > 0 ? (entry.value / total) * 100 : 0;
   return (
     <div className="rounded-md border border-border bg-card p-3 text-xs shadow-md">
-      <p className="font-medium text-foreground">{LABELS[entry.payload.key]}</p>
+      <p className="font-medium text-foreground">
+        {labelFor(entry.payload.key)}
+      </p>
       <p className="mt-1 tabular-nums text-muted-foreground">
-        {entry.value} audit{entry.value > 1 ? "s" : ""} · {pct.toFixed(0)}%
+        {countText(entry.value)} · {pct.toFixed(0)}%
       </p>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,12 +20,7 @@ import {
   updateAudit,
   type ActionState,
 } from "@/app/(dashboard)/audits/actions";
-import {
-  AUDIT_STATUS_LABELS,
-  PLATFORM_LABELS,
-  REFERENCE_TYPE_LABELS,
-  SERVICE_TYPE_LABELS,
-} from "@/lib/constants";
+import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import type { AuditStatus, ReferenceType } from "@/types/domain";
 
 interface EditAuditFormProps {
@@ -63,6 +59,11 @@ export function EditAuditForm({
   references,
 }: EditAuditFormProps) {
   const router = useRouter();
+  const t = useTranslations("audits.edit");
+  const tPlatform = useTranslations("constants.platform");
+  const tServiceType = useTranslations("constants.serviceType");
+  const tStatus = useTranslations("constants.auditStatus");
+  const tNew = useTranslations("audits.new");
   const [state, formAction, pending] = useActionState(
     updateAudit.bind(null, auditId),
     initialState,
@@ -74,13 +75,11 @@ export function EditAuditForm({
   const [status, setStatus] = useState(initial.status);
   const [language, setLanguage] = useState(initial.language);
 
-  // Quand la sauvegarde réussit, on revient à l'audit
   if (state.success) {
     router.push(`/audits/${auditId}`);
     router.refresh();
   }
 
-  // Format pour input type="date"
   const formatForInput = (iso: string | null) =>
     iso ? new Date(iso).toISOString().slice(0, 10) : "";
 
@@ -103,11 +102,11 @@ export function EditAuditForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Référentiel et configuration</CardTitle>
+          <CardTitle>{t("section1")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="ref-edit">Référentiel</Label>
+            <Label htmlFor="ref-edit">{t("reference")}</Label>
             <Select value={referenceId} onValueChange={setReferenceId}>
               <SelectTrigger id="ref-edit">
                 <SelectValue />
@@ -124,35 +123,31 @@ export function EditAuditForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="platform-edit">Plateforme</Label>
+              <Label htmlFor="platform-edit">{t("platform")}</Label>
               <Select value={platform} onValueChange={setPlatform}>
                 <SelectTrigger id="platform-edit">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="WEB">{PLATFORM_LABELS.WEB}</SelectItem>
-                  <SelectItem value="MOBILE">
-                    {PLATFORM_LABELS.MOBILE}
-                  </SelectItem>
+                  <SelectItem value="WEB">{tPlatform("WEB")}</SelectItem>
+                  <SelectItem value="MOBILE">{tPlatform("MOBILE")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="service-edit">Type de prestation</Label>
+              <Label htmlFor="service-edit">{t("serviceType")}</Label>
               <Select value={serviceType} onValueChange={setServiceType}>
                 <SelectTrigger id="service-edit">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="AUDIT">
-                    {SERVICE_TYPE_LABELS.AUDIT}
-                  </SelectItem>
+                  <SelectItem value="AUDIT">{tServiceType("AUDIT")}</SelectItem>
                   <SelectItem value="NO_COUNTER_AUDIT">
-                    {SERVICE_TYPE_LABELS.NO_COUNTER_AUDIT}
+                    {tServiceType("NO_COUNTER_AUDIT")}
                   </SelectItem>
                   <SelectItem value="COMPLIANCE_AUDIT">
-                    {SERVICE_TYPE_LABELS.COMPLIANCE_AUDIT}
+                    {tServiceType("COMPLIANCE_AUDIT")}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -161,7 +156,7 @@ export function EditAuditForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="status-edit">Statut</Label>
+              <Label htmlFor="status-edit">{t("status")}</Label>
               <Select value={status} onValueChange={setStatus}>
                 <SelectTrigger id="status-edit">
                   <SelectValue />
@@ -169,7 +164,7 @@ export function EditAuditForm({
                 <SelectContent>
                   {ALL_STATUSES.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {AUDIT_STATUS_LABELS[s]}
+                      {tStatus(s)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -177,14 +172,14 @@ export function EditAuditForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="lang-edit">Langue</Label>
+              <Label htmlFor="lang-edit">{t("language")}</Label>
               <Select value={language} onValueChange={setLanguage}>
                 <SelectTrigger id="lang-edit">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="fr">Français</SelectItem>
-                  <SelectItem value="en">Anglais</SelectItem>
+                  <SelectItem value="en">English</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -194,12 +189,12 @@ export function EditAuditForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Planning et informations</CardTitle>
+          <CardTitle>{t("section2")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="start-edit">Démarrage prévu</Label>
+              <Label htmlFor="start-edit">{t("startDate")}</Label>
               <Input
                 id="start-edit"
                 name="expectedStartAt"
@@ -209,7 +204,7 @@ export function EditAuditForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="end-edit">Fin prévue</Label>
+              <Label htmlFor="end-edit">{t("endDate")}</Label>
               <Input
                 id="end-edit"
                 name="expectedEndAt"
@@ -220,20 +215,18 @@ export function EditAuditForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="a11y-edit">
-              Lien vers la page d&apos;accessibilité
-            </Label>
+            <Label htmlFor="a11y-edit">{t("a11yLink")}</Label>
             <Input
               id="a11y-edit"
               name="accessibilityLink"
               type="url"
               defaultValue={initial.accessibilityLink ?? ""}
-              placeholder="https://exemple.com/accessibilite"
+              placeholder={tNew("steps.planning.a11yLinkPlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes-edit">Notes internes</Label>
+            <Label htmlFor="notes-edit">{t("notes")}</Label>
             <Textarea
               id="notes-edit"
               name="notes"
@@ -250,18 +243,18 @@ export function EditAuditForm({
           variant="ghost"
           onClick={() => router.push(`/audits/${auditId}`)}
         >
-          Annuler
+          {t("cancel")}
         </Button>
         <Button type="submit" disabled={pending}>
           {pending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Sauvegarde…
+              {t("saving")}
             </>
           ) : (
             <>
               <Save className="h-4 w-4" />
-              Sauvegarder
+              {t("save")}
             </>
           )}
         </Button>

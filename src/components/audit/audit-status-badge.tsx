@@ -1,4 +1,7 @@
-import { AUDIT_STATUS_LABELS, AUDIT_STATUS_TONE } from "@/lib/constants";
+"use client";
+
+import { useTranslations } from "next-intl";
+import { AUDIT_STATUS_TONE } from "@/lib/constants";
 import type { AuditStatus } from "@/types/domain";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +20,7 @@ export function AuditStatusBadge({
   status: AuditStatus;
   className?: string;
 }) {
+  const t = useTranslations("constants.auditStatus");
   return (
     <span
       className={cn(
@@ -25,7 +29,7 @@ export function AuditStatusBadge({
         className,
       )}
     >
-      {AUDIT_STATUS_LABELS[status]}
+      {t(status)}
     </span>
   );
 }

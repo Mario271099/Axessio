@@ -1,9 +1,11 @@
+import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { ClientsList, type ClientListItem } from "./clients-list";
 
 export default async function ClientsPage() {
   const profile = await requireProfile();
+  const t = await getTranslations("clients");
 
   if (profile.role !== "auditor") {
     return (
@@ -12,7 +14,7 @@ export default async function ClientsPage() {
           role="alert"
           className="rounded-md border border-destructive/40 bg-destructive/5 p-6 text-sm text-destructive"
         >
-          Accès réservé aux auditeurs internes.
+          {t("auditorOnly")}
         </div>
       </div>
     );
@@ -35,7 +37,7 @@ export default async function ClientsPage() {
           role="alert"
           className="rounded-md border border-destructive/40 bg-destructive/5 p-6 text-sm text-destructive"
         >
-          Erreur de chargement des clients : {error.message}
+          {t("loadError", { message: error.message })}
         </div>
       </div>
     );

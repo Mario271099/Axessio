@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -27,17 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { NC_SEVERITY_LABELS, NC_STATUS_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { NCSeverity, UserRole } from "@/types/domain";
-
-const STATUS_LABELS: Record<string, string> = {
-  ...NC_STATUS_LABELS,
-  TO_FIX: "À corriger",
-  IN_PROGRESS: "En cours",
-  FIXED: "Corrigée",
-  FALSE_POSITIVE: "Faux positif",
-};
 
 const STATUS_BADGE_VARIANT: Record<
   string,
@@ -80,12 +72,24 @@ interface AnomaliesListProps {
   role: UserRole;
 }
 
+function intlLocale(locale: string): string {
+  return locale === "en" ? "en-US" : "fr-FR";
+}
+
 export function AnomaliesList({
   ncs,
   auditId,
   auditTitle,
   role,
 }: AnomaliesListProps) {
+  const t = useTranslations("audits.anomalies");
+  const tNcStatus = useTranslations("constants.ncStatus");
+  const tNcSeverity = useTranslations("constants.ncSeverity");
+  const tList = useTranslations("audits.list");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
+  const intl = intlLocale(locale);
+
   const [statusFilter, setStatusFilter] = useState<string>(ALL);
   const [severityFilter, setSeverityFilter] = useState<string>(ALL);
   const [pageFilter, setPageFilter] = useState<string>(ALL);
@@ -96,8 +100,8 @@ export function AnomaliesList({
     for (const nc of ncs) {
       if (nc.page?.name) names.add(nc.page.name);
     }
-    return Array.from(names).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [ncs]);
+    return Array.from(names).sort((a, b) => a.localeCompare(b, locale));
+  }, [ncs, locale]);
 
   const counters = useMemo(() => {
     const c = {
@@ -144,16 +148,15 @@ export function AnomaliesList({
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      {/* Breadcrumb -------------------------------------------------------- */}
       <nav
-        aria-label="Fil d'Ariane"
+        aria-label="Breadcrumb"
         className="flex items-center gap-1 text-xs text-muted-foreground"
       >
         <Link
           href="/audits"
           className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
         >
-          Audits
+          {tList("title")}
         </Link>
         <ChevronRight className="h-3 w-3" aria-hidden="true" />
         <Link
@@ -164,57 +167,54 @@ export function AnomaliesList({
         </Link>
         <ChevronRight className="h-3 w-3" aria-hidden="true" />
         <span className="rounded px-1 py-0.5 font-medium text-foreground">
-          Non-conformités
+          {t("breadcrumb")}
         </span>
       </nav>
 
-      {/* Header ------------------------------------------------------------ */}
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">Non-conformités</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">
-            {ncs.length} non-conformité{ncs.length > 1 ? "s" : ""} sur cet audit
+            {t("subtitle", { count: ncs.length })}
           </p>
         </div>
         {role === "auditor" && (
           <Button asChild size="default">
             <Link href={`/audits/${auditId}/anomalies/new`}>
               <Plus className="h-4 w-4" aria-hidden="true" />
-              Nouvelle NC
+              {t("newNC")}
             </Link>
           </Button>
         )}
       </header>
 
-      {/* KPIs -------------------------------------------------------------- */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
           icon={AlertTriangle}
           tone="primary"
-          label="Total"
+          label={t("kpi.total")}
           value={ncs.length}
         />
         <KpiCard
           icon={Clock}
           tone="warning"
-          label="À corriger"
+          label={t("kpi.toFix")}
           value={counters.TO_FIX ?? 0}
         />
         <KpiCard
           icon={CheckCircle2}
           tone="success"
-          label="Corrigées"
+          label={t("kpi.fixed")}
           value={counters.FIXED ?? 0}
         />
         <KpiCard
           icon={MinusCircle}
           tone="muted"
-          label="Faux positifs"
+          label={t("kpi.falsePositive")}
           value={counters.FALSE_POSITIVE ?? 0}
         />
       </div>
 
-      {/* Barre de filtres sticky ------------------------------------------ */}
       <Card className="sticky top-20 z-10 shadow-sm">
         <CardContent className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <div className="relative">
@@ -224,49 +224,49 @@ export function AnomaliesList({
             />
             <Input
               type="search"
-              placeholder="Rechercher par titre…"
+              placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9"
-              aria-label="Rechercher par titre"
+              aria-label={t("searchAria")}
             />
           </div>
 
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger aria-label="Filtrer par statut">
-              <SelectValue placeholder="Statut" />
+            <SelectTrigger aria-label={t("filterStatusAria")}>
+              <SelectValue placeholder={t("filterStatusPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>Tous les statuts</SelectItem>
+              <SelectItem value={ALL}>{t("filterAllStatuses")}</SelectItem>
               {FILTER_STATUSES.map((s) => (
                 <SelectItem key={s} value={s}>
-                  {STATUS_LABELS[s]}
+                  {tNcStatus(s)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           <Select value={severityFilter} onValueChange={setSeverityFilter}>
-            <SelectTrigger aria-label="Filtrer par sévérité">
-              <SelectValue placeholder="Sévérité" />
+            <SelectTrigger aria-label={t("filterSeverityAria")}>
+              <SelectValue placeholder={t("filterSeverityPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>Toutes les sévérités</SelectItem>
+              <SelectItem value={ALL}>{t("filterAllSeverities")}</SelectItem>
               {FILTER_SEVERITIES.map((s) => (
                 <SelectItem key={s} value={s}>
-                  {NC_SEVERITY_LABELS[s]}
+                  {tNcSeverity(s)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           <Select value={pageFilter} onValueChange={setPageFilter}>
-            <SelectTrigger aria-label="Filtrer par page">
-              <SelectValue placeholder="Page" />
+            <SelectTrigger aria-label={t("filterPageAria")}>
+              <SelectValue placeholder={t("filterPagePlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>Toutes les pages</SelectItem>
-              <SelectItem value={TRANSVERSAL}>Transversale</SelectItem>
+              <SelectItem value={ALL}>{t("filterAllPages")}</SelectItem>
+              <SelectItem value={TRANSVERSAL}>{t("filterTransversal")}</SelectItem>
               {pageNames.map((name) => (
                 <SelectItem key={name} value={name}>
                   {name}
@@ -285,20 +285,19 @@ export function AnomaliesList({
               className="gap-1.5"
             >
               <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-              Réinitialiser
+              {tCommon("reset")}
             </Button>
           </div>
         )}
       </Card>
 
-      {/* Liste des NC ------------------------------------------------------ */}
       {filtered.length === 0 ? (
         <EmptyState empty={ncs.length === 0} onReset={resetFilters} />
       ) : (
         <ul className="space-y-3">
           {filtered.map((nc) => (
             <li key={nc.id}>
-              <NCRow auditId={auditId} nc={nc} />
+              <NCRow auditId={auditId} nc={nc} intl={intl} />
             </li>
           ))}
         </ul>
@@ -306,8 +305,6 @@ export function AnomaliesList({
     </div>
   );
 }
-
-/* -------------------------------------------------------------------------- */
 
 const toneClasses = {
   primary: "bg-primary/10 text-primary",
@@ -346,7 +343,17 @@ function KpiCard({
   );
 }
 
-function NCRow({ auditId, nc }: { auditId: string; nc: AnomalyListItem }) {
+function NCRow({
+  auditId,
+  nc,
+  intl,
+}: {
+  auditId: string;
+  nc: AnomalyListItem;
+  intl: string;
+}) {
+  const t = useTranslations("audits.anomalies");
+  const tNcStatus = useTranslations("constants.ncStatus");
   const statusVariant = STATUS_BADGE_VARIANT[nc.status] ?? "outline";
   return (
     <Link
@@ -361,7 +368,7 @@ function NCRow({ auditId, nc }: { auditId: string; nc: AnomalyListItem }) {
           <div className="flex flex-wrap items-center gap-2">
             <SeverityBadge severity={nc.severity} />
             <Badge variant={statusVariant} className="text-[10px]">
-              {STATUS_LABELS[nc.status] ?? nc.status}
+              {tNcStatus(nc.status)}
             </Badge>
             {nc.criterion && (
               <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
@@ -375,32 +382,41 @@ function NCRow({ auditId, nc }: { auditId: string; nc: AnomalyListItem }) {
           <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1">
               {nc.page ? (
-                <>Page : <span className="text-foreground">{nc.page.name}</span></>
+                <>
+                  {t("page")}{" "}
+                  <span className="text-foreground">{nc.page.name}</span>
+                </>
               ) : (
                 <>
                   <Layers className="h-3.5 w-3.5" aria-hidden="true" />
-                  Transversale
+                  {t("transversal")}
                 </>
               )}
             </span>
             <span aria-hidden="true">·</span>
-            <time
-              dateTime={nc.createdAt}
-              className="tabular-nums"
-            >
-              Créée le{" "}
-              {new Date(nc.createdAt).toLocaleDateString("fr-FR", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
+            <time dateTime={nc.createdAt} className="tabular-nums">
+              {t("createdOn", {
+                date: new Date(nc.createdAt).toLocaleDateString(intl, {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                }),
               })}
             </time>
           </p>
         </div>
 
         <div className="flex shrink-0 items-center gap-4 text-muted-foreground">
-          <Counter icon={MessageSquare} count={nc.messageCount} label="messages" />
-          <Counter icon={Paperclip} count={nc.attachmentCount} label="captures" />
+          <Counter
+            icon={MessageSquare}
+            count={nc.messageCount}
+            label={t("messages")}
+          />
+          <Counter
+            icon={Paperclip}
+            count={nc.attachmentCount}
+            label={t("captures")}
+          />
           <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </div>
       </Card>
@@ -417,10 +433,11 @@ function Counter({
   count: number;
   label: string;
 }) {
+  const t = useTranslations("audits.anomalies");
   return (
     <span
       className="inline-flex items-center gap-1 text-xs tabular-nums"
-      aria-label={`${count} ${label}`}
+      aria-label={t("counterAria", { count, label })}
     >
       <Icon className="h-3.5 w-3.5" aria-hidden="true" />
       {count}
@@ -435,6 +452,8 @@ function EmptyState({
   empty: boolean;
   onReset: () => void;
 }) {
+  const t = useTranslations("audits.anomalies");
+  const tCommon = useTranslations("common");
   return (
     <Card>
       <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
@@ -446,14 +465,10 @@ function EmptyState({
         </div>
         <div className="space-y-1">
           <p className="text-sm font-medium">
-            {empty
-              ? "Aucune non-conformité enregistrée"
-              : "Aucune NC pour les filtres sélectionnés"}
+            {empty ? t("emptyTitle") : t("noResultsTitle")}
           </p>
           <p className="text-xs text-muted-foreground">
-            {empty
-              ? "Créez votre première NC depuis la matrice de conformité."
-              : "Essayez d'élargir vos filtres."}
+            {empty ? t("emptyDesc") : t("noResultsDesc")}
           </p>
         </div>
         {!empty && (
@@ -465,7 +480,7 @@ function EmptyState({
             className="gap-1.5"
           >
             <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-            Réinitialiser
+            {tCommon("reset")}
           </Button>
         )}
       </CardContent>

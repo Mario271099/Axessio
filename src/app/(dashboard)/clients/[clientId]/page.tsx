@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -21,6 +22,8 @@ const IN_PROGRESS_STATUSES = [
 export default async function ClientDetailPage({ params }: PageProps) {
   const profile = await requireProfile();
   const { clientId } = await params;
+  const tClients = await getTranslations("clients");
+  const tDetail = await getTranslations("clientDetail");
 
   if (profile.role !== "auditor") {
     return (
@@ -29,7 +32,7 @@ export default async function ClientDetailPage({ params }: PageProps) {
           role="alert"
           className="rounded-md border border-destructive/40 bg-destructive/5 p-6 text-sm text-destructive"
         >
-          Accès réservé aux auditeurs internes.
+          {tClients("auditorOnly")}
         </div>
       </div>
     );
@@ -62,7 +65,7 @@ export default async function ClientDetailPage({ params }: PageProps) {
           role="alert"
           className="rounded-md border border-destructive/40 bg-destructive/5 p-6 text-sm text-destructive"
         >
-          Erreur de chargement des projets : {projectsError.message}
+          {tDetail("loadError", { message: projectsError.message })}
         </div>
       </div>
     );
@@ -86,7 +89,6 @@ export default async function ClientDetailPage({ params }: PageProps) {
     auditCount: p.audits?.length ?? 0,
   }));
 
-  // ---- Statistiques agrégées --------------------------------------------
   let totalAudits = 0;
   let activeAudits = 0;
   const recentActivity: ActivityEvent[] = [];

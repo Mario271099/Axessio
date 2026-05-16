@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { SetupPasswordForm } from "./setup-password-form";
@@ -21,13 +22,15 @@ export default async function SetupPasswordPage() {
     redirect("/login");
   }
 
+  const t = await getTranslations("auth.setupPassword");
+
   return (
     <AuthLayout
-      title="Bienvenue !"
-      subtitle="Définissez votre mot de passe pour activer votre compte."
+      title={t("title")}
+      subtitle={t("subtitle")}
       footer={
         <>
-          Connecté en tant que{" "}
+          {t("footerPrefix")}{" "}
           <span className="font-medium text-foreground">{user.email}</span>
         </>
       }

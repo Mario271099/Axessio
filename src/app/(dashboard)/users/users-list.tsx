@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
   Building2,
@@ -46,7 +47,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { USER_ROLE_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/domain";
 import {
@@ -92,6 +92,8 @@ interface UsersListProps {
 }
 
 export function UsersList({ users, clients, currentUserId }: UsersListProps) {
+  const t = useTranslations("users");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
@@ -142,10 +144,10 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
       const result = await resendInvitation(user.id);
       setPendingId(null);
       if (result.error) {
-        window.alert(`Erreur : ${result.error}`);
+        window.alert(t("errorPrefix", { message: result.error }));
         return;
       }
-      window.alert(`Invitation renvoyée à ${user.email}.`);
+      window.alert(t("resendSuccess", { email: user.email }));
       router.refresh();
     });
   };
@@ -153,8 +155,8 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
   const handleToggleActive = (user: UserListItem) => {
     const next = !user.isActive;
     const message = next
-      ? `Réactiver l'utilisateur ${user.email} ?`
-      : `Désactiver l'utilisateur ${user.email} ? Il ne pourra plus se connecter.`;
+      ? t("confirmReactivate", { email: user.email })
+      : t("confirmDeactivate", { email: user.email });
     if (!window.confirm(message)) return;
 
     setPendingId(user.id);
@@ -162,7 +164,7 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
       const result = await toggleUserActive(user.id, next);
       setPendingId(null);
       if (result.error) {
-        window.alert(`Erreur : ${result.error}`);
+        window.alert(t("errorPrefix", { message: result.error }));
         return;
       }
       router.refresh();
@@ -174,36 +176,41 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
       {/* Header --------------------------------------------------------- */}
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">Utilisateurs</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">
-            {users.length} utilisateur{users.length > 1 ? "s" : ""} au total
+            {t("subtitle", { count: users.length })}
           </p>
         </div>
         <Button onClick={() => setInviteOpen(true)}>
           <UserPlus className="h-4 w-4" aria-hidden="true" />
-          Inviter un utilisateur
+          {t("inviteUser")}
         </Button>
       </header>
 
       {/* KPIs ----------------------------------------------------------- */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard icon={Users} tone="primary" label="Total" value={users.length} />
+        <KpiCard
+          icon={Users}
+          tone="primary"
+          label={t("kpi.total")}
+          value={users.length}
+        />
         <KpiCard
           icon={ShieldCheck}
           tone="success"
-          label="Auditeurs"
+          label={t("kpi.auditors")}
           value={kpis.auditors}
         />
         <KpiCard
           icon={Building2}
           tone="violet"
-          label="Admins client"
+          label={t("kpi.clientAdmins")}
           value={kpis.clientAdmins}
         />
         <KpiCard
           icon={UserCog}
           tone="muted"
-          label="Membres client"
+          label={t("kpi.clientMembers")}
           value={kpis.clientMembers}
         />
       </div>
@@ -218,11 +225,11 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
             />
             <Input
               type="search"
-              placeholder="Rechercher par nom ou email…"
+              placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9"
-              aria-label="Rechercher un utilisateur"
+              aria-label={t("searchAria")}
             />
           </div>
 
@@ -230,14 +237,18 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
             value={roleFilter}
             onValueChange={(v) => setRoleFilter(v as RoleFilter)}
           >
-            <SelectTrigger aria-label="Filtrer par rôle">
+            <SelectTrigger aria-label={t("filterRoleAria")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Tous les rôles</SelectItem>
-              <SelectItem value="auditor">Auditeur</SelectItem>
-              <SelectItem value="client_admin">Administrateur client</SelectItem>
-              <SelectItem value="client_member">Membre client</SelectItem>
+              <SelectItem value="ALL">{t("filterAllRoles")}</SelectItem>
+              <SelectItem value="auditor">{t("rolesOption.auditor")}</SelectItem>
+              <SelectItem value="client_admin">
+                {t("rolesOption.client_admin")}
+              </SelectItem>
+              <SelectItem value="client_member">
+                {t("rolesOption.client_member")}
+              </SelectItem>
             </SelectContent>
           </Select>
 
@@ -245,14 +256,14 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
             value={statusFilter}
             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
           >
-            <SelectTrigger aria-label="Filtrer par statut">
+            <SelectTrigger aria-label={t("filterStatusAria")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Tous les statuts</SelectItem>
-              <SelectItem value="PENDING">En attente</SelectItem>
-              <SelectItem value="ACTIVE">Actifs</SelectItem>
-              <SelectItem value="INACTIVE">Désactivés</SelectItem>
+              <SelectItem value="ALL">{t("filterAllStatuses")}</SelectItem>
+              <SelectItem value="PENDING">{t("status.pending")}</SelectItem>
+              <SelectItem value="ACTIVE">{t("status.active")}</SelectItem>
+              <SelectItem value="INACTIVE">{t("status.inactive")}</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -266,7 +277,7 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
               className="gap-1.5"
             >
               <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-              Réinitialiser
+              {tCommon("reset")}
             </Button>
           </div>
         )}
@@ -285,13 +296,13 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
               </div>
               <p className="text-sm font-medium">
                 {users.length === 0
-                  ? "Aucun utilisateur"
-                  : "Aucun résultat pour ces filtres"}
+                  ? t("empty.noUsers")
+                  : t("empty.noResults")}
               </p>
               {users.length === 0 ? (
                 <Button size="sm" onClick={() => setInviteOpen(true)}>
                   <UserPlus className="h-4 w-4" aria-hidden="true" />
-                  Inviter le premier utilisateur
+                  {t("empty.inviteFirst")}
                 </Button>
               ) : (
                 <Button
@@ -301,7 +312,7 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
                   className="gap-1.5"
                 >
                   <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-                  Réinitialiser
+                  {tCommon("reset")}
                 </Button>
               )}
             </div>
@@ -310,12 +321,16 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border bg-muted/30 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <th className="px-4 py-3">Utilisateur</th>
-                    <th className="hidden px-4 py-3 md:table-cell">Rôle</th>
-                    <th className="hidden px-4 py-3 lg:table-cell">Client</th>
-                    <th className="px-4 py-3">Statut</th>
+                    <th className="px-4 py-3">{t("table.user")}</th>
+                    <th className="hidden px-4 py-3 md:table-cell">
+                      {t("table.role")}
+                    </th>
+                    <th className="hidden px-4 py-3 lg:table-cell">
+                      {t("table.client")}
+                    </th>
+                    <th className="px-4 py-3">{t("table.status")}</th>
                     <th className="w-12 px-4 py-3 text-right">
-                      <span className="sr-only">Actions</span>
+                      <span className="sr-only">{t("table.actions")}</span>
                     </th>
                   </tr>
                 </thead>
@@ -412,6 +427,7 @@ function UserRow({
   onResend: () => void;
   onToggleActive: () => void;
 }) {
+  const t = useTranslations("users");
   const status = getUserStatus(user);
   const isAwaitingConfirmation = status === "PENDING";
   const fullName = [user.firstName, user.lastName]
@@ -434,7 +450,7 @@ function UserRow({
               <p className="truncate text-sm font-medium">{displayName}</p>
               {isSelf && (
                 <Badge variant="outline" className="text-[10px]">
-                  Vous
+                  {t("table.you")}
                 </Badge>
               )}
             </div>
@@ -469,7 +485,7 @@ function UserRow({
               ) : (
                 <Send className="h-3.5 w-3.5" aria-hidden="true" />
               )}
-              Renvoyer l&apos;invitation
+              {t("resendInvite")}
             </Button>
           )}
         </div>
@@ -485,7 +501,7 @@ function UserRow({
                 size="icon"
                 className="h-8 w-8"
                 disabled={isPending}
-                aria-label={`Actions pour ${user.email}`}
+                aria-label={t("actionsAria", { email: user.email })}
               >
                 {isPending ? (
                   <Loader2
@@ -505,14 +521,14 @@ function UserRow({
                     className="gap-2 font-medium text-warning focus:bg-warning/10 focus:text-warning"
                   >
                     <Send className="h-4 w-4" aria-hidden="true" />
-                    Renvoyer l&apos;invitation
+                    {t("resendInvite")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>
               )}
               <DropdownMenuItem onSelect={onEditRole} className="gap-2">
                 <UserCog className="h-4 w-4" aria-hidden="true" />
-                Modifier le rôle
+                {t("editRole")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -526,12 +542,12 @@ function UserRow({
                 {user.isActive ? (
                   <>
                     <UserMinus className="h-4 w-4" aria-hidden="true" />
-                    Désactiver
+                    {t("deactivate")}
                   </>
                 ) : (
                   <>
                     <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-                    Réactiver
+                    {t("reactivate")}
                   </>
                 )}
               </DropdownMenuItem>
@@ -566,18 +582,20 @@ function Avatar({
 }
 
 function RoleBadge({ role }: { role: UserRole }) {
-  const label = USER_ROLE_LABELS[role];
+  const tRoles = useTranslations("roles");
+  const label = tRoles(role);
   if (role === "auditor") return <Badge variant="success">{label}</Badge>;
   if (role === "client_admin") return <Badge variant="default">{label}</Badge>;
   return <Badge variant="muted">{label}</Badge>;
 }
 
 function StatusBadge({ status }: { status: UserStatus }) {
+  const t = useTranslations("users.status");
   if (status === "INACTIVE") {
     return (
       <Badge variant="destructive" className="gap-1">
         <UserMinus className="h-3 w-3" aria-hidden="true" />
-        Désactivé
+        {t("inactive")}
       </Badge>
     );
   }
@@ -585,14 +603,14 @@ function StatusBadge({ status }: { status: UserStatus }) {
     return (
       <Badge variant="warning" className="gap-1">
         <Clock className="h-3 w-3" aria-hidden="true" />
-        En attente
+        {t("pending")}
       </Badge>
     );
   }
   return (
     <Badge variant="success" className="gap-1">
       <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-      Actif
+      {t("active")}
     </Badge>
   );
 }
@@ -624,6 +642,8 @@ function InviteUserDialog({
   clients: ClientOption[];
   onSuccess: () => void;
 }) {
+  const t = useTranslations("users");
+  const tCommon = useTranslations("common");
   const [error, setError] = useState<string | null>(null);
   const [role, setRole] = useState<UserRole>("client_member");
   const [clientId, setClientId] = useState<string>("");
@@ -648,19 +668,19 @@ function InviteUserDialog({
     const formData = new FormData(form);
 
     if (!formData.get("email")?.toString().trim()) {
-      setError("L'email est requis.");
+      setError(t("inviteDialog.emailRequired"));
       return;
     }
     if (!formData.get("first_name")?.toString().trim()) {
-      setError("Le prénom est requis.");
+      setError(t("inviteDialog.firstNameRequired"));
       return;
     }
     if (!formData.get("last_name")?.toString().trim()) {
-      setError("Le nom est requis.");
+      setError(t("inviteDialog.lastNameRequired"));
       return;
     }
     if (needsClient && !clientId) {
-      setError("Sélectionnez un client de rattachement.");
+      setError(t("inviteDialog.clientRequired"));
       return;
     }
 
@@ -674,7 +694,7 @@ function InviteUserDialog({
         setError(result.error);
         return;
       }
-      window.alert("Invitation envoyée.");
+      window.alert(t("inviteDialog.successAlert"));
       form.reset();
       reset();
       onOpenChange(false);
@@ -686,51 +706,52 @@ function InviteUserDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Inviter un utilisateur</DialogTitle>
-          <DialogDescription>
-            L&apos;utilisateur recevra un email avec un lien pour activer son
-            compte.
-          </DialogDescription>
+          <DialogTitle>{t("inviteDialog.title")}</DialogTitle>
+          <DialogDescription>{t("inviteDialog.desc")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
-            <Label htmlFor="invite-email">Email *</Label>
+            <Label htmlFor="invite-email">{t("inviteDialog.email")} *</Label>
             <Input
               id="invite-email"
               name="email"
               type="email"
               required
               autoFocus
-              placeholder="prenom.nom@exemple.fr"
+              placeholder={t("inviteDialog.emailPlaceholder")}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="invite-first-name">Prénom *</Label>
+              <Label htmlFor="invite-first-name">
+                {t("inviteDialog.firstName")} *
+              </Label>
               <Input
                 id="invite-first-name"
                 name="first_name"
                 required
-                placeholder="Camille"
+                placeholder={t("inviteDialog.firstNamePlaceholder")}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="invite-last-name">Nom *</Label>
+              <Label htmlFor="invite-last-name">
+                {t("inviteDialog.lastName")} *
+              </Label>
               <Input
                 id="invite-last-name"
                 name="last_name"
                 required
-                placeholder="Martin"
+                placeholder={t("inviteDialog.lastNamePlaceholder")}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="invite-role">Rôle *</Label>
+            <Label htmlFor="invite-role">{t("inviteDialog.role")} *</Label>
             <Select
               value={role}
               onValueChange={(v) => {
@@ -738,30 +759,39 @@ function InviteUserDialog({
                 if (v === "auditor") setClientId("");
               }}
             >
-              <SelectTrigger id="invite-role" aria-label="Rôle">
+              <SelectTrigger id="invite-role" aria-label={t("inviteDialog.role")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="auditor">Auditeur (interne)</SelectItem>
-                <SelectItem value="client_admin">
-                  Administrateur client
+                <SelectItem value="auditor">
+                  {t("rolesOption.auditor")}
                 </SelectItem>
-                <SelectItem value="client_member">Membre client</SelectItem>
+                <SelectItem value="client_admin">
+                  {t("rolesOption.client_admin")}
+                </SelectItem>
+                <SelectItem value="client_member">
+                  {t("rolesOption.client_member")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {needsClient && (
             <div className="space-y-2">
-              <Label htmlFor="invite-client">Client de rattachement *</Label>
+              <Label htmlFor="invite-client">
+                {t("inviteDialog.client")} *
+              </Label>
               <Select value={clientId} onValueChange={setClientId}>
-                <SelectTrigger id="invite-client" aria-label="Client">
-                  <SelectValue placeholder="Sélectionner un client" />
+                <SelectTrigger
+                  id="invite-client"
+                  aria-label={t("inviteDialog.client")}
+                >
+                  <SelectValue placeholder={t("inviteDialog.clientPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {clients.length === 0 ? (
                     <div className="px-3 py-2 text-sm text-muted-foreground">
-                      Aucun client actif disponible.
+                      {t("inviteDialog.noClients")}
                     </div>
                   ) : (
                     clients.map((c) => (
@@ -782,7 +812,7 @@ function InviteUserDialog({
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
-              Annuler
+              {tCommon("cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending ? (
@@ -790,7 +820,7 @@ function InviteUserDialog({
               ) : (
                 <Plus className="h-4 w-4" aria-hidden="true" />
               )}
-              Envoyer l&apos;invitation
+              {t("inviteDialog.submit")}
             </Button>
           </DialogFooter>
         </form>
@@ -812,6 +842,8 @@ function EditRoleDialog({
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }) {
+  const t = useTranslations("users");
+  const tCommon = useTranslations("common");
   const [error, setError] = useState<string | null>(null);
   const [role, setRole] = useState<UserRole>(user?.role ?? "client_member");
   const [clientId, setClientId] = useState<string>(user?.clientId ?? "");
@@ -836,7 +868,7 @@ function EditRoleDialog({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (needsClient && !clientId) {
-      setError("Sélectionnez un client de rattachement.");
+      setError(t("inviteDialog.clientRequired"));
       return;
     }
     setError(null);
@@ -851,7 +883,7 @@ function EditRoleDialog({
         setError(result.error);
         return;
       }
-      window.alert("Rôle mis à jour.");
+      window.alert(t("editRoleDialog.successAlert"));
       onOpenChange(false);
       onSuccess();
     });
@@ -861,22 +893,20 @@ function EditRoleDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Modifier le rôle</DialogTitle>
-          <DialogDescription>
-            Mettez à jour le rôle et le client de rattachement.
-          </DialogDescription>
+          <DialogTitle>{t("editRoleDialog.title")}</DialogTitle>
+          <DialogDescription>{t("editRoleDialog.desc")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
-            <Label>Email</Label>
+            <Label>{t("inviteDialog.email")}</Label>
             <Input value={user.email} readOnly disabled />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-role-role">Rôle *</Label>
+            <Label htmlFor="edit-role-role">{t("inviteDialog.role")} *</Label>
             <Select
               value={role}
               onValueChange={(v) => {
@@ -884,30 +914,42 @@ function EditRoleDialog({
                 if (v === "auditor") setClientId("");
               }}
             >
-              <SelectTrigger id="edit-role-role" aria-label="Rôle">
+              <SelectTrigger
+                id="edit-role-role"
+                aria-label={t("inviteDialog.role")}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="auditor">Auditeur (interne)</SelectItem>
-                <SelectItem value="client_admin">
-                  Administrateur client
+                <SelectItem value="auditor">
+                  {t("rolesOption.auditor")}
                 </SelectItem>
-                <SelectItem value="client_member">Membre client</SelectItem>
+                <SelectItem value="client_admin">
+                  {t("rolesOption.client_admin")}
+                </SelectItem>
+                <SelectItem value="client_member">
+                  {t("rolesOption.client_member")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {needsClient && (
             <div className="space-y-2">
-              <Label htmlFor="edit-role-client">Client de rattachement *</Label>
+              <Label htmlFor="edit-role-client">
+                {t("inviteDialog.client")} *
+              </Label>
               <Select value={clientId} onValueChange={setClientId}>
-                <SelectTrigger id="edit-role-client" aria-label="Client">
-                  <SelectValue placeholder="Sélectionner un client" />
+                <SelectTrigger
+                  id="edit-role-client"
+                  aria-label={t("inviteDialog.client")}
+                >
+                  <SelectValue placeholder={t("inviteDialog.clientPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {clients.length === 0 ? (
                     <div className="px-3 py-2 text-sm text-muted-foreground">
-                      Aucun client actif disponible.
+                      {t("inviteDialog.noClients")}
                     </div>
                   ) : (
                     clients.map((c) => (
@@ -928,13 +970,13 @@ function EditRoleDialog({
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
-              Annuler
+              {tCommon("cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}
-              Enregistrer
+              {tCommon("save")}
             </Button>
           </DialogFooter>
         </form>

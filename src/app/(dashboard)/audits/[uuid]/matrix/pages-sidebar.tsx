@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MiniDonut } from "@/components/ui/mini-donut";
 import { cn } from "@/lib/utils";
-import { PAGE_TYPE_LABELS } from "@/lib/constants";
 import type { AuditPage, ConformityStatus, PageType } from "@/types/domain";
 
 interface Props {
@@ -29,6 +29,9 @@ export function PagesSidebar({
   currentPageId,
   onPageChange,
 }: Props) {
+  const t = useTranslations("audits.matrix.sidebar");
+  const tPageType = useTranslations("constants.pageType");
+
   const pageCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const page of pages) counts.set(page.id, 0);
@@ -61,21 +64,19 @@ export function PagesSidebar({
 
   return (
     <aside
-      aria-label="Pages de l'audit"
+      aria-label={t("aria")}
       className="w-full shrink-0 px-4 py-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:w-72 lg:overflow-y-auto"
     >
       <Card className="flex flex-col shadow-sm">
-        {/* Header sidebar */}
         <div className="border-b border-border p-4">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Pages
+            {t("title")}
           </h2>
           <p className="mt-1 text-sm font-medium tabular-nums">
-            {fullySaisiCount} / {pages.length} pages saisies
+            {t("pagesSaisi", { filled: fullySaisiCount, total: pages.length })}
           </p>
         </div>
 
-        {/* Liste des pages */}
         <ul role="list" className="flex-1 space-y-1 p-2">
           {pages.map((page) => {
             const count = pageCounts.get(page.id) ?? 0;
@@ -112,7 +113,7 @@ export function PagesSidebar({
                       variant={PAGE_TYPE_BADGE[page.pageType]}
                       className="shrink-0 text-[10px]"
                     >
-                      {PAGE_TYPE_LABELS[page.pageType]}
+                      {tPageType(page.pageType)}
                     </Badge>
                   </div>
                   <div
@@ -121,7 +122,7 @@ export function PagesSidebar({
                     aria-valuemin={0}
                     aria-valuemax={100}
                     aria-valuenow={percent}
-                    aria-label={`Progression : ${percent}%`}
+                    aria-label={t("progressAria", { percent })}
                   >
                     <div
                       className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
@@ -129,7 +130,7 @@ export function PagesSidebar({
                     />
                   </div>
                   <p className="text-xs tabular-nums text-muted-foreground">
-                    {count} / {totalCriteria} critères
+                    {t("criteriaCount", { filled: count, total: totalCriteria })}
                   </p>
                 </button>
               </li>
@@ -137,21 +138,20 @@ export function PagesSidebar({
           })}
         </ul>
 
-        {/* Footer : progression globale */}
         <div className="border-t border-border p-4">
           <Card className="flex items-center gap-3 bg-secondary/40 p-3 shadow-none">
             <MiniDonut
               value={globalPercent}
               size={48}
               tone="primary"
-              ariaLabel={`Progression globale ${globalPercent}%`}
+              ariaLabel={t("globalAria", { percent: globalPercent })}
             />
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Progression globale
+                {t("globalProgress")}
               </p>
               <p className="mt-0.5 truncate text-sm font-medium tabular-nums">
-                {globalCount} / {globalTotal} critères
+                {t("criteriaCount", { filled: globalCount, total: globalTotal })}
               </p>
             </div>
           </Card>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   CheckCircle2,
   FileText,
@@ -34,13 +35,9 @@ import {
   getConformityLevel,
   getScoreColorVar,
 } from "@/lib/score";
-import { NC_CLOSED_STATUSES, NC_SEVERITY_ORDER } from "@/lib/constants";
+import { NC_SEVERITY_ORDER } from "@/lib/constants";
 import { cn, formatScore } from "@/lib/utils";
 import type { NCSeverity, NCStatus } from "@/types/domain";
-
-// ============================================================================
-// Types exposés (consommés par page.tsx)
-// ============================================================================
 
 export interface SimulatorNC {
   id: string;
@@ -49,7 +46,6 @@ export interface SimulatorNC {
   description: string | null;
   severity: NCSeverity;
   status: NCStatus;
-  /** Vrai si la NC est déjà fermée en base (CORRECTED / RESOLVED / NON_REPRODUCIBLE). */
   isFixed: boolean;
   criterion: { id: string; identifier: string; name: string };
   thematic: {
@@ -74,13 +70,9 @@ export interface SimulatorThematic {
   sortOrder: number;
 }
 
-// ============================================================================
-// États de filtre / tri
-// ============================================================================
-
 type SeverityFilter = "ALL" | NCSeverity;
 type StatusFilter = "ALL" | "TODO" | "IN_PROGRESS" | "FIXED" | "FALSE_POSITIVE";
-type PageFilter = "ALL" | "TRANSVERSAL" | string; // sinon = pageId
+type PageFilter = "ALL" | "TRANSVERSAL" | string;
 type ThematicFilter = "ALL" | string;
 type SortMode =
   | "SEVERITY_DESC"
@@ -88,14 +80,6 @@ type SortMode =
   | "BY_PAGE"
   | "BY_THEMATIC"
   | "BY_CRITERION";
-
-const STATUS_FILTER_LABELS: Record<StatusFilter, string> = {
-  ALL: "Tous les statuts",
-  TODO: "À corriger",
-  IN_PROGRESS: "En cours",
-  FIXED: "Corrigée",
-  FALSE_POSITIVE: "Faux positif",
-};
 
 const STATUS_FILTER_TO_DB: Record<StatusFilter, NCStatus[] | null> = {
   ALL: null,
@@ -105,13 +89,21 @@ const STATUS_FILTER_TO_DB: Record<StatusFilter, NCStatus[] | null> = {
   FALSE_POSITIVE: ["NON_REPRODUCIBLE", "REJECTED", "CANCELLED"],
 };
 
-const SORT_LABELS: Record<SortMode, string> = {
-  SEVERITY_DESC: "Sévérité (décroissante)",
-  SEVERITY_ASC: "Sévérité (croissante)",
-  BY_PAGE: "Grouper par page",
-  BY_THEMATIC: "Grouper par thématique",
-  BY_CRITERION: "Numéro de critère",
-};
+const STATUS_FILTER_KEYS: StatusFilter[] = [
+  "ALL",
+  "TODO",
+  "IN_PROGRESS",
+  "FIXED",
+  "FALSE_POSITIVE",
+];
+
+const SORT_KEYS: SortMode[] = [
+  "SEVERITY_DESC",
+  "SEVERITY_ASC",
+  "BY_PAGE",
+  "BY_THEMATIC",
+  "BY_CRITERION",
+];
 
 interface RemediationSimulatorProps {
   allNCs: SimulatorNC[];
@@ -132,14 +124,15 @@ export function RemediationSimulator({
   notApplicable,
   fixableCriteriaPerNC,
 }: RemediationSimulatorProps) {
-  // Initial : toutes les NC déjà fermées en base sont pré-cochées.
+  const t = useTranslations("audits.simulator");
+  const tSort = useTranslations("audits.simulator.sort");
+  const tSeverity = useTranslations("constants.ncSeverity");
   const initialChecked = useMemo(
     () => new Set(allNCs.filter((n) => n.isFixed).map((n) => n.id)),
     [allNCs],
   );
   const [checked, setChecked] = useState<Set<string>>(initialChecked);
 
-  // ---------- Filtres ---------------------------------------------------------
   const [search, setSearch] = useState("");
   const [severity, setSeverity] = useState<SeverityFilter>("ALL");
   const [status, setStatus] = useState<StatusFilter>("ALL");
@@ -147,8 +140,6 @@ export function RemediationSimulator({
   const [thematicFilter, setThematicFilter] = useState<ThematicFilter>("ALL");
   const [sort, setSort] = useState<SortMode>("SEVERITY_DESC");
 
-  // ---------- Score : seules les NC ouvertes virtuellement cochées comptent --
-  // (les FIXED sont déjà reflétées dans initialCompliant)
   const fullyFixedCriteria = useMemo(() => {
     const ncsPerCriterion: Record<string, string[]> = {};
     for (const nc of allNCs) {
@@ -185,7 +176,6 @@ export function RemediationSimulator({
   const delta = +(simulatedScore - initialScore).toFixed(2);
   const conformityLevel = getConformityLevel(simulatedScore);
 
-  // ---------- Liste filtrée + triée -----------------------------------------
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const allowedStatuses = STATUS_FILTER_TO_DB[status];
@@ -261,7 +251,6 @@ export function RemediationSimulator({
     return arr;
   }, [filtered, sort]);
 
-  // Regroupement quand on trie par page / thématique
   type Group = { key: string; label: string; items: SimulatorNC[] };
   const grouped: Group[] = useMemo(() => {
     if (sort !== "BY_PAGE" && sort !== "BY_THEMATIC") {
@@ -275,10 +264,10 @@ export function RemediationSimulator({
           : nc.thematic?.id ?? "__no_thematic__";
       const label =
         sort === "BY_PAGE"
-          ? nc.page?.name ?? "Transversales"
+          ? nc.page?.name ?? t("transversalPages")
           : nc.thematic
             ? `${nc.thematic.identifier} · ${nc.thematic.name}`
-            : "Sans thématique";
+            : tSort("noThematic");
       const last = groups[groups.length - 1];
       if (last && last.key === key) {
         last.items.push(nc);
@@ -287,11 +276,10 @@ export function RemediationSimulator({
       }
     }
     return groups;
-  }, [sorted, sort]);
+  }, [sorted, sort, t, tSort]);
 
   const isGrouped = sort === "BY_PAGE" || sort === "BY_THEMATIC";
 
-  // ---------- Actions --------------------------------------------------------
   function toggle(id: string) {
     setChecked((prev) => {
       const next = new Set(prev);
@@ -309,7 +297,6 @@ export function RemediationSimulator({
     for (const nc of allNCs) if (nc.severity === sev) next.add(nc.id);
     setChecked(next);
   }
-  /** Réinitialise : seules les NC déjà FIXED en base restent cochées. */
   function resetSimulation() {
     setChecked(new Set(initialChecked));
   }
@@ -329,21 +316,22 @@ export function RemediationSimulator({
     pageFilter !== "ALL" ||
     thematicFilter !== "ALL";
 
-  // ---------- Render ---------------------------------------------------------
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_2fr]">
-      {/* Panneau de scoring ------------------------------------------------- */}
       <div className="space-y-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Score initial</CardDescription>
+            <CardDescription>{t("initialScore")}</CardDescription>
             <CardTitle className="text-3xl tabular-nums">
               {formatScore(initialScore)}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">
-              {initialCompliant} / {totalCriteria - notApplicable} critères conformes
+              {t("criteriaCompliant", {
+                compliant: initialCompliant,
+                total: totalCriteria - notApplicable,
+              })}
             </p>
           </CardContent>
         </Card>
@@ -354,7 +342,7 @@ export function RemediationSimulator({
         >
           <CardHeader className="pb-3">
             <CardDescription className="text-primary">
-              Score simulé
+              {t("simulatedScore")}
             </CardDescription>
             <CardTitle
               className="text-4xl font-bold tabular-nums"
@@ -367,7 +355,7 @@ export function RemediationSimulator({
             <Progress
               value={simulatedScore}
               fillColor={getScoreColorVar(simulatedScore)}
-              aria-label={`Score simulé : ${simulatedScore}%`}
+              aria-label={t("simulatedAria", { score: simulatedScore })}
             />
             <div className="flex items-center justify-between text-xs">
               <span
@@ -393,11 +381,7 @@ export function RemediationSimulator({
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-              <span>
-                {fullyFixedCriteria} critère{fullyFixedCriteria !== 1 ? "s" : ""}{" "}
-                supplémentaire{fullyFixedCriteria !== 1 ? "s" : ""} conforme
-                {fullyFixedCriteria !== 1 ? "s" : ""}
-              </span>
+              <span>{t("extraCompliant", { count: fullyFixedCriteria })}</span>
             </div>
           </CardContent>
         </Card>
@@ -406,26 +390,26 @@ export function RemediationSimulator({
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-sm font-medium">
               <ListFilter className="h-4 w-4" aria-hidden="true" />
-              Sélection rapide
+              {t("quickSelect")}
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-2">
             <Button onClick={checkAllOpen} variant="outline" size="sm">
-              Tout cocher ({allNCs.length})
+              {t("checkAll", { count: allNCs.length })}
             </Button>
             <Button
               onClick={() => checkBySeverity("CRITICAL")}
               variant="outline"
               size="sm"
             >
-              Critiques uniquement
+              {t("criticalOnly")}
             </Button>
             <Button
               onClick={() => checkBySeverity("HIGH")}
               variant="outline"
               size="sm"
             >
-              Hautes uniquement
+              {t("highOnly")}
             </Button>
             <Button
               onClick={resetSimulation}
@@ -434,26 +418,27 @@ export function RemediationSimulator({
               className="gap-2"
             >
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
-              Réinitialiser
+              {t("reset")}
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      {/* Liste des NC à simuler --------------------------------------------- */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <AlertTriangle className="h-4 w-4 text-warning" aria-hidden="true" />
-            Non-conformités à simuler comme corrigées
+            {t("ncsTitle")}
           </CardTitle>
           <CardDescription>
-            {checked.size} cochée{checked.size > 1 ? "s" : ""} sur {allNCs.length}.
-            Aucune modification n&apos;est enregistrée.
+            {t("ncsSubtitle", {
+              checked: checked.size,
+              total: allNCs.length,
+              plural: checked.size > 1 ? "s" : "",
+            })}
           </CardDescription>
         </CardHeader>
 
-        {/* Barre de filtres -------------------------------------------------- */}
         <CardContent className="space-y-3 border-b pb-4">
           <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
             <div className="relative">
@@ -465,25 +450,19 @@ export function RemediationSimulator({
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Rechercher dans le titre…"
+                placeholder={t("searchPlaceholder")}
                 className="pl-9"
-                aria-label="Rechercher dans le titre des non-conformités"
+                aria-label={t("searchAria")}
               />
             </div>
-            <Select
-              value={sort}
-              onValueChange={(v) => setSort(v as SortMode)}
-            >
-              <SelectTrigger
-                className="sm:w-[220px]"
-                aria-label="Trier par"
-              >
+            <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
+              <SelectTrigger className="sm:w-[220px]" aria-label={t("sortAria")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {(Object.keys(SORT_LABELS) as SortMode[]).map((k) => (
+                {SORT_KEYS.map((k) => (
                   <SelectItem key={k} value={k}>
-                    {SORT_LABELS[k]}
+                    {tSort(k)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -495,15 +474,15 @@ export function RemediationSimulator({
               value={severity}
               onValueChange={(v) => setSeverity(v as SeverityFilter)}
             >
-              <SelectTrigger aria-label="Filtrer par sévérité">
+              <SelectTrigger aria-label={t("filterSeverityAria")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Toutes sévérités</SelectItem>
-                <SelectItem value="CRITICAL">Critique</SelectItem>
-                <SelectItem value="HIGH">Haute</SelectItem>
-                <SelectItem value="MEDIUM">Moyenne</SelectItem>
-                <SelectItem value="LOW">Faible</SelectItem>
+                <SelectItem value="ALL">{t("allSeverities")}</SelectItem>
+                <SelectItem value="CRITICAL">{tSeverity("CRITICAL")}</SelectItem>
+                <SelectItem value="HIGH">{tSeverity("HIGH")}</SelectItem>
+                <SelectItem value="MEDIUM">{tSeverity("MEDIUM")}</SelectItem>
+                <SelectItem value="LOW">{tSeverity("LOW")}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -511,13 +490,13 @@ export function RemediationSimulator({
               value={status}
               onValueChange={(v) => setStatus(v as StatusFilter)}
             >
-              <SelectTrigger aria-label="Filtrer par statut">
+              <SelectTrigger aria-label={t("filterStatusAria")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {(Object.keys(STATUS_FILTER_LABELS) as StatusFilter[]).map((k) => (
+                {STATUS_FILTER_KEYS.map((k) => (
                   <SelectItem key={k} value={k}>
-                    {STATUS_FILTER_LABELS[k]}
+                    {tSort(k)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -527,12 +506,12 @@ export function RemediationSimulator({
               value={pageFilter}
               onValueChange={(v) => setPageFilter(v as PageFilter)}
             >
-              <SelectTrigger aria-label="Filtrer par page">
+              <SelectTrigger aria-label={t("filterPageAria")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Toutes les pages</SelectItem>
-                <SelectItem value="TRANSVERSAL">Transversales</SelectItem>
+                <SelectItem value="ALL">{t("allPages")}</SelectItem>
+                <SelectItem value="TRANSVERSAL">{t("transversalPages")}</SelectItem>
                 {auditPages.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
@@ -545,14 +524,14 @@ export function RemediationSimulator({
               value={thematicFilter}
               onValueChange={(v) => setThematicFilter(v as ThematicFilter)}
             >
-              <SelectTrigger aria-label="Filtrer par thématique">
+              <SelectTrigger aria-label={t("filterThematicAria")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Toutes thématiques</SelectItem>
-                {referenceThematics.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.identifier} · {t.name}
+                <SelectItem value="ALL">{t("allThematics")}</SelectItem>
+                {referenceThematics.map((tm) => (
+                  <SelectItem key={tm.id} value={tm.id}>
+                    {tm.identifier} · {tm.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -564,7 +543,8 @@ export function RemediationSimulator({
               <strong className="font-medium text-foreground">
                 {filtered.length}
               </strong>{" "}
-              / {allNCs.length} NC affichée{filtered.length > 1 ? "s" : ""}
+              / {allNCs.length}{" "}
+              {t("ncCountShown", { plural: filtered.length > 1 ? "s" : "" })}
             </span>
             {hasActiveFilters && (
               <Button
@@ -573,19 +553,16 @@ export function RemediationSimulator({
                 onClick={resetFilters}
                 className="h-7 gap-1 text-xs"
               >
-                Réinitialiser les filtres
+                {t("resetFilters")}
               </Button>
             )}
           </div>
         </CardContent>
 
-        {/* Liste -------------------------------------------------------------- */}
         <CardContent className="space-y-2 pt-4">
           {filtered.length === 0 ? (
             <p className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
-              {allNCs.length === 0
-                ? "Aucune non-conformité sur cet audit."
-                : "Aucune non-conformité ne correspond aux filtres."}
+              {allNCs.length === 0 ? t("emptyAll") : t("emptyFilters")}
             </p>
           ) : (
             grouped.map((group) => (
@@ -618,9 +595,6 @@ export function RemediationSimulator({
   );
 }
 
-// ============================================================================
-// Ligne de NC
-// ============================================================================
 function NCRow({
   nc,
   isChecked,
@@ -630,6 +604,7 @@ function NCRow({
   isChecked: boolean;
   onToggle: () => void;
 }) {
+  const t = useTranslations("audits.simulator");
   const isFixed = nc.isFixed;
   return (
     <label
@@ -643,7 +618,10 @@ function NCRow({
       <Checkbox
         checked={isChecked}
         onCheckedChange={onToggle}
-        aria-label={`Simuler la correction de ${nc.criterion.identifier} : ${nc.title}`}
+        aria-label={t("simulateAria", {
+          identifier: nc.criterion.identifier,
+          title: nc.title,
+        })}
       />
       <div className="flex flex-1 flex-col gap-1">
         <div className="flex flex-wrap items-center gap-2">
@@ -658,7 +636,7 @@ function NCRow({
           <SeverityBadge severity={nc.severity} />
           {isFixed && (
             <span className="rounded bg-success/10 px-1.5 py-0.5 text-xs font-medium text-success">
-              Déjà corrigée
+              {t("alreadyFixed")}
             </span>
           )}
           <span
@@ -673,7 +651,7 @@ function NCRow({
                 {nc.page.name}
               </>
             ) : (
-              "Transversale"
+              t("transversal")
             )}
           </span>
         </div>

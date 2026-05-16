@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -22,7 +23,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FileDropZone } from "@/components/ui/file-drop-zone";
-import { NC_SEVERITY_LABELS } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 import { addAttachment } from "@/app/(dashboard)/audits/[uuid]/anomalies/[ncId]/actions";
 import { createNonConformity } from "./actions";
@@ -52,6 +52,9 @@ export function NonConformityModal({
   criterion,
   onCreated,
 }: Props) {
+  const t = useTranslations("audits.matrix.ncModal");
+  const tSeverity = useTranslations("constants.ncSeverity");
+  const tCommon = useTranslations("common");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [recommendation, setRecommendation] = useState("");
@@ -107,7 +110,6 @@ export function NonConformityModal({
         file.type,
       );
       if (result.error) {
-        // Best-effort : on tente de retirer le fichier orphelin du bucket.
         await supabase.storage.from("nc-attachments").remove([path]);
         failures.push(`${file.name}: ${result.error}`);
       }
@@ -119,7 +121,7 @@ export function NonConformityModal({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!title.trim()) {
-      setError("Le titre est requis.");
+      setError(t("titleRequired"));
       return;
     }
     setError(null);
@@ -133,18 +135,18 @@ export function NonConformityModal({
         severity,
       });
       if (result.error || !result.ncId) {
-        setError(result.error ?? "Échec de la création.");
+        setError(result.error ?? t("creationFailed"));
         return;
       }
 
       const failures = await uploadFiles(result.ncId);
       if (failures.length > 0) {
-        // La NC est créée — on garde la modale ouverte pour informer.
         setWarning(
-          `Non-conformité créée, mais ${failures.length} capture(s) en erreur : ${failures.join(" ; ")}`,
+          t("captureErrors", {
+            count: failures.length,
+            errors: failures.join(" ; "),
+          }),
         );
-        // On purge les fichiers déjà tentés pour éviter un double upload si
-        // l'utilisateur clique à nouveau.
         setFiles([]);
         onCreated(criterion.id, page.id);
         return;
@@ -159,15 +161,17 @@ export function NonConformityModal({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Créer une non-conformité</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription className="space-y-1">
             <span className="block">
               <span className="font-mono text-xs">
-                Critère {criterion.identifier}
+                {t("criterion", { identifier: criterion.identifier })}
               </span>
               <span className="ml-2">{criterion.name}</span>
             </span>
-            <span className="block text-xs">Page : {page.name}</span>
+            <span className="block text-xs">
+              {t("page", { name: page.name })}
+            </span>
           </DialogDescription>
         </DialogHeader>
 
@@ -191,7 +195,7 @@ export function NonConformityModal({
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="nc-title">Titre *</Label>
+            <Label htmlFor="nc-title">{t("ncTitle")} *</Label>
             <Input
               id="nc-title"
               name="title"
@@ -199,36 +203,36 @@ export function NonConformityModal({
               onChange={(e) => setTitle(e.target.value)}
               required
               autoFocus
-              placeholder="Ex : Lien sans intitulé dans le pied de page"
+              placeholder={t("ncTitlePlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="nc-description">Description</Label>
+            <Label htmlFor="nc-description">{t("description")}</Label>
             <Textarea
               id="nc-description"
               name="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              placeholder="Décrire le problème observé."
+              placeholder={t("descriptionPlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="nc-recommendation">Recommandation</Label>
+            <Label htmlFor="nc-recommendation">{t("recommendation")}</Label>
             <Textarea
               id="nc-recommendation"
               name="recommendation"
               value={recommendation}
               onChange={(e) => setRecommendation(e.target.value)}
               rows={3}
-              placeholder="Décrire la correction attendue."
+              placeholder={t("recommendationPlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="nc-severity">Sévérité</Label>
+            <Label htmlFor="nc-severity">{t("severity")}</Label>
             <Select
               name="severity"
               value={severity}
@@ -238,20 +242,16 @@ export function NonConformityModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="LOW">{NC_SEVERITY_LABELS.LOW}</SelectItem>
-                <SelectItem value="MEDIUM">
-                  {NC_SEVERITY_LABELS.MEDIUM}
-                </SelectItem>
-                <SelectItem value="HIGH">{NC_SEVERITY_LABELS.HIGH}</SelectItem>
-                <SelectItem value="CRITICAL">
-                  {NC_SEVERITY_LABELS.CRITICAL}
-                </SelectItem>
+                <SelectItem value="LOW">{tSeverity("LOW")}</SelectItem>
+                <SelectItem value="MEDIUM">{tSeverity("MEDIUM")}</SelectItem>
+                <SelectItem value="HIGH">{tSeverity("HIGH")}</SelectItem>
+                <SelectItem value="CRITICAL">{tSeverity("CRITICAL")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label>Captures d&apos;écran</Label>
+            <Label>{t("screenshots")}</Label>
             <FileDropZone
               files={files}
               onFilesChange={setFiles}
@@ -268,13 +268,13 @@ export function NonConformityModal({
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
-              Annuler
+              {tCommon("cancel")}
             </Button>
             <Button type="submit" disabled={isPending} className="gap-2">
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}
-              Créer la NC
+              {t("submit")}
             </Button>
           </DialogFooter>
         </form>
