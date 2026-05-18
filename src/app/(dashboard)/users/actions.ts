@@ -8,7 +8,16 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { resend, FROM_EMAIL } from "@/lib/resend";
 import { InvitationEmail } from "@/emails/invitation-email";
 import { isValidEmail, isValidUuid } from "@/lib/validation";
+import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import type { UserRole } from "@/types/domain";
+
+// Plafonds : 30 invitations / heure et 10 renvois / heure par auditeur.
+// Cible : empêcher le mail-bombing involontaire (script bugué) et le spam
+// volontaire (compte auditeur compromis).
+const INVITE_LIMIT = 30;
+const INVITE_WINDOW_MS = 60 * 60 * 1000;
+const RESEND_LIMIT = 10;
+const RESEND_WINDOW_MS = 60 * 60 * 1000;
 
 export interface UserActionState {
   error: string | null;
@@ -118,6 +127,17 @@ export async function inviteUser(
   const ctx = await requireAuditor();
   if (ctx.error) return { error: ctx.error };
   const t = await getTranslations("errors");
+
+  const limit = rateLimit(
+    `inviteUser:${ctx.inviterId}`,
+    INVITE_LIMIT,
+    INVITE_WINDOW_MS,
+  );
+  if (!limit.ok) {
+    return {
+      error: t("rateLimited", { seconds: retryAfterSeconds(limit.resetMs) }),
+    };
+  }
 
   const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
   const firstName = formData.get("first_name")?.toString().trim() ?? "";
@@ -287,6 +307,17 @@ export async function resendInvitation(
   const t = await getTranslations("errors");
 
   if (!isValidUuid(userId)) return { error: t("invalidUser") };
+
+  const limit = rateLimit(
+    `resendInvitation:${ctx.inviterId}`,
+    RESEND_LIMIT,
+    RESEND_WINDOW_MS,
+  );
+  if (!limit.ok) {
+    return {
+      error: t("rateLimited", { seconds: retryAfterSeconds(limit.resetMs) }),
+    };
+  }
 
   const { data: target, error: targetError } = await ctx.supabase
     .from("profiles")

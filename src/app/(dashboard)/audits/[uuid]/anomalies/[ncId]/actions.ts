@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import type { NCSeverity, NCStatus } from "@/types/domain";
+
+// 30 messages / minute par utilisateur : limite généreuse pour les
+// échanges actifs mais freine un script qui dégomme des notifications.
+const MESSAGE_LIMIT = 30;
+const MESSAGE_WINDOW_MS = 60 * 1000;
 
 export interface ActionResult {
   error: string | null;
@@ -142,6 +148,17 @@ export async function sendMessage(
   const t = await getTranslations("errors");
   const trimmed = body.trim();
   if (!trimmed) return { error: t("emptyMessage") };
+
+  const limit = rateLimit(
+    `sendMessage:${auth.userId}`,
+    MESSAGE_LIMIT,
+    MESSAGE_WINDOW_MS,
+  );
+  if (!limit.ok) {
+    return {
+      error: t("rateLimited", { seconds: retryAfterSeconds(limit.resetMs) }),
+    };
+  }
 
   const supabase = await createClient();
 

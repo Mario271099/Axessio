@@ -1,4 +1,85 @@
 {
+  "home": {
+    "metaTitle": "Axessio — Plateforme SaaS d'audits d'accessibilité numérique",
+    "metaDescription": "Centralisez vos audits d'accessibilité numérique (RGAA, WCAG, RAWeb, RAAM). Saisie de conformité, gestion des non-conformités, rapports PDF — pour auditeurs et équipes clients.",
+    "skipToContent": "Aller au contenu principal",
+    "nav": {
+      "features": "Fonctionnalités",
+      "standards": "Référentiels",
+      "login": "Se connecter"
+    },
+    "hero": {
+      "kicker": "Plateforme d'audit d'accessibilité",
+      "title": "Pilotez vos audits RGAA & WCAG sans tableurs.",
+      "subtitle": "Axessio centralise vos audits d'accessibilité numérique : grille de conformité, non-conformités tracées, rapports PDF prêts à livrer — pour auditeurs et équipes clients.",
+      "primaryCta": "Accéder à mon espace",
+      "secondaryCta": "Voir les fonctionnalités"
+    },
+    "features": {
+      "title": "Tout l'audit d'accessibilité au même endroit",
+      "subtitle": "De la création de l'échantillon à la livraison du rapport, sans copier-coller entre Excel, Word et l'email.",
+      "items": {
+        "matrix": {
+          "title": "Matrice de conformité",
+          "desc": "Saisissez chaque critère page par page — conforme, non conforme ou non applicable — avec calcul automatique du score officiel."
+        },
+        "ncs": {
+          "title": "Non-conformités tracées",
+          "desc": "Sévérité, recommandation, captures, discussion avec le client : chaque NC vit dans un fil structuré, jamais perdu dans un mail."
+        },
+        "reports": {
+          "title": "Rapports PDF bilingues",
+          "desc": "Export PDF prêt à livrer, en français ou en anglais, avec page de garde, synthèse, détail par page et fiches NC."
+        },
+        "multitenant": {
+          "title": "Multi-clients sécurisé",
+          "desc": "Isolation stricte des données entre clients (Row Level Security PostgreSQL). Auditeurs, admins client et membres — chacun voit ce qu'il doit voir."
+        },
+        "i18n": {
+          "title": "Interface FR / EN",
+          "desc": "Bascule en un clic entre français et anglais — utile pour les équipes internationales et les clients hors-Europe."
+        },
+        "a11y": {
+          "title": "Accessible par construction",
+          "desc": "L'outil qui sert à auditer l'accessibilité respecte WCAG 2.2 AA — focus visible, contrastes vérifiés, navigation clavier, lecteurs d'écran."
+        }
+      }
+    },
+    "standards": {
+      "title": "Compatible avec les référentiels officiels",
+      "subtitle": "Les référentiels reconnus en France et en Europe pour l'accessibilité numérique."
+    },
+    "cta": {
+      "title": "Prêt à structurer vos audits ?",
+      "subtitle": "Connectez-vous à votre espace Axessio pour reprendre vos audits en cours, ou contactez-nous pour ouvrir un compte.",
+      "button": "Accéder à Axessio"
+    },
+    "footer": {
+      "tagline": "Plateforme d'audits d'accessibilité numérique.",
+      "copyright": "© {year} Axessio. Tous droits réservés.",
+      "links": {
+        "login": "Connexion",
+        "features": "Fonctionnalités",
+        "standards": "Référentiels"
+      }
+    },
+    "faq": {
+      "items": [
+        {
+          "q": "Quels référentiels d'accessibilité sont pris en charge ?",
+          "a": "Axessio prend en charge RGAA 4.1.2, WCAG 2.2, RAWeb 1.0, RAAM 1.0 et EN 301 549, pour les plateformes web et mobile."
+        },
+        {
+          "q": "Comment est calculé le score de conformité ?",
+          "a": "Le score utilise la formule officielle : conformes ÷ (total − non applicables) × 100. Les critères non évalués ne pénalisent pas le score."
+        },
+        {
+          "q": "Puis-je exporter le rapport en anglais ?",
+          "a": "Oui. Chaque rapport PDF se génère au choix en français ou en anglais, avec libellés, badges et métadonnées dans la langue cible."
+        }
+      ]
+    }
+  },
   "common": {
     "appName": "Axessio",
     "loading": "Chargement…",
@@ -66,6 +147,7 @@
     "bulkNoSelection": "Aucune non-conformité sélectionnée.",
     "invalidStatus": "Statut invalide.",
     "invalidSeverity": "Sévérité invalide.",
+    "rateLimited": "Trop de tentatives. Réessayez dans {seconds} secondes.",
     "createNCFailed": "Échec de la création de la non-conformité : {message}",
     "updateConformityFailed": "Échec de la mise à jour de conformité : {message}",
     "fieldErrors": "Veuillez corriger les erreurs ci-dessous.",

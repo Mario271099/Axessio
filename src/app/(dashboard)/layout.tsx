@@ -1,7 +1,24 @@
+import type { Metadata } from "next";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+
+// Toutes les pages sous /(dashboard) sont des vues authentifiées : on coupe
+// l'indexation pour ne pas exposer de surface privée à Google et pour ne pas
+// gaspiller du crawl-budget sur des redirects vers /login.
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
+};
 
 const IN_PROGRESS_STATUSES = ["IN_PROGRESS", "REMEDIATION", "COUNTER_AUDIT"];
 

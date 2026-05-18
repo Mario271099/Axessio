@@ -1,4 +1,85 @@
 {
+  "home": {
+    "metaTitle": "Axessio — Digital accessibility audit SaaS platform",
+    "metaDescription": "Centralize your digital accessibility audits (RGAA, WCAG, RAWeb, RAAM). Conformity tracking, non-conformity management, PDF reports — for auditors and client teams.",
+    "skipToContent": "Skip to main content",
+    "nav": {
+      "features": "Features",
+      "standards": "Standards",
+      "login": "Sign in"
+    },
+    "hero": {
+      "kicker": "Accessibility audit platform",
+      "title": "Run RGAA & WCAG audits without spreadsheets.",
+      "subtitle": "Axessio centralizes your digital accessibility audits: conformity grid, traceable non-conformities, ready-to-deliver PDF reports — for auditors and client teams.",
+      "primaryCta": "Go to my workspace",
+      "secondaryCta": "See features"
+    },
+    "features": {
+      "title": "Everything for an accessibility audit, in one place",
+      "subtitle": "From sample creation to report delivery, without copy-pasting between Excel, Word and email.",
+      "items": {
+        "matrix": {
+          "title": "Conformity matrix",
+          "desc": "Score each criterion page by page — compliant, non-compliant or not applicable — with automatic official score computation."
+        },
+        "ncs": {
+          "title": "Tracked non-conformities",
+          "desc": "Severity, recommendation, screenshots, discussion with the client: each NC lives in a structured thread, never lost in an email."
+        },
+        "reports": {
+          "title": "Bilingual PDF reports",
+          "desc": "Ready-to-deliver PDF export, in French or English, with cover page, summary, page-by-page detail and NC fiches."
+        },
+        "multitenant": {
+          "title": "Secure multi-tenant",
+          "desc": "Strict data isolation between clients (PostgreSQL Row Level Security). Auditors, client admins and members — everyone sees what they should."
+        },
+        "i18n": {
+          "title": "FR / EN interface",
+          "desc": "Switch French to English with one click — useful for international teams and clients outside Europe."
+        },
+        "a11y": {
+          "title": "Accessible by design",
+          "desc": "The tool used to audit accessibility itself meets WCAG 2.2 AA — visible focus, verified contrasts, keyboard navigation, screen readers."
+        }
+      }
+    },
+    "standards": {
+      "title": "Compatible with official standards",
+      "subtitle": "The reference frameworks recognized in France and Europe for digital accessibility."
+    },
+    "cta": {
+      "title": "Ready to structure your audits?",
+      "subtitle": "Sign in to your Axessio workspace to resume your in-progress audits, or contact us to open an account.",
+      "button": "Open Axessio"
+    },
+    "footer": {
+      "tagline": "Digital accessibility audit platform.",
+      "copyright": "© {year} Axessio. All rights reserved.",
+      "links": {
+        "login": "Sign in",
+        "features": "Features",
+        "standards": "Standards"
+      }
+    },
+    "faq": {
+      "items": [
+        {
+          "q": "Which accessibility standards are supported?",
+          "a": "Axessio supports RGAA 4.1.2, WCAG 2.2, RAWeb 1.0, RAAM 1.0 and EN 301 549, on both web and mobile platforms."
+        },
+        {
+          "q": "How is the conformity score computed?",
+          "a": "The score uses the official formula: compliant ÷ (total − not applicable) × 100. Unevaluated criteria do not penalize the score."
+        },
+        {
+          "q": "Can I export the report in English?",
+          "a": "Yes. Every PDF report can be generated in French or English, with labels, badges and metadata in the target language."
+        }
+      ]
+    }
+  },
   "common": {
     "appName": "Axessio",
     "loading": "Loading…",
@@ -66,6 +147,7 @@
     "bulkNoSelection": "No non-conformity selected.",
     "invalidStatus": "Invalid status.",
     "invalidSeverity": "Invalid severity.",
+    "rateLimited": "Too many attempts. Try again in {seconds} seconds.",
     "createNCFailed": "Failed to create non-conformity: {message}",
     "updateConformityFailed": "Failed to update conformity: {message}",
     "fieldErrors": "Please correct the errors below.",

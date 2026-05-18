@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import type { NCSeverity, NCStatus } from "@/types/domain";
 
 export interface BulkResult {
@@ -19,7 +20,15 @@ const ALLOWED_STATUSES: NCStatus[] = [
 
 const ALLOWED_SEVERITIES: NCSeverity[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
-async function requireAuditor(): Promise<{ ok: true } | { ok: false; error: string }> {
+// 60 actions bulk / minute par auditeur. Chaque action ne touche que les NC
+// d'un audit (clause WHERE), donc l'impact est borné — on protège surtout
+// la base de données contre des boucles côté client.
+const BULK_LIMIT = 60;
+const BULK_WINDOW_MS = 60 * 1000;
+
+async function requireAuditor(): Promise<
+  { ok: true; userId: string } | { ok: false; error: string }
+> {
   const supabase = await createClient();
   const t = await getTranslations("errors");
   const {
@@ -36,7 +45,19 @@ async function requireAuditor(): Promise<{ ok: true } | { ok: false; error: stri
   if (profile?.role !== "auditor") {
     return { ok: false, error: t("auditorOnlyShort") };
   }
-  return { ok: true };
+  return { ok: true, userId: user.id };
+}
+
+async function checkBulkRateLimit(
+  userId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const limit = rateLimit(`bulkNC:${userId}`, BULK_LIMIT, BULK_WINDOW_MS);
+  if (limit.ok) return { ok: true };
+  const t = await getTranslations("errors");
+  return {
+    ok: false,
+    error: t("rateLimited", { seconds: retryAfterSeconds(limit.resetMs) }),
+  };
 }
 
 async function validateBulkInput(
@@ -58,6 +79,9 @@ export async function bulkUpdateNCStatus(
 ): Promise<BulkResult> {
   const auth = await requireAuditor();
   if (!auth.ok) return { error: auth.error };
+
+  const rl = await checkBulkRateLimit(auth.userId);
+  if (!rl.ok) return { error: rl.error };
 
   const t = await getTranslations("errors");
   if (!ALLOWED_STATUSES.includes(status)) {
@@ -90,6 +114,9 @@ export async function bulkUpdateNCSeverity(
   const auth = await requireAuditor();
   if (!auth.ok) return { error: auth.error };
 
+  const rl = await checkBulkRateLimit(auth.userId);
+  if (!rl.ok) return { error: rl.error };
+
   const t = await getTranslations("errors");
   if (!ALLOWED_SEVERITIES.includes(severity)) {
     return { error: t("invalidSeverity") };
@@ -117,6 +144,9 @@ export async function bulkDeleteNCs(
 ): Promise<BulkResult> {
   const auth = await requireAuditor();
   if (!auth.ok) return { error: auth.error };
+
+  const rl = await checkBulkRateLimit(auth.userId);
+  if (!rl.ok) return { error: rl.error };
 
   const guard = await validateBulkInput(auditId, ncIds);
   if (!guard.ok) return { error: guard.error };
