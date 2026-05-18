@@ -1,9 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { FileDown, Loader2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { ChevronDown, FileDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ExportReportButtonProps {
   auditId: string;
@@ -11,6 +19,8 @@ interface ExportReportButtonProps {
   variant?: "default" | "outline";
   size?: "default" | "sm";
 }
+
+type ExportLang = "fr" | "en";
 
 function slugify(value: string): string {
   return (
@@ -34,18 +44,22 @@ export function ExportReportButton({
   size = "default",
 }: ExportReportButtonProps) {
   const t = useTranslations("audits.report");
+  const locale = useLocale();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleClick = async () => {
+  const currentLang: ExportLang = locale === "en" ? "en" : "fr";
+
+  const handleExport = async (lang: ExportLang) => {
     if (pending) return;
     setPending(true);
     setError(null);
 
     try {
-      const response = await fetch(`/api/audits/${auditId}/report`, {
-        method: "GET",
-      });
+      const response = await fetch(
+        `/api/audits/${auditId}/report?lang=${lang}`,
+        { method: "GET" },
+      );
 
       if (!response.ok) {
         let message = t("errorPrefix", { status: response.status });
@@ -63,7 +77,7 @@ export function ExportReportButton({
 
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `audit-${slugify(projectName)}-${todayIso()}.pdf`;
+      anchor.download = `audit-${slugify(projectName)}-${todayIso()}-${lang}.pdf`;
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
@@ -80,27 +94,55 @@ export function ExportReportButton({
 
   return (
     <div className="flex flex-col items-stretch gap-1">
-      <Button
-        type="button"
-        variant={variant}
-        size={size}
-        className="gap-2"
-        onClick={handleClick}
-        disabled={pending}
-        aria-busy={pending}
-      >
-        {pending ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            {t("generating")}
-          </>
-        ) : (
-          <>
-            <FileDown className="h-4 w-4" aria-hidden="true" />
-            {t("exportPdf")}
-          </>
-        )}
-      </Button>
+      <div className="flex">
+        <Button
+          type="button"
+          variant={variant}
+          size={size}
+          className="gap-2 rounded-r-none"
+          onClick={() => handleExport(currentLang)}
+          disabled={pending}
+          aria-busy={pending}
+        >
+          {pending ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              {t("generating")}
+            </>
+          ) : (
+            <>
+              <FileDown className="h-4 w-4" aria-hidden="true" />
+              {currentLang === "en" ? t("exportPdfEn") : t("exportPdfFr")}
+            </>
+          )}
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant={variant}
+              size={size}
+              className="rounded-l-none border-l border-l-primary-foreground/20 px-2"
+              disabled={pending}
+              aria-label={t("chooseLanguage")}
+            >
+              <ChevronDown className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>{t("chooseLanguage")}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => handleExport("fr")}>
+              <FileDown className="h-4 w-4" aria-hidden="true" />
+              {t("exportPdfFr")}
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => handleExport("en")}>
+              <FileDown className="h-4 w-4" aria-hidden="true" />
+              {t("exportPdfEn")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       {error && (
         <p

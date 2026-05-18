@@ -62,6 +62,10 @@
     "createFailed": "Creation failed.",
     "storagePathMissing": "Storage path missing.",
     "fileNameMissing": "File name missing.",
+    "auditIdMissing": "Audit ID missing.",
+    "bulkNoSelection": "No non-conformity selected.",
+    "invalidStatus": "Invalid status.",
+    "invalidSeverity": "Invalid severity.",
     "createNCFailed": "Failed to create non-conformity: {message}",
     "updateConformityFailed": "Failed to update conformity: {message}",
     "fieldErrors": "Please correct the errors below.",
@@ -642,6 +646,9 @@
     },
     "report": {
       "exportPdf": "Export PDF report",
+      "exportPdfFr": "Export in French",
+      "exportPdfEn": "Export in English",
+      "chooseLanguage": "Choose report language",
       "generating": "Generating…",
       "unknownError": "Unknown error during export.",
       "errorPrefix": "Error {status}"
@@ -755,7 +762,22 @@
       "emptyTitle": "No non-conformity recorded",
       "emptyDesc": "Create your first NC from the conformity matrix.",
       "noResultsTitle": "No NC matches the selected filters",
-      "noResultsDesc": "Try broadening your filters."
+      "noResultsDesc": "Try broadening your filters.",
+      "bulk": {
+        "selected": "{count, plural, one {# selected} other {# selected}}",
+        "selectAllAria": "Select all visible non-conformities",
+        "selectRowAria": "Select \"{title}\"",
+        "clear": "Clear selection",
+        "changeStatus": "Change status",
+        "changeSeverity": "Change severity",
+        "delete": "Delete",
+        "deleteConfirm": "Delete {count, plural, one {# non-conformity} other {# non-conformities}}? This cannot be undone.",
+        "successStatus": "{count, plural, one {# non-conformity updated} other {# non-conformities updated}}",
+        "successSeverity": "{count, plural, one {# non-conformity updated} other {# non-conformities updated}}",
+        "successDelete": "{count, plural, one {# non-conformity deleted} other {# non-conformities deleted}}",
+        "dismiss": "Dismiss",
+        "applyAria": "Apply bulk action"
+      }
     },
     "ncDetail": {
       "breadcrumbDetail": "Detail",

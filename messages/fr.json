@@ -62,6 +62,10 @@
     "createFailed": "Échec de la création.",
     "storagePathMissing": "Chemin de stockage manquant.",
     "fileNameMissing": "Nom de fichier manquant.",
+    "auditIdMissing": "Identifiant d'audit manquant.",
+    "bulkNoSelection": "Aucune non-conformité sélectionnée.",
+    "invalidStatus": "Statut invalide.",
+    "invalidSeverity": "Sévérité invalide.",
     "createNCFailed": "Échec de la création de la non-conformité : {message}",
     "updateConformityFailed": "Échec de la mise à jour de conformité : {message}",
     "fieldErrors": "Veuillez corriger les erreurs ci-dessous.",
@@ -642,6 +646,9 @@
     },
     "report": {
       "exportPdf": "Exporter le rapport PDF",
+      "exportPdfFr": "Exporter en français",
+      "exportPdfEn": "Exporter en anglais",
+      "chooseLanguage": "Choisir la langue du rapport",
       "generating": "Génération en cours…",
       "unknownError": "Erreur inconnue lors de l'export.",
       "errorPrefix": "Erreur {status}"
@@ -755,7 +762,22 @@
       "emptyTitle": "Aucune non-conformité enregistrée",
       "emptyDesc": "Créez votre première NC depuis la matrice de conformité.",
       "noResultsTitle": "Aucune NC pour les filtres sélectionnés",
-      "noResultsDesc": "Essayez d'élargir vos filtres."
+      "noResultsDesc": "Essayez d'élargir vos filtres.",
+      "bulk": {
+        "selected": "{count, plural, one {# sélectionnée} other {# sélectionnées}}",
+        "selectAllAria": "Sélectionner toutes les non-conformités visibles",
+        "selectRowAria": "Sélectionner « {title} »",
+        "clear": "Désélectionner",
+        "changeStatus": "Changer le statut",
+        "changeSeverity": "Changer la sévérité",
+        "delete": "Supprimer",
+        "deleteConfirm": "Supprimer {count, plural, one {# non-conformité} other {# non-conformités}} ? Cette action est définitive.",
+        "successStatus": "{count, plural, one {# non-conformité mise à jour} other {# non-conformités mises à jour}}",
+        "successSeverity": "{count, plural, one {# non-conformité mise à jour} other {# non-conformités mises à jour}}",
+        "successDelete": "{count, plural, one {# non-conformité supprimée} other {# non-conformités supprimées}}",
+        "dismiss": "Fermer",
+        "applyAria": "Appliquer l'action en masse"
+      }
     },
     "ncDetail": {
       "breadcrumbDetail": "Détail",

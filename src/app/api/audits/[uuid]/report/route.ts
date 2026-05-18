@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generatePDF, DEFAULT_FOOTER_TEMPLATE } from "@/lib/pdf";
-import { renderReportHTML, type ReportData } from "./report-template";
+import {
+  renderReportHTML,
+  type ReportData,
+  type ReportLocale,
+} from "./report-template";
 import type {
   AuditStatus,
   ConformityStatus,
@@ -27,8 +31,12 @@ interface RouteParams {
   params: Promise<{ uuid: string }>;
 }
 
-export async function GET(_req: Request, { params }: RouteParams) {
+export async function GET(req: Request, { params }: RouteParams) {
   const { uuid: auditId } = await params;
+
+  // Choix de langue : ?lang=fr|en > profile.language > "fr"
+  const url = new URL(req.url);
+  const langParam = url.searchParams.get("lang");
 
   const supabase = await createClient();
 
@@ -44,7 +52,9 @@ export async function GET(_req: Request, { params }: RouteParams) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role, client_id, is_active, first_name, last_name, email")
+    .select(
+      "id, role, client_id, is_active, first_name, last_name, email, language",
+    )
     .eq("id", user.id)
     .maybeSingle();
 
@@ -318,7 +328,14 @@ export async function GET(_req: Request, { params }: RouteParams) {
   // ------------------------------------------------------------------
   // 7. Rendu HTML → PDF
   // ------------------------------------------------------------------
-  const html = renderReportHTML(reportData);
+  const locale: ReportLocale =
+    langParam === "en" || langParam === "fr"
+      ? langParam
+      : profile.language === "en"
+        ? "en"
+        : "fr";
+
+  const html = renderReportHTML(reportData, locale);
 
   let pdfBuffer: Buffer;
   try {
@@ -343,7 +360,7 @@ export async function GET(_req: Request, { params }: RouteParams) {
     .replace(/^-+|-+$/g, "")
     .toLowerCase() || "audit";
   const dateStr = new Date().toISOString().slice(0, 10);
-  const filename = `audit-${safeProjectName}-${dateStr}.pdf`;
+  const filename = `audit-${safeProjectName}-${dateStr}-${locale}.pdf`;
 
   return new NextResponse(new Uint8Array(pdfBuffer), {
     status: 200,

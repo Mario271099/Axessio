@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
   AlertTriangle,
@@ -9,17 +10,21 @@ import {
   ChevronRight,
   Clock,
   Layers,
+  Loader2,
   MessageSquare,
   MinusCircle,
   Paperclip,
   Plus,
   RotateCcw,
   Search,
+  Trash2,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { SeverityBadge } from "@/components/audit/severity-badge";
 import {
   Select,
@@ -28,9 +33,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { intlLocale } from "@/lib/intl";
-import type { NCSeverity, UserRole } from "@/types/domain";
+import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
+import {
+  bulkDeleteNCs,
+  bulkUpdateNCSeverity,
+  bulkUpdateNCStatus,
+} from "./actions";
 
 const STATUS_BADGE_VARIANT: Record<
   string,
@@ -80,17 +98,27 @@ export function AnomaliesList({
   role,
 }: AnomaliesListProps) {
   const t = useTranslations("audits.anomalies");
+  const tBulk = useTranslations("audits.anomalies.bulk");
   const tNcStatus = useTranslations("constants.ncStatus");
   const tNcSeverity = useTranslations("constants.ncSeverity");
   const tList = useTranslations("audits.list");
   const tCommon = useTranslations("common");
   const locale = useLocale();
   const intl = intlLocale(locale);
+  const router = useRouter();
 
   const [statusFilter, setStatusFilter] = useState<string>(ALL);
   const [severityFilter, setSeverityFilter] = useState<string>(ALL);
   const [pageFilter, setPageFilter] = useState<string>(ALL);
   const [search, setSearch] = useState("");
+
+  const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  const [feedback, setFeedback] = useState<
+    { kind: "success" | "error"; message: string } | null
+  >(null);
+  const [isPending, startTransition] = useTransition();
+
+  const canBulk = role === "auditor";
 
   const pageNames = useMemo(() => {
     const names = new Set<string>();
@@ -130,6 +158,21 @@ export function AnomaliesList({
     });
   }, [ncs, statusFilter, severityFilter, pageFilter, search]);
 
+  // Purge la sélection des IDs qui ne sont plus dans la liste (après
+  // suppression bulk ou changement de données côté serveur).
+  useEffect(() => {
+    setSelected((prev) => {
+      const ncIds = new Set(ncs.map((n) => n.id));
+      let changed = false;
+      const next = new Set<string>();
+      for (const id of prev) {
+        if (ncIds.has(id)) next.add(id);
+        else changed = true;
+      }
+      return changed ? next : prev;
+    });
+  }, [ncs]);
+
   const filtersActive =
     statusFilter !== ALL ||
     severityFilter !== ALL ||
@@ -141,6 +184,103 @@ export function AnomaliesList({
     setSeverityFilter(ALL);
     setPageFilter(ALL);
     setSearch("");
+  };
+
+  // -------------------------------------------------------------------------
+  // Sélection
+  // -------------------------------------------------------------------------
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const allVisibleSelected =
+    filtered.length > 0 && filtered.every((nc) => selected.has(nc.id));
+  const someVisibleSelected =
+    filtered.some((nc) => selected.has(nc.id)) && !allVisibleSelected;
+  const masterChecked: boolean | "indeterminate" = allVisibleSelected
+    ? true
+    : someVisibleSelected
+      ? "indeterminate"
+      : false;
+
+  const toggleAllVisible = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        for (const nc of filtered) next.delete(nc.id);
+      } else {
+        for (const nc of filtered) next.add(nc.id);
+      }
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelected(new Set());
+
+  // -------------------------------------------------------------------------
+  // Actions en masse
+  // -------------------------------------------------------------------------
+  const ids = useMemo(() => Array.from(selected), [selected]);
+
+  const handleBulkStatus = (status: NCStatus) => {
+    if (ids.length === 0) return;
+    setFeedback(null);
+    startTransition(async () => {
+      const res = await bulkUpdateNCStatus(auditId, ids, status);
+      if (res.error) {
+        setFeedback({ kind: "error", message: res.error });
+        return;
+      }
+      setFeedback({
+        kind: "success",
+        message: tBulk("successStatus", { count: res.count ?? ids.length }),
+      });
+      clearSelection();
+      router.refresh();
+    });
+  };
+
+  const handleBulkSeverity = (severity: NCSeverity) => {
+    if (ids.length === 0) return;
+    setFeedback(null);
+    startTransition(async () => {
+      const res = await bulkUpdateNCSeverity(auditId, ids, severity);
+      if (res.error) {
+        setFeedback({ kind: "error", message: res.error });
+        return;
+      }
+      setFeedback({
+        kind: "success",
+        message: tBulk("successSeverity", { count: res.count ?? ids.length }),
+      });
+      clearSelection();
+      router.refresh();
+    });
+  };
+
+  const handleBulkDelete = () => {
+    if (ids.length === 0) return;
+    const ok = window.confirm(tBulk("deleteConfirm", { count: ids.length }));
+    if (!ok) return;
+    setFeedback(null);
+    startTransition(async () => {
+      const res = await bulkDeleteNCs(auditId, ids);
+      if (res.error) {
+        setFeedback({ kind: "error", message: res.error });
+        return;
+      }
+      setFeedback({
+        kind: "success",
+        message: tBulk("successDelete", { count: res.count ?? ids.length }),
+      });
+      clearSelection();
+      router.refresh();
+    });
   };
 
   return (
@@ -288,16 +428,161 @@ export function AnomaliesList({
         )}
       </Card>
 
+      {/* Barre de sélection groupée (au-dessus de la liste). */}
+      {canBulk && filtered.length > 0 && (
+        <div className="flex items-center gap-3 rounded-md border border-border bg-muted/30 px-4 py-2">
+          <Checkbox
+            checked={masterChecked}
+            onCheckedChange={toggleAllVisible}
+            aria-label={tBulk("selectAllAria")}
+          />
+          <span className="text-xs text-muted-foreground">
+            {selected.size > 0
+              ? tBulk("selected", { count: selected.size })
+              : t("subtitle", { count: filtered.length })}
+          </span>
+        </div>
+      )}
+
+      {feedback && (
+        <div
+          role={feedback.kind === "error" ? "alert" : "status"}
+          className={cn(
+            "rounded-md border px-4 py-3 text-sm",
+            feedback.kind === "error"
+              ? "border-destructive/40 bg-destructive/5 text-destructive"
+              : "border-success/40 bg-success/5 text-success",
+          )}
+        >
+          <div className="flex items-center justify-between gap-3">
+            <span>{feedback.message}</span>
+            <button
+              type="button"
+              onClick={() => setFeedback(null)}
+              className="rounded p-1 hover:bg-foreground/10"
+              aria-label={tBulk("dismiss")}
+            >
+              <X className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {filtered.length === 0 ? (
         <EmptyState empty={ncs.length === 0} onReset={resetFilters} />
       ) : (
         <ul className="space-y-3">
           {filtered.map((nc) => (
             <li key={nc.id}>
-              <NCRow auditId={auditId} nc={nc} intl={intl} />
+              <NCRow
+                auditId={auditId}
+                nc={nc}
+                intl={intl}
+                canBulk={canBulk}
+                isSelected={selected.has(nc.id)}
+                onToggle={() => toggleOne(nc.id)}
+              />
             </li>
           ))}
         </ul>
+      )}
+
+      {/* Barre flottante d'actions en masse (bas de l'écran). */}
+      {canBulk && selected.size > 0 && (
+        <div
+          role="region"
+          aria-label={tBulk("applyAria")}
+          className="fixed bottom-4 left-1/2 z-40 w-full max-w-3xl -translate-x-1/2 px-4"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-popover/95 px-4 py-3 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-popover/80">
+            <div className="flex items-center gap-3">
+              {isPending ? (
+                <Loader2
+                  className="h-4 w-4 animate-spin text-muted-foreground"
+                  aria-hidden="true"
+                />
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="flex h-7 min-w-7 items-center justify-center rounded-full bg-primary px-2 text-xs font-semibold text-primary-foreground tabular-nums"
+                >
+                  {selected.size}
+                </span>
+              )}
+              <p className="text-sm font-medium">
+                {tBulk("selected", { count: selected.size })}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" disabled={isPending}>
+                    {tBulk("changeStatus")}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>
+                    {tBulk("changeStatus")}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {FILTER_STATUSES.map((s) => (
+                    <DropdownMenuItem
+                      key={s}
+                      onSelect={() => handleBulkStatus(s as NCStatus)}
+                    >
+                      {tNcStatus(s)}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" disabled={isPending}>
+                    {tBulk("changeSeverity")}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>
+                    {tBulk("changeSeverity")}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {FILTER_SEVERITIES.map((s) => (
+                    <DropdownMenuItem
+                      key={s}
+                      onSelect={() => handleBulkSeverity(s)}
+                    >
+                      {tNcSeverity(s)}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBulkDelete}
+                disabled={isPending}
+                className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                {tBulk("delete")}
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearSelection}
+                disabled={isPending}
+                className="gap-1.5"
+              >
+                <X className="h-3.5 w-3.5" aria-hidden="true" />
+                {tBulk("clear")}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -344,22 +629,43 @@ function NCRow({
   auditId,
   nc,
   intl,
+  canBulk,
+  isSelected,
+  onToggle,
 }: {
   auditId: string;
   nc: AnomalyListItem;
   intl: string;
+  canBulk: boolean;
+  isSelected: boolean;
+  onToggle: () => void;
 }) {
   const t = useTranslations("audits.anomalies");
+  const tBulk = useTranslations("audits.anomalies.bulk");
   const tNcStatus = useTranslations("constants.ncStatus");
   const statusVariant = STATUS_BADGE_VARIANT[nc.status] ?? "outline";
+
   return (
-    <Link
-      href={`/audits/${auditId}/anomalies/${nc.id}`}
-      className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg"
+    <Card
+      className={cn(
+        "flex items-center gap-3 p-4 transition-all duration-150",
+        isSelected
+          ? "border-primary/60 bg-primary/5 shadow-sm"
+          : "hover:-translate-y-0.5 hover:shadow-md",
+      )}
     >
-      <Card
-        interactive
-        className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"
+      {canBulk && (
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={onToggle}
+          aria-label={tBulk("selectRowAria", { title: nc.title })}
+          className="shrink-0"
+        />
+      )}
+
+      <Link
+        href={`/audits/${auditId}/anomalies/${nc.id}`}
+        className="flex flex-1 flex-col gap-4 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:justify-between"
       >
         <div className="min-w-0 flex-1 space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
@@ -416,8 +722,8 @@ function NCRow({
           />
           <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </div>
-      </Card>
-    </Link>
+      </Link>
+    </Card>
   );
 }
 

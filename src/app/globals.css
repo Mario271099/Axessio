@@ -317,3 +317,42 @@ body {
 .fade-in-up {
   animation: axessio-fade-in-up 400ms ease-out both;
 }
+
+/* ============================================================================
+   Loader de marque — AxIcon qui « respire » (scale + opacité), accompagné
+   d'un halo qui pulse en contre-temps pour donner du mouvement sans tourner.
+   Respecte prefers-reduced-motion via la règle plus haut.
+   ========================================================================== */
+@keyframes axessio-breathe {
+  0%, 100% { transform: scale(1);    opacity: 1;   }
+  50%      { transform: scale(0.94); opacity: 0.7; }
+}
+
+@keyframes axessio-halo {
+  0%, 100% { transform: scale(0.85); opacity: 0.5; }
+  50%      { transform: scale(1.15); opacity: 0;   }
+}
+
+.brand-loader {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-loader > .brand-loader-icon {
+  position: relative;
+  z-index: 1;
+  animation: axessio-breathe 1.6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.brand-loader > .brand-loader-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: hsl(var(--brand-accent) / 0.35);
+  filter: blur(12px);
+  animation: axessio-halo 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
