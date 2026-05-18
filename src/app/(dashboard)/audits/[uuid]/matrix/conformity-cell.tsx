@@ -91,7 +91,7 @@ const ConformityCellInner = ({
           "rounded-r-md",
           current === "NOT_APPLICABLE"
             ? "border-muted-foreground bg-muted-foreground text-background hover:bg-muted-foreground/90"
-            : "border-input bg-background text-muted-foreground hover:bg-muted",
+            : "border-input bg-background text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
       >
         <Minus className="h-3.5 w-3.5" aria-hidden="true" />

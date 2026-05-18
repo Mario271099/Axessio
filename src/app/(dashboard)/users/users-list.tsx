@@ -321,15 +321,25 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border bg-muted/30 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <th className="px-4 py-3">{t("table.user")}</th>
-                    <th className="hidden px-4 py-3 md:table-cell">
+                    <th scope="col" className="px-4 py-3">
+                      {t("table.user")}
+                    </th>
+                    <th
+                      scope="col"
+                      className="hidden px-4 py-3 md:table-cell"
+                    >
                       {t("table.role")}
                     </th>
-                    <th className="hidden px-4 py-3 lg:table-cell">
+                    <th
+                      scope="col"
+                      className="hidden px-4 py-3 lg:table-cell"
+                    >
                       {t("table.client")}
                     </th>
-                    <th className="px-4 py-3">{t("table.status")}</th>
-                    <th className="w-12 px-4 py-3 text-right">
+                    <th scope="col" className="px-4 py-3">
+                      {t("table.status")}
+                    </th>
+                    <th scope="col" className="w-12 px-4 py-3 text-right">
                       <span className="sr-only">{t("table.actions")}</span>
                     </th>
                   </tr>

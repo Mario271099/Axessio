@@ -143,6 +143,13 @@ export function NotificationsBell({ initial }: Props) {
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
+          {/* Région live invisible : annonce les changements de compteur */}
+          {/* sans déplacer le focus.                                    */}
+          <span aria-live="polite" aria-atomic="true" className="sr-only">
+            {hasUnread
+              ? tTopbar("notificationsWithUnread")
+              : tTopbar("notifications")}
+          </span>
         </Button>
       </Popover.Trigger>
       <Popover.Portal>
