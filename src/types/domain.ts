@@ -162,7 +162,10 @@ export type NCStatus =
   | "NON_REPRODUCIBLE"
   | "RESOLVED"
   | "REJECTED"
-  | "CANCELLED";
+  | "CANCELLED"
+  | "TO_FIX"
+  | "FIXED"
+  | "FALSE_POSITIVE";
 
 export interface NonConformity {
   id: string;

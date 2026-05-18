@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dialog";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
 import { cn } from "@/lib/utils";
+import { intlLocale } from "@/lib/intl";
 import type { AuditStatus } from "@/types/domain";
 import {
   createProject,
@@ -82,10 +83,6 @@ interface ClientDetailProps {
   projects: ProjectItem[];
   stats: ClientStats;
   activity: ActivityEvent[];
-}
-
-function intlLocale(locale: string): string {
-  return locale === "en" ? "en-US" : "fr-FR";
 }
 
 export function ClientDetail({

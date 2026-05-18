@@ -17,7 +17,7 @@ export function createClient() {
       cookieOptions: {
         name: STORAGE_KEY,
         sameSite: "lax",
-        secure: false, // true en prod (HTTPS), false en local
+        secure: process.env.NODE_ENV === "production",
         path: "/",
       },
     },

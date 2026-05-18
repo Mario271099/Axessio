@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ConformityStatus, NCSeverity } from "@/types/domain";
 
@@ -20,23 +21,16 @@ export interface CreateNCResult {
   ncId?: string;
 }
 
-// ============================================================================
-// Crée une NC standalone :
-//   1) INSERT non_conformities
-//   2) UPSERT page_conformities en NON_COMPLIANT pour la page + critère
-// Renvoie { ncId } : la navigation vers /anomalies/[ncId] est faite côté
-// client après l'éventuel upload des captures.
-// Réservé aux auditeurs.
-// ============================================================================
 export async function createNC(
   input: CreateNCInput,
 ): Promise<CreateNCResult> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Non authentifié." };
+  if (!user) return { error: t("notAuthenticated") };
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -45,13 +39,13 @@ export async function createNC(
     .maybeSingle();
 
   if (profile?.role !== "auditor") {
-    return { error: "Seuls les auditeurs peuvent créer une non-conformité." };
+    return { error: t("createNCOnlyAuditor") };
   }
 
   const title = input.title.trim();
-  if (!title) return { error: "Le titre est requis." };
-  if (!input.criteriaId) return { error: "Le critère est requis." };
-  if (!input.pageId) return { error: "La page est requise." };
+  if (!title) return { error: t("titleRequired") };
+  if (!input.criteriaId) return { error: t("criterionRequired") };
+  if (!input.pageId) return { error: t("pageRequired") };
 
   const { data: nc, error: ncError } = await supabase
     .from("non_conformities")
@@ -72,7 +66,7 @@ export async function createNC(
 
   if (ncError || !nc) {
     return {
-      error: `Échec de la création de la non-conformité : ${ncError?.message ?? "inconnue"}`,
+      error: t("createNCFailed", { message: ncError?.message ?? "?" }),
     };
   }
 
@@ -92,13 +86,14 @@ export async function createNC(
     // Rollback logique : on supprime la NC fraîchement créée pour rester cohérent.
     await supabase.from("non_conformities").delete().eq("id", nc.id);
     return {
-      error: `Échec de la mise à jour de conformité : ${confError.message}`,
+      error: t("updateConformityFailed", { message: confError.message }),
     };
   }
 
-  revalidatePath(`/audits/${input.auditId}/anomalies`);
-  revalidatePath(`/audits/${input.auditId}/matrix`);
-  revalidatePath(`/audits/${input.auditId}`);
+  // Une seule invalidation au niveau du layout audit : Next régénère anomalies,
+  // matrix et la fiche audit lazily à la prochaine visite, plutôt que de
+  // déclencher 3 invalidations explicites.
+  revalidatePath("/audits/[uuid]", "layout");
 
   return { error: null, ncId: nc.id };
 }

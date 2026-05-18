@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient as createSupabaseClient } from "@/lib/supabase/server";
 
 export interface ClientActionState {
@@ -15,11 +16,12 @@ async function requireAuditor(): Promise<{
   error: string | null;
 }> {
   const supabase = await createSupabaseClient();
+  const t = await getTranslations("errors");
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { supabase, error: "Non authentifié." };
+  if (!user) return { supabase, error: t("notAuthenticated") };
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -28,7 +30,7 @@ async function requireAuditor(): Promise<{
     .maybeSingle();
 
   if (profile?.role !== "auditor") {
-    return { supabase, error: "Accès réservé aux auditeurs internes." };
+    return { supabase, error: t("auditorOnly") };
   }
 
   return { supabase, error: null };
@@ -42,6 +44,7 @@ export async function createClient(
 ): Promise<ClientActionState> {
   const { supabase, error: authError } = await requireAuditor();
   if (authError) return { error: authError };
+  const t = await getTranslations("errors");
 
   const name = formData.get("name")?.toString().trim();
   const website = formData.get("website")?.toString().trim() || null;
@@ -49,7 +52,7 @@ export async function createClient(
     formData.get("contact_email")?.toString().trim() || null;
   const contactName = formData.get("contact_name")?.toString().trim() || null;
 
-  if (!name) return { error: "Le nom du client est requis." };
+  if (!name) return { error: t("clientNameRequired") };
 
   const { data, error } = await supabase
     .from("clients")
@@ -63,7 +66,7 @@ export async function createClient(
     .single();
 
   if (error || !data) {
-    return { error: error?.message ?? "Échec de la création du client." };
+    return { error: error?.message ?? t("createClientFailed") };
   }
 
   revalidatePath("/clients");
@@ -79,6 +82,7 @@ export async function updateClient(
 ): Promise<ClientActionState> {
   const { supabase, error: authError } = await requireAuditor();
   if (authError) return { error: authError };
+  const t = await getTranslations("errors");
 
   const name = formData.get("name")?.toString().trim();
   const website = formData.get("website")?.toString().trim() || null;
@@ -86,7 +90,7 @@ export async function updateClient(
     formData.get("contact_email")?.toString().trim() || null;
   const contactName = formData.get("contact_name")?.toString().trim() || null;
 
-  if (!name) return { error: "Le nom du client est requis." };
+  if (!name) return { error: t("clientNameRequired") };
 
   const { error } = await supabase
     .from("clients")
@@ -136,11 +140,12 @@ export async function createProject(
 ): Promise<ClientActionState> {
   const { supabase, error: authError } = await requireAuditor();
   if (authError) return { error: authError };
+  const t = await getTranslations("errors");
 
   const name = formData.get("name")?.toString().trim();
   const url = formData.get("url")?.toString().trim() || null;
 
-  if (!name) return { error: "Le nom du projet est requis." };
+  if (!name) return { error: t("projectNameRequired") };
 
   const { data, error } = await supabase
     .from("projects")
@@ -149,7 +154,7 @@ export async function createProject(
     .single();
 
   if (error || !data) {
-    return { error: error?.message ?? "Échec de la création du projet." };
+    return { error: error?.message ?? t("createProjectFailed") };
   }
 
   revalidatePath(`/clients/${clientId}`);
@@ -167,11 +172,12 @@ export async function updateProject(
 ): Promise<ClientActionState> {
   const { supabase, error: authError } = await requireAuditor();
   if (authError) return { error: authError };
+  const t = await getTranslations("errors");
 
   const name = formData.get("name")?.toString().trim();
   const url = formData.get("url")?.toString().trim() || null;
 
-  if (!name) return { error: "Le nom du projet est requis." };
+  if (!name) return { error: t("projectNameRequired") };
 
   const { error } = await supabase
     .from("projects")
@@ -194,6 +200,7 @@ export async function deleteProject(
 ): Promise<ClientActionState> {
   const { supabase, error: authError } = await requireAuditor();
   if (authError) return { error: authError };
+  const t = await getTranslations("errors");
 
   const { count, error: countError } = await supabase
     .from("audits")
@@ -203,7 +210,7 @@ export async function deleteProject(
   if (countError) return { error: countError.message };
 
   if ((count ?? 0) > 0) {
-    return { error: "Ce projet a des audits associés." };
+    return { error: t("projectHasAudits") };
   }
 
   const { error } = await supabase

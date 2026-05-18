@@ -1,12 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import type { NCSeverity, NCStatus } from "@/types/domain";
-
-// L'enum nc_status en base inclut les valeurs ajoutées par 08_non_conformity_extended.sql
-// (TO_FIX / FIXED / FALSE_POSITIVE) qui ne sont pas encore reflétées dans NCStatus.
-type NCStatusInput = NCStatus | "TO_FIX" | "FIXED" | "FALSE_POSITIVE";
 
 export interface ActionResult {
   error: string | null;
@@ -18,10 +15,11 @@ export interface ActionResult {
 // ============================================================================
 async function requireAuditor(): Promise<{ userId: string } | { error: string }> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Non authentifié." };
+  if (!user) return { error: t("notAuthenticated") };
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -30,7 +28,7 @@ async function requireAuditor(): Promise<{ userId: string } | { error: string }>
     .maybeSingle();
 
   if (profile?.role !== "auditor") {
-    return { error: "Action réservée aux auditeurs." };
+    return { error: t("auditorOnlyShort") };
   }
   return { userId: user.id };
 }
@@ -39,10 +37,11 @@ async function requireAuditorOrClientAdmin(): Promise<
   { userId: string; role: "auditor" | "client_admin" } | { error: string }
 > {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Non authentifié." };
+  if (!user) return { error: t("notAuthenticated") };
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -51,7 +50,7 @@ async function requireAuditorOrClientAdmin(): Promise<
     .maybeSingle();
 
   if (profile?.role !== "auditor" && profile?.role !== "client_admin") {
-    return { error: "Action réservée aux auditeurs et aux administrateurs client." };
+    return { error: t("auditorOrAdminOnly") };
   }
   return { userId: user.id, role: profile.role };
 }
@@ -81,8 +80,9 @@ export async function updateNC(
   const pageIdRaw = formData.get("pageId")?.toString().trim();
   const pageId = pageIdRaw && pageIdRaw !== "null" ? pageIdRaw : null;
 
-  if (!title) return { error: "Le titre est requis." };
-  if (!severity) return { error: "La sévérité est requise." };
+  const t = await getTranslations("errors");
+  if (!title) return { error: t("titleRequired") };
+  if (!severity) return { error: t("severityRequired") };
 
   const supabase = await createClient();
 
@@ -110,7 +110,7 @@ export async function updateNC(
 export async function updateNCStatus(
   ncId: string,
   auditId: string,
-  status: NCStatusInput,
+  status: NCStatus,
 ): Promise<ActionResult> {
   const auth = await requireAuditor();
   if ("error" in auth) return { error: auth.error };
@@ -139,8 +139,9 @@ export async function sendMessage(
   const auth = await requireAuditorOrClientAdmin();
   if ("error" in auth) return { error: auth.error };
 
+  const t = await getTranslations("errors");
   const trimmed = body.trim();
-  if (!trimmed) return { error: "Le message ne peut pas être vide." };
+  if (!trimmed) return { error: t("emptyMessage") };
 
   const supabase = await createClient();
 
@@ -165,11 +166,12 @@ export async function deleteMessage(
   auditId: string,
 ): Promise<ActionResult> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Non authentifié." };
+  if (!user) return { error: t("notAuthenticated") };
 
   const { error } = await supabase
     .from("nc_messages")
@@ -201,9 +203,10 @@ export async function addAttachment(
 ): Promise<ActionResult> {
   const auth = await requireAuditorOrClientAdmin();
   if ("error" in auth) return { error: auth.error };
+  const t = await getTranslations("errors");
 
-  if (!storagePath) return { error: "Chemin de stockage manquant." };
-  if (!fileName) return { error: "Nom de fichier manquant." };
+  if (!storagePath) return { error: t("storagePathMissing") };
+  if (!fileName) return { error: t("fileNameMissing") };
 
   const supabase = await createClient();
 
@@ -233,11 +236,12 @@ export async function deleteAttachment(
   storagePath: string,
 ): Promise<ActionResult> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Non authentifié." };
+  if (!user) return { error: t("notAuthenticated") };
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -254,10 +258,10 @@ export async function deleteAttachment(
     .maybeSingle();
 
   if (fetchError) return { error: fetchError.message };
-  if (!attachment) return { error: "Pièce jointe introuvable." };
+  if (!attachment) return { error: t("attachmentNotFound") };
 
   if (!isAuditor && attachment.uploaded_by !== user.id) {
-    return { error: "Vous ne pouvez supprimer que vos propres pièces jointes." };
+    return { error: t("ownAttachmentsOnly") };
   }
 
   const { error: deleteRowError } = await supabase

@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { intlLocale } from "@/lib/intl";
 
 export type ActivityKind =
   | "nc-critical"
@@ -32,8 +33,9 @@ const dotClass: Record<ActivityKind, string> = {
 };
 
 function relativeTime(iso: string, locale: string): string {
-  const intl = locale === "en" ? "en-US" : "fr-FR";
-  const rtf = new Intl.RelativeTimeFormat(intl, { numeric: "auto" });
+  const rtf = new Intl.RelativeTimeFormat(intlLocale(locale), {
+    numeric: "auto",
+  });
   const diffMs = Date.now() - new Date(iso).getTime();
   const minutes = Math.round(diffMs / 60_000);
   if (minutes < 60) return rtf.format(-Math.max(1, minutes), "minute");

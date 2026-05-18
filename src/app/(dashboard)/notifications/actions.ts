@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 
 export interface NotificationItem {
@@ -95,10 +96,11 @@ export async function markNotificationRead(
   notificationId: string,
 ): Promise<{ error: string | null }> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Non authentifié." };
+  if (!user) return { error: t("notAuthenticated") };
 
   const { error } = await supabase
     .from("notifications")
@@ -116,10 +118,11 @@ export async function markAllNotificationsRead(): Promise<{
   error: string | null;
 }> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Non authentifié." };
+  if (!user) return { error: t("notAuthenticated") };
 
   const { error } = await supabase
     .from("notifications")

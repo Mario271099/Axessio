@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 
 export interface ProjectActionState {
@@ -13,11 +14,12 @@ export async function createProject(
   formData: FormData,
 ): Promise<ProjectActionState> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Non authentifié." };
+  if (!user) return { error: t("notAuthenticated") };
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -26,15 +28,15 @@ export async function createProject(
     .maybeSingle();
 
   if (profile?.role !== "auditor") {
-    return { error: "Seuls les auditeurs peuvent créer des projets." };
+    return { error: t("createProjectOnlyAuditor") };
   }
 
   const clientId = formData.get("clientId")?.toString();
   const name = formData.get("name")?.toString().trim();
   const url = formData.get("url")?.toString().trim() || null;
 
-  if (!clientId) return { error: "Sélectionnez un client." };
-  if (!name) return { error: "Le nom du projet est requis." };
+  if (!clientId) return { error: t("clientRequired") };
+  if (!name) return { error: t("projectNameRequired") };
 
   const { data, error } = await supabase
     .from("projects")
@@ -43,7 +45,7 @@ export async function createProject(
     .single();
 
   if (error || !data)
-    return { error: error?.message ?? "Échec de la création" };
+    return { error: error?.message ?? t("createFailed") };
 
   revalidatePath("/projects");
   revalidatePath("/audits");

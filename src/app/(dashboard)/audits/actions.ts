@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { MANDATORY_PAGES } from "@/types/domain";
 import type {
@@ -26,11 +27,12 @@ export async function createAudit(
   formData: FormData,
 ): Promise<ActionState> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Non authentifié." };
+  if (!user) return { error: t("notAuthenticated") };
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -39,7 +41,7 @@ export async function createAudit(
     .maybeSingle();
 
   if (profile?.role !== "auditor") {
-    return { error: "Seuls les auditeurs peuvent créer des audits." };
+    return { error: t("createAuditOnlyAuditor") };
   }
 
   const projectId = formData.get("projectId")?.toString();
@@ -54,14 +56,13 @@ export async function createAudit(
   const notes = formData.get("notes")?.toString() || null;
 
   const fieldErrors: Record<string, string> = {};
-  if (!projectId) fieldErrors.projectId = "Sélectionnez un projet.";
-  if (!referenceId) fieldErrors.referenceId = "Sélectionnez un référentiel.";
-  if (!platform) fieldErrors.platform = "Sélectionnez une plateforme.";
-  if (!serviceType)
-    fieldErrors.serviceType = "Sélectionnez un type de service.";
+  if (!projectId) fieldErrors.projectId = t("selectProject");
+  if (!referenceId) fieldErrors.referenceId = t("selectReference");
+  if (!platform) fieldErrors.platform = t("selectPlatform");
+  if (!serviceType) fieldErrors.serviceType = t("selectServiceType");
 
   if (Object.keys(fieldErrors).length > 0) {
-    return { error: "Veuillez corriger les erreurs ci-dessous.", fieldErrors };
+    return { error: t("fieldErrors"), fieldErrors };
   }
 
   const { data: audit, error: auditError } = await supabase
@@ -84,7 +85,7 @@ export async function createAudit(
 
   if (auditError || !audit) {
     return {
-      error: `Échec de la création : ${auditError?.message ?? "inconnue"}`,
+      error: t("createAuditFailed", { message: auditError?.message ?? "?" }),
     };
   }
 
@@ -125,11 +126,12 @@ export async function updateAudit(
   formData: FormData,
 ): Promise<ActionState> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Non authentifié." };
+  if (!user) return { error: t("notAuthenticated") };
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -138,7 +140,7 @@ export async function updateAudit(
     .maybeSingle();
 
   if (profile?.role !== "auditor") {
-    return { error: "Seuls les auditeurs peuvent modifier un audit." };
+    return { error: t("updateAuditOnlyAuditor") };
   }
 
   const referenceId = formData.get("referenceId")?.toString();
@@ -199,6 +201,7 @@ export async function addPage(
   formData: FormData,
 ): Promise<ActionState> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
 
   const name = formData.get("name")?.toString().trim();
   const url = formData.get("url")?.toString().trim() || null;
@@ -208,7 +211,7 @@ export async function addPage(
       ? (complexityValue as ComplexityLevel)
       : null;
 
-  if (!name) return { error: "Le nom de la page est requis." };
+  if (!name) return { error: t("pageNameRequired") };
 
   const { data: maxRow } = await supabase
     .from("pages")
@@ -245,6 +248,7 @@ export async function updatePage(
   formData: FormData,
 ): Promise<ActionState> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
 
   const name = formData.get("name")?.toString().trim();
   const url = formData.get("url")?.toString().trim() || null;
@@ -254,7 +258,7 @@ export async function updatePage(
       ? (complexityValue as ComplexityLevel)
       : null;
 
-  if (!name) return { error: "Le nom de la page est requis." };
+  if (!name) return { error: t("pageNameRequired") };
 
   const { error } = await supabase
     .from("pages")
@@ -275,6 +279,7 @@ export async function deletePage(
   auditId: string,
 ): Promise<ActionState> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
 
   // On empêche uniquement la suppression de la page transversale (techniquement nécessaire)
   const { data: page } = await supabase
@@ -284,10 +289,7 @@ export async function deletePage(
     .maybeSingle();
 
   if (page?.page_type === "TRANSVERSAL") {
-    return {
-      error:
-        "La page Éléments transverses ne peut pas être supprimée (technique).",
-    };
+    return { error: t("transversalCantBeDeleted") };
   }
 
   const { error } = await supabase.from("pages").delete().eq("id", pageId);

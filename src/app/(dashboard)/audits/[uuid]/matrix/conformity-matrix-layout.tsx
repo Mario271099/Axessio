@@ -12,11 +12,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
+  AlertTriangle,
   CheckCircle2,
   ChevronRight,
   CircleDot,
   Loader2,
+  RotateCcw,
   Save,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -468,6 +471,58 @@ export function ConformityMatrixLayout({
           ) : null}
         </main>
       </div>
+
+      {/* Banner d'erreur sticky : remonte au-dessus du footer quand une */}
+      {/* sauvegarde a échoué. Le footer reste informatif en-dessous.   */}
+      {saveStatus === "error" && (
+        <div
+          role="alert"
+          className="sticky bottom-16 z-30 border-t border-destructive/40 bg-destructive/10 px-4 py-3 backdrop-blur md:px-6"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex min-w-0 items-start gap-2 text-sm">
+              <AlertTriangle
+                className="mt-0.5 h-4 w-4 shrink-0 text-destructive"
+                aria-hidden="true"
+              />
+              <div className="min-w-0">
+                <p className="font-semibold text-destructive">
+                  {tSave("errorBannerTitle")}
+                </p>
+                <p className="truncate text-xs text-destructive/80">
+                  {saveError ?? tSave("fallbackError")}
+                </p>
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => void flushPending()}
+                disabled={!hasPending}
+                className="gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10"
+              >
+                <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                {tSave("retry")}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                onClick={() => {
+                  setSaveStatus("idle");
+                  setSaveError(null);
+                }}
+                aria-label={tSave("dismiss")}
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer sticky --------------------------------------------------- */}
       <div className="sticky bottom-0 z-20 border-t border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 md:px-6">

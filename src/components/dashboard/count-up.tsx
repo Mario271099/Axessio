@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocale } from "next-intl";
+import { intlLocale } from "@/lib/intl";
 
 interface CountUpProps {
   to: number;
@@ -10,7 +12,6 @@ interface CountUpProps {
   className?: string;
 }
 
-// Easing : ease-out cubic — démarrage rapide, fin douce.
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
 export function CountUp({
@@ -20,8 +21,18 @@ export function CountUp({
   suffix = "",
   className,
 }: CountUpProps) {
+  const locale = useLocale();
   const [value, setValue] = useState(0);
   const frame = useRef<number | null>(null);
+
+  const formatter = useMemo(
+    () =>
+      new Intl.NumberFormat(intlLocale(locale), {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      }),
+    [locale, decimals],
+  );
 
   useEffect(() => {
     const start = performance.now();
@@ -38,14 +49,9 @@ export function CountUp({
     };
   }, [to, durationMs]);
 
-  const formatted =
-    decimals > 0
-      ? value.toFixed(decimals)
-      : Math.round(value).toLocaleString("fr-FR");
-
   return (
     <span className={className} aria-label={`${to}${suffix}`}>
-      {formatted}
+      {formatter.format(value)}
       {suffix}
     </span>
   );

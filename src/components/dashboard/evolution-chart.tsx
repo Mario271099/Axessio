@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { intlLocale } from "@/lib/intl";
 
 type Range = "7d" | "30d" | "90d";
 
@@ -60,7 +61,7 @@ export function EvolutionChart() {
   const [range, setRange] = useState<Range>("30d");
   const t = useTranslations("dashboard.evolution");
   const locale = useLocale();
-  const intl = locale === "en" ? "en-US" : "fr-FR";
+  const intl = intlLocale(locale);
 
   const dateFormatter = useMemo(
     () =>

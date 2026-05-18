@@ -14,15 +14,12 @@ import {
   type NotificationItem,
   type NotificationsResult,
 } from "@/app/(dashboard)/notifications/actions";
+import { intlLocale } from "@/lib/intl";
 
 const POLL_INTERVAL_MS = 30_000;
 
 interface Props {
   initial: NotificationsResult;
-}
-
-function intlLocale(locale: string): string {
-  return locale === "en" ? "en-US" : "fr-FR";
 }
 
 function useRelativeTime(locale: string) {

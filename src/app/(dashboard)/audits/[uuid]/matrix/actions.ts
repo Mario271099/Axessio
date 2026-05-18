@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ConformityStatus, NCSeverity } from "@/types/domain";
 
@@ -15,10 +16,11 @@ export interface CreateNCResult extends ActionResult {
 
 async function requireAuditor(): Promise<{ userId: string } | { error: string }> {
   const supabase = await createClient();
+  const t = await getTranslations("errors");
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Non authentifié." };
+  if (!user) return { error: t("notAuthenticated") };
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -27,7 +29,7 @@ async function requireAuditor(): Promise<{ userId: string } | { error: string }>
     .maybeSingle();
 
   if (profile?.role !== "auditor") {
-    return { error: "Seuls les auditeurs peuvent saisir la matrice de conformité." };
+    return { error: t("matrixOnlyAuditor") };
   }
   return { userId: user.id };
 }
@@ -193,9 +195,10 @@ export async function createNonConformity(
   if ("error" in auth) return { error: auth.error };
 
   const supabase = await createClient();
+  const t = await getTranslations("errors");
 
   const title = input.title.trim();
-  if (!title) return { error: "Le titre est requis." };
+  if (!title) return { error: t("titleRequired") };
 
   // Insertion de la NC
   const { data: nc, error: ncError } = await supabase
@@ -216,7 +219,7 @@ export async function createNonConformity(
 
   if (ncError || !nc) {
     return {
-      error: `Échec de la création de la non-conformité : ${ncError?.message ?? "inconnue"}`,
+      error: t("createNCFailed", { message: ncError?.message ?? "?" }),
     };
   }
 

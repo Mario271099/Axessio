@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { intlLocale } from "@/lib/intl";
 import type { NCSeverity, UserRole } from "@/types/domain";
 
 const STATUS_BADGE_VARIANT: Record<
@@ -70,10 +71,6 @@ interface AnomaliesListProps {
   auditId: string;
   auditTitle: string;
   role: UserRole;
-}
-
-function intlLocale(locale: string): string {
-  return locale === "en" ? "en-US" : "fr-FR";
 }
 
 export function AnomaliesList({

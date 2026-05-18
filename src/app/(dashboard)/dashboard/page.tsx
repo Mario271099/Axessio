@@ -23,10 +23,7 @@ import {
   ActivityTimeline,
   type ActivityEvent,
 } from "@/components/dashboard/activity-timeline";
-
-function intlLocale(locale: string): string {
-  return locale === "en" ? "en-US" : "fr-FR";
-}
+import { intlLocale } from "@/lib/intl";
 
 const STATUS_GROUPS = {
   pending: ["PENDING", "PLANNED"] as AuditStatus[],

@@ -45,7 +45,8 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import type { NCSeverity, UserRole } from "@/types/domain";
+import { intlLocale } from "@/lib/intl";
+import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
 import {
   addAttachment,
   deleteAttachment,
@@ -183,7 +184,7 @@ export function NCDetail({
   const tList = useTranslations("audits.list");
   const tAnomalies = useTranslations("audits.anomalies");
   const locale = useLocale();
-  const intl = locale === "en" ? "en-US" : "fr-FR";
+  const intl = intlLocale(locale);
   const isAuditor = profile.role === "auditor";
 
   function formatMessageDate(iso: string): string {
@@ -352,7 +353,7 @@ export function NCDetail({
     setStatus(next);
     setStatusError(null);
     startStatusTransition(async () => {
-      const result = await updateNCStatus(nc.id, auditId, next as NewStatus);
+      const result = await updateNCStatus(nc.id, auditId, next as NCStatus);
       if (result.error) {
         setStatusError(result.error);
         setStatus(previous);

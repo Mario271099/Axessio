@@ -1240,9 +1240,12 @@ const STATUS_BADGE_CLASS: Record<NCStatus, string> = {
   IN_PROGRESS: "status-progress",
   CORRECTED: "status-done",
   RESOLVED: "status-done",
+  FIXED: "status-done",
   NON_REPRODUCIBLE: "status-rejected",
   REJECTED: "status-rejected",
   CANCELLED: "status-rejected",
+  FALSE_POSITIVE: "status-rejected",
+  TO_FIX: "status-open",
 };
 
 function severityBadge(severity: NCSeverity): string {
