@@ -60,7 +60,10 @@
       "links": {
         "login": "Connexion",
         "features": "Fonctionnalités",
-        "standards": "Référentiels"
+        "standards": "Référentiels",
+        "legal": "Mentions légales",
+        "privacy": "Confidentialité",
+        "cookies": "Cookies"
       }
     },
     "faq": {
@@ -78,6 +81,211 @@
           "a": "Oui. Chaque rapport PDF se génère au choix en français ou en anglais, avec libellés, badges et métadonnées dans la langue cible."
         }
       ]
+    }
+  },
+  "legal": {
+    "metaTitle": "Mentions légales",
+    "metaDescription": "Mentions légales d'Axessio : éditeur, hébergeur, propriété intellectuelle, contact.",
+    "title": "Mentions légales",
+    "lastUpdated": "Dernière mise à jour : {date}",
+    "sections": {
+      "editor": {
+        "title": "Éditeur du site",
+        "lines": [
+          "Axessio SAS",
+          "Société par Actions Simplifiée au capital de 10 000 €",
+          "10 rue de la République, 75011 Paris, France",
+          "RCS Paris — SIRET 999 999 999 00000",
+          "N° TVA intracommunautaire : FR 99 999999999",
+          "Adresse email : contact@axessio.app"
+        ]
+      },
+      "director": {
+        "title": "Directeur de la publication",
+        "lines": [
+          "Mario Harimanitra, en sa qualité de Président d'Axessio SAS."
+        ]
+      },
+      "host": {
+        "title": "Hébergeur",
+        "lines": [
+          "Le site est hébergé par Vercel Inc.",
+          "440 N Barranca Ave #4133, Covina, CA 91723, États-Unis.",
+          "Site web : https://vercel.com",
+          "Les données applicatives sont stockées par Supabase (Powerbase Inc.), 970 Toa Payoh North #07-04, Singapour 318992."
+        ]
+      },
+      "ip": {
+        "title": "Propriété intellectuelle",
+        "lines": [
+          "L'ensemble des éléments accessibles sur le site (textes, graphismes, logo Axessio, code source, structure) est protégé par le droit français et international au titre de la propriété intellectuelle.",
+          "Toute reproduction, représentation, modification, publication ou adaptation, par quelque procédé que ce soit, est interdite sans autorisation écrite préalable de l'éditeur.",
+          "Les marques tierces citées (RGAA, WCAG, RAWeb, RAAM) sont la propriété de leurs détenteurs respectifs."
+        ]
+      },
+      "liability": {
+        "title": "Responsabilité",
+        "lines": [
+          "L'éditeur met tout en œuvre pour fournir un service fiable et à jour. Il ne peut être tenu responsable des dommages directs ou indirects résultant de l'utilisation du site ou de l'impossibilité d'y accéder.",
+          "Les liens vers des sites tiers n'engagent pas la responsabilité de l'éditeur quant à leur contenu."
+        ]
+      },
+      "law": {
+        "title": "Droit applicable",
+        "lines": [
+          "Les présentes mentions légales sont régies par le droit français. En cas de litige, et après tentative de résolution amiable, les tribunaux français seront seuls compétents."
+        ]
+      },
+      "contact": {
+        "title": "Contact",
+        "lines": [
+          "Pour toute question relative aux présentes mentions légales : contact@axessio.app."
+        ]
+      }
+    }
+  },
+  "privacy": {
+    "metaTitle": "Politique de confidentialité",
+    "metaDescription": "Politique de confidentialité d'Axessio : données collectées, finalités, base légale, durée de conservation, droits RGPD.",
+    "title": "Politique de confidentialité",
+    "lastUpdated": "Dernière mise à jour : {date}",
+    "intro": "Axessio attache une importance particulière à la protection des données personnelles. La présente politique décrit comment vos données sont collectées, utilisées et protégées dans le cadre du Règlement Général sur la Protection des Données (RGPD) et de la loi Informatique et Libertés.",
+    "sections": {
+      "controller": {
+        "title": "Responsable de traitement",
+        "lines": [
+          "Le responsable de traitement est Axessio SAS, 10 rue de la République, 75011 Paris, France.",
+          "Contact RGPD / DPO : privacy@axessio.app."
+        ]
+      },
+      "data": {
+        "title": "Données collectées",
+        "lines": [
+          "Données d'identification : nom, prénom, adresse email, langue préférée.",
+          "Données d'usage : date de dernière connexion, journal d'activité (audits créés, NC saisies, messages échangés).",
+          "Données métier (saisies par vous) : nom de vos clients et projets, contenu des audits, captures d'écran rattachées aux non-conformités.",
+          "Données techniques : adresse IP au moment de l'authentification, journaux d'accès Supabase et Vercel à des fins de sécurité."
+        ]
+      },
+      "purposes": {
+        "title": "Finalités",
+        "lines": [
+          "Fournir le service : création de compte, authentification, accès à vos audits.",
+          "Collaboration : envoi d'emails transactionnels (invitation, notification de message), affichage du fil de discussion.",
+          "Sécurité : détection d'abus, journalisation d'accès, lutte contre la fraude.",
+          "Statistiques internes anonymisées d'usage du produit (aucune donnée nominative)."
+        ]
+      },
+      "basis": {
+        "title": "Base légale",
+        "lines": [
+          "Exécution du contrat de service (article 6.1.b RGPD) pour les données strictement nécessaires au fonctionnement.",
+          "Intérêt légitime (article 6.1.f RGPD) pour les journaux techniques et la sécurité.",
+          "Obligation légale (article 6.1.c RGPD) pour la conservation comptable."
+        ]
+      },
+      "retention": {
+        "title": "Durée de conservation",
+        "lines": [
+          "Compte utilisateur : tant que le compte est actif, puis 30 jours après suppression.",
+          "Audits et non-conformités : conservés tant que le client final reste abonné, puis archivés 3 ans.",
+          "Journaux techniques : 12 mois maximum.",
+          "Données de facturation : 10 ans (obligation comptable)."
+        ]
+      },
+      "recipients": {
+        "title": "Destinataires et sous-traitants",
+        "lines": [
+          "Vos données ne sont jamais vendues ni cédées à des tiers à des fins commerciales.",
+          "Sous-traitants techniques (hébergement, envoi d'emails) : Supabase (Singapour), Vercel (USA, certifié EU-US Data Privacy Framework), Resend (USA).",
+          "Des clauses contractuelles types (CCT) de la Commission européenne encadrent les transferts hors UE."
+        ]
+      },
+      "rights": {
+        "title": "Vos droits",
+        "lines": [
+          "Vous disposez des droits suivants sur vos données personnelles :",
+          "• Droit d'accès et de copie",
+          "• Droit de rectification",
+          "• Droit à l'effacement",
+          "• Droit à la limitation du traitement",
+          "• Droit à la portabilité",
+          "• Droit d'opposition",
+          "• Droit de définir des directives post-mortem",
+          "Pour exercer ces droits : privacy@axessio.app. Une réponse vous sera apportée dans un délai d'un mois."
+        ]
+      },
+      "complaint": {
+        "title": "Réclamation",
+        "lines": [
+          "Si vous estimez que vos droits ne sont pas respectés, vous pouvez introduire une réclamation auprès de la CNIL : 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 — www.cnil.fr."
+        ]
+      },
+      "security": {
+        "title": "Sécurité",
+        "lines": [
+          "Vos données transitent en HTTPS / TLS 1.2+.",
+          "L'isolation entre clients est garantie par les politiques Row Level Security de PostgreSQL.",
+          "Les mots de passe sont stockés hachés et salés par Supabase Auth.",
+          "Aucun accès n'est possible aux données d'un autre client, même par les administrateurs Axessio (hors intervention support documentée)."
+        ]
+      }
+    }
+  },
+  "cookies": {
+    "metaTitle": "Politique de cookies",
+    "metaDescription": "Politique cookies d'Axessio : nous n'utilisons que des cookies fonctionnels strictement nécessaires. Aucun traceur, aucune publicité.",
+    "title": "Politique de cookies",
+    "lastUpdated": "Dernière mise à jour : {date}",
+    "intro": "Axessio n'utilise que des cookies strictement nécessaires au fonctionnement du service. Aucun cookie publicitaire, aucun traceur tiers, aucun outil d'analyse comportementale n'est déployé. Conformément à la doctrine de la CNIL, ces cookies fonctionnels ne nécessitent pas de bandeau de consentement.",
+    "tableHeaders": {
+      "name": "Nom",
+      "purpose": "Finalité",
+      "duration": "Durée"
+    },
+    "items": [
+      {
+        "name": "sb-axessio-auth-token",
+        "purpose": "Conserve la session Supabase Auth (utilisateur connecté).",
+        "duration": "1 heure (renouvelée à chaque navigation)"
+      },
+      {
+        "name": "sb-axessio-refresh-token",
+        "purpose": "Permet le renouvellement silencieux de la session.",
+        "duration": "1 semaine"
+      },
+      {
+        "name": "NEXT_LOCALE",
+        "purpose": "Mémorise votre langue d'interface (français ou anglais).",
+        "duration": "1 an"
+      },
+      {
+        "name": "theme",
+        "purpose": "Mémorise votre préférence d'apparence (clair, sombre, système).",
+        "duration": "1 an"
+      }
+    ],
+    "sections": {
+      "noTracking": {
+        "title": "Pas de traceurs",
+        "lines": [
+          "Nous n'utilisons aucun cookie de mesure d'audience, de publicité, de réseaux sociaux ou de personnalisation comportementale.",
+          "Aucun outil tiers de type Google Analytics, Meta Pixel, Hotjar, etc. n'est intégré au site."
+        ]
+      },
+      "disable": {
+        "title": "Désactivation",
+        "lines": [
+          "Vous pouvez à tout moment effacer ou bloquer les cookies via les paramètres de votre navigateur.",
+          "Attention : la désactivation des cookies de session vous empêchera de vous connecter à Axessio."
+        ]
+      },
+      "contact": {
+        "title": "Contact",
+        "lines": [
+          "Pour toute question relative aux cookies : privacy@axessio.app."
+        ]
+      }
     }
   },
   "common": {
@@ -205,7 +413,13 @@
       "settings": "Paramètres",
       "logout": "Déconnexion"
     },
-    "brandHomeAria": "Axessio — retour au tableau de bord"
+    "brandHomeAria": "Axessio — retour au tableau de bord",
+    "legal": {
+      "label": "Légal",
+      "mentions": "Mentions légales",
+      "privacy": "Confidentialité",
+      "cookies": "Cookies"
+    }
   },
   "topbar": {
     "notifications": "Notifications",

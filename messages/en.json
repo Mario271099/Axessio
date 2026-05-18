@@ -60,7 +60,10 @@
       "links": {
         "login": "Sign in",
         "features": "Features",
-        "standards": "Standards"
+        "standards": "Standards",
+        "legal": "Legal notice",
+        "privacy": "Privacy",
+        "cookies": "Cookies"
       }
     },
     "faq": {
@@ -78,6 +81,211 @@
           "a": "Yes. Every PDF report can be generated in French or English, with labels, badges and metadata in the target language."
         }
       ]
+    }
+  },
+  "legal": {
+    "metaTitle": "Legal notice",
+    "metaDescription": "Axessio legal notice: publisher, host, intellectual property, contact.",
+    "title": "Legal notice",
+    "lastUpdated": "Last updated: {date}",
+    "sections": {
+      "editor": {
+        "title": "Site publisher",
+        "lines": [
+          "Axessio SAS",
+          "Simplified joint-stock company (SAS) with a share capital of €10,000",
+          "10 rue de la République, 75011 Paris, France",
+          "Paris RCS — SIRET 999 999 999 00000",
+          "VAT number: FR 99 999999999",
+          "Email: contact@axessio.app"
+        ]
+      },
+      "director": {
+        "title": "Publication director",
+        "lines": [
+          "Mario Harimanitra, acting as President of Axessio SAS."
+        ]
+      },
+      "host": {
+        "title": "Hosting provider",
+        "lines": [
+          "The website is hosted by Vercel Inc.",
+          "440 N Barranca Ave #4133, Covina, CA 91723, United States.",
+          "Website: https://vercel.com",
+          "Application data is stored by Supabase (Powerbase Inc.), 970 Toa Payoh North #07-04, Singapore 318992."
+        ]
+      },
+      "ip": {
+        "title": "Intellectual property",
+        "lines": [
+          "All elements on the website (text, graphics, Axessio logo, source code, structure) are protected under French and international intellectual property law.",
+          "Any reproduction, representation, modification, publication or adaptation, by any means, is prohibited without prior written authorization from the publisher.",
+          "Third-party trademarks (RGAA, WCAG, RAWeb, RAAM) remain the property of their respective owners."
+        ]
+      },
+      "liability": {
+        "title": "Liability",
+        "lines": [
+          "The publisher does its best to provide a reliable and up-to-date service. It cannot be held liable for direct or indirect damages arising from the use of the website or the inability to access it.",
+          "Links to third-party sites do not engage the publisher's liability for their content."
+        ]
+      },
+      "law": {
+        "title": "Governing law",
+        "lines": [
+          "This legal notice is governed by French law. In case of dispute, after an attempt at amicable resolution, French courts shall have exclusive jurisdiction."
+        ]
+      },
+      "contact": {
+        "title": "Contact",
+        "lines": [
+          "For any question regarding this legal notice: contact@axessio.app."
+        ]
+      }
+    }
+  },
+  "privacy": {
+    "metaTitle": "Privacy policy",
+    "metaDescription": "Axessio privacy policy: data collected, purposes, legal basis, retention, GDPR rights.",
+    "title": "Privacy policy",
+    "lastUpdated": "Last updated: {date}",
+    "intro": "Axessio takes the protection of personal data seriously. This policy explains how your data is collected, used and protected under the General Data Protection Regulation (GDPR) and the French Data Protection Act.",
+    "sections": {
+      "controller": {
+        "title": "Data controller",
+        "lines": [
+          "The data controller is Axessio SAS, 10 rue de la République, 75011 Paris, France.",
+          "GDPR / DPO contact: privacy@axessio.app."
+        ]
+      },
+      "data": {
+        "title": "Data collected",
+        "lines": [
+          "Identification data: last name, first name, email address, preferred language.",
+          "Usage data: last login date, activity log (audits created, NCs filed, messages exchanged).",
+          "Business data (entered by you): names of your clients and projects, audit content, screenshots attached to non-conformities.",
+          "Technical data: IP address at authentication time, Supabase and Vercel access logs for security purposes."
+        ]
+      },
+      "purposes": {
+        "title": "Purposes",
+        "lines": [
+          "Deliver the service: account creation, authentication, access to your audits.",
+          "Collaboration: send transactional emails (invitation, message notification), display the discussion thread.",
+          "Security: abuse detection, access logging, fraud prevention.",
+          "Anonymized internal product-usage statistics (no personal data)."
+        ]
+      },
+      "basis": {
+        "title": "Legal basis",
+        "lines": [
+          "Performance of the service contract (GDPR article 6.1.b) for data strictly necessary to operate the platform.",
+          "Legitimate interest (GDPR article 6.1.f) for technical logs and security.",
+          "Legal obligation (GDPR article 6.1.c) for accounting retention."
+        ]
+      },
+      "retention": {
+        "title": "Retention period",
+        "lines": [
+          "User account: as long as the account is active, then 30 days after deletion.",
+          "Audits and non-conformities: kept as long as the end client remains subscribed, then archived for 3 years.",
+          "Technical logs: 12 months maximum.",
+          "Billing data: 10 years (accounting obligation)."
+        ]
+      },
+      "recipients": {
+        "title": "Recipients and subprocessors",
+        "lines": [
+          "Your data is never sold or transferred to third parties for commercial purposes.",
+          "Technical subprocessors (hosting, email): Supabase (Singapore), Vercel (USA, certified under the EU-US Data Privacy Framework), Resend (USA).",
+          "Standard Contractual Clauses (SCCs) from the European Commission govern transfers outside the EU."
+        ]
+      },
+      "rights": {
+        "title": "Your rights",
+        "lines": [
+          "You have the following rights regarding your personal data:",
+          "• Right of access and copy",
+          "• Right of rectification",
+          "• Right to erasure",
+          "• Right to restriction of processing",
+          "• Right to portability",
+          "• Right to object",
+          "• Right to define post-mortem directives",
+          "To exercise these rights: privacy@axessio.app. We will respond within one month."
+        ]
+      },
+      "complaint": {
+        "title": "Complaint",
+        "lines": [
+          "If you believe your rights are not being respected, you can file a complaint with the CNIL: 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07, France — www.cnil.fr."
+        ]
+      },
+      "security": {
+        "title": "Security",
+        "lines": [
+          "Your data is transmitted over HTTPS / TLS 1.2+.",
+          "Isolation between clients is enforced by PostgreSQL Row Level Security policies.",
+          "Passwords are hashed and salted by Supabase Auth.",
+          "No access is possible to another client's data, even by Axessio administrators (except documented support intervention)."
+        ]
+      }
+    }
+  },
+  "cookies": {
+    "metaTitle": "Cookie policy",
+    "metaDescription": "Axessio cookie policy: we only use strictly necessary functional cookies. No tracker, no advertising.",
+    "title": "Cookie policy",
+    "lastUpdated": "Last updated: {date}",
+    "intro": "Axessio uses only cookies strictly necessary to operate the service. No advertising cookies, no third-party trackers, no behavioral analytics tools are deployed. Following the CNIL doctrine, these functional cookies do not require a consent banner.",
+    "tableHeaders": {
+      "name": "Name",
+      "purpose": "Purpose",
+      "duration": "Duration"
+    },
+    "items": [
+      {
+        "name": "sb-axessio-auth-token",
+        "purpose": "Stores the Supabase Auth session (logged-in user).",
+        "duration": "1 hour (renewed on each navigation)"
+      },
+      {
+        "name": "sb-axessio-refresh-token",
+        "purpose": "Enables silent session renewal.",
+        "duration": "1 week"
+      },
+      {
+        "name": "NEXT_LOCALE",
+        "purpose": "Remembers your interface language (French or English).",
+        "duration": "1 year"
+      },
+      {
+        "name": "theme",
+        "purpose": "Remembers your appearance preference (light, dark, system).",
+        "duration": "1 year"
+      }
+    ],
+    "sections": {
+      "noTracking": {
+        "title": "No trackers",
+        "lines": [
+          "We do not use any cookie for audience measurement, advertising, social networks or behavioral personalization.",
+          "No third-party tool such as Google Analytics, Meta Pixel or Hotjar is integrated into the site."
+        ]
+      },
+      "disable": {
+        "title": "Disabling cookies",
+        "lines": [
+          "You can clear or block cookies at any time through your browser settings.",
+          "Note: disabling session cookies will prevent you from signing in to Axessio."
+        ]
+      },
+      "contact": {
+        "title": "Contact",
+        "lines": [
+          "For any question regarding cookies: privacy@axessio.app."
+        ]
+      }
     }
   },
   "common": {
@@ -205,7 +413,13 @@
       "settings": "Settings",
       "logout": "Sign out"
     },
-    "brandHomeAria": "Axessio — back to dashboard"
+    "brandHomeAria": "Axessio — back to dashboard",
+    "legal": {
+      "label": "Legal",
+      "mentions": "Legal notice",
+      "privacy": "Privacy",
+      "cookies": "Cookies"
+    }
   },
   "topbar": {
     "notifications": "Notifications",

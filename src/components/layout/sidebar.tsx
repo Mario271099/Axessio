@@ -239,6 +239,31 @@ export function Sidebar({ profile, counts }: SidebarProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* Liens légaux — toujours accessibles depuis l'app authentifiée. */}
+        <nav
+          aria-label={t("legal.label")}
+          className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 text-[11px] text-muted-foreground"
+        >
+          <Link
+            href="/legal"
+            className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {t("legal.mentions")}
+          </Link>
+          <Link
+            href="/privacy"
+            className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {t("legal.privacy")}
+          </Link>
+          <Link
+            href="/cookies"
+            className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {t("legal.cookies")}
+          </Link>
+        </nav>
       </div>
     </aside>
   );
