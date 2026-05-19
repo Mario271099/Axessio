@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { DM_Mono, DM_Sans, Geist } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SITE, siteUrl } from "@/lib/site";
 import "./globals.css";
@@ -144,6 +145,14 @@ export default async function RootLayout({
                 : "Skip to main content"}
             </a>
             {children}
+            {/* Toasts globaux — accessibles (role="status" injecté par sonner),
+                ne déclenchent pas de re-render des Server Components. */}
+            <Toaster
+              position="bottom-right"
+              richColors
+              closeButton
+              theme="system"
+            />
           </ThemeProvider>
         </NextIntlClientProvider>
         {/* Données structurées Organization (Schema.org) — apparaissent

@@ -109,7 +109,14 @@ export async function createAudit(
     .insert([...mandatoryPagesPayload, transversalPagePayload]);
 
   if (pagesError) {
+    // Un audit sans page obligatoire est inutilisable (la matrice plante,
+    // l'échantillon est vide). On rollback en supprimant l'audit fraîchement
+    // créé pour rester cohérent au lieu de laisser un état partiel.
     console.error("[createAudit] Pages obligatoires non créées:", pagesError);
+    await supabase.from("audits").delete().eq("id", audit.id);
+    return {
+      error: t("createAuditFailed", { message: pagesError.message }),
+    };
   }
 
   revalidatePath("/audits");

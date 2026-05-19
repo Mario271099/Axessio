@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
   AlertCircle,
   Building2,
@@ -144,10 +145,10 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
       const result = await resendInvitation(user.id);
       setPendingId(null);
       if (result.error) {
-        window.alert(t("errorPrefix", { message: result.error }));
+        toast.error(t("errorPrefix", { message: result.error }));
         return;
       }
-      window.alert(t("resendSuccess", { email: user.email }));
+      toast.success(t("resendSuccess", { email: user.email }));
       router.refresh();
     });
   };
@@ -164,7 +165,7 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
       const result = await toggleUserActive(user.id, next);
       setPendingId(null);
       if (result.error) {
-        window.alert(t("errorPrefix", { message: result.error }));
+        toast.error(t("errorPrefix", { message: result.error }));
         return;
       }
       router.refresh();
@@ -704,7 +705,7 @@ function InviteUserDialog({
         setError(result.error);
         return;
       }
-      window.alert(t("inviteDialog.successAlert"));
+      toast.success(t("inviteDialog.successAlert"));
       form.reset();
       reset();
       onOpenChange(false);
@@ -893,7 +894,7 @@ function EditRoleDialog({
         setError(result.error);
         return;
       }
-      window.alert(t("editRoleDialog.successAlert"));
+      toast.success(t("editRoleDialog.successAlert"));
       onOpenChange(false);
       onSuccess();
     });
