@@ -302,6 +302,7 @@
   },
   "errors": {
     "notAuthenticated": "Non authentifié.",
+    "forbidden": "Action refusée par les permissions de votre rôle.",
     "auditorOnly": "Accès réservé aux auditeurs internes.",
     "auditorOnlyShort": "Action réservée aux auditeurs.",
     "auditorOrAdminOnly": "Action réservée aux aux auditeurs et aux administrateurs client.",
@@ -393,6 +394,7 @@
     "sections": {
       "main": "Principal",
       "management": "Gestion",
+      "admin": "Administration",
       "other": "Autres"
     },
     "items": {
@@ -401,7 +403,8 @@
       "clients": "Clients",
       "users": "Utilisateurs",
       "references": "Référentiels",
-      "settings": "Paramètres"
+      "settings": "Paramètres",
+      "permissions": "Permissions"
     },
     "user": {
       "profile": "Mon profil",
@@ -537,9 +540,10 @@
     }
   },
   "roles": {
+    "admin": "Administrateur",
     "auditor": "Auditeur",
     "client_admin": "Administrateur client",
-    "client_member": "Membre"
+    "client": "Client"
   },
   "clients": {
     "title": "Clients",
@@ -676,10 +680,52 @@
       "inactive": "Désactivé"
     },
     "rolesOption": {
+      "admin": "Administrateur (plateforme)",
       "auditor": "Auditeur (interne)",
       "client_admin": "Administrateur client",
-      "client_member": "Membre client"
+      "client": "Client"
     },
+    "permissions": {
+      "metaTitle": "Permissions",
+      "title": "Matrice des permissions",
+      "subtitle": "Visualise quels rôles peuvent effectuer quelles actions. Source unique de vérité : src/lib/permissions.ts.",
+      "back": "Retour",
+      "forbidden": "Accès réservé aux administrateurs.",
+      "columnRole": "Rôle",
+      "columnAllowed": "Autorisé",
+      "yes": "Oui",
+      "no": "Non",
+      "groups": {
+        "audit": "Audits",
+        "matrix": "Matrice de conformité",
+        "nc": "Non-conformités",
+        "collab": "Collaboration",
+        "admin": "Administration",
+        "diagnostic": "Diagnostic"
+      },
+      "perm": {
+        "audit.view": "Voir un audit",
+        "audit.edit": "Modifier un audit",
+        "audit.delete": "Supprimer un audit",
+        "audit.assign_auditor": "Assigner un auditeur",
+        "audit.transition_workflow": "Changer le statut workflow",
+        "matrix.edit": "Saisir la matrice de conformité",
+        "nc.create": "Créer une NC",
+        "nc.edit": "Modifier une NC",
+        "nc.delete": "Supprimer une NC",
+        "nc.update_status_client": "Marquer une NC corrigée",
+        "remediation.view": "Accéder à la remédiation",
+        "chat.read": "Lire la discussion",
+        "chat.write": "Écrire dans la discussion",
+        "client.manage": "Gérer les clients",
+        "project.manage": "Gérer les projets",
+        "user.manage": "Gérer les utilisateurs",
+        "audit_logs.view_all": "Voir tous les journaux d'audit",
+        "impersonate": "Visualiser comme un autre rôle",
+        "permissions.debug": "Accéder à la page debug permissions"
+      }
+    }
+  },
     "empty": {
       "noUsers": "Aucun utilisateur",
       "noResults": "Aucun résultat pour ces filtres",

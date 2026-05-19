@@ -10,7 +10,12 @@
 // ============================================================================
 // Rôles & utilisateurs
 // ============================================================================
-export type UserRole = "auditor" | "client_admin" | "client_member";
+// L'ordre reflète la hiérarchie de privilèges (admin > auditor > client_admin > client).
+// admin        : super-admin plateforme (gère utilisateurs, clients, etc.)
+// auditor      : auditeur interne (ses projets assignés)
+// client_admin : admin côté client (lecture audit + assigne auditeur)
+// client       : utilisateur côté client (lecture seule + chat + remédiation)
+export type UserRole = "admin" | "auditor" | "client_admin" | "client";
 
 export interface Profile {
   id: string;
@@ -18,7 +23,7 @@ export interface Profile {
   firstName: string;
   lastName: string;
   role: UserRole;
-  clientId: string | null; // null pour les auditeurs internes
+  clientId: string | null; // null pour les staff (admin / auditor)
   language: "fr" | "en";
 }
 

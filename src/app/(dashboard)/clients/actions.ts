@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient as createSupabaseClient } from "@/lib/supabase/server";
+import { canManageClients, canManageProjects } from "@/lib/permissions";
+import type { UserRole } from "@/types/domain";
 
 export interface ClientActionState {
   error: string | null;
@@ -11,7 +13,9 @@ export interface ClientActionState {
   projectId?: string;
 }
 
-async function requireAuditor(): Promise<{
+type PermCheck = (role: UserRole) => boolean;
+
+async function requirePerm(check: PermCheck): Promise<{
   supabase: Awaited<ReturnType<typeof createSupabaseClient>>;
   error: string | null;
 }> {
@@ -29,8 +33,9 @@ async function requireAuditor(): Promise<{
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "auditor") {
-    return { supabase, error: t("auditorOnly") };
+  const role = profile?.role as UserRole | undefined;
+  if (!role || !check(role)) {
+    return { supabase, error: t("forbidden") };
   }
 
   return { supabase, error: null };
@@ -42,7 +47,7 @@ async function requireAuditor(): Promise<{
 export async function createClient(
   formData: FormData,
 ): Promise<ClientActionState> {
-  const { supabase, error: authError } = await requireAuditor();
+  const { supabase, error: authError } = await requirePerm(canManageClients);
   if (authError) return { error: authError };
   const t = await getTranslations("errors");
 
@@ -80,7 +85,7 @@ export async function updateClient(
   clientId: string,
   formData: FormData,
 ): Promise<ClientActionState> {
-  const { supabase, error: authError } = await requireAuditor();
+  const { supabase, error: authError } = await requirePerm(canManageClients);
   if (authError) return { error: authError };
   const t = await getTranslations("errors");
 
@@ -116,7 +121,7 @@ export async function toggleClientActive(
   clientId: string,
   isActive: boolean,
 ): Promise<ClientActionState> {
-  const { supabase, error: authError } = await requireAuditor();
+  const { supabase, error: authError } = await requirePerm(canManageClients);
   if (authError) return { error: authError };
 
   const { error } = await supabase
@@ -138,7 +143,7 @@ export async function createProject(
   clientId: string,
   formData: FormData,
 ): Promise<ClientActionState> {
-  const { supabase, error: authError } = await requireAuditor();
+  const { supabase, error: authError } = await requirePerm(canManageProjects);
   if (authError) return { error: authError };
   const t = await getTranslations("errors");
 
@@ -170,7 +175,7 @@ export async function updateProject(
   clientId: string,
   formData: FormData,
 ): Promise<ClientActionState> {
-  const { supabase, error: authError } = await requireAuditor();
+  const { supabase, error: authError } = await requirePerm(canManageProjects);
   if (authError) return { error: authError };
   const t = await getTranslations("errors");
 
@@ -198,7 +203,7 @@ export async function deleteProject(
   projectId: string,
   clientId: string,
 ): Promise<ClientActionState> {
-  const { supabase, error: authError } = await requireAuditor();
+  const { supabase, error: authError } = await requirePerm(canManageProjects);
   if (authError) return { error: authError };
   const t = await getTranslations("errors");
 

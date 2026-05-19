@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
+import { canEditAudit } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,7 +33,7 @@ export default async function SamplePage({
     complexity: p.complexity as ComplexityLevel | null,
   }));
 
-  const canEdit = profile.role === "auditor";
+  const canEdit = canEditAudit(profile.role);
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">

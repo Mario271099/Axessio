@@ -302,6 +302,7 @@
   },
   "errors": {
     "notAuthenticated": "Not authenticated.",
+    "forbidden": "Action denied by your role permissions.",
     "auditorOnly": "Access restricted to internal auditors.",
     "auditorOnlyShort": "Action restricted to auditors.",
     "auditorOrAdminOnly": "Action restricted to auditors and client administrators.",
@@ -393,6 +394,7 @@
     "sections": {
       "main": "Main",
       "management": "Management",
+      "admin": "Administration",
       "other": "Other"
     },
     "items": {
@@ -401,7 +403,8 @@
       "clients": "Clients",
       "users": "Users",
       "references": "Standards",
-      "settings": "Settings"
+      "settings": "Settings",
+      "permissions": "Permissions"
     },
     "user": {
       "profile": "My profile",
@@ -537,9 +540,10 @@
     }
   },
   "roles": {
+    "admin": "Administrator",
     "auditor": "Auditor",
     "client_admin": "Client administrator",
-    "client_member": "Member"
+    "client": "Client"
   },
   "clients": {
     "title": "Clients",
@@ -676,9 +680,50 @@
       "inactive": "Inactive"
     },
     "rolesOption": {
+      "admin": "Administrator (platform)",
       "auditor": "Auditor (internal)",
       "client_admin": "Client administrator",
-      "client_member": "Client member"
+      "client": "Client"
+    },
+    "permissions": {
+      "metaTitle": "Permissions",
+      "title": "Permissions matrix",
+      "subtitle": "Shows which roles can perform which actions. Single source of truth: src/lib/permissions.ts.",
+      "back": "Back",
+      "forbidden": "Access reserved to administrators.",
+      "columnRole": "Role",
+      "columnAllowed": "Allowed",
+      "yes": "Yes",
+      "no": "No",
+      "groups": {
+        "audit": "Audits",
+        "matrix": "Conformity matrix",
+        "nc": "Non-conformities",
+        "collab": "Collaboration",
+        "admin": "Administration",
+        "diagnostic": "Diagnostic"
+      },
+      "perm": {
+        "audit.view": "View an audit",
+        "audit.edit": "Edit an audit",
+        "audit.delete": "Delete an audit",
+        "audit.assign_auditor": "Assign an auditor",
+        "audit.transition_workflow": "Change workflow status",
+        "matrix.edit": "Edit the conformity matrix",
+        "nc.create": "Create a NC",
+        "nc.edit": "Edit a NC",
+        "nc.delete": "Delete a NC",
+        "nc.update_status_client": "Mark a NC as fixed",
+        "remediation.view": "Access remediation",
+        "chat.read": "Read the discussion",
+        "chat.write": "Write in the discussion",
+        "client.manage": "Manage clients",
+        "project.manage": "Manage projects",
+        "user.manage": "Manage users",
+        "audit_logs.view_all": "View all audit logs",
+        "impersonate": "View as another role",
+        "permissions.debug": "Access the permissions debug page"
+      }
     },
     "empty": {
       "noUsers": "No users",

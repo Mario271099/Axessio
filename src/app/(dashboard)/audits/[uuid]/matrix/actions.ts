@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import type { ConformityStatus, NCSeverity } from "@/types/domain";
+import { canEditMatrix } from "@/lib/permissions";
+import type { ConformityStatus, NCSeverity, UserRole } from "@/types/domain";
 
 export interface ActionResult {
   error: string | null;
@@ -28,8 +29,8 @@ async function requireAuditor(): Promise<{ userId: string } | { error: string }>
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "auditor") {
-    return { error: t("matrixOnlyAuditor") };
+  if (!profile?.role || !canEditMatrix(profile.role as UserRole)) {
+    return { error: t("forbidden") };
   }
   return { userId: user.id };
 }

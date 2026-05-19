@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
 import { formatDate, formatScore } from "@/lib/utils";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
+import { canEditAudit } from "@/lib/permissions";
 import type { Metadata } from "next";
 import type { AuditStatus, PlatformType, ReferenceType } from "@/types/domain";
 import { AuditsFilters } from "./audits-filters";
@@ -75,7 +76,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
     Number.isFinite(rawPage) && rawPage >= 1 ? rawPage : 1;
   const offset = (currentPage - 1) * PAGE_SIZE;
 
-  const isAuditor = profile.role === "auditor";
+  const canCreateAudit = canEditAudit(profile.role);
 
   // ---------------------------------------------------------------------
   // Requête paginée — un seul aller-retour qui renvoie aussi le `count`
@@ -134,7 +135,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
           </p>
         </div>
 
-        {isAuditor && (
+        {canCreateAudit && (
           <Button asChild>
             <Link href="/audits/new">
               <Plus className="h-4 w-4" aria-hidden="true" />

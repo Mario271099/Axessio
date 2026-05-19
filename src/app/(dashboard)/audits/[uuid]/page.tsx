@@ -80,7 +80,10 @@ export default async function AuditDetailPage({ params }: PageProps) {
   const score = audit.final_score ?? audit.initial_score ?? 0;
   const level = getConformityLevel(score);
 
+  // Export PDF : staff plateforme (admin/auditor) OU client_admin du client
+  // propriétaire de l'audit. Les clients simples passent par leur admin.
   const canExportReport =
+    profile.role === "admin" ||
     profile.role === "auditor" ||
     (profile.role === "client_admin" &&
       client?.id != null &&

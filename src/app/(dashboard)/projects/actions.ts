@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { canManageProjects } from "@/lib/permissions";
+import type { UserRole } from "@/types/domain";
 
 export interface ProjectActionState {
   error: string | null;
@@ -27,8 +29,8 @@ export async function createProject(
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "auditor") {
-    return { error: t("createProjectOnlyAuditor") };
+  if (!profile?.role || !canManageProjects(profile.role as UserRole)) {
+    return { error: t("forbidden") };
   }
 
   const clientId = formData.get("clientId")?.toString();

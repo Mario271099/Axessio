@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
-import type { NCSeverity, NCStatus } from "@/types/domain";
+import { canEditNC } from "@/lib/permissions";
+import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
 
 export interface BulkResult {
   error: string | null;
@@ -42,8 +43,8 @@ async function requireAuditor(): Promise<
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "auditor") {
-    return { ok: false, error: t("auditorOnlyShort") };
+  if (!profile?.role || !canEditNC(profile.role as UserRole)) {
+    return { ok: false, error: t("forbidden") };
   }
   return { ok: true, userId: user.id };
 }

@@ -46,6 +46,7 @@ import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { intlLocale } from "@/lib/intl";
+import { canChat, canEditNC } from "@/lib/permissions";
 import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
 import {
   addAttachment,
@@ -186,7 +187,9 @@ export function NCDetail({
   const tAnomalies = useTranslations("audits.anomalies");
   const locale = useLocale();
   const intl = intlLocale(locale);
-  const isAuditor = profile.role === "auditor";
+  // « isAuditor » historique = peut modifier la NC (titre, sévérité, statut).
+  // On le câble désormais sur la permission canEditNC pour qu'admin hérite.
+  const isAuditor = canEditNC(profile.role);
 
   function formatMessageDate(iso: string): string {
     const d = new Date(iso);
@@ -229,8 +232,8 @@ export function NCDetail({
     null,
   );
 
-  const canDiscuss =
-    profile.role === "auditor" || profile.role === "client_admin";
+  // Le chat est ouvert à tous les rôles (admin, auditor, client_admin, client).
+  const canDiscuss = canChat(profile.role);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ block: "end" });
@@ -277,8 +280,9 @@ export function NCDetail({
     }
   };
 
-  const canUpload =
-    profile.role === "auditor" || profile.role === "client_admin";
+  // Upload de captures : tous les rôles avec accès au chat (cohérent avec
+  // l'ouverture remédiation/discussion à tout le monde).
+  const canUpload = canChat(profile.role);
 
   const handleFilesChange = (selected: File[]) => {
     if (selected.length === 0 || uploading) return;
@@ -726,8 +730,11 @@ export function NCDetail({
               {attachments.length > 0 && (
                 <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {attachments.map((att) => {
+                    // Auteur de l'upload OU staff plateforme avec droit d'éditer
+                    // les NC (admin/auditor). Couvre l'admin qui n'avait pas
+                    // accès dans l'ancien check `role === "auditor"`.
                     const canDelete =
-                      profile.role === "auditor" ||
+                      canEditNC(profile.role) ||
                       att.uploadedBy === profile.id;
                     const isImage = !!att.mimeType?.startsWith("image/");
                     const isDeleting = deletingId === att.id;

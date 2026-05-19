@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
+import { canEditAudit } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import type { ReferenceType } from "@/types/domain";
@@ -16,7 +17,7 @@ export default async function EditAuditPage({
   const profile = await requireProfile();
   const t = await getTranslations("audits.edit");
 
-  if (profile.role !== "auditor") {
+  if (!canEditAudit(profile.role)) {
     redirect(`/audits/${(await params).uuid}`);
   }
 

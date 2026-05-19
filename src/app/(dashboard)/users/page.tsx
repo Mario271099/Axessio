@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
+import { canManageUsers } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/types/domain";
 import { UsersList, type UserListItem, type ClientOption } from "./users-list";
@@ -9,7 +10,9 @@ export default async function UsersPage() {
   const profile = await requireProfile();
   const t = await getTranslations("users");
 
-  if (profile.role !== "auditor") {
+  // user.manage est admin-only. Les auditeurs voient leurs collègues via
+  // les profils dans le dropdown d'assignation, pas via la page /users.
+  if (!canManageUsers(profile.role)) {
     redirect("/dashboard");
   }
 

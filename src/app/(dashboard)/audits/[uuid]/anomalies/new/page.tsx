@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
+import { canCreateNC } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 import { NewNCForm, type NCThematic, type NCCriterion, type NCPage } from "./new-nc-form";
 
@@ -11,7 +12,7 @@ export default async function NewNCPage({ params }: PageProps) {
   const profile = await requireProfile();
   const { uuid } = await params;
 
-  if (profile.role !== "auditor") {
+  if (!canCreateNC(profile.role)) {
     redirect(`/audits/${uuid}/anomalies`);
   }
 

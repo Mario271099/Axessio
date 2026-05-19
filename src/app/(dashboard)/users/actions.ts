@@ -9,6 +9,7 @@ import { resend, FROM_EMAIL } from "@/lib/resend";
 import { InvitationEmail } from "@/emails/invitation-email";
 import { isValidEmail, isValidUuid } from "@/lib/validation";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
+import { canManageUsers } from "@/lib/permissions";
 import type { UserRole } from "@/types/domain";
 
 // Plafonds : 30 invitations / heure et 10 renvois / heure par auditeur.
@@ -26,9 +27,10 @@ export interface UserActionState {
 }
 
 const ALLOWED_ROLES: readonly UserRole[] = [
+  "admin",
   "auditor",
   "client_admin",
-  "client_member",
+  "client",
 ];
 
 interface AuditorContext {
@@ -60,12 +62,12 @@ async function requireAuditor(): Promise<AuditorContext> {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "auditor") {
+  if (!profile?.role || !canManageUsers(profile.role as UserRole)) {
     return {
       supabase,
       inviterId: user.id,
       inviterName: "",
-      error: t("auditorOnly"),
+      error: t("forbidden"),
     };
   }
 

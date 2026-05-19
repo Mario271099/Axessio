@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { canEditAudit } from "@/lib/permissions";
 import { MANDATORY_PAGES } from "@/types/domain";
 import type {
   AuditStatus,
@@ -11,6 +12,7 @@ import type {
   PageType,
   PlatformType,
   ServiceType,
+  UserRole,
 } from "@/types/domain";
 
 export interface ActionState {
@@ -40,8 +42,8 @@ export async function createAudit(
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "auditor") {
-    return { error: t("createAuditOnlyAuditor") };
+  if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
+    return { error: t("forbidden") };
   }
 
   const projectId = formData.get("projectId")?.toString();
@@ -146,8 +148,8 @@ export async function updateAudit(
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "auditor") {
-    return { error: t("updateAuditOnlyAuditor") };
+  if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
+    return { error: t("forbidden") };
   }
 
   const referenceId = formData.get("referenceId")?.toString();

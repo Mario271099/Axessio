@@ -159,7 +159,20 @@ export const DISABILITY_LABELS: Record<DisabilityType, string> = {
 // Rôles
 // ============================================================================
 export const USER_ROLE_LABELS: Record<UserRole, string> = {
+  admin: "Administrateur",
   auditor: "Auditeur",
   client_admin: "Administrateur client",
-  client_member: "Membre",
+  client: "Client",
+};
+
+/** Variant `<Badge>` à utiliser pour le rôle. Aligné sur les variants exposés
+ *  par `components/ui/badge.tsx`. */
+export const USER_ROLE_BADGE_VARIANT: Record<
+  UserRole,
+  "default" | "secondary" | "success" | "muted"
+> = {
+  admin: "default",
+  auditor: "secondary",
+  client_admin: "success",
+  client: "muted",
 };

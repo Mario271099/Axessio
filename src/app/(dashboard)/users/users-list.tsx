@@ -49,6 +49,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { USER_ROLE_BADGE_VARIANT } from "@/lib/constants";
 import type { UserRole } from "@/types/domain";
 import {
   inviteUser,
@@ -120,15 +121,17 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
   }, [users, search, roleFilter, statusFilter]);
 
   const kpis = useMemo(() => {
+    let admins = 0;
     let auditors = 0;
     let clientAdmins = 0;
     let clientMembers = 0;
     for (const u of users) {
-      if (u.role === "auditor") auditors += 1;
+      if (u.role === "admin") admins += 1;
+      else if (u.role === "auditor") auditors += 1;
       else if (u.role === "client_admin") clientAdmins += 1;
-      else if (u.role === "client_member") clientMembers += 1;
+      else if (u.role === "client") clientMembers += 1;
     }
-    return { auditors, clientAdmins, clientMembers };
+    return { admins, auditors, clientAdmins, clientMembers };
   }, [users]);
 
   const filtersActive =
@@ -247,8 +250,8 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
               <SelectItem value="client_admin">
                 {t("rolesOption.client_admin")}
               </SelectItem>
-              <SelectItem value="client_member">
-                {t("rolesOption.client_member")}
+              <SelectItem value="client">
+                {t("rolesOption.client")}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -595,9 +598,7 @@ function Avatar({
 function RoleBadge({ role }: { role: UserRole }) {
   const tRoles = useTranslations("roles");
   const label = tRoles(role);
-  if (role === "auditor") return <Badge variant="success">{label}</Badge>;
-  if (role === "client_admin") return <Badge variant="default">{label}</Badge>;
-  return <Badge variant="muted">{label}</Badge>;
+  return <Badge variant={USER_ROLE_BADGE_VARIANT[role]}>{label}</Badge>;
 }
 
 function StatusBadge({ status }: { status: UserStatus }) {
@@ -656,15 +657,16 @@ function InviteUserDialog({
   const t = useTranslations("users");
   const tCommon = useTranslations("common");
   const [error, setError] = useState<string | null>(null);
-  const [role, setRole] = useState<UserRole>("client_member");
+  const [role, setRole] = useState<UserRole>("client");
   const [clientId, setClientId] = useState<string>("");
   const [isPending, startTransition] = useTransition();
 
-  const needsClient = role !== "auditor";
+  // Les staff plateforme (admin/auditor) ne sont rattachés à aucun client.
+  const needsClient = role !== "auditor" && role !== "admin";
 
   const reset = () => {
     setError(null);
-    setRole("client_member");
+    setRole("client");
     setClientId("");
   };
 
@@ -780,8 +782,8 @@ function InviteUserDialog({
                 <SelectItem value="client_admin">
                   {t("rolesOption.client_admin")}
                 </SelectItem>
-                <SelectItem value="client_member">
-                  {t("rolesOption.client_member")}
+                <SelectItem value="client">
+                  {t("rolesOption.client")}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -856,20 +858,21 @@ function EditRoleDialog({
   const t = useTranslations("users");
   const tCommon = useTranslations("common");
   const [error, setError] = useState<string | null>(null);
-  const [role, setRole] = useState<UserRole>(user?.role ?? "client_member");
+  const [role, setRole] = useState<UserRole>(user?.role ?? "client");
   const [clientId, setClientId] = useState<string>(user?.clientId ?? "");
   const [isPending, startTransition] = useTransition();
 
   const userKey = user?.id ?? "";
   const lastKey = useMemoLastKey(userKey, () => {
-    setRole(user?.role ?? "client_member");
+    setRole(user?.role ?? "client");
     setClientId(user?.clientId ?? "");
     setError(null);
   });
   void lastKey;
 
   if (!user) return null;
-  const needsClient = role !== "auditor";
+  // Les staff plateforme (admin/auditor) ne sont rattachés à aucun client.
+  const needsClient = role !== "auditor" && role !== "admin";
 
   const handleClose = (next: boolean) => {
     if (!next) setError(null);
@@ -938,8 +941,8 @@ function EditRoleDialog({
                 <SelectItem value="client_admin">
                   {t("rolesOption.client_admin")}
                 </SelectItem>
-                <SelectItem value="client_member">
-                  {t("rolesOption.client_member")}
+                <SelectItem value="client">
+                  {t("rolesOption.client")}
                 </SelectItem>
               </SelectContent>
             </Select>

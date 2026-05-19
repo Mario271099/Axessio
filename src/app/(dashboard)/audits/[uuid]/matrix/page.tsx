@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
+import { canEditMatrix } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import { ConformityMatrixLayout } from "./conformity-matrix-layout";
@@ -145,7 +146,7 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
       auditTitle={project?.name ?? "Audit"}
       clientName={client?.name ?? null}
       referenceName={referenceName}
-      canEdit={profile.role === "auditor"}
+      canEdit={canEditMatrix(profile.role)}
       thematics={thematics}
       criteria={criteria}
       pages={pages}

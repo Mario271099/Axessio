@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { intlLocale } from "@/lib/intl";
+import { canCreateNC, canDeleteNC, canEditNC } from "@/lib/permissions";
 import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
 import {
   bulkDeleteNCs,
@@ -118,7 +119,11 @@ export function AnomaliesList({
   >(null);
   const [isPending, startTransition] = useTransition();
 
-  const canBulk = role === "auditor";
+  // Sélection groupée : seulement pour ceux qui peuvent éditer les NC.
+  // La permission de supprimer est vérifiée séparément côté barre flottante.
+  const canBulk = canEditNC(role);
+  const canCreate = canCreateNC(role);
+  const allowBulkDelete = canDeleteNC(role);
 
   const pageNames = useMemo(() => {
     const names = new Set<string>();
@@ -315,7 +320,7 @@ export function AnomaliesList({
             {t("subtitle", { count: ncs.length })}
           </p>
         </div>
-        {role === "auditor" && (
+        {canCreate && (
           <Button asChild size="default">
             <Link href={`/audits/${auditId}/anomalies/new`}>
               <Plus className="h-4 w-4" aria-hidden="true" />
@@ -559,16 +564,18 @@ export function AnomaliesList({
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleBulkDelete}
-                disabled={isPending}
-                className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
-              >
-                <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                {tBulk("delete")}
-              </Button>
+              {allowBulkDelete && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                  disabled={isPending}
+                  className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  {tBulk("delete")}
+                </Button>
+              )}
 
               <Button
                 variant="ghost"

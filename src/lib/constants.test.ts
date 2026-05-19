@@ -142,9 +142,12 @@ describe("NC_STATUS_LABELS", () => {
     "RESOLVED",
     "REJECTED",
     "CANCELLED",
+    "TO_FIX",
+    "FIXED",
+    "FALSE_POSITIVE",
   ];
 
-  it("couvre exactement les 7 statuts NC du domaine", () => {
+  it("couvre exactement les 10 statuts NC du domaine", () => {
     expectMapCoversKeys(NC_STATUS_LABELS, EXPECTED);
   });
 
@@ -312,12 +315,13 @@ describe("DISABILITY_LABELS", () => {
 // ============================================================================
 describe("USER_ROLE_LABELS", () => {
   const EXPECTED: readonly UserRole[] = [
+    "admin",
     "auditor",
     "client_admin",
-    "client_member",
+    "client",
   ];
 
-  it("couvre exactement les 3 rôles", () => {
+  it("couvre exactement les 4 rôles", () => {
     expectMapCoversKeys(USER_ROLE_LABELS, EXPECTED);
   });
 

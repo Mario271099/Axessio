@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
-import type { NCSeverity, NCStatus } from "@/types/domain";
+import { canChat, canEditNC } from "@/lib/permissions";
+import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
 
 // 30 messages / minute par utilisateur : limite généreuse pour les
 // échanges actifs mais freine un script qui dégomme des notifications.
@@ -33,14 +34,17 @@ async function requireAuditor(): Promise<{ userId: string } | { error: string }>
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "auditor") {
-    return { error: t("auditorOnlyShort") };
+  if (!profile?.role || !canEditNC(profile.role as UserRole)) {
+    return { error: t("forbidden") };
   }
   return { userId: user.id };
 }
 
+// Chat / pièces jointes : ouvert à tous les rôles ayant `chat.write`
+// (admin, auditor, client_admin, client). On garde le nom historique pour
+// limiter le diff côté call sites.
 async function requireAuditorOrClientAdmin(): Promise<
-  { userId: string; role: "auditor" | "client_admin" } | { error: string }
+  { userId: string; role: UserRole } | { error: string }
 > {
   const supabase = await createClient();
   const t = await getTranslations("errors");
@@ -55,10 +59,11 @@ async function requireAuditorOrClientAdmin(): Promise<
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "auditor" && profile?.role !== "client_admin") {
-    return { error: t("auditorOrAdminOnly") };
+  const role = profile?.role as UserRole | undefined;
+  if (!role || !canChat(role)) {
+    return { error: t("forbidden") };
   }
-  return { userId: user.id, role: profile.role };
+  return { userId: user.id, role };
 }
 
 function revalidateNC(auditId: string, ncId: string) {
@@ -266,7 +271,11 @@ export async function deleteAttachment(
     .eq("id", user.id)
     .maybeSingle();
 
-  const isAuditor = profile?.role === "auditor";
+  // Suppression autorisée : staff plateforme avec droit d'éditer NC (admin/auditor)
+  // OU l'auteur de l'upload sur ses propres pièces.
+  const canDeleteAsStaff = profile?.role
+    ? canEditNC(profile.role as UserRole)
+    : false;
 
   const { data: attachment, error: fetchError } = await supabase
     .from("nc_attachments")
@@ -277,7 +286,7 @@ export async function deleteAttachment(
   if (fetchError) return { error: fetchError.message };
   if (!attachment) return { error: t("attachmentNotFound") };
 
-  if (!isAuditor && attachment.uploaded_by !== user.id) {
+  if (!canDeleteAsStaff && attachment.uploaded_by !== user.id) {
     return { error: t("ownAttachmentsOnly") };
   }
 

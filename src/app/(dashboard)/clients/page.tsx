@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
+import { canManageProjects } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 import { ClientsList, type ClientListItem } from "./clients-list";
 
@@ -7,7 +8,7 @@ export default async function ClientsPage() {
   const profile = await requireProfile();
   const t = await getTranslations("clients");
 
-  if (profile.role !== "auditor") {
+  if (!canManageProjects(profile.role)) {
     return (
       <div className="container mx-auto max-w-3xl p-6 md:p-8">
         <div

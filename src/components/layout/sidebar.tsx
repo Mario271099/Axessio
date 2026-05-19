@@ -8,9 +8,11 @@ import {
   Building2,
   ChevronUp,
   ClipboardCheck,
+  KeyRound,
   LayoutDashboard,
   LogOut,
   Settings,
+  Shield,
   Users,
   UserCircle,
 } from "lucide-react";
@@ -24,7 +26,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { USER_ROLE_LABELS } from "@/lib/constants";
+import { USER_ROLE_BADGE_VARIANT, USER_ROLE_LABELS } from "@/lib/constants";
+import { can, type Permission } from "@/lib/permissions";
 import { signOut } from "@/app/(auth)/actions";
 import type { Profile, UserRole } from "@/types/domain";
 
@@ -34,7 +37,8 @@ type IconKey =
   | "clients"
   | "users"
   | "references"
-  | "settings";
+  | "settings"
+  | "permissions";
 
 const ICONS = {
   dashboard: LayoutDashboard,
@@ -43,6 +47,7 @@ const ICONS = {
   users: Users,
   references: BookMarked,
   settings: Settings,
+  permissions: KeyRound,
 } as const;
 
 type ItemKey =
@@ -51,16 +56,21 @@ type ItemKey =
   | "clients"
   | "users"
   | "references"
-  | "settings";
+  | "settings"
+  | "permissions";
 
-type SectionKey = "main" | "management" | "other";
+type SectionKey = "main" | "management" | "admin" | "other";
 
 interface NavItem {
   href: string;
   itemKey: ItemKey;
   iconKey: IconKey;
-  /** Si null, visible pour tous. */
-  roles: UserRole[] | null;
+  /**
+   * Permission requise pour voir l'entrée. `null` = visible pour tous les
+   * rôles authentifiés. Le contrôle final reste côté serveur (RLS + checks
+   * dans les server actions) — la sidebar ne fait que cacher l'évident.
+   */
+  permission: Permission | null;
   /** Clé du compteur à afficher en badge (depuis `counts`). */
   badgeKey?: keyof NavCounts;
 }
@@ -74,22 +84,29 @@ const SECTIONS: NavSection[] = [
   {
     sectionKey: "main",
     items: [
-      { href: "/dashboard", itemKey: "dashboard", iconKey: "dashboard", roles: null },
-      { href: "/audits", itemKey: "audits", iconKey: "audits", roles: null, badgeKey: "inProgressAudits" },
+      { href: "/dashboard", itemKey: "dashboard", iconKey: "dashboard", permission: null },
+      { href: "/audits", itemKey: "audits", iconKey: "audits", permission: "audit.view", badgeKey: "inProgressAudits" },
     ],
   },
   {
     sectionKey: "management",
     items: [
-      { href: "/clients", itemKey: "clients", iconKey: "clients", roles: ["auditor"] },
-      { href: "/users", itemKey: "users", iconKey: "users", roles: ["auditor"] },
-      { href: "/references", itemKey: "references", iconKey: "references", roles: ["auditor"] },
+      // Clients/projets sont visibles aux admin + auditeurs (auditor a project.manage).
+      { href: "/clients", itemKey: "clients", iconKey: "clients", permission: "project.manage" },
+      { href: "/references", itemKey: "references", iconKey: "references", permission: "project.manage" },
+    ],
+  },
+  {
+    sectionKey: "admin",
+    items: [
+      { href: "/users", itemKey: "users", iconKey: "users", permission: "user.manage" },
+      { href: "/admin/permissions", itemKey: "permissions", iconKey: "permissions", permission: "permissions.debug" },
     ],
   },
   {
     sectionKey: "other",
     items: [
-      { href: "/settings", itemKey: "settings", iconKey: "settings", roles: null },
+      { href: "/settings", itemKey: "settings", iconKey: "settings", permission: null },
     ],
   },
 ];
@@ -129,7 +146,7 @@ export function Sidebar({ profile, counts }: SidebarProps) {
       >
         {SECTIONS.map((section) => {
           const visibleItems = section.items.filter(
-            (item) => item.roles === null || item.roles.includes(userRole),
+            (item) => item.permission === null || can(userRole, item.permission),
           );
           if (visibleItems.length === 0) return null;
           return (
@@ -200,13 +217,17 @@ export function Sidebar({ profile, counts }: SidebarProps) {
               >
                 {initials(profile.firstName || "?", profile.lastName || "?")}
               </div>
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 space-y-1">
                 <p className="truncate text-sm font-medium leading-tight">
                   {profile.firstName} {profile.lastName}
                 </p>
-                <p className="truncate text-xs text-muted-foreground">
+                <Badge
+                  variant={USER_ROLE_BADGE_VARIANT[profile.role]}
+                  className="h-5 px-1.5 text-[10px] font-medium"
+                >
+                  <Shield className="mr-1 h-2.5 w-2.5" aria-hidden="true" />
                   {USER_ROLE_LABELS[profile.role]}
-                </p>
+                </Badge>
               </div>
               <ChevronUp
                 className="h-4 w-4 shrink-0 text-muted-foreground"

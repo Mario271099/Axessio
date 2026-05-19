@@ -63,7 +63,7 @@ export async function requireProfile(): Promise<Profile> {
         email: user.email ?? "",
         first_name: "",
         last_name: "",
-        role: "client_member" as UserRole,
+        role: "client" as UserRole,
         client_id: null,
         language: "fr",
       })

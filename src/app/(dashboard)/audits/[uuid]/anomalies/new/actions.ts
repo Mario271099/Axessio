@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import type { ConformityStatus, NCSeverity } from "@/types/domain";
+import { canCreateNC } from "@/lib/permissions";
+import type { ConformityStatus, NCSeverity, UserRole } from "@/types/domain";
 
 export interface CreateNCInput {
   auditId: string;
@@ -40,8 +41,8 @@ export async function createNC(
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "auditor") {
-    return { error: t("createNCOnlyAuditor") };
+  if (!profile?.role || !canCreateNC(profile.role as UserRole)) {
+    return { error: t("forbidden") };
   }
 
   const title = input.title.trim();

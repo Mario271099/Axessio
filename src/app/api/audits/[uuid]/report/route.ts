@@ -108,9 +108,10 @@ export async function GET(req: Request, { params }: RouteParams) {
   }
 
   // ------------------------------------------------------------------
-  // 3. Autorisation : auditor OU client_admin du client de l'audit
+  // 3. Autorisation : admin/auditor OU client_admin du client de l'audit
   // ------------------------------------------------------------------
   const isAuthorized =
+    profile.role === "admin" ||
     profile.role === "auditor" ||
     (profile.role === "client_admin" && profile.client_id === client.id);
 
@@ -232,7 +233,7 @@ export async function GET(req: Request, { params }: RouteParams) {
     generatedAt: new Date().toISOString(),
     auditor: {
       name: auditorName,
-      role: profile.role as "auditor" | "client_admin" | "client_member",
+      role: profile.role as "admin" | "auditor" | "client_admin" | "client",
     },
     audit: {
       id: auditRow.id as string,
