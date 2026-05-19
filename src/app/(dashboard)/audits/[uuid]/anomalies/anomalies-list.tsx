@@ -352,7 +352,7 @@ export function AnomaliesList({
         />
       </div>
 
-      <Card className="sticky top-20 z-10 shadow-sm">
+      <Card className="sticky top-0 z-10 shadow-sm">
         <CardContent className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <div className="relative">
             <Search

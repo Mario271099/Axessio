@@ -245,24 +245,19 @@
     },
     "items": [
       {
-        "name": "sb-axessio-auth-token",
-        "purpose": "Stores the Supabase Auth session (logged-in user).",
-        "duration": "1 hour (renewed on each navigation)"
+        "name": "axessio-auth",
+        "purpose": "Stores your authentication session (logged-in user). If the token is large, it may be split into multiple cookies axessio-auth.0, axessio-auth.1, etc.",
+        "duration": "1 week (renewed on each navigation)"
       },
       {
-        "name": "sb-axessio-refresh-token",
-        "purpose": "Enables silent session renewal.",
-        "duration": "1 week"
-      },
-      {
-        "name": "NEXT_LOCALE",
+        "name": "axessio-locale",
         "purpose": "Remembers your interface language (French or English).",
         "duration": "1 year"
       },
       {
-        "name": "theme",
-        "purpose": "Remembers your appearance preference (light, dark, system).",
-        "duration": "1 year"
+        "name": "theme (localStorage)",
+        "purpose": "Remembers your appearance preference (light, dark, system). Stored in browser localStorage, never transmitted to the server.",
+        "duration": "Persistent until you clear browser storage"
       }
     ],
     "sections": {
@@ -798,6 +793,7 @@
       "newAudit": "New audit",
       "cardTitle": "All audits",
       "empty": "No audit yet.",
+      "noResults": "No audit matches your filters.",
       "caption": "Audit list",
       "columns": {
         "project": "Project",
@@ -809,7 +805,22 @@
         "updated": "Updated",
         "action": "Action"
       },
-      "viewAudit": "View the audit for project {name}"
+      "viewAudit": "View the audit for project {name}",
+      "searchPlaceholder": "Search by project or client…",
+      "searchAria": "Search audits",
+      "filterStatusAria": "Filter by status",
+      "filterStatusPlaceholder": "Status",
+      "filterAllStatuses": "All statuses",
+      "filterPlatformAria": "Filter by platform",
+      "filterPlatformPlaceholder": "Platform",
+      "filterAllPlatforms": "All platforms",
+      "resetFilters": "Reset",
+      "pagination": {
+        "summary": "Audits {from}-{to} of {total}",
+        "previous": "Previous",
+        "next": "Next",
+        "page": "Page {current} of {total}"
+      }
     },
     "new": {
       "metaTitle": "New audit",
@@ -1079,6 +1090,7 @@
       "breadcrumbDetail": "Detail",
       "statusAria": "Non-conformity status",
       "linkedCriterion": "Related criterion",
+      "testLabel": "Test:",
       "officialDocs": "Official documentation",
       "methodology": "Test methodology",
       "noMethodology": "No methodology available.",
@@ -1127,8 +1139,16 @@
       "info": "Information",
       "noPages": "This audit has no page configured. Add pages to the sample first.",
       "noCriteria": "No criterion found for the reference of this audit.",
+      "thematic": "Topic",
+      "thematicPlaceholder": "Select a topic",
       "criterion": "Criterion",
       "criterionPlaceholder": "Select a criterion",
+      "criterionPlaceholderDisabled": "Choose a topic first",
+      "test": "Criterion test and references",
+      "testPlaceholder": "Select a test",
+      "testPlaceholderDisabled": "Choose a criterion first",
+      "testPlaceholderNone": "No test available for this criterion",
+      "testNoneNote": "No test methodology is loaded for this criterion.",
       "page": "Page",
       "pagePlaceholder": "Select a page",
       "ncTitle": "Title",
@@ -1142,7 +1162,9 @@
       "severity": "Severity",
       "screenshots": "Screenshots",
       "titleRequired": "Title is required.",
+      "thematicRequired": "Topic is required.",
       "criterionRequired": "Criterion is required.",
+      "testRequired": "Test is required.",
       "pageRequired": "Page is required.",
       "creationFailed": "Creation failed.",
       "captureWarning": "Non-conformity created, but {count} capture(s) failed: {errors}",

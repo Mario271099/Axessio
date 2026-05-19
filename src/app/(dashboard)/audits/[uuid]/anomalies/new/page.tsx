@@ -54,7 +54,7 @@ export default async function NewNCPage({ params }: PageProps) {
   const { data: criteriaRows } = thematics.length
     ? await supabase
         .from("criteria")
-        .select("id, thematic_id, identifier, name, sort_order")
+        .select("id, thematic_id, identifier, name, sort_order, methodology")
         .in(
           "thematic_id",
           thematics.map((t) => t.id),
@@ -67,6 +67,7 @@ export default async function NewNCPage({ params }: PageProps) {
     thematicId: c.thematic_id as string,
     identifier: c.identifier as string,
     name: c.name as string,
+    methodology: (c.methodology as string | null) ?? null,
   }));
 
   return (

@@ -14,6 +14,8 @@ export interface CreateNCInput {
   actualResult: string | null;
   recommendation: string | null;
   severity: NCSeverity;
+  /** Référence textuelle du test précis qui a déclenché la NC, ex. `Test 1.1.1`. */
+  testReference: string | null;
 }
 
 export interface CreateNCResult {
@@ -47,6 +49,10 @@ export async function createNC(
   if (!input.criteriaId) return { error: t("criterionRequired") };
   if (!input.pageId) return { error: t("pageRequired") };
 
+  // Le test_reference est juste une chaîne libre, mais on borne la longueur
+  // pour ne pas accepter d'input dégénéré (le format `Test X.Y.Z` fait <20 ch).
+  const testReference = input.testReference?.trim().slice(0, 50) || null;
+
   const { data: nc, error: ncError } = await supabase
     .from("non_conformities")
     .insert({
@@ -60,6 +66,7 @@ export async function createNC(
       severity: input.severity,
       status: "OPEN",
       created_by: user.id,
+      test_reference: testReference,
     })
     .select("id")
     .single();

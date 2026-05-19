@@ -65,7 +65,7 @@ export function PagesSidebar({
   return (
     <aside
       aria-label={t("aria")}
-      className="w-full shrink-0 px-4 py-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:w-72 lg:overflow-y-auto"
+      className="w-full shrink-0 px-4 py-4 lg:sticky lg:top-0 lg:max-h-[calc(100vh-4rem)] lg:w-72 lg:overflow-y-auto"
     >
       <Card className="flex flex-col shadow-sm">
         <div className="border-b border-border p-4">

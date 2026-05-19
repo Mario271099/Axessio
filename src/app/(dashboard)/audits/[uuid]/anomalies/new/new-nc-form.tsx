@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import * as SelectPrimitive from "@radix-ui/react-select";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +18,6 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -27,6 +25,7 @@ import {
 import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { createClient } from "@/lib/supabase/client";
 import { addAttachment } from "@/app/(dashboard)/audits/[uuid]/anomalies/[ncId]/actions";
+import { parseMethodology } from "@/lib/methodology";
 import type { NCSeverity } from "@/types/domain";
 import { createNC } from "./actions";
 
@@ -50,6 +49,7 @@ export interface NCCriterion {
   thematicId: string;
   identifier: string;
   name: string;
+  methodology: string | null;
 }
 
 export interface NCPage {
@@ -73,7 +73,12 @@ export function NewNCForm({
   const router = useRouter();
   const t = useTranslations("audits.anomaliesNew");
   const tSeverity = useTranslations("constants.ncSeverity");
+
+  // -- Cascade thématique → critère → test ---------------------------------
+  const [thematicId, setThematicId] = useState<string>("");
   const [criteriaId, setCriteriaId] = useState<string>("");
+  const [testReference, setTestReference] = useState<string>("");
+
   const [pageId, setPageId] = useState<string>("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -84,6 +89,46 @@ export function NewNCForm({
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
   const [submitting, startTransition] = useTransition();
+
+  // -- Données dérivées de la sélection --------------------------------------
+  const filteredCriteria = useMemo(
+    () => criteria.filter((c) => c.thematicId === thematicId),
+    [criteria, thematicId],
+  );
+
+  const selectedCriterion = useMemo(
+    () => criteria.find((c) => c.id === criteriaId) ?? null,
+    [criteria, criteriaId],
+  );
+
+  const availableTests = useMemo(
+    () => parseMethodology(selectedCriterion?.methodology ?? null),
+    [selectedCriterion],
+  );
+
+  // Cascade : quand on change de thématique, on reset le critère + test.
+  // Quand on change de critère, on reset le test (mais on auto-sélectionne
+  // l'unique test s'il n'y en a qu'un — UX courant en RGAA).
+  useEffect(() => {
+    if (criteriaId && !filteredCriteria.some((c) => c.id === criteriaId)) {
+      setCriteriaId("");
+      setTestReference("");
+    }
+  }, [filteredCriteria, criteriaId]);
+
+  useEffect(() => {
+    const onlyTest = availableTests.length === 1 ? availableTests[0] : null;
+    if (onlyTest) {
+      setTestReference(onlyTest.reference);
+    } else if (
+      testReference &&
+      !availableTests.some((tst) => tst.reference === testReference)
+    ) {
+      setTestReference("");
+    }
+    // testReference exclu volontairement pour éviter une boucle.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availableTests]);
 
   const uploadFiles = async (ncId: string): Promise<string[]> => {
     if (files.length === 0) return [];
@@ -124,17 +169,14 @@ export function NewNCForm({
     return failures;
   };
 
-  const groupedCriteria = useMemo(() => {
-    return thematics.map((tm) => ({
-      thematic: tm,
-      items: criteria.filter((c) => c.thematicId === tm.id),
-    }));
-  }, [thematics, criteria]);
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!title.trim()) {
       setError(t("titleRequired"));
+      return;
+    }
+    if (!thematicId) {
+      setError(t("thematicRequired"));
       return;
     }
     if (!criteriaId) {
@@ -143,6 +185,12 @@ export function NewNCForm({
     }
     if (!pageId) {
       setError(t("pageRequired"));
+      return;
+    }
+    // Le test n'est requis que s'il existe au moins un test parsé. Certains
+    // critères sans méthodologie chargée n'imposent rien.
+    if (availableTests.length > 0 && !testReference) {
+      setError(t("testRequired"));
       return;
     }
     setError(null);
@@ -157,6 +205,7 @@ export function NewNCForm({
         actualResult: actualResult.trim() || null,
         recommendation: recommendation.trim() || null,
         severity,
+        testReference: testReference || null,
       });
       if (result.error || !result.ncId) {
         setError(result.error ?? t("creationFailed"));
@@ -228,52 +277,114 @@ export function NewNCForm({
               </p>
             )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="nc-criteria">{t("criterion")} *</Label>
-                <Select value={criteriaId} onValueChange={setCriteriaId}>
-                  <SelectTrigger id="nc-criteria">
-                    <SelectValue placeholder={t("criterionPlaceholder")} />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[60vh]">
-                    {groupedCriteria.map(({ thematic, items }) =>
-                      items.length === 0 ? null : (
-                        <SelectGroup key={thematic.id}>
-                          <SelectPrimitive.Label className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                            {thematic.identifier}. {thematic.name}
-                          </SelectPrimitive.Label>
-                          {items.map((c) => (
-                            <SelectItem key={c.id} value={c.id}>
-                              <span className="font-mono text-xs text-muted-foreground">
-                                {c.identifier}
-                              </span>
-                              <span className="ml-2">{c.name}</span>
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      ),
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="nc-page">{t("page")} *</Label>
-                <Select value={pageId} onValueChange={setPageId}>
-                  <SelectTrigger id="nc-page">
-                    <SelectValue placeholder={t("pagePlaceholder")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {pages.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* --- Page (toujours requis) ------------------------------- */}
+            <div className="space-y-2">
+              <Label htmlFor="nc-page">{t("page")} *</Label>
+              <Select value={pageId} onValueChange={setPageId}>
+                <SelectTrigger id="nc-page">
+                  <SelectValue placeholder={t("pagePlaceholder")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {pages.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
+            {/* --- Cascade Thématique → Critère → Test ------------------ */}
+            <div className="space-y-2">
+              <Label htmlFor="nc-thematic">{t("thematic")} *</Label>
+              <Select value={thematicId} onValueChange={setThematicId}>
+                <SelectTrigger id="nc-thematic">
+                  <SelectValue placeholder={t("thematicPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="max-h-[60vh]">
+                  {thematics.map((tm) => (
+                    <SelectItem key={tm.id} value={tm.id}>
+                      <span className="font-mono text-xs text-muted-foreground">
+                        {tm.identifier}
+                      </span>
+                      <span className="ml-2">{tm.name}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="nc-criteria">{t("criterion")} *</Label>
+              <Select
+                value={criteriaId}
+                onValueChange={setCriteriaId}
+                disabled={!thematicId}
+              >
+                <SelectTrigger id="nc-criteria">
+                  <SelectValue
+                    placeholder={
+                      thematicId
+                        ? t("criterionPlaceholder")
+                        : t("criterionPlaceholderDisabled")
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent className="max-h-[60vh]">
+                  {filteredCriteria.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      <span className="font-mono text-xs text-muted-foreground">
+                        {c.identifier}
+                      </span>
+                      <span className="ml-2">{c.name}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="nc-test">
+                {t("test")}
+                {availableTests.length > 0 ? " *" : ""}
+              </Label>
+              <Select
+                value={testReference}
+                onValueChange={setTestReference}
+                disabled={!criteriaId || availableTests.length === 0}
+              >
+                <SelectTrigger id="nc-test">
+                  <SelectValue
+                    placeholder={
+                      !criteriaId
+                        ? t("testPlaceholderDisabled")
+                        : availableTests.length === 0
+                          ? t("testPlaceholderNone")
+                          : t("testPlaceholder")
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent className="max-h-[60vh]">
+                  {availableTests.map((tst) => (
+                    <SelectItem key={tst.reference} value={tst.reference}>
+                      <span className="font-mono text-xs text-muted-foreground">
+                        {tst.reference}
+                      </span>
+                      <span className="ml-2 max-w-md truncate align-middle">
+                        {tst.question}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {criteriaId && availableTests.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {t("testNoneNote")}
+                </p>
+              )}
+            </div>
+
+            {/* --- Reste du formulaire ---------------------------------- */}
             <div className="space-y-2">
               <Label htmlFor="nc-title">{t("ncTitle")} *</Label>
               <Input

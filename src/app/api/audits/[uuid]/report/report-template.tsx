@@ -94,6 +94,7 @@ export interface ReportData {
     recommendation: string | null;
     severity: NCSeverity;
     status: NCStatus;
+    testReference: string | null;
     criterion: { identifier: string; name: string; url: string | null };
     page: { name: string; sortOrder: number } | null;
     attachments: Array<{
@@ -179,6 +180,7 @@ type Dict = {
   ncRecommendation: string;
   ncAttachments: string;
   ncCriterion: string;
+  ncTest: string;
   ncPage: string;
   ncOfficialRef: string;
   ncTransversal: string;
@@ -265,6 +267,7 @@ const STRINGS_FR: Dict = {
   ncRecommendation: "Recommandation",
   ncAttachments: "Pièces jointes",
   ncCriterion: "Critère",
+  ncTest: "Test",
   ncPage: "Page",
   ncOfficialRef: "Référence officielle",
   ncTransversal: "Transversale",
@@ -382,6 +385,7 @@ const STRINGS_EN: Dict = {
   ncRecommendation: "Recommendation",
   ncAttachments: "Attachments",
   ncCriterion: "Criterion",
+  ncTest: "Test",
   ncPage: "Page",
   ncOfficialRef: "Official reference",
   ncTransversal: "Transversal",
@@ -1687,6 +1691,11 @@ function renderNCBlock(
               <th scope="row">${esc(d.ncCriterion)}</th>
               <td>${criterionCell}</td>
             </tr>
+            ${
+              nc.testReference
+                ? `<tr><th scope="row">${esc(d.ncTest)}</th><td>${esc(nc.testReference)}</td></tr>`
+                : ""
+            }
             <tr>
               <th scope="row">${esc(d.ncPage)}</th>
               <td>${nc.page ? esc(nc.page.name) : esc(d.ncTransversal)}</td>

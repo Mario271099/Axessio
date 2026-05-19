@@ -154,7 +154,7 @@ export async function GET(req: Request, { params }: RouteParams) {
       .select(
         `
         id, page_id, criteria_id, title, description, actual_result, recommendation,
-        severity, status,
+        severity, status, test_reference,
         criterion:criteria!inner(identifier, name, url),
         page:pages(name, sort_order),
         attachments:nc_attachments(id, storage_path, file_name, mime_type, kind)
@@ -185,6 +185,7 @@ export async function GET(req: Request, { params }: RouteParams) {
     recommendation: string | null;
     severity: string;
     status: string;
+    test_reference: string | null;
     criterion: NCCriterion | NCCriterion[];
     page: NCPage | NCPage[] | null;
     attachments:
@@ -307,6 +308,7 @@ export async function GET(req: Request, { params }: RouteParams) {
         recommendation: nc.recommendation,
         severity: nc.severity as NCSeverity,
         status: nc.status as NCStatus,
+        testReference: nc.test_reference,
         criterion: {
           identifier: criterion?.identifier ?? "",
           name: criterion?.name ?? "",

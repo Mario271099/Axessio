@@ -19,7 +19,7 @@ export default async function NCDetailPage({ params }: PageProps) {
     .select(
       `
       id, title, description, actual_result, recommendation,
-      severity, status, page_id,
+      severity, status, page_id, test_reference,
       criterion:criteria!inner(id, identifier, name, url, methodology),
       page:pages(id, name)
     `,
@@ -46,6 +46,7 @@ export default async function NCDetailPage({ params }: PageProps) {
     severity: ncRow.severity as NCSeverity,
     status: ncRow.status as string,
     pageId: (ncRow.page_id as string | null) ?? null,
+    testReference: (ncRow.test_reference as string | null) ?? null,
     criterion: criterion
       ? {
           id: criterion.id as string,

@@ -245,24 +245,19 @@
     },
     "items": [
       {
-        "name": "sb-axessio-auth-token",
-        "purpose": "Conserve la session Supabase Auth (utilisateur connecté).",
-        "duration": "1 heure (renouvelée à chaque navigation)"
+        "name": "axessio-auth",
+        "purpose": "Conserve votre session d'authentification (utilisateur connecté). Si le jeton est volumineux, il peut être fragmenté en plusieurs cookies axessio-auth.0, axessio-auth.1, etc.",
+        "duration": "1 semaine (renouvelée à chaque navigation)"
       },
       {
-        "name": "sb-axessio-refresh-token",
-        "purpose": "Permet le renouvellement silencieux de la session.",
-        "duration": "1 semaine"
-      },
-      {
-        "name": "NEXT_LOCALE",
+        "name": "axessio-locale",
         "purpose": "Mémorise votre langue d'interface (français ou anglais).",
         "duration": "1 an"
       },
       {
-        "name": "theme",
-        "purpose": "Mémorise votre préférence d'apparence (clair, sombre, système).",
-        "duration": "1 an"
+        "name": "theme (localStorage)",
+        "purpose": "Mémorise votre préférence d'apparence (clair, sombre, système). Stocké en localStorage du navigateur, jamais transmis au serveur.",
+        "duration": "Persistant tant que vous ne videz pas le stockage du navigateur"
       }
     ],
     "sections": {
@@ -798,6 +793,7 @@
       "newAudit": "Nouvel audit",
       "cardTitle": "Tous les audits",
       "empty": "Aucun audit pour l'instant.",
+      "noResults": "Aucun audit ne correspond à vos filtres.",
       "caption": "Liste des audits",
       "columns": {
         "project": "Projet",
@@ -809,7 +805,22 @@
         "updated": "Mis à jour",
         "action": "Action"
       },
-      "viewAudit": "Voir l'audit du projet {name}"
+      "viewAudit": "Voir l'audit du projet {name}",
+      "searchPlaceholder": "Rechercher par projet ou client…",
+      "searchAria": "Rechercher un audit",
+      "filterStatusAria": "Filtrer par statut",
+      "filterStatusPlaceholder": "Statut",
+      "filterAllStatuses": "Tous les statuts",
+      "filterPlatformAria": "Filtrer par plateforme",
+      "filterPlatformPlaceholder": "Plateforme",
+      "filterAllPlatforms": "Toutes les plateformes",
+      "resetFilters": "Réinitialiser",
+      "pagination": {
+        "summary": "Audits {from}-{to} sur {total}",
+        "previous": "Précédent",
+        "next": "Suivant",
+        "page": "Page {current} sur {total}"
+      }
     },
     "new": {
       "metaTitle": "Nouvel audit",
@@ -1079,6 +1090,7 @@
       "breadcrumbDetail": "Détail",
       "statusAria": "Statut de la non-conformité",
       "linkedCriterion": "Critère lié",
+      "testLabel": "Test :",
       "officialDocs": "Documentation officielle",
       "methodology": "Méthodologie de test",
       "noMethodology": "Aucune méthodologie disponible.",
@@ -1127,8 +1139,16 @@
       "info": "Informations",
       "noPages": "Cet audit n'a aucune page configurée. Ajoutez d'abord des pages dans l'échantillon.",
       "noCriteria": "Aucun critère trouvé pour le référentiel de cet audit.",
+      "thematic": "Thématique",
+      "thematicPlaceholder": "Sélectionner une thématique",
       "criterion": "Critère",
       "criterionPlaceholder": "Sélectionner un critère",
+      "criterionPlaceholderDisabled": "Choisissez d'abord une thématique",
+      "test": "Test et références du critère",
+      "testPlaceholder": "Sélectionner un test",
+      "testPlaceholderDisabled": "Choisissez d'abord un critère",
+      "testPlaceholderNone": "Aucun test disponible pour ce critère",
+      "testNoneNote": "Aucune méthodologie de test n'est chargée pour ce critère.",
       "page": "Page",
       "pagePlaceholder": "Sélectionner une page",
       "ncTitle": "Titre",
@@ -1142,7 +1162,9 @@
       "severity": "Sévérité",
       "screenshots": "Captures d'écran",
       "titleRequired": "Le titre est requis.",
+      "thematicRequired": "La thématique est requise.",
       "criterionRequired": "Le critère est requis.",
+      "testRequired": "Le test est requis.",
       "pageRequired": "La page est requise.",
       "creationFailed": "Échec de la création.",
       "captureWarning": "Non-conformité créée, mais {count} capture(s) en erreur : {errors}",

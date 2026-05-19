@@ -45,14 +45,17 @@ export default async function DashboardPage() {
   const tCommon = await getTranslations("common");
   const intl = intlLocale(locale);
 
-  // Toutes les requêtes en parallèle.
+  // Tout est calculé côté Postgres (agrégats + RPCs) pour rester rapide
+  // au-delà de plusieurs dizaines de milliers d'audits. Aucun SELECT non borné.
   const [
     auditsRes,
-    statusBreakdownRes,
+    breakdownRes,
     totalAuditsRes,
+    avgScoreRes,
     recentNcRes,
     profileExtraRes,
   ] = await Promise.all([
+    // Liste des 10 audits les plus récents — couverte par idx_audits_updated_at_desc.
     supabase
       .from("audits")
       .select(
@@ -61,10 +64,12 @@ export default async function DashboardPage() {
       )
       .order("updated_at", { ascending: false })
       .limit(10),
-    supabase.from("audits").select("status"),
-    supabase
-      .from("audits")
-      .select("id", { count: "exact", head: true }),
+    // Répartition par statut via RPC — un aller-retour Postgres (filtered count).
+    supabase.rpc("audits_status_breakdown"),
+    // Total audits accessibles à l'utilisateur (RLS appliquée).
+    supabase.from("audits").select("id", { count: "exact", head: true }),
+    // Score moyen calculé en SQL (AVG), pas en JS.
+    supabase.rpc("audits_avg_score"),
     supabase
       .from("non_conformities")
       .select(
@@ -84,37 +89,37 @@ export default async function DashboardPage() {
   const totalAudits = totalAuditsRes.count ?? 0;
   const lastLoginAt = profileExtraRes.data?.last_login_at ?? null;
 
-  // ---- KPIs (depuis la liste récente, RLS filtre selon le rôle) -----------
-  const total = auditList.length;
-  const inProgress = auditList.filter((a) =>
-    STATUS_GROUPS.inProgress.includes(a.status as AuditStatus),
-  ).length;
-  const completed = auditList.filter((a) =>
-    STATUS_GROUPS.completed.includes(a.status as AuditStatus),
-  ).length;
-  const evaluatedScores = auditList
-    .map((a) => a.final_score ?? a.initial_score)
-    .filter((s): s is number => s !== null && s !== undefined);
-  const avgScore =
-    evaluatedScores.length > 0
-      ? Math.round(
-          evaluatedScores.reduce((sum, s) => sum + s, 0) /
-            evaluatedScores.length,
-        )
-      : 0;
+  // ---- Répartition pour le pie + KPIs (depuis le RPC) --------------------
+  // Le RPC renvoie une seule ligne avec 4 colonnes (filtered counts).
+  const breakdownRow = Array.isArray(breakdownRes.data)
+    ? breakdownRes.data[0]
+    : breakdownRes.data;
+  const breakdown: StatusBreakdown = {
+    pending: Number(breakdownRow?.pending_count ?? 0),
+    inProgress: Number(breakdownRow?.in_progress_count ?? 0),
+    completed: Number(breakdownRow?.completed_count ?? 0),
+    archived: Number(breakdownRow?.archived_count ?? 0),
+  };
 
-  // ---- Répartition pour le pie ------------------------------------------
-  const breakdown: StatusBreakdown = (statusBreakdownRes.data ?? []).reduce(
-    (acc, row) => {
-      const status = row.status as AuditStatus;
-      if (STATUS_GROUPS.pending.includes(status)) acc.pending += 1;
-      else if (STATUS_GROUPS.inProgress.includes(status)) acc.inProgress += 1;
-      else if (STATUS_GROUPS.completed.includes(status)) acc.completed += 1;
-      else if (STATUS_GROUPS.archived.includes(status)) acc.archived += 1;
-      return acc;
-    },
-    { pending: 0, inProgress: 0, completed: 0, archived: 0 } as StatusBreakdown,
-  );
+  const inProgress = breakdown.inProgress;
+  const completed = breakdown.completed;
+  const evaluatedTotal =
+    breakdown.pending +
+    breakdown.inProgress +
+    breakdown.completed +
+    breakdown.archived;
+
+  // Score moyen via RPC (numérique nullable si aucun audit scoré).
+  const avgScoreRaw =
+    typeof avgScoreRes.data === "number"
+      ? avgScoreRes.data
+      : typeof avgScoreRes.data === "string"
+        ? Number.parseFloat(avgScoreRes.data)
+        : null;
+  const avgScore =
+    avgScoreRaw !== null && !Number.isNaN(avgScoreRaw)
+      ? Math.round(avgScoreRaw)
+      : 0;
 
   // ---- Activité récente : on dérive des NC fraîches ----------------------
   const tActivity = await getTranslations("dashboard.activity");
@@ -228,7 +233,7 @@ export default async function DashboardPage() {
           <KpiCard
             iconKey="clipboard-list"
             label={t("kpi.recentAudits")}
-            value={total}
+            value={totalAudits}
             tone="primary"
             delta={null}
             note={t("kpi.totalSuffix", { total: totalAudits })}
@@ -260,7 +265,7 @@ export default async function DashboardPage() {
             tone="violet"
             delta={null}
             suffix="%"
-            note={t("kpi.scoreNote", { count: evaluatedScores.length })}
+            note={t("kpi.scoreNote", { count: evaluatedTotal })}
           />
         </div>
       </div>

@@ -235,7 +235,9 @@ export function PageMatrixContent({
       </Card>
 
       {/* Barre de filtres ------------------------------------------------ */}
-      <Card className="sticky top-20 z-10 flex flex-wrap gap-2 p-2 shadow-sm">
+      {/* Le scrolling ancestor est le <main> du dashboard (overflow-y-auto). */}
+      {/* La Topbar vit en dehors de ce <main>, donc on stick à top-0.       */}
+      <Card className="sticky top-0 z-10 flex flex-wrap gap-2 p-2 shadow-sm">
         <div
           role="radiogroup"
           aria-label={t("filterAria")}

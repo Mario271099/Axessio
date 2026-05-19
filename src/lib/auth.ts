@@ -10,6 +10,7 @@ interface ProfileRow {
   role: string;
   client_id: string | null;
   language: string;
+  is_active?: boolean | null;
 }
 
 function mapProfile(row: ProfileRow): Profile {
@@ -35,12 +36,22 @@ export async function requireProfile(): Promise<Profile> {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email, first_name, last_name, role, client_id, language")
+    .select(
+      "id, email, first_name, last_name, role, client_id, language, is_active",
+    )
     .eq("id", user.id)
     .maybeSingle();
 
   if (error) {
     throw new Error(`Erreur de récupération du profil : ${error.message}`);
+  }
+
+  // Compte désactivé : on coupe la session et on redirige vers /login.
+  // `is_active` peut être absent (anciens profils, bases pre-migration 15) ;
+  // dans ce cas on traite comme actif pour ne pas verrouiller l'historique.
+  if (data && data.is_active === false) {
+    await supabase.auth.signOut();
+    redirect("/login?reason=disabled");
   }
 
   // Profil manquant : on le crée à la volée

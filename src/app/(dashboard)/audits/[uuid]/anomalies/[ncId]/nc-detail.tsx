@@ -154,6 +154,7 @@ export interface NCData {
   severity: NCSeverity;
   status: string;
   pageId: string | null;
+  testReference: string | null;
   criterion: CriterionData | null;
   page: PageData | null;
 }
@@ -490,6 +491,16 @@ export function NCDetail({
                   </span>
                   <span className="font-medium">{nc.criterion.name}</span>
                 </div>
+                {nc.testReference && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">
+                      {t("testLabel")}
+                    </span>
+                    <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-xs font-semibold text-primary">
+                      {nc.testReference}
+                    </span>
+                  </div>
+                )}
                 {nc.criterion.url && (
                   <Button
                     asChild
