@@ -43,8 +43,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { intlLocale } from "@/lib/intl";
-import { canCreateNC, canDeleteNC, canEditNC } from "@/lib/permissions";
-import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
+import {
+  canCreateNCNow,
+  canDeleteNC,
+  canEditNCNow,
+  isWorkflowEditable,
+} from "@/lib/permissions";
+import type {
+  AuditWorkflowStatus,
+  NCSeverity,
+  NCStatus,
+  UserRole,
+} from "@/types/domain";
 import {
   bulkDeleteNCs,
   bulkUpdateNCSeverity,
@@ -90,6 +100,7 @@ interface AnomaliesListProps {
   auditId: string;
   auditTitle: string;
   role: UserRole;
+  workflowStatus: AuditWorkflowStatus;
 }
 
 export function AnomaliesList({
@@ -97,6 +108,7 @@ export function AnomaliesList({
   auditId,
   auditTitle,
   role,
+  workflowStatus,
 }: AnomaliesListProps) {
   const t = useTranslations("audits.anomalies");
   const tBulk = useTranslations("audits.anomalies.bulk");
@@ -121,9 +133,11 @@ export function AnomaliesList({
 
   // Sélection groupée : seulement pour ceux qui peuvent éditer les NC.
   // La permission de supprimer est vérifiée séparément côté barre flottante.
-  const canBulk = canEditNC(role);
-  const canCreate = canCreateNC(role);
-  const allowBulkDelete = canDeleteNC(role);
+  // Toutes les actions d'édition tiennent compte du verrou workflow.
+  const canBulk = canEditNCNow(role, workflowStatus);
+  const canCreate = canCreateNCNow(role, workflowStatus);
+  const allowBulkDelete =
+    canDeleteNC(role) && isWorkflowEditable(workflowStatus, role);
 
   const pageNames = useMemo(() => {
     const names = new Set<string>();

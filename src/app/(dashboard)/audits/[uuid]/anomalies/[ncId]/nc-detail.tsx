@@ -46,8 +46,13 @@ import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { intlLocale } from "@/lib/intl";
-import { canChat, canEditNC } from "@/lib/permissions";
-import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
+import { canChat, canEditNCNow, isWorkflowEditable } from "@/lib/permissions";
+import type {
+  AuditWorkflowStatus,
+  NCSeverity,
+  NCStatus,
+  UserRole,
+} from "@/types/domain";
 import {
   addAttachment,
   deleteAttachment,
@@ -168,6 +173,7 @@ export interface NCDetailProps {
   auditId: string;
   auditTitle: string;
   profile: { role: UserRole; id: string };
+  workflowStatus: AuditWorkflowStatus;
 }
 
 export function NCDetail({
@@ -178,6 +184,7 @@ export function NCDetail({
   auditId,
   auditTitle,
   profile,
+  workflowStatus,
 }: NCDetailProps) {
   const router = useRouter();
   const t = useTranslations("audits.ncDetail");
@@ -188,8 +195,9 @@ export function NCDetail({
   const locale = useLocale();
   const intl = intlLocale(locale);
   // « isAuditor » historique = peut modifier la NC (titre, sévérité, statut).
-  // On le câble désormais sur la permission canEditNC pour qu'admin hérite.
-  const isAuditor = canEditNC(profile.role);
+  // Combiné au verrou workflow : un audit validated/delivered bloque
+  // l'édition côté UI (admin n'est jamais verrouillé).
+  const isAuditor = canEditNCNow(profile.role, workflowStatus);
 
   function formatMessageDate(iso: string): string {
     const d = new Date(iso);
@@ -734,7 +742,7 @@ export function NCDetail({
                     // les NC (admin/auditor). Couvre l'admin qui n'avait pas
                     // accès dans l'ancien check `role === "auditor"`.
                     const canDelete =
-                      canEditNC(profile.role) ||
+                      canEditNCNow(profile.role, workflowStatus) ||
                       att.uploadedBy === profile.id;
                     const isImage = !!att.mimeType?.startsWith("image/");
                     const isDeleting = deletingId === att.id;

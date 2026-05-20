@@ -23,6 +23,10 @@ import {
   ActivityTimeline,
   type ActivityEvent,
 } from "@/components/dashboard/activity-timeline";
+import {
+  WorkflowBreakdownCard,
+  type WorkflowBreakdown,
+} from "@/components/dashboard/workflow-breakdown";
 import { intlLocale } from "@/lib/intl";
 
 const STATUS_GROUPS = {
@@ -54,6 +58,8 @@ export default async function DashboardPage() {
     avgScoreRes,
     recentNcRes,
     profileExtraRes,
+    workflowBreakdownRes,
+    avgReviewRes,
   ] = await Promise.all([
     // Liste des 10 audits les plus récents — couverte par idx_audits_updated_at_desc.
     supabase
@@ -83,6 +89,10 @@ export default async function DashboardPage() {
       .select("last_login_at")
       .eq("id", profile.id)
       .maybeSingle(),
+    // Répartition par workflow_status (RPC stable RLS-aware).
+    supabase.rpc("audits_workflow_breakdown"),
+    // Temps moyen passé en in_review (secondes). null si pas assez de données.
+    supabase.rpc("audits_avg_review_time_seconds"),
   ]);
 
   const auditList = auditsRes.data ?? [];
@@ -186,6 +196,23 @@ export default async function DashboardPage() {
 
   const recentAudits = auditList.slice(0, 5);
 
+  // ---- Workflow breakdown (KPI éditorial) -------------------------------
+  const workflowRow = Array.isArray(workflowBreakdownRes.data)
+    ? workflowBreakdownRes.data[0]
+    : workflowBreakdownRes.data;
+  const workflowBreakdown: WorkflowBreakdown = {
+    draft: Number(workflowRow?.draft_count ?? 0),
+    in_review: Number(workflowRow?.in_review_count ?? 0),
+    validated: Number(workflowRow?.validated_count ?? 0),
+    delivered: Number(workflowRow?.delivered_count ?? 0),
+  };
+  const avgReviewSeconds =
+    typeof avgReviewRes.data === "number"
+      ? avgReviewRes.data
+      : typeof avgReviewRes.data === "string"
+        ? Number.parseFloat(avgReviewRes.data)
+        : null;
+
   return (
     <div className="container mx-auto max-w-7xl space-y-8 p-6 md:p-8">
       {/* ============================================================== */}
@@ -284,6 +311,14 @@ export default async function DashboardPage() {
         </div>
         <StatusPie breakdown={breakdown} />
       </div>
+
+      {/* ============================================================== */}
+      {/* Workflow breakdown — KPI éditorial                              */}
+      {/* ============================================================== */}
+      <WorkflowBreakdownCard
+        breakdown={workflowBreakdown}
+        avgReviewSeconds={avgReviewSeconds}
+      />
 
       {/* ============================================================== */}
       {/* Audits récents                                                  */}

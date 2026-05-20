@@ -305,6 +305,26 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                     </Label>
                     <Input id="end-date" name="expectedEndAt" type="date" />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="restitution-date">
+                      {t("steps.planning.restitutionDate")}
+                    </Label>
+                    <Input
+                      id="restitution-date"
+                      name="restitutionAt"
+                      type="date"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="counter-audit-date">
+                      {t("steps.planning.counterAuditDate")}
+                    </Label>
+                    <Input
+                      id="counter-audit-date"
+                      name="counterAuditAt"
+                      type="date"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">

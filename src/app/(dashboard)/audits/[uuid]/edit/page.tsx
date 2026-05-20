@@ -3,8 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
-import { canEditAudit } from "@/lib/permissions";
+import { canEditAuditNow } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
+import type { AuditWorkflowStatus } from "@/types/domain";
 import { Button } from "@/components/ui/button";
 import type { ReferenceType } from "@/types/domain";
 import { EditAuditForm } from "./edit-form";
@@ -16,11 +17,6 @@ export default async function EditAuditPage({
 }) {
   const profile = await requireProfile();
   const t = await getTranslations("audits.edit");
-
-  if (!canEditAudit(profile.role)) {
-    redirect(`/audits/${(await params).uuid}`);
-  }
-
   const { uuid } = await params;
   const supabase = await createClient();
 
@@ -29,8 +25,9 @@ export default async function EditAuditPage({
       .from("audits")
       .select(
         `
-        id, reference_id, platform, service_type, status, language,
-        expected_start_at, expected_end_at, accessibility_link, notes,
+        id, reference_id, platform, service_type, status, workflow_status, language,
+        expected_start_at, expected_end_at, restitution_at, counter_audit_at,
+        accessibility_link, notes,
         project:projects(name, client:clients(name))
       `,
       )
@@ -44,6 +41,17 @@ export default async function EditAuditPage({
   ]);
 
   if (!audit) notFound();
+
+  // Permission + verrou workflow : un audit validated/delivered n'est éditable
+  // que par l'admin. canEditAuditNow encapsule les deux checks.
+  if (
+    !canEditAuditNow(
+      profile.role,
+      (audit.workflow_status ?? "draft") as AuditWorkflowStatus,
+    )
+  ) {
+    redirect(`/audits/${uuid}`);
+  }
 
   const project = Array.isArray(audit.project)
     ? audit.project[0]
@@ -87,6 +95,8 @@ export default async function EditAuditPage({
           language: audit.language,
           expectedStartAt: audit.expected_start_at,
           expectedEndAt: audit.expected_end_at,
+          restitutionAt: audit.restitution_at,
+          counterAuditAt: audit.counter_audit_at,
           accessibilityLink: audit.accessibility_link,
           notes: audit.notes,
         }}

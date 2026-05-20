@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import { canEditNC } from "@/lib/permissions";
+import { assertWorkflowEditable } from "@/lib/server-permissions";
 import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
 
 export interface BulkResult {
@@ -28,7 +29,7 @@ const BULK_LIMIT = 60;
 const BULK_WINDOW_MS = 60 * 1000;
 
 async function requireAuditor(): Promise<
-  { ok: true; userId: string } | { ok: false; error: string }
+  { ok: true; userId: string; role: UserRole } | { ok: false; error: string }
 > {
   const supabase = await createClient();
   const t = await getTranslations("errors");
@@ -46,7 +47,7 @@ async function requireAuditor(): Promise<
   if (!profile?.role || !canEditNC(profile.role as UserRole)) {
     return { ok: false, error: t("forbidden") };
   }
-  return { ok: true, userId: user.id };
+  return { ok: true, userId: user.id, role: profile.role as UserRole };
 }
 
 async function checkBulkRateLimit(
@@ -80,6 +81,9 @@ export async function bulkUpdateNCStatus(
 ): Promise<BulkResult> {
   const auth = await requireAuditor();
   if (!auth.ok) return { error: auth.error };
+
+  const lockError = await assertWorkflowEditable(auditId, auth.role);
+  if (lockError) return { error: lockError };
 
   const rl = await checkBulkRateLimit(auth.userId);
   if (!rl.ok) return { error: rl.error };
@@ -115,6 +119,9 @@ export async function bulkUpdateNCSeverity(
   const auth = await requireAuditor();
   if (!auth.ok) return { error: auth.error };
 
+  const lockError = await assertWorkflowEditable(auditId, auth.role);
+  if (lockError) return { error: lockError };
+
   const rl = await checkBulkRateLimit(auth.userId);
   if (!rl.ok) return { error: rl.error };
 
@@ -145,6 +152,9 @@ export async function bulkDeleteNCs(
 ): Promise<BulkResult> {
   const auth = await requireAuditor();
   if (!auth.ok) return { error: auth.error };
+
+  const lockError = await assertWorkflowEditable(auditId, auth.role);
+  if (lockError) return { error: lockError };
 
   const rl = await checkBulkRateLimit(auth.userId);
   if (!rl.ok) return { error: rl.error };

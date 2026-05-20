@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import type { NCSeverity } from "@/types/domain";
+import type { AuditWorkflowStatus, NCSeverity } from "@/types/domain";
 import { NCDetail, type NCData } from "./nc-detail";
 
 interface PageProps {
@@ -125,7 +125,7 @@ export default async function NCDetailPage({ params }: PageProps) {
       .order("sort_order", { ascending: true }),
     supabase
       .from("audits")
-      .select(`project:projects(name)`)
+      .select(`workflow_status, project:projects(name)`)
       .eq("id", uuid)
       .maybeSingle(),
   ]);
@@ -151,6 +151,9 @@ export default async function NCDetailPage({ params }: PageProps) {
       auditId={uuid}
       auditTitle={auditTitle}
       profile={{ role: profile.role, id: profile.id }}
+      workflowStatus={
+        (auditRes.data?.workflow_status ?? "draft") as AuditWorkflowStatus
+      }
     />
   );
 }

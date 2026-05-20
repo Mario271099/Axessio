@@ -21,9 +21,33 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
+import { WorkflowBadge } from "@/components/audit/workflow-badge";
+import { WorkflowActions } from "@/components/audit/workflow-actions";
+import { WorkflowTimeline } from "@/components/audit/workflow-timeline";
+import {
+  AuditAssignees,
+  type AssigneeEntry,
+  type AssignableAuditor,
+} from "@/components/audit/audit-assignees";
+import {
+  AuditProofreaders,
+  type ProofreaderEntry,
+  type ProofreaderCandidate,
+} from "@/components/audit/audit-proofreaders";
+import { ReviewCommentForm } from "@/components/audit/review-comment-form";
 import { Progress } from "@/components/ui/progress";
 import { formatDate, formatScore, cn } from "@/lib/utils";
-import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
+import {
+  AUDIT_WORKFLOW_TRANSITIONS,
+  REFERENCE_TYPE_LABELS,
+} from "@/lib/constants";
+import {
+  canAssignAuditor,
+  canAssignProofreader,
+  canEditAuditNow,
+  canPostReviewComment,
+  canTransitionWorkflow,
+} from "@/lib/permissions";
 import {
   getConformityLabel,
   getConformityLevel,
@@ -31,6 +55,7 @@ import {
 } from "@/lib/score";
 import type {
   AuditStatus,
+  AuditWorkflowStatus,
   PlatformType,
   ReferenceType,
   ServiceType,
@@ -54,6 +79,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
     .select(
       `
       *,
+      workflow_status,
       reference:references(type, version),
       project:projects(name, url, client:clients(id, name))
     `,
@@ -79,6 +105,8 @@ export default async function AuditDetailPage({ params }: PageProps) {
 
   const score = audit.final_score ?? audit.initial_score ?? 0;
   const level = getConformityLevel(score);
+  const workflowStatus = (audit.workflow_status ??
+    "draft") as AuditWorkflowStatus;
 
   // Export PDF : staff plateforme (admin/auditor) OU client_admin du client
   // propriétaire de l'audit. Les clients simples passent par leur admin.
@@ -88,6 +116,23 @@ export default async function AuditDetailPage({ params }: PageProps) {
     (profile.role === "client_admin" &&
       client?.id != null &&
       profile.clientId === client.id);
+
+  // Édition des métadonnées audit : permission + verrou workflow (admin
+  // n'est jamais verrouillé).
+  const canEdit = canEditAuditNow(profile.role, workflowStatus);
+
+  // Transitions disponibles depuis l'état courant filtrées sur le rôle.
+  // On propage `requireReason` + `ctaKey` au composant client pour qu'il
+  // affiche le bon CTA et applique la validation côté UI.
+  const transitions = canTransitionWorkflow(profile.role)
+    ? (AUDIT_WORKFLOW_TRANSITIONS[workflowStatus] ?? [])
+        .filter((tr) => tr.roles.includes(profile.role))
+        .map((tr) => ({
+          to: tr.to,
+          requireReason: tr.requireReason,
+          ctaKey: tr.ctaKey,
+        }))
+    : [];
 
   const [{ count: pageCount }, { count: ncCount }] = await Promise.all([
     supabase
@@ -100,6 +145,118 @@ export default async function AuditDetailPage({ params }: PageProps) {
       .eq("audit_id", uuid)
       .neq("status", "RESOLVED"),
   ]);
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Auditeurs assignés. La gestion est réservée à l'admin (la RLS de la
+  // migration 25 restreint l'INSERT/DELETE sur `audit_assignees` à is_admin()).
+  // Pour la liste des candidats disponibles, on charge tous les auditeurs +
+  // admins actifs, on filtre côté JS les déjà-assignés.
+  // ──────────────────────────────────────────────────────────────────────────
+  const canManageAssignees =
+    profile.role === "admin" && canAssignAuditor(profile.role);
+  const canManageProofreaders = canAssignProofreader(profile.role);
+  const canComment = canPostReviewComment(profile.role);
+
+  // Une requête couvre les deux rôles ; on partage ensuite côté JS.
+  const { data: allAssigneesRows } = await supabase
+    .from("audit_assignees")
+    .select(
+      `profile_id, role,
+       profile:profiles!inner(first_name, last_name, email, role)`,
+    )
+    .eq("audit_id", uuid)
+    .in("role", ["auditor", "proofreader"]);
+
+  type RawAssigneeRow = {
+    profile_id: string;
+    role: string;
+    profile:
+      | {
+          first_name: string | null;
+          last_name: string | null;
+          email: string | null;
+          role: string | null;
+        }
+      | Array<{
+          first_name: string | null;
+          last_name: string | null;
+          email: string | null;
+          role: string | null;
+        }>
+      | null;
+  };
+
+  const rawAssignees = (allAssigneesRows ?? []) as RawAssigneeRow[];
+  const assignees: AssigneeEntry[] = rawAssignees
+    .filter((row) => row.role === "auditor")
+    .map((row) => {
+      const p = Array.isArray(row.profile) ? row.profile[0] : row.profile;
+      return {
+        profileId: row.profile_id,
+        firstName: p?.first_name ?? null,
+        lastName: p?.last_name ?? null,
+        email: p?.email ?? null,
+        role: (p?.role ?? "auditor") as AssigneeEntry["role"],
+      };
+    });
+
+  const proofreaders: ProofreaderEntry[] = rawAssignees
+    .filter((row) => row.role === "proofreader")
+    .map((row) => {
+      const p = Array.isArray(row.profile) ? row.profile[0] : row.profile;
+      return {
+        profileId: row.profile_id,
+        firstName: p?.first_name ?? null,
+        lastName: p?.last_name ?? null,
+        email: p?.email ?? null,
+        role: (p?.role ?? "auditor") as ProofreaderEntry["role"],
+      };
+    });
+
+  // Candidats : on charge si admin gère les assignees OU si on gère les
+  // relecteurs (les deux puisent dans le même pool staff). On filtre ensuite
+  // côté JS pour chaque liste : auditeur déjà assigné ne peut pas être
+  // candidat relecteur (et inversement).
+  const auditorIdsSet = new Set(assignees.map((a) => a.profileId));
+  const proofreaderIdsSet = new Set(proofreaders.map((p) => p.profileId));
+
+  let available: AssignableAuditor[] = [];
+  let availableProofreaders: ProofreaderCandidate[] = [];
+  if (canManageAssignees || canManageProofreaders) {
+    const { data: staffRows } = await supabase
+      .from("profiles")
+      .select("id, first_name, last_name, email, role, is_active")
+      .in("role", ["auditor", "admin"])
+      .eq("is_active", true);
+    const staff = staffRows ?? [];
+
+    if (canManageAssignees) {
+      available = staff
+        .filter((p) => !auditorIdsSet.has(p.id))
+        .map((p) => ({
+          id: p.id as string,
+          firstName: (p.first_name as string | null) ?? null,
+          lastName: (p.last_name as string | null) ?? null,
+          email: (p.email as string | null) ?? null,
+          role: ((p.role as string) ?? "auditor") as AssignableAuditor["role"],
+        }));
+    }
+    if (canManageProofreaders) {
+      availableProofreaders = staff
+        .filter(
+          (p) =>
+            !proofreaderIdsSet.has(p.id) &&
+            !auditorIdsSet.has(p.id), // un auditeur de l'audit ne peut pas se relire
+        )
+        .map((p) => ({
+          id: p.id as string,
+          firstName: (p.first_name as string | null) ?? null,
+          lastName: (p.last_name as string | null) ?? null,
+          email: (p.email as string | null) ?? null,
+          role: ((p.role as string) ?? "auditor") as ProofreaderCandidate["role"],
+        }));
+    }
+  }
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
@@ -123,6 +280,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
               {tPlatform(audit.platform as PlatformType)}
             </Badge>
             <AuditStatusBadge status={audit.status as AuditStatus} />
+            <WorkflowBadge status={workflowStatus} showLock />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">
             {project?.name ?? t("noProjectTitle")}
@@ -143,12 +301,14 @@ export default async function AuditDetailPage({ params }: PageProps) {
               variant="outline"
             />
           )}
-          <Button asChild variant="outline" className="gap-2">
-            <Link href={`/audits/${uuid}/edit`}>
-              <Pencil className="h-4 w-4" aria-hidden="true" />
-              {t("edit")}
-            </Link>
-          </Button>
+          {canEdit && (
+            <Button asChild variant="outline" className="gap-2">
+              <Link href={`/audits/${uuid}/edit`}>
+                <Pencil className="h-4 w-4" aria-hidden="true" />
+                {t("edit")}
+              </Link>
+            </Button>
+          )}
           <Button asChild className="gap-2">
             <Link href={`/audits/${uuid}/simulator`}>
               <Sparkles className="h-4 w-4" aria-hidden="true" />
@@ -222,6 +382,14 @@ export default async function AuditDetailPage({ params }: PageProps) {
               value={formatDate(audit.expected_end_at)}
             />
             <Row
+              label={t("restitutionDate")}
+              value={formatDate(audit.restitution_at)}
+            />
+            <Row
+              label={t("counterAuditDate")}
+              value={formatDate(audit.counter_audit_at)}
+            />
+            <Row
               label={t("deliveredAt")}
               value={formatDate(audit.delivered_at)}
             />
@@ -229,6 +397,68 @@ export default async function AuditDetailPage({ params }: PageProps) {
           </CardContent>
         </Card>
       </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("workflowTitle")}</CardTitle>
+            <CardDescription>{t("workflowSubtitle")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <WorkflowActions
+              auditId={uuid}
+              current={workflowStatus}
+              role={profile.role}
+              available={transitions}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("assigneesTitle")}</CardTitle>
+            <CardDescription>{t("assigneesSubtitle")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AuditAssignees
+              auditId={uuid}
+              assignees={assignees}
+              available={available}
+              canManage={canManageAssignees}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("proofreadersTitle")}</CardTitle>
+            <CardDescription>{t("proofreadersSubtitle")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AuditProofreaders
+              auditId={uuid}
+              proofreaders={proofreaders}
+              available={availableProofreaders}
+              canManage={canManageProofreaders}
+            />
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("historyTitle")}</CardTitle>
+          <CardDescription>{t("historySubtitle")}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <WorkflowTimeline auditId={uuid} />
+          {canComment && (
+            <div className="border-t border-border pt-4">
+              <ReviewCommentForm auditId={uuid} />
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <QuickLink

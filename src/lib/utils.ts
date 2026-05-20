@@ -19,6 +19,18 @@ export function formatDate(input: string | Date | null | undefined): string {
   }).format(date);
 }
 
+export function formatDateTime(input: string | Date | null | undefined): string {
+  if (!input) return "—";
+  const date = typeof input === "string" ? new Date(input) : input;
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
 export function formatScore(score: number | null | undefined): string {
   if (score === null || score === undefined) return "—";
   return `${score.toFixed(2).replace(/\.?0+$/, "")}%`;

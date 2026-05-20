@@ -8,7 +8,7 @@
 // La RLS Postgres est la deuxième ligne de défense : ce module ne remplace
 // PAS les policies, il les complète côté UX en cachant les actions interdites.
 
-import type { UserRole } from "@/types/domain";
+import type { AuditWorkflowStatus, UserRole } from "@/types/domain";
 
 // ============================================================================
 // Catalogue des permissions atomiques
@@ -153,3 +153,73 @@ export const canImpersonate = (r: UserRole) => canImpersonateAs(r).length > 0;
 
 /** Raccourci : rôle interne plateforme (admin OR auditor). */
 export const isStaff = (r: UserRole): boolean => r === "admin" || r === "auditor";
+
+/**
+ * Peut désigner / retirer un relecteur sur un audit. Admin + auditor — le
+ * verrou granulaire (auditeur doit être assigné à l'audit) est appliqué côté
+ * RLS via la policy `assignees_proofreader_manage` (migration 27).
+ */
+export const canAssignProofreader = (r: UserRole): boolean => isStaff(r);
+
+/**
+ * Peut poster un commentaire de relecture sur un audit. Ouvert au staff
+ * plateforme. Côté serveur on filtre en plus sur l'accessibilité de l'audit
+ * (RLS audit_logs_insert) — ce helper ne couvre que l'aspect rôle.
+ */
+export const canPostReviewComment = (r: UserRole): boolean => isStaff(r);
+
+// ============================================================================
+// Verrouillage par workflow_status
+// ============================================================================
+//
+// Quand l'audit est `validated` ou `delivered`, on bloque toute édition (matrice,
+// NC, métadonnées audit, pages d'échantillon) SAUF pour l'admin qui peut toujours
+// intervenir en cas de besoin. Le client_admin et le client n'ont déjà pas
+// `audit.edit`, mais ce verrou s'applique aussi au rôle auditor.
+//
+// À utiliser systématiquement en plus des permissions de base :
+//   canEditAudit(role) && isWorkflowEditable(workflowStatus, role)
+
+/**
+ * Renvoie `true` si le rôle donné peut encore éditer le contenu de l'audit
+ * compte tenu de son workflow_status. L'admin n'est jamais verrouillé.
+ */
+export function isWorkflowEditable(
+  workflowStatus: AuditWorkflowStatus,
+  role: UserRole,
+): boolean {
+  if (role === "admin") return true;
+  return workflowStatus === "draft" || workflowStatus === "in_review";
+}
+
+/** Variante "Édition de l'audit". Combine la permission + le verrou. */
+export function canEditAuditNow(
+  role: UserRole,
+  workflowStatus: AuditWorkflowStatus,
+): boolean {
+  return canEditAudit(role) && isWorkflowEditable(workflowStatus, role);
+}
+
+/** Variante "Édition de la matrice". Combine la permission + le verrou. */
+export function canEditMatrixNow(
+  role: UserRole,
+  workflowStatus: AuditWorkflowStatus,
+): boolean {
+  return canEditMatrix(role) && isWorkflowEditable(workflowStatus, role);
+}
+
+/** Variante "Édition NC". Combine la permission + le verrou. */
+export function canEditNCNow(
+  role: UserRole,
+  workflowStatus: AuditWorkflowStatus,
+): boolean {
+  return canEditNC(role) && isWorkflowEditable(workflowStatus, role);
+}
+
+/** Variante "Création NC". Combine la permission + le verrou. */
+export function canCreateNCNow(
+  role: UserRole,
+  workflowStatus: AuditWorkflowStatus,
+): boolean {
+  return canCreateNC(role) && isWorkflowEditable(workflowStatus, role);
+}

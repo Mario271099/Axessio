@@ -3,6 +3,7 @@ import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { ImpersonationBanner } from "@/components/layout/impersonation-banner";
 
 // Toutes les pages sous /(dashboard) sont des vues authentifiées : on coupe
 // l'indexation pour ne pas exposer de surface privée à Google et pour ne pas
@@ -44,6 +45,7 @@ export default async function DashboardLayout({
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
+        <ImpersonationBanner profile={profile} />
         <Topbar profile={profile} />
 
         <main

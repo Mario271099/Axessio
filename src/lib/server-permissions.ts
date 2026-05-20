@@ -4,8 +4,12 @@
 
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { can, type Permission } from "@/lib/permissions";
-import type { UserRole } from "@/types/domain";
+import {
+  can,
+  isWorkflowEditable,
+  type Permission,
+} from "@/lib/permissions";
+import type { AuditWorkflowStatus, UserRole } from "@/types/domain";
 
 interface PermissionGuardSuccess {
   ok: true;
@@ -51,4 +55,36 @@ export async function requirePermission(
     return { ok: false, error: t("forbidden") };
   }
   return { ok: true, userId: user.id, role };
+}
+
+/**
+ * Vérifie que l'audit ciblé n'est pas verrouillé pour l'utilisateur courant.
+ * À appeler après `requirePermission` dans toute server action qui modifie
+ * du contenu lié à un audit (matrice, NC, métadonnées, pages…).
+ *
+ * Retourne `null` si l'édition est autorisée ; sinon un message d'erreur i18n.
+ *
+ * NB : un admin n'est jamais verrouillé. Si l'audit est introuvable on renvoie
+ * une erreur explicite pour ne pas masquer un bug en amont.
+ */
+export async function assertWorkflowEditable(
+  auditId: string,
+  role: UserRole,
+): Promise<string | null> {
+  const supabase = await createClient();
+  const t = await getTranslations("errors");
+
+  const { data: audit } = await supabase
+    .from("audits")
+    .select("workflow_status")
+    .eq("id", auditId)
+    .maybeSingle();
+
+  if (!audit) return t("auditNotFound");
+
+  const workflowStatus = audit.workflow_status as AuditWorkflowStatus;
+  if (!isWorkflowEditable(workflowStatus, role)) {
+    return t("workflowLocked");
+  }
+  return null;
 }

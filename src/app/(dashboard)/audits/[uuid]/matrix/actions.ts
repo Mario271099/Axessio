@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { canEditMatrix } from "@/lib/permissions";
+import { assertWorkflowEditable } from "@/lib/server-permissions";
 import type { ConformityStatus, NCSeverity, UserRole } from "@/types/domain";
 
 export interface ActionResult {
@@ -15,7 +16,11 @@ export interface CreateNCResult extends ActionResult {
   ncId?: string;
 }
 
-async function requireAuditor(): Promise<{ userId: string } | { error: string }> {
+// Garde matrice : permission `matrix.edit` + verrou workflow sur l'audit.
+// auditId est requis pour appliquer le verrou (validated/delivered).
+async function requireAuditor(
+  auditId: string,
+): Promise<{ userId: string } | { error: string }> {
   const supabase = await createClient();
   const t = await getTranslations("errors");
   const {
@@ -32,6 +37,11 @@ async function requireAuditor(): Promise<{ userId: string } | { error: string }>
   if (!profile?.role || !canEditMatrix(profile.role as UserRole)) {
     return { error: t("forbidden") };
   }
+  const lockError = await assertWorkflowEditable(
+    auditId,
+    profile.role as UserRole,
+  );
+  if (lockError) return { error: lockError };
   return { userId: user.id };
 }
 
@@ -49,7 +59,7 @@ export async function setConformity(
   criteriaId: string,
   status: ConformityStatus | null,
 ): Promise<ActionResult> {
-  const auth = await requireAuditor();
+  const auth = await requireAuditor(auditId);
   if ("error" in auth) return { error: auth.error };
 
   const supabase = await createClient();
@@ -90,7 +100,7 @@ export async function bulkSetThematicConformity(
   thematicId: string,
   status: ConformityStatus,
 ): Promise<ActionResult> {
-  const auth = await requireAuditor();
+  const auth = await requireAuditor(auditId);
   if ("error" in auth) return { error: auth.error };
 
   const supabase = await createClient();
@@ -150,7 +160,7 @@ export async function clearThematicConformity(
   pageId: string,
   thematicId: string,
 ): Promise<ActionResult> {
-  const auth = await requireAuditor();
+  const auth = await requireAuditor(auditId);
   if ("error" in auth) return { error: auth.error };
 
   const supabase = await createClient();
@@ -192,7 +202,7 @@ export async function createNonConformity(
   criteriaId: string,
   input: CreateNCInput,
 ): Promise<CreateNCResult> {
-  const auth = await requireAuditor();
+  const auth = await requireAuditor(auditId);
   if ("error" in auth) return { error: auth.error };
 
   const supabase = await createClient();

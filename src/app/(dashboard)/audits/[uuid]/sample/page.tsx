@@ -2,12 +2,16 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
-import { canEditAudit } from "@/lib/permissions";
+import { canEditAuditNow } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SampleActionsBar } from "./sample-actions-bar";
-import type { ComplexityLevel, PageType } from "@/types/domain";
+import type {
+  AuditWorkflowStatus,
+  ComplexityLevel,
+  PageType,
+} from "@/types/domain";
 
 export default async function SamplePage({
   params,
@@ -19,11 +23,18 @@ export default async function SamplePage({
   const supabase = await createClient();
   const t = await getTranslations("audits.sample");
 
-  const { data: pages } = await supabase
-    .from("pages")
-    .select("id, name, url, page_type, complexity, sort_order")
-    .eq("audit_id", uuid)
-    .order("sort_order");
+  const [{ data: pages }, { data: audit }] = await Promise.all([
+    supabase
+      .from("pages")
+      .select("id, name, url, page_type, complexity, sort_order")
+      .eq("audit_id", uuid)
+      .order("sort_order"),
+    supabase
+      .from("audits")
+      .select("workflow_status")
+      .eq("id", uuid)
+      .maybeSingle(),
+  ]);
 
   const list = (pages ?? []).map((p) => ({
     id: p.id,
@@ -33,7 +44,10 @@ export default async function SamplePage({
     complexity: p.complexity as ComplexityLevel | null,
   }));
 
-  const canEdit = canEditAudit(profile.role);
+  const canEdit = canEditAuditNow(
+    profile.role,
+    (audit?.workflow_status ?? "draft") as AuditWorkflowStatus,
+  );
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">

@@ -4,7 +4,17 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import * as Popover from "@radix-ui/react-popover";
-import { Bell, Check, MessageSquare } from "lucide-react";
+import {
+  AlertTriangle,
+  Bell,
+  Check,
+  CheckCircle2,
+  Clock,
+  Eye,
+  MessageSquare,
+  Send,
+  UserPlus,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -41,6 +51,37 @@ function useRelativeTime(locale: string) {
     [intl],
   );
 }
+
+// ------------------------------------------------------------------
+// Mapping type → icône. Le label est résolu via i18n côté composant
+// (notifications.type.<type>) ; on garde ici uniquement le visuel.
+// ------------------------------------------------------------------
+const TYPE_ICON: Record<string, React.ElementType> = {
+  nc_message: MessageSquare,
+  "workflow.in_review_requested": Eye,
+  "workflow.request_changes": AlertTriangle,
+  "workflow.validated": CheckCircle2,
+  "workflow.delivered": Send,
+  "workflow.review_reminder": Clock,
+  "proofreader.assigned": UserPlus,
+};
+
+const TYPE_TONE: Record<string, "primary" | "warning" | "destructive" | "success"> = {
+  nc_message: "primary",
+  "workflow.in_review_requested": "primary",
+  "workflow.request_changes": "destructive",
+  "workflow.validated": "warning",
+  "workflow.delivered": "success",
+  "workflow.review_reminder": "warning",
+  "proofreader.assigned": "warning",
+};
+
+const TONE_BUBBLE: Record<string, string> = {
+  primary: "bg-primary/15 text-primary",
+  warning: "bg-warning/15 text-warning",
+  destructive: "bg-destructive/15 text-destructive",
+  success: "bg-success/15 text-success",
+};
 
 export function NotificationsBell({ initial }: Props) {
   const router = useRouter();
@@ -90,7 +131,9 @@ export function NotificationsBell({ initial }: Props) {
   const hasUnread = unreadCount > 0;
 
   const handleItemClick = (notif: NotificationItem) => {
-    // Marque comme lu (optimiste) + navigue vers la NC.
+    // Marque comme lu (optimiste) + navigue vers la cible appropriée :
+    //   - notif sur NC (ex. nc_message)        → /audits/{a}/anomalies/{nc}
+    //   - notif workflow ou audit générique    → /audits/{a}
     if (!notif.readAt) {
       setItems((prev) =>
         prev.map((n) =>
@@ -105,6 +148,8 @@ export function NotificationsBell({ initial }: Props) {
     setOpen(false);
     if (notif.auditId && notif.ncId) {
       router.push(`/audits/${notif.auditId}/anomalies/${notif.ncId}`);
+    } else if (notif.auditId) {
+      router.push(`/audits/${notif.auditId}`);
     }
   };
 
@@ -192,6 +237,12 @@ export function NotificationsBell({ initial }: Props) {
             <ul className="max-h-[60vh] divide-y divide-border overflow-y-auto">
               {items.map((notif) => {
                 const isUnread = notif.readAt === null;
+                const Icon = TYPE_ICON[notif.type] ?? Bell;
+                const tone = TYPE_TONE[notif.type] ?? "primary";
+                const subtitle =
+                  notif.type === "nc_message"
+                    ? notif.ncTitle
+                    : notif.auditProjectName;
                 return (
                   <li key={notif.id}>
                     <button
@@ -208,11 +259,11 @@ export function NotificationsBell({ initial }: Props) {
                         className={cn(
                           "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
                           isUnread
-                            ? "bg-primary/15 text-primary"
+                            ? TONE_BUBBLE[tone]
                             : "bg-muted text-muted-foreground",
                         )}
                       >
-                        <MessageSquare className="h-4 w-4" />
+                        <Icon className="h-4 w-4" />
                       </div>
                       <div className="min-w-0 flex-1 space-y-0.5">
                         <p className="text-sm leading-snug">
@@ -220,12 +271,12 @@ export function NotificationsBell({ initial }: Props) {
                             {notif.senderName ?? t("unknownSender")}
                           </span>{" "}
                           <span className="text-muted-foreground">
-                            {t("replied")}
+                            <NotifActionLabel type={notif.type} />
                           </span>
                         </p>
-                        {notif.ncTitle && (
+                        {subtitle && (
                           <p className="truncate text-xs text-muted-foreground">
-                            {notif.ncTitle}
+                            {subtitle}
                           </p>
                         )}
                         <p className="text-[11px] text-muted-foreground tabular-nums">
@@ -248,4 +299,30 @@ export function NotificationsBell({ initial }: Props) {
       </Popover.Portal>
     </Popover.Root>
   );
+}
+
+// Petit sous-composant : libellé d'action selon le type. Toutes les clés
+// utilisées ici doivent exister dans messages/{fr,en}.json (sinon next-intl
+// remontera une erreur en dev). On centralise dans une fonction pour ne pas
+// dupliquer 7 fois la même branche dans le JSX.
+function NotifActionLabel({ type }: { type: string }) {
+  const t = useTranslations("notifications");
+  switch (type) {
+    case "nc_message":
+      return <>{t("replied")}</>;
+    case "workflow.in_review_requested":
+      return <>{t("typeInReviewRequested")}</>;
+    case "workflow.request_changes":
+      return <>{t("typeRequestChanges")}</>;
+    case "workflow.validated":
+      return <>{t("typeValidated")}</>;
+    case "workflow.delivered":
+      return <>{t("typeDelivered")}</>;
+    case "workflow.review_reminder":
+      return <>{t("typeReviewReminder")}</>;
+    case "proofreader.assigned":
+      return <>{t("typeProofreaderAssigned")}</>;
+    default:
+      return <>{t("genericAction")}</>;
+  }
 }

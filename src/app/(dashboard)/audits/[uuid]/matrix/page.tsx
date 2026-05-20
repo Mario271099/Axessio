@@ -1,12 +1,13 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
-import { canEditMatrix } from "@/lib/permissions";
+import { canEditMatrixNow } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import { ConformityMatrixLayout } from "./conformity-matrix-layout";
 import type {
   AuditPage,
+  AuditWorkflowStatus,
   ConformityStatus,
   Criterion,
   DisabilityType,
@@ -31,7 +32,7 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
   const { data: audit, error: auditError } = await supabase
     .from("audits")
     .select(
-      `id, project_id, reference_id, language,
+      `id, project_id, reference_id, language, workflow_status,
        project:projects(name, client:clients(name)),
        reference:references(type, version)`,
     )
@@ -146,7 +147,10 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
       auditTitle={project?.name ?? "Audit"}
       clientName={client?.name ?? null}
       referenceName={referenceName}
-      canEdit={canEditMatrix(profile.role)}
+      canEdit={canEditMatrixNow(
+        profile.role,
+        (audit.workflow_status ?? "draft") as AuditWorkflowStatus,
+      )}
       thematics={thematics}
       criteria={criteria}
       pages={pages}

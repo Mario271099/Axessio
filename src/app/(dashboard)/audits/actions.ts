@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { canEditAudit } from "@/lib/permissions";
+import { assertWorkflowEditable } from "@/lib/server-permissions";
 import { MANDATORY_PAGES } from "@/types/domain";
 import type {
   AuditStatus,
@@ -53,6 +54,8 @@ export async function createAudit(
   const language = formData.get("language")?.toString() ?? "fr";
   const expectedStartAt = formData.get("expectedStartAt")?.toString() || null;
   const expectedEndAt = formData.get("expectedEndAt")?.toString() || null;
+  const restitutionAt = formData.get("restitutionAt")?.toString() || null;
+  const counterAuditAt = formData.get("counterAuditAt")?.toString() || null;
   const accessibilityLink =
     formData.get("accessibilityLink")?.toString() || null;
   const notes = formData.get("notes")?.toString() || null;
@@ -78,6 +81,8 @@ export async function createAudit(
       language,
       expected_start_at: expectedStartAt,
       expected_end_at: expectedEndAt,
+      restitution_at: restitutionAt,
+      counter_audit_at: counterAuditAt,
       accessibility_link: accessibilityLink,
       notes,
       created_by: user.id,
@@ -121,6 +126,18 @@ export async function createAudit(
     };
   }
 
+  // Auto-assignation : un auditeur qui crée un audit s'ajoute automatiquement
+  // comme assignee (la policy `assignees_self_insert` l'autorise), sinon il
+  // perdrait l'accès à son propre audit dès la migration 25 appliquée. Les
+  // admins n'en ont pas besoin (is_admin() court-circuite la restriction).
+  if (profile.role === "auditor") {
+    await supabase.from("audit_assignees").insert({
+      audit_id: audit.id,
+      profile_id: user.id,
+      role: "auditor",
+    });
+  }
+
   revalidatePath("/audits");
   revalidatePath("/dashboard");
   redirect(`/audits/${audit.id}`);
@@ -152,6 +169,12 @@ export async function updateAudit(
     return { error: t("forbidden") };
   }
 
+  const lockError = await assertWorkflowEditable(
+    auditId,
+    profile.role as UserRole,
+  );
+  if (lockError) return { error: lockError };
+
   const referenceId = formData.get("referenceId")?.toString();
   const platform = formData.get("platform")?.toString() as PlatformType;
   const serviceType = formData.get("serviceType")?.toString() as ServiceType;
@@ -159,6 +182,8 @@ export async function updateAudit(
   const language = formData.get("language")?.toString() ?? "fr";
   const expectedStartAt = formData.get("expectedStartAt")?.toString() || null;
   const expectedEndAt = formData.get("expectedEndAt")?.toString() || null;
+  const restitutionAt = formData.get("restitutionAt")?.toString() || null;
+  const counterAuditAt = formData.get("counterAuditAt")?.toString() || null;
   const accessibilityLink =
     formData.get("accessibilityLink")?.toString() || null;
   const notes = formData.get("notes")?.toString() || null;
@@ -173,6 +198,8 @@ export async function updateAudit(
       language,
       expected_start_at: expectedStartAt,
       expected_end_at: expectedEndAt,
+      restitution_at: restitutionAt,
+      counter_audit_at: counterAuditAt,
       accessibility_link: accessibilityLink,
       notes,
     })
@@ -211,6 +238,26 @@ export async function addPage(
 ): Promise<ActionState> {
   const supabase = await createClient();
   const t = await getTranslations("errors");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: t("notAuthenticated") };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
+    return { error: t("forbidden") };
+  }
+  const lockError = await assertWorkflowEditable(
+    auditId,
+    profile.role as UserRole,
+  );
+  if (lockError) return { error: lockError };
 
   const name = formData.get("name")?.toString().trim();
   const url = formData.get("url")?.toString().trim() || null;
@@ -259,6 +306,26 @@ export async function updatePage(
   const supabase = await createClient();
   const t = await getTranslations("errors");
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: t("notAuthenticated") };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
+    return { error: t("forbidden") };
+  }
+  const lockError = await assertWorkflowEditable(
+    auditId,
+    profile.role as UserRole,
+  );
+  if (lockError) return { error: lockError };
+
   const name = formData.get("name")?.toString().trim();
   const url = formData.get("url")?.toString().trim() || null;
   const complexityValue = formData.get("complexity")?.toString();
@@ -289,6 +356,26 @@ export async function deletePage(
 ): Promise<ActionState> {
   const supabase = await createClient();
   const t = await getTranslations("errors");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: t("notAuthenticated") };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
+    return { error: t("forbidden") };
+  }
+  const lockError = await assertWorkflowEditable(
+    auditId,
+    profile.role as UserRole,
+  );
+  if (lockError) return { error: lockError };
 
   // On empêche uniquement la suppression de la page transversale (techniquement nécessaire)
   const { data: page } = await supabase

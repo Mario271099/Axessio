@@ -13,6 +13,8 @@ export interface NotificationItem {
   senderId: string | null;
   senderName: string | null;
   ncTitle: string | null;
+  /** Nom du projet de l'audit ciblé (pour le contexte des notifs workflow). */
+  auditProjectName: string | null;
   createdAt: string;
   readAt: string | null;
 }
@@ -41,7 +43,8 @@ export async function fetchNotifications(): Promise<NotificationsResult> {
       .select(
         `id, type, audit_id, nc_id, message_id, sender_id, created_at, read_at,
          sender:profiles!notifications_sender_id_fkey(first_name, last_name),
-         nc:non_conformities(title)`,
+         nc:non_conformities(title),
+         audit:audits(project:projects(name))`,
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
@@ -53,6 +56,7 @@ export async function fetchNotifications(): Promise<NotificationsResult> {
       .is("read_at", null),
   ]);
 
+  type ProjectShort = { name: string | null };
   type Row = {
     id: string;
     type: string;
@@ -67,11 +71,21 @@ export async function fetchNotifications(): Promise<NotificationsResult> {
       | { first_name: string | null; last_name: string | null }[]
       | null;
     nc: { title: string | null } | { title: string | null }[] | null;
+    audit:
+      | { project: ProjectShort | ProjectShort[] | null }
+      | { project: ProjectShort | ProjectShort[] | null }[]
+      | null;
   };
 
   const items: NotificationItem[] = ((rows ?? []) as Row[]).map((r) => {
     const sender = Array.isArray(r.sender) ? r.sender[0] : r.sender;
     const nc = Array.isArray(r.nc) ? r.nc[0] : r.nc;
+    const audit = Array.isArray(r.audit) ? r.audit[0] : r.audit;
+    const project = audit?.project
+      ? Array.isArray(audit.project)
+        ? audit.project[0]
+        : audit.project
+      : null;
     const senderName = sender
       ? `${sender.first_name ?? ""} ${sender.last_name ?? ""}`.trim() || null
       : null;
@@ -84,6 +98,7 @@ export async function fetchNotifications(): Promise<NotificationsResult> {
       senderId: r.sender_id,
       senderName,
       ncTitle: nc?.title ?? null,
+      auditProjectName: project?.name ?? null,
       createdAt: r.created_at,
       readAt: r.read_at,
     };

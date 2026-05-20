@@ -6,11 +6,18 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
+import { WorkflowBadge } from "@/components/audit/workflow-badge";
+import { WorkflowStagnationBadge } from "@/components/audit/workflow-stagnation-badge";
 import { formatDate, formatScore } from "@/lib/utils";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import { canEditAudit } from "@/lib/permissions";
 import type { Metadata } from "next";
-import type { AuditStatus, PlatformType, ReferenceType } from "@/types/domain";
+import type {
+  AuditStatus,
+  AuditWorkflowStatus,
+  PlatformType,
+  ReferenceType,
+} from "@/types/domain";
 import { AuditsFilters } from "./audits-filters";
 import { AuditsPagination } from "./audits-pagination";
 
@@ -38,11 +45,19 @@ const ALLOWED_STATUSES: ReadonlySet<AuditStatus> = new Set([
 
 const ALLOWED_PLATFORMS: ReadonlySet<PlatformType> = new Set(["WEB", "MOBILE"]);
 
+const ALLOWED_WORKFLOW: ReadonlySet<AuditWorkflowStatus> = new Set([
+  "draft",
+  "in_review",
+  "validated",
+  "delivered",
+]);
+
 interface PageProps {
   searchParams: Promise<{
     q?: string;
     status?: string;
     platform?: string;
+    workflow?: string;
     page?: string;
   }>;
 }
@@ -70,6 +85,10 @@ export default async function AuditsPage({ searchParams }: PageProps) {
     sp.platform && ALLOWED_PLATFORMS.has(sp.platform as PlatformType)
       ? (sp.platform as PlatformType)
       : null;
+  const workflowFilter =
+    sp.workflow && ALLOWED_WORKFLOW.has(sp.workflow as AuditWorkflowStatus)
+      ? (sp.workflow as AuditWorkflowStatus)
+      : null;
 
   const rawPage = Number.parseInt(sp.page ?? "1", 10);
   const currentPage =
@@ -88,7 +107,8 @@ export default async function AuditsPage({ searchParams }: PageProps) {
     .from("audits")
     .select(
       `
-      id, status, platform, initial_score, final_score, updated_at,
+      id, status, workflow_status, workflow_changed_at, platform,
+      initial_score, final_score, updated_at,
       reference:references(type, version),
       project:projects!inner(name, client:clients(name))
     `,
@@ -99,6 +119,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
 
   if (statusFilter) request = request.eq("status", statusFilter);
   if (platformFilter) request = request.eq("platform", platformFilter);
+  if (workflowFilter) request = request.eq("workflow_status", workflowFilter);
   if (query) {
     // Recherche par nom de projet via index gin_trgm (migration 20).
     // On échappe `\`, `%` et `_` car ce sont les méta-caractères de ILIKE :
@@ -124,6 +145,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
   if (query) baseParams.set("q", query);
   if (statusFilter) baseParams.set("status", statusFilter);
   if (platformFilter) baseParams.set("platform", platformFilter);
+  if (workflowFilter) baseParams.set("workflow", workflowFilter);
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
@@ -149,6 +171,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
         initialQuery={query}
         initialStatus={statusFilter ?? ""}
         initialPlatform={platformFilter ?? ""}
+        initialWorkflow={workflowFilter ?? ""}
       />
 
       <Card>
@@ -189,6 +212,9 @@ export default async function AuditsPage({ searchParams }: PageProps) {
                     </th>
                     <th scope="col" className="px-4 py-2 font-medium">
                       {t("columns.status")}
+                    </th>
+                    <th scope="col" className="px-4 py-2 font-medium">
+                      {t("columns.workflow")}
                     </th>
                     <th scope="col" className="px-4 py-2 font-medium tabular-nums">
                       {t("columns.score")}
@@ -246,6 +272,26 @@ export default async function AuditsPage({ searchParams }: PageProps) {
                         </td>
                         <td className="px-4 py-3">
                           <AuditStatusBadge status={a.status as AuditStatus} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap items-center gap-1">
+                            <WorkflowBadge
+                              status={
+                                (a.workflow_status ?? "draft") as AuditWorkflowStatus
+                              }
+                              showLock
+                            />
+                            {a.workflow_changed_at && (
+                              <WorkflowStagnationBadge
+                                workflowStatus={
+                                  (a.workflow_status ?? "draft") as AuditWorkflowStatus
+                                }
+                                workflowChangedAt={
+                                  a.workflow_changed_at as string
+                                }
+                              />
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3 tabular-nums">
                           {formatScore(score)}

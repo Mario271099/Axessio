@@ -1,6 +1,7 @@
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AnomaliesList, type AnomalyListItem } from "./anomalies-list";
+import type { AuditWorkflowStatus } from "@/types/domain";
 
 export default async function AnomaliesPage({
   params,
@@ -14,7 +15,7 @@ export default async function AnomaliesPage({
   // 1) Audit + projet (pour le breadcrumb)
   const { data: audit } = await supabase
     .from("audits")
-    .select(`id, project:projects(name)`)
+    .select(`id, workflow_status, project:projects(name)`)
     .eq("id", uuid)
     .single();
   const project = audit?.project
@@ -68,6 +69,9 @@ export default async function AnomaliesPage({
       auditId={uuid}
       auditTitle={project?.name ?? "Audit"}
       role={profile.role}
+      workflowStatus={
+        (audit?.workflow_status ?? "draft") as AuditWorkflowStatus
+      }
     />
   );
 }

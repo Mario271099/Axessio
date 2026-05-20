@@ -1,5 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import {
+  readImpersonationCookie,
+  resolveEffectiveRole,
+} from "@/lib/impersonation";
 import type { Profile, UserRole } from "@/types/domain";
 
 interface ProfileRow {
@@ -13,13 +17,21 @@ interface ProfileRow {
   is_active?: boolean | null;
 }
 
-function mapProfile(row: ProfileRow): Profile {
+async function mapProfile(row: ProfileRow): Promise<Profile> {
+  const realRole = row.role as UserRole;
+  const cookieRole = await readImpersonationCookie();
+  const { effective, impersonating } = resolveEffectiveRole(
+    realRole,
+    cookieRole,
+  );
   return {
     id: row.id,
     email: row.email,
     firstName: row.first_name,
     lastName: row.last_name,
-    role: row.role as UserRole,
+    role: effective,
+    realRole,
+    impersonating,
     clientId: row.client_id,
     language: (row.language === "en" ? "en" : "fr") as Profile["language"],
   };
@@ -74,8 +86,8 @@ export async function requireProfile(): Promise<Profile> {
       throw new Error("Profil utilisateur introuvable et impossible à créer.");
     }
 
-    return mapProfile(created);
+    return await mapProfile(created);
   }
 
-  return mapProfile(data);
+  return await mapProfile(data);
 }

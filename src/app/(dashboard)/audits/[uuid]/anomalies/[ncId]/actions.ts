@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import { canChat, canEditNC } from "@/lib/permissions";
+import { assertWorkflowEditable } from "@/lib/server-permissions";
 import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
 
 // 30 messages / minute par utilisateur : limite généreuse pour les
@@ -20,7 +21,9 @@ export interface ActionResult {
 // ============================================================================
 // Helpers
 // ============================================================================
-async function requireAuditor(): Promise<{ userId: string } | { error: string }> {
+async function requireAuditor(): Promise<
+  { userId: string; role: UserRole } | { error: string }
+> {
   const supabase = await createClient();
   const t = await getTranslations("errors");
   const {
@@ -37,7 +40,7 @@ async function requireAuditor(): Promise<{ userId: string } | { error: string }>
   if (!profile?.role || !canEditNC(profile.role as UserRole)) {
     return { error: t("forbidden") };
   }
-  return { userId: user.id };
+  return { userId: user.id, role: profile.role as UserRole };
 }
 
 // Chat / pièces jointes : ouvert à tous les rôles ayant `chat.write`
@@ -82,6 +85,9 @@ export async function updateNC(
   const auth = await requireAuditor();
   if ("error" in auth) return { error: auth.error };
 
+  const lockError = await assertWorkflowEditable(auditId, auth.role);
+  if (lockError) return { error: lockError };
+
   const title = formData.get("title")?.toString().trim();
   const description = formData.get("description")?.toString().trim() || null;
   const actualResult = formData.get("actualResult")?.toString().trim() || null;
@@ -125,6 +131,9 @@ export async function updateNCStatus(
 ): Promise<ActionResult> {
   const auth = await requireAuditor();
   if ("error" in auth) return { error: auth.error };
+
+  const lockError = await assertWorkflowEditable(auditId, auth.role);
+  if (lockError) return { error: lockError };
 
   const supabase = await createClient();
 

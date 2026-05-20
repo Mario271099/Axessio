@@ -33,6 +33,8 @@ interface EditAuditFormProps {
     language: string;
     expectedStartAt: string | null;
     expectedEndAt: string | null;
+    restitutionAt: string | null;
+    counterAuditAt: string | null;
     accessibilityLink: string | null;
     notes: string | null;
   };
@@ -210,6 +212,28 @@ export function EditAuditForm({
                 name="expectedEndAt"
                 type="date"
                 defaultValue={formatForInput(initial.expectedEndAt)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="restitution-edit">{t("restitutionDate")}</Label>
+              <Input
+                id="restitution-edit"
+                name="restitutionAt"
+                type="date"
+                defaultValue={formatForInput(initial.restitutionAt)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="counter-audit-edit">
+                {t("counterAuditDate")}
+              </Label>
+              <Input
+                id="counter-audit-edit"
+                name="counterAuditAt"
+                type="date"
+                defaultValue={formatForInput(initial.counterAuditAt)}
               />
             </div>
           </div>

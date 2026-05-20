@@ -6,8 +6,10 @@ import { useTranslations } from "next-intl";
 import {
   BookMarked,
   Building2,
+  CalendarDays,
   ChevronUp,
   ClipboardCheck,
+  Eye,
   KeyRound,
   LayoutDashboard,
   LogOut,
@@ -27,13 +29,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { USER_ROLE_BADGE_VARIANT, USER_ROLE_LABELS } from "@/lib/constants";
-import { can, type Permission } from "@/lib/permissions";
+import { can, canImpersonateAs, type Permission } from "@/lib/permissions";
 import { signOut } from "@/app/(auth)/actions";
+import { exitImpersonationAndRedirect } from "@/app/(dashboard)/admin/impersonation/actions";
+import { ImpersonationLauncher } from "@/components/layout/impersonation-launcher";
 import type { Profile, UserRole } from "@/types/domain";
 
 type IconKey =
   | "dashboard"
   | "audits"
+  | "planning"
   | "clients"
   | "users"
   | "references"
@@ -43,6 +48,7 @@ type IconKey =
 const ICONS = {
   dashboard: LayoutDashboard,
   audits: ClipboardCheck,
+  planning: CalendarDays,
   clients: Building2,
   users: Users,
   references: BookMarked,
@@ -53,6 +59,7 @@ const ICONS = {
 type ItemKey =
   | "dashboard"
   | "audits"
+  | "planning"
   | "clients"
   | "users"
   | "references"
@@ -86,6 +93,8 @@ const SECTIONS: NavSection[] = [
     items: [
       { href: "/dashboard", itemKey: "dashboard", iconKey: "dashboard", permission: null },
       { href: "/audits", itemKey: "audits", iconKey: "audits", permission: "audit.view", badgeKey: "inProgressAudits" },
+      // Planning : réservé au staff (admin + auditor) — ils ont audit.edit.
+      { href: "/planning", itemKey: "planning", iconKey: "planning", permission: "audit.edit" },
     ],
   },
   {
@@ -122,7 +131,10 @@ interface SidebarProps {
 
 export function Sidebar({ profile, counts }: SidebarProps) {
   const pathname = usePathname();
+  // Pour le filtrage sidebar on raisonne sur le rôle EFFECTIF (impersonation).
+  // L'entrée "Voir comme" reste au contraire conditionnée par le rôle RÉEL.
   const userRole = profile.role;
+  const impersonationOptions = canImpersonateAs(profile.realRole);
   const t = useTranslations("sidebar");
 
   return (
@@ -248,6 +260,20 @@ export function Sidebar({ profile, counts }: SidebarProps) {
                 {t("user.settings")}
               </Link>
             </DropdownMenuItem>
+            {profile.impersonating ? (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={() => {
+                    void exitImpersonationAndRedirect();
+                  }}
+                  className="text-warning focus:bg-warning/10 focus:text-warning"
+                >
+                  <Eye className="h-4 w-4" aria-hidden="true" />
+                  {t("user.exitImpersonation")}
+                </DropdownMenuItem>
+              </>
+            ) : null}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onSelect={() => {
@@ -260,6 +286,15 @@ export function Sidebar({ profile, counts }: SidebarProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {!profile.impersonating && impersonationOptions.length > 0 && (
+          <div className="mt-2 px-1">
+            <ImpersonationLauncher
+              availableRoles={impersonationOptions}
+              triggerVariant="ghost"
+            />
+          </div>
+        )}
 
         {/* Liens légaux — toujours accessibles depuis l'app authentifiée. */}
         <nav

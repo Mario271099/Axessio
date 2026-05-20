@@ -22,7 +22,20 @@ export interface Profile {
   email: string;
   firstName: string;
   lastName: string;
+  /**
+   * Rôle **effectif** — éventuellement remplacé par le rôle d'impersonation
+   * (View as). C'est le rôle que l'UI doit utiliser pour les checks de
+   * permission et le rendu conditionnel.
+   *
+   * Pour TOUTE vérification côté serveur (server actions, RLS), il faut au
+   * contraire utiliser le rôle réel issu de `profiles.role`. Le module
+   * `lib/server-permissions.ts` y veille déjà.
+   */
   role: UserRole;
+  /** Rôle réel en base — utile pour afficher la bannière "Vous voyez en tant que". */
+  realRole: UserRole;
+  /** True si `role` diffère de `realRole` (impersonation active). */
+  impersonating: boolean;
   clientId: string | null; // null pour les staff (admin / auditor)
   language: "fr" | "en";
 }
@@ -92,6 +105,14 @@ export type AuditStatus =
   | "COMPLETED"
   | "ARCHIVED";
 
+// Workflow éditorial du rapport — séparé de `status` (qui reste le lifecycle
+// métier). Cf. migration 24.
+export type AuditWorkflowStatus =
+  | "draft"        // l'auditeur saisit
+  | "in_review"    // soumis à relecture interne
+  | "validated"    // validé, prêt à être livré
+  | "delivered";   // livré au client (verrouillage maximal)
+
 export interface Audit {
   id: string;
   projectId: string;
@@ -99,9 +120,14 @@ export interface Audit {
   serviceType: ServiceType;
   platform: PlatformType;
   status: AuditStatus;
+  workflowStatus: AuditWorkflowStatus;
   language: "fr" | "en";
   expectedStartAt: string | null;
   expectedEndAt: string | null;
+  /** Date prévue de restitution (présentation du rapport). */
+  restitutionAt: string | null;
+  /** Date prévue du contre-audit (pour les prestations avec contre-audit). */
+  counterAuditAt: string | null;
   deliveredAt: string | null;
   onlineAt: string | null;
   initialScore: number | null;

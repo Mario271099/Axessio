@@ -358,18 +358,81 @@
     "createAuditFailed": "Échec de la création : {message}",
     "updateAuditOnlyAuditor": "Seuls les auditeurs peuvent modifier un audit.",
     "defaultInviterName": "Un auditeur Axessio",
-    "userCreatedEmailFailed": "Utilisateur créé mais l'email n'a pas pu être envoyé : {message}. Utilisez \"Renvoyer l'invitation\" pour réessayer."
+    "userCreatedEmailFailed": "Utilisateur créé mais l'email n'a pas pu être envoyé : {message}. Utilisez \"Renvoyer l'invitation\" pour réessayer.",
+    "auditNotFound": "Audit introuvable.",
+    "workflowLocked": "Audit verrouillé : il est validé ou livré. Demandez à un administrateur.",
+    "workflowTransitionDenied": "Cette transition n'est pas autorisée depuis l'état actuel.",
+    "workflowTransitionRoleDenied": "Votre rôle ne permet pas cette transition.",
+    "impersonationTargetDenied": "Vous ne pouvez pas emprunter ce rôle.",
+    "userInactive": "Cet utilisateur est désactivé.",
+    "assigneeMustBeStaff": "Seuls les auditeurs et administrateurs peuvent être assignés.",
+    "proofreaderCannotBeAuditor": "L'auteur d'un audit ne peut pas en être le relecteur.",
+    "workflowReasonRequired": "Le motif est obligatoire pour cette action.",
+    "commentTooLong": "Le commentaire dépasse la longueur maximale ({max} caractères)."
   },
   "emails": {
     "invitationSubject": "Vous êtes invité·e à rejoindre Axessio"
   },
+  "planning": {
+    "metaTitle": "Planning — Axessio",
+    "title": "Planning",
+    "subtitle": "Vue calendrier des dates clés de vos audits.",
+    "calendarHint": "Cliquez sur un audit pour ouvrir sa fiche.",
+    "prevMonth": "Mois précédent",
+    "nextMonth": "Mois suivant",
+    "today": "Aujourd'hui",
+    "emptyMonth": "Aucune date planifiée ce mois-ci.",
+    "moreEvents": "+{count} autre(s)",
+    "weekdays": {
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mer",
+      "thu": "Jeu",
+      "fri": "Ven",
+      "sat": "Sam",
+      "sun": "Dim"
+    },
+    "eventType": {
+      "start": "Démarrage",
+      "end": "Fin prévue",
+      "restitution": "Restitution",
+      "counter_audit": "Contre-audit"
+    },
+    "filter": {
+      "label": "Auditeur",
+      "placeholder": "Choisir…",
+      "all": "Tous les auditeurs"
+    }
+  },
+  "impersonation": {
+    "banner": {
+      "title": "Mode visualisation",
+      "description": "Vous êtes connecté·e en tant que {real} et vous visualisez l'application comme un {viewing}.",
+      "exit": "Quitter le mode visualisation"
+    },
+    "launcher": {
+      "cta": "Voir comme…",
+      "dialogTitle": "Voir l'application comme un autre rôle",
+      "dialogDesc": "Cette vue est en lecture seule pour l'UI : aucune permission n'est élevée côté serveur.",
+      "legend": "Choisir le rôle à visualiser",
+      "cancel": "Annuler",
+      "confirm": "Activer la visualisation"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "empty": "Aucune notification",
-    "emptyDesc": "Tu seras prévenu·e dès qu'une nouvelle réponse arrive sur une de tes NC.",
+    "emptyDesc": "Tu seras prévenu·e dès qu'une nouvelle activité te concerne.",
     "markAllRead": "Tout marquer comme lu",
     "replied": "a posté un message",
-    "unknownSender": "Quelqu'un"
+    "unknownSender": "Quelqu'un",
+    "genericAction": "a déclenché une action",
+    "typeInReviewRequested": "demande une relecture",
+    "typeRequestChanges": "demande des corrections",
+    "typeValidated": "a validé l'audit",
+    "typeDelivered": "a livré l'audit",
+    "typeReviewReminder": "Relecture en attente",
+    "typeProofreaderAssigned": "t'a désigné·e comme relecteur·trice"
   },
   "notFound": {
     "code": "404",
@@ -400,6 +463,7 @@
     "items": {
       "dashboard": "Tableau de bord",
       "audits": "Audits",
+      "planning": "Planning",
       "clients": "Clients",
       "users": "Utilisateurs",
       "references": "Référentiels",
@@ -409,7 +473,8 @@
     "user": {
       "profile": "Mon profil",
       "settings": "Paramètres",
-      "logout": "Déconnexion"
+      "logout": "Déconnexion",
+      "exitImpersonation": "Sortir du mode visualisation"
     },
     "brandHomeAria": "Axessio — retour au tableau de bord",
     "legal": {
@@ -537,6 +602,12 @@
       "noClient": "Sans client",
       "unknownProject": "Projet inconnu",
       "updatedOn": "Mis à jour le {date}"
+    },
+    "workflowBreakdown": {
+      "title": "Workflow éditorial",
+      "subtitle": "Répartition des audits par étape de validation.",
+      "share": "{count, plural, =0 {Aucun audit} one {# audit} other {# audits}} · {pct}%",
+      "avgReviewLabel": "Temps moyen passé en revue"
     }
   },
   "roles": {
@@ -724,8 +795,7 @@
         "impersonate": "Visualiser comme un autre rôle",
         "permissions.debug": "Accéder à la page debug permissions"
       }
-    }
-  },
+    },
     "empty": {
       "noUsers": "Aucun utilisateur",
       "noResults": "Aucun résultat pour ces filtres",
@@ -830,6 +900,12 @@
       "AUDIT": "Audit avec contre-audit",
       "NO_COUNTER_AUDIT": "Audit sans contre-audit",
       "COMPLIANCE_AUDIT": "Audit de conformité"
+    },
+    "workflowStatus": {
+      "draft": "Brouillon",
+      "in_review": "En revue",
+      "validated": "Validé",
+      "delivered": "Livré"
     }
   },
   "audits": {
@@ -847,6 +923,7 @@
         "reference": "Référentiel",
         "platform": "Plateforme",
         "status": "Statut",
+        "workflow": "Workflow",
         "score": "Score",
         "updated": "Mis à jour",
         "action": "Action"
@@ -860,6 +937,9 @@
       "filterPlatformAria": "Filtrer par plateforme",
       "filterPlatformPlaceholder": "Plateforme",
       "filterAllPlatforms": "Toutes les plateformes",
+      "filterWorkflowAria": "Filtrer par workflow",
+      "filterWorkflowPlaceholder": "Workflow",
+      "filterAllWorkflow": "Tous les workflows",
       "resetFilters": "Réinitialiser",
       "pagination": {
         "summary": "Audits {from}-{to} sur {total}",
@@ -909,6 +989,8 @@
           "description": "Toutes les informations de cette étape sont optionnelles.",
           "startDate": "Démarrage prévu",
           "endDate": "Fin prévue",
+          "restitutionDate": "Date de restitution",
+          "counterAuditDate": "Date du contre-audit",
           "a11yLink": "Lien vers la page d'accessibilité",
           "a11yLinkPlaceholder": "https://exemple.com/accessibilite",
           "notes": "Notes internes",
@@ -941,6 +1023,8 @@
       "planning": "Planning",
       "startDate": "Démarrage prévu",
       "endDate": "Fin prévue",
+      "restitutionDate": "Restitution",
+      "counterAuditDate": "Contre-audit",
       "deliveredAt": "Livré le",
       "onlineAt": "Mis en ligne",
       "quickLinks": {
@@ -952,6 +1036,75 @@
         "anomaliesDesc": "Toutes les NC, par sévérité et par page.",
         "simulatorTitle": "Simulateur de remédiation",
         "simulatorDesc": "Voir l'impact de corrections virtuelles sur le score."
+      },
+      "workflowTitle": "Workflow éditorial",
+      "workflowSubtitle": "Étape de validation du rapport — verrouille l'édition une fois validé.",
+      "assigneesTitle": "Auditeurs assignés",
+      "assigneesSubtitle": "Membres internes ayant accès à cet audit.",
+      "proofreadersTitle": "Relecteurs",
+      "proofreadersSubtitle": "Membres désignés pour relire et valider le rapport.",
+      "historyTitle": "Historique",
+      "historySubtitle": "Transitions, notes et commentaires de relecture."
+    },
+    "assignees": {
+      "empty": "Aucun auditeur assigné pour l'instant.",
+      "addCta": "Assigner un auditeur",
+      "dialogTitle": "Assigner un auditeur",
+      "dialogDesc": "Le membre choisi aura accès à cet audit (lecture, édition, NC).",
+      "selectLabel": "Auditeur ou administrateur",
+      "selectPlaceholder": "Choisir un membre…",
+      "cancel": "Annuler",
+      "confirm": "Assigner",
+      "removeAria": "Retirer {name}"
+    },
+    "proofreaders": {
+      "empty": "Aucun relecteur désigné pour l'instant.",
+      "addCta": "Désigner un relecteur",
+      "dialogTitle": "Désigner un relecteur",
+      "dialogDesc": "Le relecteur est notifié, peut commenter et valider le rapport.",
+      "selectLabel": "Membre interne",
+      "selectPlaceholder": "Choisir un relecteur…",
+      "cancel": "Annuler",
+      "confirm": "Désigner",
+      "removeAria": "Retirer {name}"
+    },
+    "reviewComments": {
+      "label": "Commentaire de relecture",
+      "placeholder": "Notez un point à corriger, une question, une validation…",
+      "hint": "Visible dans l'historique de l'audit.",
+      "submit": "Publier"
+    },
+    "workflow": {
+      "currentLabel": "Étape courante",
+      "noTransition": "Aucune transition disponible depuis cet état.",
+      "reasonLabel": "Motif (optionnel)",
+      "reasonLabelRequired": "Motif (obligatoire)",
+      "reasonPlaceholder": "Ex. relecture interne validée, point bloquant…",
+      "reasonHint": "Cette note apparaîtra dans l'historique de l'audit.",
+      "reasonHintRequired": "Précisez ce qui doit être corrigé — l'auteur sera notifié.",
+      "reasonRequiredError": "Le motif est obligatoire pour cette action.",
+      "cancel": "Annuler",
+      "confirm": "Confirmer la transition",
+      "transitionCta": {
+        "draft": "Repasser en brouillon",
+        "in_review": "Passer en revue",
+        "validated": "Valider l'audit",
+        "delivered": "Marquer comme livré",
+        "request_changes": "Demander des corrections"
+      },
+      "timeline": {
+        "ariaLabel": "Historique du workflow",
+        "empty": "Aucune entrée dans l'historique pour l'instant.",
+        "transitionLabel": "Transition : {from} → {to}",
+        "noteLabel": "Note ajoutée",
+        "commentLabel": "Commentaire de relecture",
+        "requestChangesLabel": "Demande de corrections",
+        "proofreaderAddedLabel": "Relecteur désigné",
+        "proofreaderRemovedLabel": "Relecteur retiré"
+      },
+      "stagnation": {
+        "label": "{days, plural, one {# jour} other {# jours}}",
+        "tooltip": "Sans changement depuis {days, plural, one {# jour} other {# jours}}"
       }
     },
     "edit": {
@@ -967,6 +1120,8 @@
       "section2": "Planning et informations",
       "startDate": "Démarrage prévu",
       "endDate": "Fin prévue",
+      "restitutionDate": "Date de restitution",
+      "counterAuditDate": "Date du contre-audit",
       "a11yLink": "Lien vers la page d'accessibilité",
       "notes": "Notes internes",
       "saving": "Sauvegarde…",

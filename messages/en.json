@@ -358,18 +358,81 @@
     "createAuditFailed": "Creation failed: {message}",
     "updateAuditOnlyAuditor": "Only auditors can edit an audit.",
     "defaultInviterName": "An Axessio auditor",
-    "userCreatedEmailFailed": "User created but the email could not be sent: {message}. Use \"Resend invitation\" to try again."
+    "userCreatedEmailFailed": "User created but the email could not be sent: {message}. Use \"Resend invitation\" to try again.",
+    "auditNotFound": "Audit not found.",
+    "workflowLocked": "Audit is locked: it has been validated or delivered. Ask an administrator.",
+    "workflowTransitionDenied": "This transition is not allowed from the current state.",
+    "workflowTransitionRoleDenied": "Your role does not permit this transition.",
+    "impersonationTargetDenied": "You cannot impersonate this role.",
+    "userInactive": "This user is disabled.",
+    "assigneeMustBeStaff": "Only auditors and administrators can be assigned.",
+    "proofreaderCannotBeAuditor": "The author of an audit cannot be its proofreader.",
+    "workflowReasonRequired": "A reason is required for this action.",
+    "commentTooLong": "The comment exceeds the maximum length ({max} characters)."
   },
   "emails": {
     "invitationSubject": "You have been invited to join Axessio"
   },
+  "planning": {
+    "metaTitle": "Planning — Axessio",
+    "title": "Planning",
+    "subtitle": "Calendar view of your audits' key dates.",
+    "calendarHint": "Click an audit to open its page.",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "today": "Today",
+    "emptyMonth": "No scheduled dates this month.",
+    "moreEvents": "+{count} more",
+    "weekdays": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "eventType": {
+      "start": "Start",
+      "end": "End",
+      "restitution": "Restitution",
+      "counter_audit": "Counter-audit"
+    },
+    "filter": {
+      "label": "Auditor",
+      "placeholder": "Pick…",
+      "all": "All auditors"
+    }
+  },
+  "impersonation": {
+    "banner": {
+      "title": "View-as mode",
+      "description": "You are signed in as {real} and are viewing the app as a {viewing}.",
+      "exit": "Exit view-as mode"
+    },
+    "launcher": {
+      "cta": "View as…",
+      "dialogTitle": "View the app as another role",
+      "dialogDesc": "This view is UI read-only: no permission is elevated on the server.",
+      "legend": "Choose the role to view",
+      "cancel": "Cancel",
+      "confirm": "Enable view-as"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "empty": "No notification",
-    "emptyDesc": "You'll be notified as soon as a new reply lands on one of your NCs.",
+    "emptyDesc": "You'll be notified as soon as new activity concerns you.",
     "markAllRead": "Mark all as read",
     "replied": "posted a message",
-    "unknownSender": "Someone"
+    "unknownSender": "Someone",
+    "genericAction": "triggered an action",
+    "typeInReviewRequested": "requested a review",
+    "typeRequestChanges": "requested changes",
+    "typeValidated": "validated the audit",
+    "typeDelivered": "delivered the audit",
+    "typeReviewReminder": "Review pending",
+    "typeProofreaderAssigned": "assigned you as proofreader"
   },
   "notFound": {
     "code": "404",
@@ -400,6 +463,7 @@
     "items": {
       "dashboard": "Dashboard",
       "audits": "Audits",
+      "planning": "Planning",
       "clients": "Clients",
       "users": "Users",
       "references": "Standards",
@@ -409,7 +473,8 @@
     "user": {
       "profile": "My profile",
       "settings": "Settings",
-      "logout": "Sign out"
+      "logout": "Sign out",
+      "exitImpersonation": "Exit view-as mode"
     },
     "brandHomeAria": "Axessio — back to dashboard",
     "legal": {
@@ -537,6 +602,12 @@
       "noClient": "No client",
       "unknownProject": "Unknown project",
       "updatedOn": "Updated on {date}"
+    },
+    "workflowBreakdown": {
+      "title": "Editorial workflow",
+      "subtitle": "Distribution of audits by validation step.",
+      "share": "{count, plural, =0 {No audit} one {# audit} other {# audits}} · {pct}%",
+      "avgReviewLabel": "Average time spent in review"
     }
   },
   "roles": {
@@ -829,6 +900,12 @@
       "AUDIT": "Audit with counter-audit",
       "NO_COUNTER_AUDIT": "Audit without counter-audit",
       "COMPLIANCE_AUDIT": "Compliance audit"
+    },
+    "workflowStatus": {
+      "draft": "Draft",
+      "in_review": "In review",
+      "validated": "Validated",
+      "delivered": "Delivered"
     }
   },
   "audits": {
@@ -846,6 +923,7 @@
         "reference": "Reference",
         "platform": "Platform",
         "status": "Status",
+        "workflow": "Workflow",
         "score": "Score",
         "updated": "Updated",
         "action": "Action"
@@ -859,6 +937,9 @@
       "filterPlatformAria": "Filter by platform",
       "filterPlatformPlaceholder": "Platform",
       "filterAllPlatforms": "All platforms",
+      "filterWorkflowAria": "Filter by workflow",
+      "filterWorkflowPlaceholder": "Workflow",
+      "filterAllWorkflow": "All workflow steps",
       "resetFilters": "Reset",
       "pagination": {
         "summary": "Audits {from}-{to} of {total}",
@@ -908,6 +989,8 @@
           "description": "All fields in this step are optional.",
           "startDate": "Expected start",
           "endDate": "Expected end",
+          "restitutionDate": "Restitution date",
+          "counterAuditDate": "Counter-audit date",
           "a11yLink": "Link to the accessibility page",
           "a11yLinkPlaceholder": "https://example.com/accessibility",
           "notes": "Internal notes",
@@ -940,6 +1023,8 @@
       "planning": "Schedule",
       "startDate": "Expected start",
       "endDate": "Expected end",
+      "restitutionDate": "Restitution",
+      "counterAuditDate": "Counter-audit",
       "deliveredAt": "Delivered on",
       "onlineAt": "Online since",
       "quickLinks": {
@@ -951,6 +1036,75 @@
         "anomaliesDesc": "All NCs, by severity and page.",
         "simulatorTitle": "Remediation simulator",
         "simulatorDesc": "See the impact of virtual fixes on the score."
+      },
+      "workflowTitle": "Editorial workflow",
+      "workflowSubtitle": "Validation step of the report — locks editing once validated.",
+      "assigneesTitle": "Assigned auditors",
+      "assigneesSubtitle": "Internal members with access to this audit.",
+      "proofreadersTitle": "Proofreaders",
+      "proofreadersSubtitle": "Members assigned to review and validate the report.",
+      "historyTitle": "History",
+      "historySubtitle": "Transitions, notes and review comments."
+    },
+    "assignees": {
+      "empty": "No auditor assigned yet.",
+      "addCta": "Assign an auditor",
+      "dialogTitle": "Assign an auditor",
+      "dialogDesc": "The selected member will get access to this audit (read, edit, NCs).",
+      "selectLabel": "Auditor or administrator",
+      "selectPlaceholder": "Pick a member…",
+      "cancel": "Cancel",
+      "confirm": "Assign",
+      "removeAria": "Remove {name}"
+    },
+    "proofreaders": {
+      "empty": "No proofreader assigned yet.",
+      "addCta": "Assign a proofreader",
+      "dialogTitle": "Assign a proofreader",
+      "dialogDesc": "The proofreader is notified, can comment and validate the report.",
+      "selectLabel": "Internal member",
+      "selectPlaceholder": "Pick a proofreader…",
+      "cancel": "Cancel",
+      "confirm": "Assign",
+      "removeAria": "Remove {name}"
+    },
+    "reviewComments": {
+      "label": "Review comment",
+      "placeholder": "Note a point to fix, a question, a validation…",
+      "hint": "Visible in the audit history.",
+      "submit": "Post"
+    },
+    "workflow": {
+      "currentLabel": "Current step",
+      "noTransition": "No transition available from this state.",
+      "reasonLabel": "Reason (optional)",
+      "reasonLabelRequired": "Reason (required)",
+      "reasonPlaceholder": "E.g. internal review passed, blocker noted…",
+      "reasonHint": "This note will appear in the audit history.",
+      "reasonHintRequired": "Explain what needs to be fixed — the author will be notified.",
+      "reasonRequiredError": "A reason is required for this action.",
+      "cancel": "Cancel",
+      "confirm": "Confirm transition",
+      "transitionCta": {
+        "draft": "Send back to draft",
+        "in_review": "Move to review",
+        "validated": "Validate audit",
+        "delivered": "Mark as delivered",
+        "request_changes": "Request changes"
+      },
+      "timeline": {
+        "ariaLabel": "Workflow history",
+        "empty": "No history entries yet.",
+        "transitionLabel": "Transition: {from} → {to}",
+        "noteLabel": "Note added",
+        "commentLabel": "Review comment",
+        "requestChangesLabel": "Changes requested",
+        "proofreaderAddedLabel": "Proofreader assigned",
+        "proofreaderRemovedLabel": "Proofreader removed"
+      },
+      "stagnation": {
+        "label": "{days, plural, one {# day} other {# days}}",
+        "tooltip": "Unchanged for {days, plural, one {# day} other {# days}}"
       }
     },
     "edit": {
@@ -966,6 +1120,8 @@
       "section2": "Schedule and information",
       "startDate": "Expected start",
       "endDate": "Expected end",
+      "restitutionDate": "Restitution date",
+      "counterAuditDate": "Counter-audit date",
       "a11yLink": "Link to the accessibility page",
       "notes": "Internal notes",
       "saving": "Saving…",
