@@ -33,9 +33,7 @@ export function ReviewReminderEmail({
   return (
     <Html lang="fr">
       <Head />
-      <Preview>
-        Un audit attend votre relecture depuis {daysWaiting} jours
-      </Preview>
+      <Preview>{`Un audit attend votre relecture depuis ${daysWaiting} jours`}</Preview>
       <Body style={body}>
         <Container style={container}>
           <Section style={headerSection}>

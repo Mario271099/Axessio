@@ -146,7 +146,11 @@ export default async function PlanningPage({ searchParams }: PageProps) {
       | null;
   };
 
-  const auditRows = ((rows ?? []) as RawRow[]).filter((row) => {
+  // Cast via `unknown` : le typage inféré par Supabase a `client` en tableau,
+  // alors qu'on le sait single via `!inner`. Le cast strict est refusé en
+  // build (mais accepté en incremental check) — passer par `unknown` est
+  // la conversion recommandée par TS pour ce cas précis.
+  const auditRows = ((rows ?? []) as unknown as RawRow[]).filter((row) => {
     if (!auditorFilter) return true;
     const ids = (row.assignees ?? [])
       .map((a) => a.profile?.id)
