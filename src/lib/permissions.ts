@@ -155,11 +155,13 @@ export const canImpersonate = (r: UserRole) => canImpersonateAs(r).length > 0;
 export const isStaff = (r: UserRole): boolean => r === "admin" || r === "auditor";
 
 /**
- * Peut désigner / retirer un relecteur sur un audit. Admin + auditor — le
- * verrou granulaire (auditeur doit être assigné à l'audit) est appliqué côté
- * RLS via la policy `assignees_proofreader_manage` (migration 27).
+ * Peut désigner / retirer un relecteur sur un audit. Depuis la migration 35,
+ * réservé à admin + client_admin (l'auditor a perdu ce pouvoir — confer la
+ * spec rôles audit). Le verrou granulaire de scope (client_admin uniquement
+ * sur les audits de son client) est appliqué côté RLS.
  */
-export const canAssignProofreader = (r: UserRole): boolean => isStaff(r);
+export const canAssignProofreader = (r: UserRole): boolean =>
+  r === "admin" || r === "client_admin";
 
 /**
  * Peut poster un commentaire de relecture sur un audit. Ouvert au staff

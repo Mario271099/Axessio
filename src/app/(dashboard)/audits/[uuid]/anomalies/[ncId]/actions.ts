@@ -149,12 +149,22 @@ export async function updateNCStatus(
 }
 
 // ============================================================================
-// 3) Envoi d'un message dans le fil de discussion (auditeur + client_admin)
+// 3) Envoi d'un message dans le fil de discussion
+// ----------------------------------------------------------------------------
+// `thread` distingue :
+//   - 'client' : remédiation côté client (auditeur ↔ client_admin/client)
+//   - 'review' : relecture interne (auditeur ↔ relecteur)
+// L'accès est filtré côté RLS (migration 37). Côté server action on impose
+// que l'utilisateur ait le droit chat correspondant — la RLS reste la
+// dernière ligne de défense.
 // ============================================================================
+type MessageThread = "client" | "review";
+
 export async function sendMessage(
   ncId: string,
   auditId: string,
   body: string,
+  thread: MessageThread = "client",
 ): Promise<ActionResult> {
   const auth = await requireAuditorOrClientAdmin();
   if ("error" in auth) return { error: auth.error };
@@ -162,6 +172,12 @@ export async function sendMessage(
   const t = await getTranslations("errors");
   const trimmed = body.trim();
   if (!trimmed) return { error: t("emptyMessage") };
+
+  // Le fil 'review' est réservé au staff (admin + auditor + proofreader).
+  // Pour les client_admin/client, on refuse l'écriture ici en plus de la RLS.
+  if (thread === "review" && (auth.role === "client_admin" || auth.role === "client")) {
+    return { error: t("forbidden") };
+  }
 
   const limit = rateLimit(
     `sendMessage:${auth.userId}`,
@@ -180,6 +196,7 @@ export async function sendMessage(
     non_conformity_id: ncId,
     author_id: auth.userId,
     body: trimmed,
+    thread,
   });
 
   if (error) return { error: error.message };

@@ -432,7 +432,12 @@
     "typeValidated": "a validé l'audit",
     "typeDelivered": "a livré l'audit",
     "typeReviewReminder": "Relecture en attente",
-    "typeProofreaderAssigned": "t'a désigné·e comme relecteur·trice"
+    "typeProofreaderAssigned": "t'a désigné·e comme relecteur·trice",
+    "typeAuditorAssigned": "t'a assigné·e à un audit",
+    "typeNcReviewRequested": "demande une relecture sur une NC",
+    "typeNcReviewChangesRequested": "demande des corrections sur une NC",
+    "typeNcReviewApproved": "a validé la relecture d'une NC",
+    "typeNcReviewMessage": "a posté un commentaire dans le fil de relecture"
   },
   "notFound": {
     "code": "404",
@@ -1037,6 +1042,16 @@
         "simulatorTitle": "Simulateur de remédiation",
         "simulatorDesc": "Voir l'impact de corrections virtuelles sur le score."
       },
+      "sections": {
+        "overview": "Vue d'ensemble",
+        "overviewDesc": "Score de conformité et planning de l'audit.",
+        "progress": "Avancement",
+        "progressDesc": "Cycle de vie métier et workflow éditorial du rapport.",
+        "team": "Équipe",
+        "teamDesc": "Auditeurs et relecteurs assignés à cet audit."
+      },
+      "lifecycleTitle": "Cycle de vie de l'audit",
+      "lifecycleSubtitle": "Statut métier (En attente → Planifié → En cours → Livré → Remédiation). Transitions conditionnelles.",
       "workflowTitle": "Workflow éditorial",
       "workflowSubtitle": "Étape de validation du rapport — verrouille l'édition une fois validé.",
       "assigneesTitle": "Auditeurs assignés",
@@ -1073,6 +1088,70 @@
       "placeholder": "Notez un point à corriger, une question, une validation…",
       "hint": "Visible dans l'historique de l'audit.",
       "submit": "Publier"
+    },
+    "ncReview": {
+      "cta": {
+        "request": "Demander une relecture",
+        "cancel": "Annuler la demande",
+        "requestChanges": "Demander des corrections",
+        "approve": "Valider la relecture"
+      },
+      "dialog": {
+        "requestTitle": "Demander une relecture",
+        "requestDesc": "Les relecteurs assignés à l'audit recevront une notification.",
+        "cancelTitle": "Annuler la demande de relecture",
+        "cancelDesc": "Le statut redevient « Non demandée ». Les commentaires de relecture restent visibles dans l'historique.",
+        "changesTitle": "Demander des corrections",
+        "changesDesc": "L'auteur de la NC sera notifié. Précisez ce qui doit être corrigé.",
+        "approveTitle": "Valider la relecture",
+        "approveDesc": "La NC est considérée comme relue. Toute modification de fond ultérieure remettra automatiquement la relecture en attente.",
+        "reasonLabel": "Motif (obligatoire)",
+        "reasonPlaceholder": "Ex. la recommandation manque de précision sur les critères techniques…",
+        "reasonHint": "Le motif est posté en commentaire dans le fil de relecture.",
+        "dismiss": "Annuler",
+        "confirm": "Confirmer"
+      },
+      "errors": {
+        "NC_REVIEW_DENIED": "Vous n'êtes pas autorisé à effectuer cette action sur cette NC.",
+        "NC_REVIEW_INVALID_STATE": "Cette action n'est pas possible depuis l'état actuel de la relecture.",
+        "NC_REVIEW_REASON_REQUIRED": "Le motif est obligatoire pour demander des corrections.",
+        "NC_REVIEW_NO_PROOFREADER": "Désignez un relecteur sur la fiche audit avant de demander une relecture.",
+        "NC_NOT_FOUND": "Non-conformité introuvable."
+      }
+    },
+    "statusTransitions": {
+      "noTransition": "Aucune transition de statut disponible depuis cet état.",
+      "ready": "Toutes les conditions sont réunies. Confirmez pour appliquer la transition.",
+      "cancel": "Annuler",
+      "confirm": "Confirmer la transition",
+      "cta": {
+        "plan": "Planifier l'audit",
+        "start": "Démarrer l'audit",
+        "deliver": "Livrer l'audit",
+        "openRemediation": "Ouvrir la remédiation"
+      },
+      "conditions": {
+        "sample": "Échantillon",
+        "sampleValue": "{count, plural, =0 {Aucune page représentative} one {# page représentative} other {# pages représentatives}}",
+        "startDate": "Date de début",
+        "startDateMissing": "Non renseignée",
+        "startDateFuture": "Dans le futur",
+        "startDateReached": "Atteinte",
+        "matrix": "Matrice de conformité",
+        "matrixValue": "{filled} / {total} cellules ({percent} %)",
+        "matrixAria": "Matrice complétée à {percent} %"
+      },
+      "errors": {
+        "STATUS_INVALID_SOURCE": "Le statut courant ne permet pas cette transition (l'audit a peut-être déjà été modifié).",
+        "STATUS_INVALID_TARGET": "Cette transition n'est pas autorisée.",
+        "STATUS_ROLE_DENIED": "Votre rôle ne permet pas cette transition.",
+        "SAMPLE_EMPTY": "Ajoutez au moins une page représentative dans l'échantillon avant de planifier l'audit.",
+        "START_DATE_MISSING": "Renseignez une date de début prévue avant de démarrer l'audit.",
+        "START_DATE_FUTURE": "La date de début est postérieure à aujourd'hui — l'audit ne peut pas encore démarrer.",
+        "MATRIX_NO_PAGES": "L'audit ne contient aucune page : ajoutez l'échantillon avant la livraison.",
+        "MATRIX_NO_CRITERIA": "Le référentiel sélectionné ne contient aucun critère.",
+        "MATRIX_INCOMPLETE": "La matrice doit être complétée à 100 % avant livraison ({filled} / {total} cellules — {percent} %)."
+      }
     },
     "workflow": {
       "currentLabel": "Étape courante",
@@ -1320,8 +1399,12 @@
       "noScreenshotsDesc": "Glissez-déposez ou cliquez ci-dessous pour ajouter une capture.",
       "confirmDeleteCapture": "Supprimer cette capture ?",
       "discussion": "Discussion",
+      "threadTabsAria": "Sélectionner le fil de discussion",
+      "threadClient": "Client",
+      "threadReview": "Relecture",
       "noMessages": "Aucun message pour l'instant",
       "noMessagesDesc": "Démarrez la discussion ci-dessous.",
+      "noMessagesReviewDesc": "Le fil de relecture est vide. Posez une question ou faites une remarque.",
       "messageDateAt": "{date} à {hh}h{mm}",
       "newMessageLabel": "Nouveau message",
       "messagePlaceholder": "Écrire un message…",

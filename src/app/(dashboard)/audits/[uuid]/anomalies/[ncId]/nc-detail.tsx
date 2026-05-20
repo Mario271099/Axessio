@@ -49,10 +49,13 @@ import { intlLocale } from "@/lib/intl";
 import { canChat, canEditNCNow, isWorkflowEditable } from "@/lib/permissions";
 import type {
   AuditWorkflowStatus,
+  NCReviewStatus,
   NCSeverity,
   NCStatus,
   UserRole,
 } from "@/types/domain";
+import { NCReviewBadge } from "@/components/audit/nc-review-badge";
+import { NCReviewActions } from "@/components/audit/nc-review-actions";
 import {
   addAttachment,
   deleteAttachment,
@@ -132,12 +135,14 @@ interface PageData {
   name: string;
 }
 
-interface MessageData {
+export interface MessageData {
   id: string;
   body: string;
   createdAt: string;
   authorId: string;
   author: { firstName: string; lastName: string } | null;
+  /** Fil de discussion (migration 34). Défaut 'client' pour rétrocompat. */
+  thread?: "client" | "review";
 }
 
 interface AttachmentData {
@@ -163,17 +168,26 @@ export interface NCData {
   testReference: string | null;
   criterion: CriterionData | null;
   page: PageData | null;
+  /** Statut de relecture (migration 33). */
+  reviewStatus: NCReviewStatus;
 }
 
 export interface NCDetailProps {
   nc: NCData;
   pages: PageData[];
+  /** Messages tous fils confondus — séparés côté composant via `thread`. */
   messages: MessageData[];
   attachments: AttachmentData[];
   auditId: string;
   auditTitle: string;
   profile: { role: UserRole; id: string };
   workflowStatus: AuditWorkflowStatus;
+  /**
+   * Rôle d'assignment de l'utilisateur sur l'audit parent (auditor /
+   * proofreader / admin / none). Utilisé pour afficher les bons boutons
+   * d'action de relecture et l'accès au fil 'review'.
+   */
+  userAssignmentRole: "auditor" | "proofreader" | "admin" | "none";
 }
 
 export function NCDetail({
@@ -185,6 +199,7 @@ export function NCDetail({
   auditTitle,
   profile,
   workflowStatus,
+  userAssignmentRole,
 }: NCDetailProps) {
   const router = useRouter();
   const t = useTranslations("audits.ncDetail");
@@ -239,13 +254,26 @@ export function NCDetail({
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(
     null,
   );
+  // Onglet actif du chat : 'client' (remédiation, défaut) | 'review' (relecture).
+  const canAccessReviewThread =
+    userAssignmentRole === "auditor" ||
+    userAssignmentRole === "proofreader" ||
+    userAssignmentRole === "admin";
+  const [activeThread, setActiveThread] = useState<"client" | "review">(
+    "client",
+  );
 
-  // Le chat est ouvert à tous les rôles (admin, auditor, client_admin, client).
+  // Le chat client est ouvert à tous les rôles ayant chat.read.
   const canDiscuss = canChat(profile.role);
+
+  // Messages filtrés par fil actif.
+  const visibleMessages = messages.filter(
+    (m) => (m.thread ?? "client") === activeThread,
+  );
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ block: "end" });
-  }, [messages.length]);
+  }, [visibleMessages.length, activeThread]);
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -253,7 +281,7 @@ export function NCDetail({
     if (!body || sending) return;
     setSendError(null);
     startSendTransition(async () => {
-      const result = await sendMessage(nc.id, auditId, body);
+      const result = await sendMessage(nc.id, auditId, body, activeThread);
       if (result.error) {
         setSendError(result.error);
         return;
@@ -479,6 +507,7 @@ export function NCDetail({
                   {tNcStatus(status)}
                 </Badge>
               )}
+              <NCReviewBadge status={nc.reviewStatus} hideWhenNotRequested />
             </div>
             {statusError && (
               <p role="alert" className="text-xs text-destructive">
@@ -486,6 +515,11 @@ export function NCDetail({
               </p>
             )}
             <h1 className="text-2xl font-bold tracking-tight">{nc.title}</h1>
+            <NCReviewActions
+              ncId={nc.id}
+              reviewStatus={nc.reviewStatus}
+              userRole={userAssignmentRole}
+            />
           </header>
 
           {/* Critère lié -------------------------------------------------- */}
@@ -856,23 +890,62 @@ export function NCDetail({
         {/* Colonne droite (1/3) — Discussion ------------------------------ */}
         <aside className="lg:col-span-1">
           <Card className="flex flex-col lg:sticky lg:top-20 lg:h-[calc(100vh-12rem)]">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border">
+            <CardHeader className="space-y-3 border-b border-border">
               <CardTitle className="flex items-center gap-2 text-base">
                 <MessageSquare
                   className="h-4 w-4 text-muted-foreground"
                   aria-hidden="true"
                 />
                 {t("discussion")}
-                {messages.length > 0 && (
+                {visibleMessages.length > 0 && (
                   <Badge variant="secondary" className="ml-1 tabular-nums">
-                    {messages.length}
+                    {visibleMessages.length}
                   </Badge>
                 )}
               </CardTitle>
+              {/* Onglets — visibles seulement si l'utilisateur a accès au
+                  fil 'review' (staff/proofreader). Sinon, un seul fil 'client'
+                  reste actif, on cache le toggle. */}
+              {canAccessReviewThread && (
+                <div
+                  role="tablist"
+                  aria-label={t("threadTabsAria")}
+                  className="inline-flex rounded-md border border-border bg-muted/40 p-0.5 text-xs"
+                >
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeThread === "client"}
+                    className={cn(
+                      "rounded px-2 py-1 transition-colors",
+                      activeThread === "client"
+                        ? "bg-background font-medium shadow-sm"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                    onClick={() => setActiveThread("client")}
+                  >
+                    {t("threadClient")}
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeThread === "review"}
+                    className={cn(
+                      "rounded px-2 py-1 transition-colors",
+                      activeThread === "review"
+                        ? "bg-background font-medium shadow-sm"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                    onClick={() => setActiveThread("review")}
+                  >
+                    {t("threadReview")}
+                  </button>
+                </div>
+              )}
             </CardHeader>
 
             <div className="flex-1 space-y-4 overflow-y-auto p-4">
-              {messages.length === 0 ? (
+              {visibleMessages.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 py-8 text-center">
                   <div
                     aria-hidden="true"
@@ -882,12 +955,14 @@ export function NCDetail({
                   </div>
                   <p className="text-sm font-medium">{t("noMessages")}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t("noMessagesDesc")}
+                    {activeThread === "review"
+                      ? t("noMessagesReviewDesc")
+                      : t("noMessagesDesc")}
                   </p>
                 </div>
               ) : (
                 <ul className="space-y-4">
-                  {messages.map((m) => {
+                  {visibleMessages.map((m) => {
                     const initials = avatarInitials(m.author);
                     const fullName = m.author
                       ? `${m.author.firstName} ${m.author.lastName}`.trim() ||

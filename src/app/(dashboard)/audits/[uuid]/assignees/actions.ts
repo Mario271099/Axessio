@@ -63,6 +63,14 @@ export async function assignAuditor(
     payload: { profile_id: profileId, target_role: target.role },
   });
 
+  // Notif in-app à l'auditeur fraîchement assigné.
+  await supabase.from("notifications").insert({
+    user_id: profileId,
+    sender_id: guard.userId,
+    audit_id: auditId,
+    type: "auditor.assigned",
+  });
+
   revalidatePath(`/audits/${auditId}`);
   return { error: null, success: true };
 }

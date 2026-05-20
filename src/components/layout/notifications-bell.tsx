@@ -64,6 +64,11 @@ const TYPE_ICON: Record<string, React.ElementType> = {
   "workflow.delivered": Send,
   "workflow.review_reminder": Clock,
   "proofreader.assigned": UserPlus,
+  "auditor.assigned": UserPlus,
+  "nc.review_requested": Eye,
+  "nc.review_changes_requested": AlertTriangle,
+  "nc.review_approved": CheckCircle2,
+  "nc.review_message": MessageSquare,
 };
 
 const TYPE_TONE: Record<string, "primary" | "warning" | "destructive" | "success"> = {
@@ -74,6 +79,11 @@ const TYPE_TONE: Record<string, "primary" | "warning" | "destructive" | "success
   "workflow.delivered": "success",
   "workflow.review_reminder": "warning",
   "proofreader.assigned": "warning",
+  "auditor.assigned": "primary",
+  "nc.review_requested": "primary",
+  "nc.review_changes_requested": "destructive",
+  "nc.review_approved": "success",
+  "nc.review_message": "primary",
 };
 
 const TONE_BUBBLE: Record<string, string> = {
@@ -322,6 +332,16 @@ function NotifActionLabel({ type }: { type: string }) {
       return <>{t("typeReviewReminder")}</>;
     case "proofreader.assigned":
       return <>{t("typeProofreaderAssigned")}</>;
+    case "auditor.assigned":
+      return <>{t("typeAuditorAssigned")}</>;
+    case "nc.review_requested":
+      return <>{t("typeNcReviewRequested")}</>;
+    case "nc.review_changes_requested":
+      return <>{t("typeNcReviewChangesRequested")}</>;
+    case "nc.review_approved":
+      return <>{t("typeNcReviewApproved")}</>;
+    case "nc.review_message":
+      return <>{t("typeNcReviewMessage")}</>;
     default:
       return <>{t("genericAction")}</>;
   }

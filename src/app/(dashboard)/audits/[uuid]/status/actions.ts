@@ -1,0 +1,141 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
+import { createClient } from "@/lib/supabase/server";
+import { requirePermission } from "@/lib/server-permissions";
+import {
+  AUDIT_STATUS_TRANSITIONS,
+  evaluateTransition,
+  type AuditLifecycleSnapshot,
+  type AuditStatusErrorCode,
+} from "@/lib/audit-status";
+import type { AuditStatus } from "@/types/domain";
+
+export interface StatusTransitionResult {
+  ok: boolean;
+  newStatus?: AuditStatus;
+  errorCode?: AuditStatusErrorCode;
+  message?: string;
+  /** Contexte d'interpolation (matrice incomplète, date future, etc.). */
+  context?: Record<string, string | number>;
+}
+
+// ============================================================================
+// transitionAuditStatus(auditId, target)
+// ----------------------------------------------------------------------------
+// Server action centrale du cycle de vie audit_status. Pipeline :
+//   1. Permission `audit.edit` (admin + auditor).
+//   2. Charge le statut courant + snapshot des conditions (RPC).
+//   3. Vérifie matrice de transitions + rôle.
+//   4. Évalue les conditions métier (via evaluateTransition).
+//   5. UPDATE audits.status (+ delivered_at si DELIVERED).
+//   6. Insert audit_logs (action='status.transition').
+//   7. Renvoie un résultat typé avec errorCode + context.
+// ============================================================================
+export async function transitionAuditStatus(
+  auditId: string,
+  target: AuditStatus,
+): Promise<StatusTransitionResult> {
+  const guard = await requirePermission("audit.edit");
+  if (!guard.ok) {
+    return {
+      ok: false,
+      errorCode: "STATUS_ROLE_DENIED",
+      message: guard.error,
+    };
+  }
+
+  const supabase = await createClient();
+  const t = await getTranslations("audits.statusTransitions.errors");
+
+  // 1) Charge le statut courant
+  const { data: audit, error: auditError } = await supabase
+    .from("audits")
+    .select("id, status")
+    .eq("id", auditId)
+    .maybeSingle();
+  if (auditError) return { ok: false, message: auditError.message };
+  if (!audit) {
+    return {
+      ok: false,
+      errorCode: "STATUS_INVALID_SOURCE",
+      message: t("STATUS_INVALID_SOURCE"),
+    };
+  }
+
+  const current = audit.status as AuditStatus;
+
+  // 2) Transition autorisée par la matrice + rôle ?
+  const transition = AUDIT_STATUS_TRANSITIONS.find(
+    (tr) => tr.from === current && tr.to === target && tr.manual,
+  );
+  if (!transition) {
+    return {
+      ok: false,
+      errorCode: "STATUS_INVALID_TARGET",
+      message: t("STATUS_INVALID_TARGET"),
+    };
+  }
+  if (!transition.roles.includes(guard.role)) {
+    return {
+      ok: false,
+      errorCode: "STATUS_ROLE_DENIED",
+      message: t("STATUS_ROLE_DENIED"),
+    };
+  }
+
+  // 3) Snapshot des conditions via RPC (1 aller-retour)
+  const { data: snapshotRows, error: snapError } = await supabase.rpc(
+    "audit_status_lifecycle_view",
+    { p_audit_id: auditId },
+  );
+  if (snapError) return { ok: false, message: snapError.message };
+  const snapRow = Array.isArray(snapshotRows) ? snapshotRows[0] : snapshotRows;
+  const snapshot: AuditLifecycleSnapshot = {
+    representativeCount: Number(snapRow?.representative_count ?? 0),
+    matrixFilled: Number(snapRow?.matrix_filled ?? 0),
+    matrixTotal: Number(snapRow?.matrix_total ?? 0),
+    matrixPercent: Number(snapRow?.matrix_percent ?? 0),
+    startDateSet: Boolean(snapRow?.start_date_set ?? false),
+    startDateReached: Boolean(snapRow?.start_date_reached ?? false),
+  };
+
+  // 4) Évaluation des conditions métier
+  const readiness = evaluateTransition(current, target, snapshot);
+  if (!readiness.ready) {
+    return {
+      ok: false,
+      errorCode: readiness.errorCode,
+      message: readiness.errorCode ? t(readiness.errorCode) : undefined,
+      context: readiness.context,
+    };
+  }
+
+  // 5) UPDATE + side effects
+  const updates: Record<string, unknown> = { status: target };
+  if (target === "DELIVERED") {
+    updates.delivered_at = new Date().toISOString();
+  }
+
+  const { error: updateError } = await supabase
+    .from("audits")
+    .update(updates)
+    .eq("id", auditId);
+  if (updateError) return { ok: false, message: updateError.message };
+
+  // 6) Trace audit_logs
+  await supabase.from("audit_logs").insert({
+    audit_id: auditId,
+    actor_id: guard.userId,
+    actor_role: guard.role,
+    action: "status.transition",
+    payload: { from: current, to: target, manual: true },
+  });
+
+  revalidatePath(`/audits/${auditId}`);
+  revalidatePath("/audits");
+  revalidatePath("/dashboard");
+
+  return { ok: true, newStatus: target };
+}

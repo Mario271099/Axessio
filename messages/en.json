@@ -432,7 +432,12 @@
     "typeValidated": "validated the audit",
     "typeDelivered": "delivered the audit",
     "typeReviewReminder": "Review pending",
-    "typeProofreaderAssigned": "assigned you as proofreader"
+    "typeProofreaderAssigned": "assigned you as proofreader",
+    "typeAuditorAssigned": "assigned you to an audit",
+    "typeNcReviewRequested": "requested a review on an NC",
+    "typeNcReviewChangesRequested": "requested changes on an NC",
+    "typeNcReviewApproved": "approved an NC review",
+    "typeNcReviewMessage": "posted a comment in the review thread"
   },
   "notFound": {
     "code": "404",
@@ -1037,6 +1042,16 @@
         "simulatorTitle": "Remediation simulator",
         "simulatorDesc": "See the impact of virtual fixes on the score."
       },
+      "sections": {
+        "overview": "Overview",
+        "overviewDesc": "Conformity score and audit schedule.",
+        "progress": "Progress",
+        "progressDesc": "Business lifecycle and editorial workflow of the report.",
+        "team": "Team",
+        "teamDesc": "Auditors and proofreaders assigned to this audit."
+      },
+      "lifecycleTitle": "Audit lifecycle",
+      "lifecycleSubtitle": "Business status (Pending → Planned → In progress → Delivered → Remediation). Conditional transitions.",
       "workflowTitle": "Editorial workflow",
       "workflowSubtitle": "Validation step of the report — locks editing once validated.",
       "assigneesTitle": "Assigned auditors",
@@ -1073,6 +1088,70 @@
       "placeholder": "Note a point to fix, a question, a validation…",
       "hint": "Visible in the audit history.",
       "submit": "Post"
+    },
+    "ncReview": {
+      "cta": {
+        "request": "Request review",
+        "cancel": "Cancel request",
+        "requestChanges": "Request changes",
+        "approve": "Approve review"
+      },
+      "dialog": {
+        "requestTitle": "Request a review",
+        "requestDesc": "Proofreaders assigned to the audit will be notified.",
+        "cancelTitle": "Cancel the review request",
+        "cancelDesc": "Status returns to « Not requested ». Review comments stay visible in history.",
+        "changesTitle": "Request changes",
+        "changesDesc": "The NC author will be notified. Specify what needs to be fixed.",
+        "approveTitle": "Approve the review",
+        "approveDesc": "The NC is considered reviewed. Any later content change automatically resets the review to pending.",
+        "reasonLabel": "Reason (required)",
+        "reasonPlaceholder": "E.g. the recommendation lacks technical precision…",
+        "reasonHint": "The reason is posted as a message in the review thread.",
+        "dismiss": "Cancel",
+        "confirm": "Confirm"
+      },
+      "errors": {
+        "NC_REVIEW_DENIED": "You are not allowed to perform this action on this NC.",
+        "NC_REVIEW_INVALID_STATE": "This action is not allowed from the current review state.",
+        "NC_REVIEW_REASON_REQUIRED": "A reason is required to request changes.",
+        "NC_REVIEW_NO_PROOFREADER": "Assign a proofreader to the audit before requesting a review.",
+        "NC_NOT_FOUND": "Non-conformity not found."
+      }
+    },
+    "statusTransitions": {
+      "noTransition": "No status transition available from this state.",
+      "ready": "All conditions are met. Confirm to apply the transition.",
+      "cancel": "Cancel",
+      "confirm": "Confirm transition",
+      "cta": {
+        "plan": "Plan audit",
+        "start": "Start audit",
+        "deliver": "Deliver audit",
+        "openRemediation": "Open remediation"
+      },
+      "conditions": {
+        "sample": "Sample",
+        "sampleValue": "{count, plural, =0 {No representative page} one {# representative page} other {# representative pages}}",
+        "startDate": "Start date",
+        "startDateMissing": "Not set",
+        "startDateFuture": "In the future",
+        "startDateReached": "Reached",
+        "matrix": "Compliance matrix",
+        "matrixValue": "{filled} / {total} cells ({percent}%)",
+        "matrixAria": "Matrix {percent}% complete"
+      },
+      "errors": {
+        "STATUS_INVALID_SOURCE": "The current status doesn't allow this transition (the audit may have been updated already).",
+        "STATUS_INVALID_TARGET": "This transition is not allowed.",
+        "STATUS_ROLE_DENIED": "Your role does not permit this transition.",
+        "SAMPLE_EMPTY": "Add at least one representative page to the sample before planning the audit.",
+        "START_DATE_MISSING": "Set an expected start date before starting the audit.",
+        "START_DATE_FUTURE": "The start date is in the future — the audit cannot start yet.",
+        "MATRIX_NO_PAGES": "The audit has no pages: add a sample before delivery.",
+        "MATRIX_NO_CRITERIA": "The selected reference contains no criteria.",
+        "MATRIX_INCOMPLETE": "The matrix must be 100% complete before delivery ({filled} / {total} cells — {percent}%)."
+      }
     },
     "workflow": {
       "currentLabel": "Current step",
@@ -1320,8 +1399,12 @@
       "noScreenshotsDesc": "Drag-and-drop or click below to add a screenshot.",
       "confirmDeleteCapture": "Delete this screenshot?",
       "discussion": "Discussion",
+      "threadTabsAria": "Select discussion thread",
+      "threadClient": "Client",
+      "threadReview": "Review",
       "noMessages": "No message yet",
       "noMessagesDesc": "Start the discussion below.",
+      "noMessagesReviewDesc": "The review thread is empty. Ask a question or share feedback.",
       "messageDateAt": "{date} at {hh}:{mm}",
       "newMessageLabel": "New message",
       "messagePlaceholder": "Write a message…",

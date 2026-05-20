@@ -4,6 +4,7 @@ import type {
   ComplexityLevel,
   ConformityStatus,
   DisabilityType,
+  NCReviewStatus,
   NCSeverity,
   NCStatus,
   PageType,
@@ -155,6 +156,28 @@ export const NC_CLOSED_STATUSES: NCStatus[] = [
   "RESOLVED",
   "NON_REPRODUCIBLE",
 ];
+
+// ============================================================================
+// Cycle de relecture NC — libellés + couleurs
+// ============================================================================
+export const NC_REVIEW_STATUS_LABELS: Record<NCReviewStatus, string> = {
+  not_requested: "Non demandée",
+  pending: "Relecture demandée",
+  under_review: "En relecture",
+  changes_requested: "Corrections demandées",
+  approved: "Validée",
+};
+
+export const NC_REVIEW_STATUS_TONE: Record<
+  NCReviewStatus,
+  "neutral" | "info" | "warning" | "success" | "destructive" | "muted"
+> = {
+  not_requested: "muted",
+  pending: "warning",
+  under_review: "info",
+  changes_requested: "destructive",
+  approved: "success",
+};
 
 // ============================================================================
 // Page

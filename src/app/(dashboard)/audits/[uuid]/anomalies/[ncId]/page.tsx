@@ -1,8 +1,13 @@
 import { notFound } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import type { AuditWorkflowStatus, NCSeverity } from "@/types/domain";
+import type {
+  AuditWorkflowStatus,
+  NCReviewStatus,
+  NCSeverity,
+} from "@/types/domain";
 import { NCDetail, type NCData } from "./nc-detail";
+import { openNCReview } from "./review-actions";
 
 interface PageProps {
   params: Promise<{ uuid: string; ncId: string }>;
@@ -13,13 +18,13 @@ export default async function NCDetailPage({ params }: PageProps) {
   const { uuid, ncId } = await params;
   const supabase = await createClient();
 
-  // 1) NC complète + critère + page
+  // 1) NC complète + critère + page + statut de relecture
   const { data: ncRow, error: ncError } = await supabase
     .from("non_conformities")
     .select(
       `
       id, title, description, actual_result, recommendation,
-      severity, status, page_id, test_reference,
+      severity, status, page_id, test_reference, review_status,
       criterion:criteria!inner(id, identifier, name, url, methodology),
       page:pages(id, name)
     `,
@@ -57,14 +62,17 @@ export default async function NCDetailPage({ params }: PageProps) {
         }
       : null,
     page: page ? { id: page.id as string, name: page.name as string } : null,
+    reviewStatus: (ncRow.review_status ?? "not_requested") as NCReviewStatus,
   };
 
-  // 2) Messages + auteur
+  // 2) Messages (tous fils confondus) + auteur. La RLS (migration 37) filtre
+  // déjà selon le thread et le rôle de l'utilisateur — pas besoin de filtrer
+  // côté serveur ici.
   const { data: messagesRows } = await supabase
     .from("nc_messages")
     .select(
       `
-      id, body, created_at, author_id,
+      id, body, created_at, author_id, thread,
       author:profiles(first_name, last_name)
     `,
     )
@@ -78,6 +86,7 @@ export default async function NCDetailPage({ params }: PageProps) {
       body: m.body as string,
       createdAt: m.created_at as string,
       authorId: m.author_id as string,
+      thread: (m.thread ?? "client") as "client" | "review",
       author: author
         ? {
             firstName: (author.first_name as string) ?? "",
@@ -142,6 +151,36 @@ export default async function NCDetailPage({ params }: PageProps) {
     : null;
   const auditTitle = projectRow?.name ?? "Audit";
 
+  // 5) Rôle d'assignment de l'utilisateur sur l'audit (auditor / proofreader /
+  // admin / none). Détermine les boutons d'action de relecture + l'accès au
+  // fil 'review' côté UI. Admin court-circuite.
+  let userAssignmentRole: "auditor" | "proofreader" | "admin" | "none" = "none";
+  if (profile.role === "admin") {
+    userAssignmentRole = "admin";
+  } else {
+    const { data: myAssignments } = await supabase
+      .from("audit_assignees")
+      .select("role")
+      .eq("audit_id", uuid)
+      .eq("profile_id", profile.id);
+    const roles = (myAssignments ?? []).map((r) => r.role as string);
+    if (roles.includes("auditor")) userAssignmentRole = "auditor";
+    else if (roles.includes("proofreader")) userAssignmentRole = "proofreader";
+  }
+
+  // 6) Auto-bascule pending → under_review quand un relecteur ouvre la NC.
+  // Best-effort, on n'attend pas le résultat — le rendu utilise le statut
+  // fraîchement chargé même si la transition n'a pas encore eu lieu (rafraîchi
+  // au prochain affichage).
+  if (
+    (userAssignmentRole === "proofreader" ||
+      userAssignmentRole === "admin") &&
+    nc.reviewStatus === "pending"
+  ) {
+    await openNCReview(ncId).catch(() => {});
+    nc.reviewStatus = "under_review";
+  }
+
   return (
     <NCDetail
       nc={nc}
@@ -154,6 +193,7 @@ export default async function NCDetailPage({ params }: PageProps) {
       workflowStatus={
         (auditRes.data?.workflow_status ?? "draft") as AuditWorkflowStatus
       }
+      userAssignmentRole={userAssignmentRole}
     />
   );
 }

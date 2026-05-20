@@ -198,6 +198,20 @@ export type NCStatus =
   | "FIXED"
   | "FALSE_POSITIVE";
 
+/**
+ * Cycle de relecture interne d'une NC. Indépendant de NCStatus (qui est le
+ * statut métier de la NC). Cf. migration 33.
+ */
+export type NCReviewStatus =
+  | "not_requested"
+  | "pending"
+  | "under_review"
+  | "changes_requested"
+  | "approved";
+
+/** Fil de discussion sur une NC. Cf. migration 34. */
+export type NCMessageThread = "client" | "review";
+
 export interface NonConformity {
   id: string;
   auditId: string;

@@ -7,6 +7,7 @@ import {
   FileSearch,
   ListChecks,
   Pencil,
+  Users as UsersIcon,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
@@ -23,7 +24,6 @@ import { Badge } from "@/components/ui/badge";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
 import { WorkflowBadge } from "@/components/audit/workflow-badge";
 import { WorkflowActions } from "@/components/audit/workflow-actions";
-import { WorkflowTimeline } from "@/components/audit/workflow-timeline";
 import {
   AuditAssignees,
   type AssigneeEntry,
@@ -34,7 +34,13 @@ import {
   type ProofreaderEntry,
   type ProofreaderCandidate,
 } from "@/components/audit/audit-proofreaders";
-import { ReviewCommentForm } from "@/components/audit/review-comment-form";
+import {
+  AuditStatusActions,
+  type AvailableStatusTransition,
+} from "@/components/audit/audit-status-actions";
+import { SectionHeader } from "@/components/audit/section-header";
+import type { AuditLifecycleSnapshot } from "@/lib/audit-status";
+import { availableManualTransitions } from "@/lib/audit-status";
 import { Progress } from "@/components/ui/progress";
 import { formatDate, formatScore, cn } from "@/lib/utils";
 import {
@@ -45,7 +51,6 @@ import {
   canAssignAuditor,
   canAssignProofreader,
   canEditAuditNow,
-  canPostReviewComment,
   canTransitionWorkflow,
 } from "@/lib/permissions";
 import {
@@ -103,8 +108,6 @@ export default async function AuditDetailPage({ params }: PageProps) {
     ? audit.reference[0]
     : audit.reference;
 
-  const score = audit.final_score ?? audit.initial_score ?? 0;
-  const level = getConformityLevel(score);
   const workflowStatus = (audit.workflow_status ??
     "draft") as AuditWorkflowStatus;
 
@@ -134,7 +137,12 @@ export default async function AuditDetailPage({ params }: PageProps) {
         }))
     : [];
 
-  const [{ count: pageCount }, { count: ncCount }] = await Promise.all([
+  const [
+    { count: pageCount },
+    { count: ncCount },
+    lifecycleRpc,
+    currentScoreRpc,
+  ] = await Promise.all([
     supabase
       .from("pages")
       .select("id", { count: "exact", head: true })
@@ -144,7 +152,47 @@ export default async function AuditDetailPage({ params }: PageProps) {
       .select("id", { count: "exact", head: true })
       .eq("audit_id", uuid)
       .neq("status", "RESOLVED"),
+    // Snapshot des conditions de transition de statut (RPC migration 32).
+    supabase.rpc("audit_status_lifecycle_view", { p_audit_id: uuid }),
+    // Score temps réel calculé depuis la matrice (RPC migration 38).
+    supabase.rpc("audit_current_score", { p_audit_id: uuid }),
   ]);
+
+  // Score affiché = score figé (final_score) si l'audit est livré ; sinon
+  // valeur temps réel calculée depuis la matrice via RPC. Tombe sur
+  // initial_score puis 0 si rien de calculable (audit vierge).
+  const liveScore =
+    typeof currentScoreRpc.data === "number"
+      ? currentScoreRpc.data
+      : typeof currentScoreRpc.data === "string"
+        ? Number.parseFloat(currentScoreRpc.data)
+        : null;
+  const score =
+    (audit.final_score as number | null) ??
+    liveScore ??
+    (audit.initial_score as number | null) ??
+    0;
+  const level = getConformityLevel(score);
+
+  const lifecycleRow = Array.isArray(lifecycleRpc.data)
+    ? lifecycleRpc.data[0]
+    : lifecycleRpc.data;
+  const statusSnapshot: AuditLifecycleSnapshot = {
+    representativeCount: Number(lifecycleRow?.representative_count ?? 0),
+    matrixFilled: Number(lifecycleRow?.matrix_filled ?? 0),
+    matrixTotal: Number(lifecycleRow?.matrix_total ?? 0),
+    matrixPercent: Number(lifecycleRow?.matrix_percent ?? 0),
+    startDateSet: Boolean(lifecycleRow?.start_date_set ?? false),
+    startDateReached: Boolean(lifecycleRow?.start_date_reached ?? false),
+  };
+
+  // Transitions manuelles disponibles depuis le statut courant pour ce rôle.
+  const currentStatus = audit.status as AuditStatus;
+  const availableStatusTransitions: AvailableStatusTransition[] =
+    availableManualTransitions(currentStatus, profile.role).map((tr) => ({
+      to: tr.to,
+      ctaKey: tr.ctaKey,
+    }));
 
   // ──────────────────────────────────────────────────────────────────────────
   // Auditeurs assignés. La gestion est réservée à l'admin (la RLS de la
@@ -152,10 +200,11 @@ export default async function AuditDetailPage({ params }: PageProps) {
   // Pour la liste des candidats disponibles, on charge tous les auditeurs +
   // admins actifs, on filtre côté JS les déjà-assignés.
   // ──────────────────────────────────────────────────────────────────────────
-  const canManageAssignees =
-    profile.role === "admin" && canAssignAuditor(profile.role);
+  // Gestion des assignees : admin ET client_admin (élargi par migration 35).
+  // Pour client_admin, la RLS filtre déjà sur son client — pas besoin de
+  // double check côté UI.
+  const canManageAssignees = canAssignAuditor(profile.role);
   const canManageProofreaders = canAssignProofreader(profile.role);
-  const canComment = canPostReviewComment(profile.role);
 
   // Une requête couvre les deux rôles ; on partage ensuite côté JS.
   const { data: allAssigneesRows } = await supabase
@@ -318,6 +367,50 @@ export default async function AuditDetailPage({ params }: PageProps) {
         </div>
       </header>
 
+      {/* ──────────────────────────────────────────────────────────────────
+          Actions rapides — 4 cartes prominentes, accès direct aux sections
+      ────────────────────────────────────────────────────────────────── */}
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <QuickLink
+          href={`/audits/${uuid}/matrix`}
+          icon={ClipboardList}
+          title={t("quickLinks.matrixTitle")}
+          description={t("quickLinks.matrixDesc")}
+          tone="primary"
+        />
+        <QuickLink
+          href={`/audits/${uuid}/sample`}
+          icon={FileSearch}
+          title={t("quickLinks.sampleTitle")}
+          description={t("quickLinks.sampleDesc")}
+          tone="success"
+        />
+        <QuickLink
+          href={`/audits/${uuid}/anomalies`}
+          icon={ListChecks}
+          title={t("quickLinks.anomaliesTitle")}
+          description={t("quickLinks.anomaliesDesc")}
+          tone="warning"
+        />
+        <QuickLink
+          href={`/audits/${uuid}/simulator`}
+          icon={Sparkles}
+          title={t("quickLinks.simulatorTitle")}
+          description={t("quickLinks.simulatorDesc")}
+          tone="violet"
+        />
+      </div>
+
+      {/* ──────────────────────────────────────────────────────────────────
+          Section 1 · Vue d'ensemble : score hero + planning
+      ────────────────────────────────────────────────────────────────── */}
+      <SectionHeader
+        icon={Sparkles}
+        tone="primary"
+        title={t("sections.overview")}
+        description={t("sections.overviewDesc")}
+      />
+
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <Card>
           <CardHeader>
@@ -398,7 +491,32 @@ export default async function AuditDetailPage({ params }: PageProps) {
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      {/* ──────────────────────────────────────────────────────────────────
+          Section 2 · Avancement : cycle de vie + workflow éditorial
+      ────────────────────────────────────────────────────────────────── */}
+      <SectionHeader
+        icon={ListChecks}
+        tone="warning"
+        title={t("sections.progress")}
+        description={t("sections.progressDesc")}
+      />
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("lifecycleTitle")}</CardTitle>
+            <CardDescription>{t("lifecycleSubtitle")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AuditStatusActions
+              auditId={uuid}
+              currentStatus={currentStatus}
+              snapshot={statusSnapshot}
+              available={availableStatusTransitions}
+            />
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{t("workflowTitle")}</CardTitle>
@@ -413,7 +531,19 @@ export default async function AuditDetailPage({ params }: PageProps) {
             />
           </CardContent>
         </Card>
+      </div>
 
+      {/* ──────────────────────────────────────────────────────────────────
+          Section 3 · Équipe : auditeurs + relecteurs
+      ────────────────────────────────────────────────────────────────── */}
+      <SectionHeader
+        icon={UsersIcon}
+        tone="success"
+        title={t("sections.team")}
+        description={t("sections.teamDesc")}
+      />
+
+      <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{t("assigneesTitle")}</CardTitle>
@@ -444,49 +574,6 @@ export default async function AuditDetailPage({ params }: PageProps) {
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("historyTitle")}</CardTitle>
-          <CardDescription>{t("historySubtitle")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <WorkflowTimeline auditId={uuid} />
-          {canComment && (
-            <div className="border-t border-border pt-4">
-              <ReviewCommentForm auditId={uuid} />
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <QuickLink
-          href={`/audits/${uuid}/matrix`}
-          icon={ClipboardList}
-          title={t("quickLinks.matrixTitle")}
-          description={t("quickLinks.matrixDesc")}
-        />
-        <QuickLink
-          href={`/audits/${uuid}/sample`}
-          icon={FileSearch}
-          title={t("quickLinks.sampleTitle")}
-          description={t("quickLinks.sampleDesc")}
-        />
-        <QuickLink
-          href={`/audits/${uuid}/anomalies`}
-          icon={ListChecks}
-          title={t("quickLinks.anomaliesTitle")}
-          description={t("quickLinks.anomaliesDesc")}
-        />
-        <QuickLink
-          href={`/audits/${uuid}/simulator`}
-          icon={Sparkles}
-          title={t("quickLinks.simulatorTitle")}
-          description={t("quickLinks.simulatorDesc")}
-          highlight
-        />
-      </div>
     </div>
   );
 }
@@ -514,37 +601,40 @@ function QuickLink({
   icon: Icon,
   title,
   description,
-  highlight,
+  tone,
 }: {
   href: string;
   icon: React.ElementType;
   title: string;
   description: string;
-  highlight?: boolean;
+  tone?: "primary" | "warning" | "success" | "violet";
 }) {
+  const toneClasses = {
+    primary: "bg-primary/10 text-primary group-hover:bg-primary/15",
+    warning: "bg-warning/10 text-warning group-hover:bg-warning/15",
+    success: "bg-success/10 text-success group-hover:bg-success/15",
+    violet:
+      "bg-violet-500/10 text-violet-500 group-hover:bg-violet-500/15",
+  } as const;
+  const t = tone ?? "primary";
   return (
     <Link
       href={href}
-      className={cn(
-        "group rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent/40",
-        highlight && "border-primary/40 ring-1 ring-primary/20",
-      )}
+      className="group flex flex-col gap-2 rounded-lg border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md"
     >
-      <div className="flex items-start gap-3">
-        <div
-          className={cn(
-            "grid h-9 w-9 place-items-center rounded-md",
-            highlight
-              ? "bg-primary/10 text-primary"
-              : "bg-muted text-foreground",
-          )}
-          aria-hidden="true"
-        >
-          <Icon className="h-4 w-4" />
-        </div>
-        <div className="min-w-0">
-          <div className="font-medium">{title}</div>
-          <div className="text-sm text-muted-foreground">{description}</div>
+      <div
+        aria-hidden="true"
+        className={cn(
+          "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
+          toneClasses[t],
+        )}
+      >
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 space-y-0.5">
+        <div className="font-semibold leading-tight">{title}</div>
+        <div className="text-xs text-muted-foreground leading-snug">
+          {description}
         </div>
       </div>
     </Link>
