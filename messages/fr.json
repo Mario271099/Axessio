@@ -360,15 +360,10 @@
     "defaultInviterName": "Un auditeur Axessio",
     "userCreatedEmailFailed": "Utilisateur créé mais l'email n'a pas pu être envoyé : {message}. Utilisez \"Renvoyer l'invitation\" pour réessayer.",
     "auditNotFound": "Audit introuvable.",
-    "workflowLocked": "Audit verrouillé : il est validé ou livré. Demandez à un administrateur.",
-    "workflowTransitionDenied": "Cette transition n'est pas autorisée depuis l'état actuel.",
-    "workflowTransitionRoleDenied": "Votre rôle ne permet pas cette transition.",
     "impersonationTargetDenied": "Vous ne pouvez pas emprunter ce rôle.",
     "userInactive": "Cet utilisateur est désactivé.",
     "assigneeMustBeStaff": "Seuls les auditeurs et administrateurs peuvent être assignés.",
-    "proofreaderCannotBeAuditor": "L'auteur d'un audit ne peut pas en être le relecteur.",
-    "workflowReasonRequired": "Le motif est obligatoire pour cette action.",
-    "commentTooLong": "Le commentaire dépasse la longueur maximale ({max} caractères)."
+    "proofreaderCannotBeAuditor": "L'auteur d'un audit ne peut pas en être le relecteur."
   },
   "emails": {
     "invitationSubject": "Vous êtes invité·e à rejoindre Axessio"
@@ -427,11 +422,7 @@
     "replied": "a posté un message",
     "unknownSender": "Quelqu'un",
     "genericAction": "a déclenché une action",
-    "typeInReviewRequested": "demande une relecture",
-    "typeRequestChanges": "demande des corrections",
-    "typeValidated": "a validé l'audit",
-    "typeDelivered": "a livré l'audit",
-    "typeReviewReminder": "Relecture en attente",
+    "typeAuditDelivered": "a livré l'audit",
     "typeProofreaderAssigned": "t'a désigné·e comme relecteur·trice",
     "typeAuditorAssigned": "t'a assigné·e à un audit",
     "typeNcReviewRequested": "demande une relecture sur une NC",
@@ -607,12 +598,6 @@
       "noClient": "Sans client",
       "unknownProject": "Projet inconnu",
       "updatedOn": "Mis à jour le {date}"
-    },
-    "workflowBreakdown": {
-      "title": "Workflow éditorial",
-      "subtitle": "Répartition des audits par étape de validation.",
-      "share": "{count, plural, =0 {Aucun audit} one {# audit} other {# audits}} · {pct}%",
-      "avgReviewLabel": "Temps moyen passé en revue"
     }
   },
   "roles": {
@@ -780,25 +765,25 @@
         "diagnostic": "Diagnostic"
       },
       "perm": {
-        "audit.view": "Voir un audit",
-        "audit.edit": "Modifier un audit",
-        "audit.delete": "Supprimer un audit",
-        "audit.assign_auditor": "Assigner un auditeur",
-        "audit.transition_workflow": "Changer le statut workflow",
-        "matrix.edit": "Saisir la matrice de conformité",
-        "nc.create": "Créer une NC",
-        "nc.edit": "Modifier une NC",
-        "nc.delete": "Supprimer une NC",
-        "nc.update_status_client": "Marquer une NC corrigée",
-        "remediation.view": "Accéder à la remédiation",
-        "chat.read": "Lire la discussion",
-        "chat.write": "Écrire dans la discussion",
-        "client.manage": "Gérer les clients",
-        "project.manage": "Gérer les projets",
-        "user.manage": "Gérer les utilisateurs",
-        "audit_logs.view_all": "Voir tous les journaux d'audit",
+        "audit_view": "Voir un audit",
+        "audit_edit": "Modifier un audit",
+        "audit_delete": "Supprimer un audit",
+        "audit_assign_auditor": "Assigner un auditeur",
+        "audit_transition_workflow": "Changer le statut workflow",
+        "matrix_edit": "Saisir la matrice de conformité",
+        "nc_create": "Créer une NC",
+        "nc_edit": "Modifier une NC",
+        "nc_delete": "Supprimer une NC",
+        "nc_update_status_client": "Marquer une NC corrigée",
+        "remediation_view": "Accéder à la remédiation",
+        "chat_read": "Lire la discussion",
+        "chat_write": "Écrire dans la discussion",
+        "client_manage": "Gérer les clients",
+        "project_manage": "Gérer les projets",
+        "user_manage": "Gérer les utilisateurs",
+        "audit_logs_view_all": "Voir tous les journaux d'audit",
         "impersonate": "Visualiser comme un autre rôle",
-        "permissions.debug": "Accéder à la page debug permissions"
+        "permissions_debug": "Accéder à la page debug permissions"
       }
     },
     "empty": {
@@ -905,12 +890,6 @@
       "AUDIT": "Audit avec contre-audit",
       "NO_COUNTER_AUDIT": "Audit sans contre-audit",
       "COMPLIANCE_AUDIT": "Audit de conformité"
-    },
-    "workflowStatus": {
-      "draft": "Brouillon",
-      "in_review": "En revue",
-      "validated": "Validé",
-      "delivered": "Livré"
     }
   },
   "audits": {
@@ -928,7 +907,6 @@
         "reference": "Référentiel",
         "platform": "Plateforme",
         "status": "Statut",
-        "workflow": "Workflow",
         "score": "Score",
         "updated": "Mis à jour",
         "action": "Action"
@@ -942,9 +920,6 @@
       "filterPlatformAria": "Filtrer par plateforme",
       "filterPlatformPlaceholder": "Plateforme",
       "filterAllPlatforms": "Toutes les plateformes",
-      "filterWorkflowAria": "Filtrer par workflow",
-      "filterWorkflowPlaceholder": "Workflow",
-      "filterAllWorkflow": "Tous les workflows",
       "resetFilters": "Réinitialiser",
       "pagination": {
         "summary": "Audits {from}-{to} sur {total}",
@@ -1046,20 +1021,16 @@
         "overview": "Vue d'ensemble",
         "overviewDesc": "Score de conformité et planning de l'audit.",
         "progress": "Avancement",
-        "progressDesc": "Cycle de vie métier et workflow éditorial du rapport.",
+        "progressDesc": "Cycle de vie métier de l'audit.",
         "team": "Équipe",
         "teamDesc": "Auditeurs et relecteurs assignés à cet audit."
       },
       "lifecycleTitle": "Cycle de vie de l'audit",
       "lifecycleSubtitle": "Statut métier (En attente → Planifié → En cours → Livré → Remédiation). Transitions conditionnelles.",
-      "workflowTitle": "Workflow éditorial",
-      "workflowSubtitle": "Étape de validation du rapport — verrouille l'édition une fois validé.",
       "assigneesTitle": "Auditeurs assignés",
       "assigneesSubtitle": "Membres internes ayant accès à cet audit.",
       "proofreadersTitle": "Relecteurs",
-      "proofreadersSubtitle": "Membres désignés pour relire et valider le rapport.",
-      "historyTitle": "Historique",
-      "historySubtitle": "Transitions, notes et commentaires de relecture."
+      "proofreadersSubtitle": "Membres désignés pour relire et valider le rapport."
     },
     "assignees": {
       "empty": "Aucun auditeur assigné pour l'instant.",
@@ -1082,12 +1053,6 @@
       "cancel": "Annuler",
       "confirm": "Désigner",
       "removeAria": "Retirer {name}"
-    },
-    "reviewComments": {
-      "label": "Commentaire de relecture",
-      "placeholder": "Notez un point à corriger, une question, une validation…",
-      "hint": "Visible dans l'historique de l'audit.",
-      "submit": "Publier"
     },
     "ncReview": {
       "cta": {
@@ -1151,39 +1116,6 @@
         "MATRIX_NO_PAGES": "L'audit ne contient aucune page : ajoutez l'échantillon avant la livraison.",
         "MATRIX_NO_CRITERIA": "Le référentiel sélectionné ne contient aucun critère.",
         "MATRIX_INCOMPLETE": "La matrice doit être complétée à 100 % avant livraison ({filled} / {total} cellules — {percent} %)."
-      }
-    },
-    "workflow": {
-      "currentLabel": "Étape courante",
-      "noTransition": "Aucune transition disponible depuis cet état.",
-      "reasonLabel": "Motif (optionnel)",
-      "reasonLabelRequired": "Motif (obligatoire)",
-      "reasonPlaceholder": "Ex. relecture interne validée, point bloquant…",
-      "reasonHint": "Cette note apparaîtra dans l'historique de l'audit.",
-      "reasonHintRequired": "Précisez ce qui doit être corrigé — l'auteur sera notifié.",
-      "reasonRequiredError": "Le motif est obligatoire pour cette action.",
-      "cancel": "Annuler",
-      "confirm": "Confirmer la transition",
-      "transitionCta": {
-        "draft": "Repasser en brouillon",
-        "in_review": "Passer en revue",
-        "validated": "Valider l'audit",
-        "delivered": "Marquer comme livré",
-        "request_changes": "Demander des corrections"
-      },
-      "timeline": {
-        "ariaLabel": "Historique du workflow",
-        "empty": "Aucune entrée dans l'historique pour l'instant.",
-        "transitionLabel": "Transition : {from} → {to}",
-        "noteLabel": "Note ajoutée",
-        "commentLabel": "Commentaire de relecture",
-        "requestChangesLabel": "Demande de corrections",
-        "proofreaderAddedLabel": "Relecteur désigné",
-        "proofreaderRemovedLabel": "Relecteur retiré"
-      },
-      "stagnation": {
-        "label": "{days, plural, one {# jour} other {# jours}}",
-        "tooltip": "Sans changement depuis {days, plural, one {# jour} other {# jours}}"
       }
     },
     "edit": {

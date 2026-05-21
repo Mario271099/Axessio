@@ -9,7 +9,6 @@ import {
   Bell,
   Check,
   CheckCircle2,
-  Clock,
   Eye,
   MessageSquare,
   Send,
@@ -58,11 +57,7 @@ function useRelativeTime(locale: string) {
 // ------------------------------------------------------------------
 const TYPE_ICON: Record<string, React.ElementType> = {
   nc_message: MessageSquare,
-  "workflow.in_review_requested": Eye,
-  "workflow.request_changes": AlertTriangle,
-  "workflow.validated": CheckCircle2,
-  "workflow.delivered": Send,
-  "workflow.review_reminder": Clock,
+  "audit.delivered": Send,
   "proofreader.assigned": UserPlus,
   "auditor.assigned": UserPlus,
   "nc.review_requested": Eye,
@@ -73,11 +68,7 @@ const TYPE_ICON: Record<string, React.ElementType> = {
 
 const TYPE_TONE: Record<string, "primary" | "warning" | "destructive" | "success"> = {
   nc_message: "primary",
-  "workflow.in_review_requested": "primary",
-  "workflow.request_changes": "destructive",
-  "workflow.validated": "warning",
-  "workflow.delivered": "success",
-  "workflow.review_reminder": "warning",
+  "audit.delivered": "success",
   "proofreader.assigned": "warning",
   "auditor.assigned": "primary",
   "nc.review_requested": "primary",
@@ -320,16 +311,8 @@ function NotifActionLabel({ type }: { type: string }) {
   switch (type) {
     case "nc_message":
       return <>{t("replied")}</>;
-    case "workflow.in_review_requested":
-      return <>{t("typeInReviewRequested")}</>;
-    case "workflow.request_changes":
-      return <>{t("typeRequestChanges")}</>;
-    case "workflow.validated":
-      return <>{t("typeValidated")}</>;
-    case "workflow.delivered":
-      return <>{t("typeDelivered")}</>;
-    case "workflow.review_reminder":
-      return <>{t("typeReviewReminder")}</>;
+    case "audit.delivered":
+      return <>{t("typeAuditDelivered")}</>;
     case "proofreader.assigned":
       return <>{t("typeProofreaderAssigned")}</>;
     case "auditor.assigned":

@@ -1,6 +1,5 @@
 import type {
   AuditStatus,
-  AuditWorkflowStatus,
   ComplexityLevel,
   ConformityStatus,
   DisabilityType,
@@ -43,78 +42,6 @@ export const AUDIT_STATUS_TONE: Record<
   ONLINE: "success",
   COMPLETED: "success",
   ARCHIVED: "muted",
-};
-
-// ============================================================================
-// Workflow éditorial d'audit (séparé du lifecycle métier ci-dessus)
-// ============================================================================
-export const AUDIT_WORKFLOW_LABELS: Record<AuditWorkflowStatus, string> = {
-  draft: "Brouillon",
-  in_review: "En revue",
-  validated: "Validé",
-  delivered: "Livré",
-};
-
-export const AUDIT_WORKFLOW_TONE: Record<
-  AuditWorkflowStatus,
-  "neutral" | "info" | "warning" | "success" | "muted"
-> = {
-  draft: "neutral",
-  in_review: "info",
-  validated: "warning",
-  delivered: "success",
-};
-
-export interface AuditWorkflowTransition {
-  to: AuditWorkflowStatus;
-  roles: ReadonlyArray<UserRole>;
-  /**
-   * Force la saisie d'un motif non vide pour valider la transition (côté UI
-   * + côté serveur). Utilisé notamment pour "Demander des corrections".
-   */
-  requireReason?: boolean;
-  /**
-   * Override la clé i18n du CTA. Par défaut on utilise
-   * `audits.workflow.transitionCta.<to>`. Ici on permet une variante
-   * sémantique différente (ex. `request_changes` plutôt que `draft`).
-   */
-  ctaKey?: string;
-}
-
-/**
- * Transitions autorisées depuis chaque état + permissions. Chaque transition
- * indique les rôles autorisés à la déclencher. Lecture :
- *   AUDIT_WORKFLOW_TRANSITIONS["draft"] = ["in_review"]
- *
- * Le verrou final côté serveur reste `canTransitionWorkflow(role)` + cette
- * matrice (le rôle doit avoir la permission ET la transition doit être permise
- * pour ce rôle dans cet état).
- */
-export const AUDIT_WORKFLOW_TRANSITIONS: Record<
-  AuditWorkflowStatus,
-  ReadonlyArray<AuditWorkflowTransition>
-> = {
-  draft: [
-    { to: "in_review", roles: ["admin", "auditor"] },
-  ],
-  in_review: [
-    // "Demander des corrections" : retour à brouillon AVEC motif obligatoire.
-    // Sémantique forte d'un refus de relecture, distinct d'un simple revert.
-    {
-      to: "draft",
-      roles: ["admin", "auditor"],
-      requireReason: true,
-      ctaKey: "transitionCta.request_changes",
-    },
-    { to: "validated", roles: ["admin", "auditor"] },
-  ],
-  validated: [
-    { to: "in_review", roles: ["admin"] },            // retour exceptionnel (admin uniquement)
-    { to: "delivered", roles: ["admin", "auditor"] },
-  ],
-  delivered: [
-    // Terminal sauf intervention admin via UPDATE direct (hors UI standard).
-  ],
 };
 
 // ============================================================================

@@ -18,7 +18,6 @@ import {
   canManageClients,
   canManageProjects,
   canManageUsers,
-  canTransitionWorkflow,
   canUpdateNCStatusClient,
   canViewAllAuditLogs,
   canViewAudit,
@@ -36,7 +35,6 @@ export interface PermissionsApi {
   canEditAudit: boolean;
   canDeleteAudit: boolean;
   canAssignAuditor: boolean;
-  canTransitionWorkflow: boolean;
   // Matrice / NC
   canEditMatrix: boolean;
   canCreateNC: boolean;
@@ -75,7 +73,6 @@ export function usePermissions(role: UserRole): PermissionsApi {
       canEditAudit: canEditAudit(role),
       canDeleteAudit: canDeleteAudit(role),
       canAssignAuditor: canAssignAuditor(role),
-      canTransitionWorkflow: canTransitionWorkflow(role),
       canEditMatrix: canEditMatrix(role),
       canCreateNC: canCreateNC(role),
       canEditNC: canEditNC(role),

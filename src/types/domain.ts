@@ -105,14 +105,6 @@ export type AuditStatus =
   | "COMPLETED"
   | "ARCHIVED";
 
-// Workflow éditorial du rapport — séparé de `status` (qui reste le lifecycle
-// métier). Cf. migration 24.
-export type AuditWorkflowStatus =
-  | "draft"        // l'auditeur saisit
-  | "in_review"    // soumis à relecture interne
-  | "validated"    // validé, prêt à être livré
-  | "delivered";   // livré au client (verrouillage maximal)
-
 export interface Audit {
   id: string;
   projectId: string;
@@ -120,7 +112,6 @@ export interface Audit {
   serviceType: ServiceType;
   platform: PlatformType;
   status: AuditStatus;
-  workflowStatus: AuditWorkflowStatus;
   language: "fr" | "en";
   expectedStartAt: string | null;
   expectedEndAt: string | null;

@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { canCreateNC } from "@/lib/permissions";
-import { assertWorkflowEditable } from "@/lib/server-permissions";
 import type { ConformityStatus, NCSeverity, UserRole } from "@/types/domain";
 
 export interface CreateNCInput {
@@ -45,12 +44,6 @@ export async function createNC(
   if (!profile?.role || !canCreateNC(profile.role as UserRole)) {
     return { error: t("forbidden") };
   }
-
-  const lockError = await assertWorkflowEditable(
-    input.auditId,
-    profile.role as UserRole,
-  );
-  if (lockError) return { error: lockError };
 
   const title = input.title.trim();
   if (!title) return { error: t("titleRequired") };

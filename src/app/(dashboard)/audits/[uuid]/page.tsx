@@ -22,8 +22,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
-import { WorkflowBadge } from "@/components/audit/workflow-badge";
-import { WorkflowActions } from "@/components/audit/workflow-actions";
 import {
   AuditAssignees,
   type AssigneeEntry,
@@ -43,15 +41,11 @@ import type { AuditLifecycleSnapshot } from "@/lib/audit-status";
 import { availableManualTransitions } from "@/lib/audit-status";
 import { Progress } from "@/components/ui/progress";
 import { formatDate, formatScore, cn } from "@/lib/utils";
-import {
-  AUDIT_WORKFLOW_TRANSITIONS,
-  REFERENCE_TYPE_LABELS,
-} from "@/lib/constants";
+import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import {
   canAssignAuditor,
   canAssignProofreader,
-  canEditAuditNow,
-  canTransitionWorkflow,
+  canEditAudit,
 } from "@/lib/permissions";
 import {
   getConformityLabel,
@@ -60,7 +54,6 @@ import {
 } from "@/lib/score";
 import type {
   AuditStatus,
-  AuditWorkflowStatus,
   PlatformType,
   ReferenceType,
   ServiceType,
@@ -84,7 +77,6 @@ export default async function AuditDetailPage({ params }: PageProps) {
     .select(
       `
       *,
-      workflow_status,
       reference:references(type, version),
       project:projects(name, url, client:clients(id, name))
     `,
@@ -108,9 +100,6 @@ export default async function AuditDetailPage({ params }: PageProps) {
     ? audit.reference[0]
     : audit.reference;
 
-  const workflowStatus = (audit.workflow_status ??
-    "draft") as AuditWorkflowStatus;
-
   // Export PDF : staff plateforme (admin/auditor) OU client_admin du client
   // propriétaire de l'audit. Les clients simples passent par leur admin.
   const canExportReport =
@@ -120,22 +109,8 @@ export default async function AuditDetailPage({ params }: PageProps) {
       client?.id != null &&
       profile.clientId === client.id);
 
-  // Édition des métadonnées audit : permission + verrou workflow (admin
-  // n'est jamais verrouillé).
-  const canEdit = canEditAuditNow(profile.role, workflowStatus);
-
-  // Transitions disponibles depuis l'état courant filtrées sur le rôle.
-  // On propage `requireReason` + `ctaKey` au composant client pour qu'il
-  // affiche le bon CTA et applique la validation côté UI.
-  const transitions = canTransitionWorkflow(profile.role)
-    ? (AUDIT_WORKFLOW_TRANSITIONS[workflowStatus] ?? [])
-        .filter((tr) => tr.roles.includes(profile.role))
-        .map((tr) => ({
-          to: tr.to,
-          requireReason: tr.requireReason,
-          ctaKey: tr.ctaKey,
-        }))
-    : [];
+  // Édition des métadonnées audit : permission rôle uniquement.
+  const canEdit = canEditAudit(profile.role);
 
   const [
     { count: pageCount },
@@ -329,7 +304,6 @@ export default async function AuditDetailPage({ params }: PageProps) {
               {tPlatform(audit.platform as PlatformType)}
             </Badge>
             <AuditStatusBadge status={audit.status as AuditStatus} />
-            <WorkflowBadge status={workflowStatus} showLock />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">
             {project?.name ?? t("noProjectTitle")}
@@ -492,7 +466,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
       </div>
 
       {/* ──────────────────────────────────────────────────────────────────
-          Section 2 · Avancement : cycle de vie + workflow éditorial
+          Section 2 · Avancement : cycle de vie de l'audit
       ────────────────────────────────────────────────────────────────── */}
       <SectionHeader
         icon={ListChecks}
@@ -501,37 +475,20 @@ export default async function AuditDetailPage({ params }: PageProps) {
         description={t("sections.progressDesc")}
       />
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t("lifecycleTitle")}</CardTitle>
-            <CardDescription>{t("lifecycleSubtitle")}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AuditStatusActions
-              auditId={uuid}
-              currentStatus={currentStatus}
-              snapshot={statusSnapshot}
-              available={availableStatusTransitions}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t("workflowTitle")}</CardTitle>
-            <CardDescription>{t("workflowSubtitle")}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <WorkflowActions
-              auditId={uuid}
-              current={workflowStatus}
-              role={profile.role}
-              available={transitions}
-            />
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("lifecycleTitle")}</CardTitle>
+          <CardDescription>{t("lifecycleSubtitle")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AuditStatusActions
+            auditId={uuid}
+            currentStatus={currentStatus}
+            snapshot={statusSnapshot}
+            available={availableStatusTransitions}
+          />
+        </CardContent>
+      </Card>
 
       {/* ──────────────────────────────────────────────────────────────────
           Section 3 · Équipe : auditeurs + relecteurs

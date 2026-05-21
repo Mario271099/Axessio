@@ -8,7 +8,7 @@
 // La RLS Postgres est la deuxième ligne de défense : ce module ne remplace
 // PAS les policies, il les complète côté UX en cachant les actions interdites.
 
-import type { AuditWorkflowStatus, UserRole } from "@/types/domain";
+import type { UserRole } from "@/types/domain";
 
 // ============================================================================
 // Catalogue des permissions atomiques
@@ -19,7 +19,6 @@ export type Permission =
   | "audit.edit"
   | "audit.delete"
   | "audit.assign_auditor"
-  | "audit.transition_workflow"
   // Matrice de conformité
   | "matrix.edit"
   // Non-conformités
@@ -49,7 +48,6 @@ const ADMIN_PERMS: ReadonlyArray<Permission> = [
   "audit.edit",
   "audit.delete",
   "audit.assign_auditor",
-  "audit.transition_workflow",
   "matrix.edit",
   "nc.create",
   "nc.edit",
@@ -69,7 +67,6 @@ const ADMIN_PERMS: ReadonlyArray<Permission> = [
 const AUDITOR_PERMS: ReadonlyArray<Permission> = [
   "audit.view",
   "audit.edit",
-  "audit.transition_workflow",
   "matrix.edit",
   "nc.create",
   "nc.edit",
@@ -128,7 +125,6 @@ export const canViewAudit          = (r: UserRole) => can(r, "audit.view");
 export const canEditAudit          = (r: UserRole) => can(r, "audit.edit");
 export const canDeleteAudit        = (r: UserRole) => can(r, "audit.delete");
 export const canAssignAuditor      = (r: UserRole) => can(r, "audit.assign_auditor");
-export const canTransitionWorkflow = (r: UserRole) => can(r, "audit.transition_workflow");
 export const canEditMatrix         = (r: UserRole) => can(r, "matrix.edit");
 export const canCreateNC           = (r: UserRole) => can(r, "nc.create");
 export const canEditNC             = (r: UserRole) => can(r, "nc.edit");
@@ -162,66 +158,3 @@ export const isStaff = (r: UserRole): boolean => r === "admin" || r === "auditor
  */
 export const canAssignProofreader = (r: UserRole): boolean =>
   r === "admin" || r === "client_admin";
-
-/**
- * Peut poster un commentaire de relecture sur un audit. Ouvert au staff
- * plateforme. Côté serveur on filtre en plus sur l'accessibilité de l'audit
- * (RLS audit_logs_insert) — ce helper ne couvre que l'aspect rôle.
- */
-export const canPostReviewComment = (r: UserRole): boolean => isStaff(r);
-
-// ============================================================================
-// Verrouillage par workflow_status
-// ============================================================================
-//
-// Quand l'audit est `validated` ou `delivered`, on bloque toute édition (matrice,
-// NC, métadonnées audit, pages d'échantillon) SAUF pour l'admin qui peut toujours
-// intervenir en cas de besoin. Le client_admin et le client n'ont déjà pas
-// `audit.edit`, mais ce verrou s'applique aussi au rôle auditor.
-//
-// À utiliser systématiquement en plus des permissions de base :
-//   canEditAudit(role) && isWorkflowEditable(workflowStatus, role)
-
-/**
- * Renvoie `true` si le rôle donné peut encore éditer le contenu de l'audit
- * compte tenu de son workflow_status. L'admin n'est jamais verrouillé.
- */
-export function isWorkflowEditable(
-  workflowStatus: AuditWorkflowStatus,
-  role: UserRole,
-): boolean {
-  if (role === "admin") return true;
-  return workflowStatus === "draft" || workflowStatus === "in_review";
-}
-
-/** Variante "Édition de l'audit". Combine la permission + le verrou. */
-export function canEditAuditNow(
-  role: UserRole,
-  workflowStatus: AuditWorkflowStatus,
-): boolean {
-  return canEditAudit(role) && isWorkflowEditable(workflowStatus, role);
-}
-
-/** Variante "Édition de la matrice". Combine la permission + le verrou. */
-export function canEditMatrixNow(
-  role: UserRole,
-  workflowStatus: AuditWorkflowStatus,
-): boolean {
-  return canEditMatrix(role) && isWorkflowEditable(workflowStatus, role);
-}
-
-/** Variante "Édition NC". Combine la permission + le verrou. */
-export function canEditNCNow(
-  role: UserRole,
-  workflowStatus: AuditWorkflowStatus,
-): boolean {
-  return canEditNC(role) && isWorkflowEditable(workflowStatus, role);
-}
-
-/** Variante "Création NC". Combine la permission + le verrou. */
-export function canCreateNCNow(
-  role: UserRole,
-  workflowStatus: AuditWorkflowStatus,
-): boolean {
-  return canCreateNC(role) && isWorkflowEditable(workflowStatus, role);
-}

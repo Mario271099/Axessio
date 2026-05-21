@@ -44,13 +44,11 @@ import {
 import { cn } from "@/lib/utils";
 import { intlLocale } from "@/lib/intl";
 import {
-  canCreateNCNow,
+  canCreateNC,
   canDeleteNC,
-  canEditNCNow,
-  isWorkflowEditable,
+  canEditNC,
 } from "@/lib/permissions";
 import type {
-  AuditWorkflowStatus,
   NCSeverity,
   NCStatus,
   UserRole,
@@ -100,7 +98,6 @@ interface AnomaliesListProps {
   auditId: string;
   auditTitle: string;
   role: UserRole;
-  workflowStatus: AuditWorkflowStatus;
 }
 
 export function AnomaliesList({
@@ -108,7 +105,6 @@ export function AnomaliesList({
   auditId,
   auditTitle,
   role,
-  workflowStatus,
 }: AnomaliesListProps) {
   const t = useTranslations("audits.anomalies");
   const tBulk = useTranslations("audits.anomalies.bulk");
@@ -132,12 +128,9 @@ export function AnomaliesList({
   const [isPending, startTransition] = useTransition();
 
   // Sélection groupée : seulement pour ceux qui peuvent éditer les NC.
-  // La permission de supprimer est vérifiée séparément côté barre flottante.
-  // Toutes les actions d'édition tiennent compte du verrou workflow.
-  const canBulk = canEditNCNow(role, workflowStatus);
-  const canCreate = canCreateNCNow(role, workflowStatus);
-  const allowBulkDelete =
-    canDeleteNC(role) && isWorkflowEditable(workflowStatus, role);
+  const canBulk = canEditNC(role);
+  const canCreate = canCreateNC(role);
+  const allowBulkDelete = canDeleteNC(role);
 
   const pageNames = useMemo(() => {
     const names = new Set<string>();

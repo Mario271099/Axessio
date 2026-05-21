@@ -360,15 +360,10 @@
     "defaultInviterName": "An Axessio auditor",
     "userCreatedEmailFailed": "User created but the email could not be sent: {message}. Use \"Resend invitation\" to try again.",
     "auditNotFound": "Audit not found.",
-    "workflowLocked": "Audit is locked: it has been validated or delivered. Ask an administrator.",
-    "workflowTransitionDenied": "This transition is not allowed from the current state.",
-    "workflowTransitionRoleDenied": "Your role does not permit this transition.",
     "impersonationTargetDenied": "You cannot impersonate this role.",
     "userInactive": "This user is disabled.",
     "assigneeMustBeStaff": "Only auditors and administrators can be assigned.",
-    "proofreaderCannotBeAuditor": "The author of an audit cannot be its proofreader.",
-    "workflowReasonRequired": "A reason is required for this action.",
-    "commentTooLong": "The comment exceeds the maximum length ({max} characters)."
+    "proofreaderCannotBeAuditor": "The author of an audit cannot be its proofreader."
   },
   "emails": {
     "invitationSubject": "You have been invited to join Axessio"
@@ -427,11 +422,7 @@
     "replied": "posted a message",
     "unknownSender": "Someone",
     "genericAction": "triggered an action",
-    "typeInReviewRequested": "requested a review",
-    "typeRequestChanges": "requested changes",
-    "typeValidated": "validated the audit",
-    "typeDelivered": "delivered the audit",
-    "typeReviewReminder": "Review pending",
+    "typeAuditDelivered": "delivered the audit",
     "typeProofreaderAssigned": "assigned you as proofreader",
     "typeAuditorAssigned": "assigned you to an audit",
     "typeNcReviewRequested": "requested a review on an NC",
@@ -607,12 +598,6 @@
       "noClient": "No client",
       "unknownProject": "Unknown project",
       "updatedOn": "Updated on {date}"
-    },
-    "workflowBreakdown": {
-      "title": "Editorial workflow",
-      "subtitle": "Distribution of audits by validation step.",
-      "share": "{count, plural, =0 {No audit} one {# audit} other {# audits}} · {pct}%",
-      "avgReviewLabel": "Average time spent in review"
     }
   },
   "roles": {
@@ -780,25 +765,25 @@
         "diagnostic": "Diagnostic"
       },
       "perm": {
-        "audit.view": "View an audit",
-        "audit.edit": "Edit an audit",
-        "audit.delete": "Delete an audit",
-        "audit.assign_auditor": "Assign an auditor",
-        "audit.transition_workflow": "Change workflow status",
-        "matrix.edit": "Edit the conformity matrix",
-        "nc.create": "Create a NC",
-        "nc.edit": "Edit a NC",
-        "nc.delete": "Delete a NC",
-        "nc.update_status_client": "Mark a NC as fixed",
-        "remediation.view": "Access remediation",
-        "chat.read": "Read the discussion",
-        "chat.write": "Write in the discussion",
-        "client.manage": "Manage clients",
-        "project.manage": "Manage projects",
-        "user.manage": "Manage users",
-        "audit_logs.view_all": "View all audit logs",
+        "audit_view": "View an audit",
+        "audit_edit": "Edit an audit",
+        "audit_delete": "Delete an audit",
+        "audit_assign_auditor": "Assign an auditor",
+        "audit_transition_workflow": "Change workflow status",
+        "matrix_edit": "Edit the conformity matrix",
+        "nc_create": "Create a NC",
+        "nc_edit": "Edit a NC",
+        "nc_delete": "Delete a NC",
+        "nc_update_status_client": "Mark a NC as fixed",
+        "remediation_view": "Access remediation",
+        "chat_read": "Read the discussion",
+        "chat_write": "Write in the discussion",
+        "client_manage": "Manage clients",
+        "project_manage": "Manage projects",
+        "user_manage": "Manage users",
+        "audit_logs_view_all": "View all audit logs",
         "impersonate": "View as another role",
-        "permissions.debug": "Access the permissions debug page"
+        "permissions_debug": "Access the permissions debug page"
       }
     },
     "empty": {
@@ -905,12 +890,6 @@
       "AUDIT": "Audit with counter-audit",
       "NO_COUNTER_AUDIT": "Audit without counter-audit",
       "COMPLIANCE_AUDIT": "Compliance audit"
-    },
-    "workflowStatus": {
-      "draft": "Draft",
-      "in_review": "In review",
-      "validated": "Validated",
-      "delivered": "Delivered"
     }
   },
   "audits": {
@@ -928,7 +907,6 @@
         "reference": "Reference",
         "platform": "Platform",
         "status": "Status",
-        "workflow": "Workflow",
         "score": "Score",
         "updated": "Updated",
         "action": "Action"
@@ -942,9 +920,6 @@
       "filterPlatformAria": "Filter by platform",
       "filterPlatformPlaceholder": "Platform",
       "filterAllPlatforms": "All platforms",
-      "filterWorkflowAria": "Filter by workflow",
-      "filterWorkflowPlaceholder": "Workflow",
-      "filterAllWorkflow": "All workflow steps",
       "resetFilters": "Reset",
       "pagination": {
         "summary": "Audits {from}-{to} of {total}",
@@ -1046,20 +1021,16 @@
         "overview": "Overview",
         "overviewDesc": "Conformity score and audit schedule.",
         "progress": "Progress",
-        "progressDesc": "Business lifecycle and editorial workflow of the report.",
+        "progressDesc": "Business lifecycle of the audit.",
         "team": "Team",
         "teamDesc": "Auditors and proofreaders assigned to this audit."
       },
       "lifecycleTitle": "Audit lifecycle",
       "lifecycleSubtitle": "Business status (Pending → Planned → In progress → Delivered → Remediation). Conditional transitions.",
-      "workflowTitle": "Editorial workflow",
-      "workflowSubtitle": "Validation step of the report — locks editing once validated.",
       "assigneesTitle": "Assigned auditors",
       "assigneesSubtitle": "Internal members with access to this audit.",
       "proofreadersTitle": "Proofreaders",
-      "proofreadersSubtitle": "Members assigned to review and validate the report.",
-      "historyTitle": "History",
-      "historySubtitle": "Transitions, notes and review comments."
+      "proofreadersSubtitle": "Members assigned to review and validate the report."
     },
     "assignees": {
       "empty": "No auditor assigned yet.",
@@ -1082,12 +1053,6 @@
       "cancel": "Cancel",
       "confirm": "Assign",
       "removeAria": "Remove {name}"
-    },
-    "reviewComments": {
-      "label": "Review comment",
-      "placeholder": "Note a point to fix, a question, a validation…",
-      "hint": "Visible in the audit history.",
-      "submit": "Post"
     },
     "ncReview": {
       "cta": {
@@ -1151,39 +1116,6 @@
         "MATRIX_NO_PAGES": "The audit has no pages: add a sample before delivery.",
         "MATRIX_NO_CRITERIA": "The selected reference contains no criteria.",
         "MATRIX_INCOMPLETE": "The matrix must be 100% complete before delivery ({filled} / {total} cells — {percent}%)."
-      }
-    },
-    "workflow": {
-      "currentLabel": "Current step",
-      "noTransition": "No transition available from this state.",
-      "reasonLabel": "Reason (optional)",
-      "reasonLabelRequired": "Reason (required)",
-      "reasonPlaceholder": "E.g. internal review passed, blocker noted…",
-      "reasonHint": "This note will appear in the audit history.",
-      "reasonHintRequired": "Explain what needs to be fixed — the author will be notified.",
-      "reasonRequiredError": "A reason is required for this action.",
-      "cancel": "Cancel",
-      "confirm": "Confirm transition",
-      "transitionCta": {
-        "draft": "Send back to draft",
-        "in_review": "Move to review",
-        "validated": "Validate audit",
-        "delivered": "Mark as delivered",
-        "request_changes": "Request changes"
-      },
-      "timeline": {
-        "ariaLabel": "Workflow history",
-        "empty": "No history entries yet.",
-        "transitionLabel": "Transition: {from} → {to}",
-        "noteLabel": "Note added",
-        "commentLabel": "Review comment",
-        "requestChangesLabel": "Changes requested",
-        "proofreaderAddedLabel": "Proofreader assigned",
-        "proofreaderRemovedLabel": "Proofreader removed"
-      },
-      "stagnation": {
-        "label": "{days, plural, one {# day} other {# days}}",
-        "tooltip": "Unchanged for {days, plural, one {# day} other {# days}}"
       }
     },
     "edit": {

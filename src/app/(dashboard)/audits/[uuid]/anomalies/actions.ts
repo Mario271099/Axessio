@@ -5,7 +5,6 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import { canEditNC } from "@/lib/permissions";
-import { assertWorkflowEditable } from "@/lib/server-permissions";
 import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
 
 export interface BulkResult {
@@ -82,9 +81,6 @@ export async function bulkUpdateNCStatus(
   const auth = await requireAuditor();
   if (!auth.ok) return { error: auth.error };
 
-  const lockError = await assertWorkflowEditable(auditId, auth.role);
-  if (lockError) return { error: lockError };
-
   const rl = await checkBulkRateLimit(auth.userId);
   if (!rl.ok) return { error: rl.error };
 
@@ -119,9 +115,6 @@ export async function bulkUpdateNCSeverity(
   const auth = await requireAuditor();
   if (!auth.ok) return { error: auth.error };
 
-  const lockError = await assertWorkflowEditable(auditId, auth.role);
-  if (lockError) return { error: lockError };
-
   const rl = await checkBulkRateLimit(auth.userId);
   if (!rl.ok) return { error: rl.error };
 
@@ -152,9 +145,6 @@ export async function bulkDeleteNCs(
 ): Promise<BulkResult> {
   const auth = await requireAuditor();
   if (!auth.ok) return { error: auth.error };
-
-  const lockError = await assertWorkflowEditable(auditId, auth.role);
-  if (lockError) return { error: lockError };
 
   const rl = await checkBulkRateLimit(auth.userId);
   if (!rl.ok) return { error: rl.error };

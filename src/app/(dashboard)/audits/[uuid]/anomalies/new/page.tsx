@@ -1,9 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
-import { canCreateNCNow } from "@/lib/permissions";
+import { canCreateNC } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 import { NewNCForm, type NCThematic, type NCCriterion, type NCPage } from "./new-nc-form";
-import type { AuditWorkflowStatus } from "@/types/domain";
 
 interface PageProps {
   params: Promise<{ uuid: string }>;
@@ -17,7 +16,7 @@ export default async function NewNCPage({ params }: PageProps) {
 
   const { data: audit, error: auditError } = await supabase
     .from("audits")
-    .select("id, reference_id, workflow_status")
+    .select("id, reference_id")
     .eq("id", uuid)
     .maybeSingle();
 
@@ -25,12 +24,7 @@ export default async function NewNCPage({ params }: PageProps) {
     notFound();
   }
 
-  if (
-    !canCreateNCNow(
-      profile.role,
-      (audit.workflow_status ?? "draft") as AuditWorkflowStatus,
-    )
-  ) {
+  if (!canCreateNC(profile.role)) {
     redirect(`/audits/${uuid}/anomalies`);
   }
 

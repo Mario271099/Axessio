@@ -13,11 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type {
-  AuditStatus,
-  AuditWorkflowStatus,
-  PlatformType,
-} from "@/types/domain";
+import type { AuditStatus, PlatformType } from "@/types/domain";
 
 const ALL = "ALL";
 const SEARCH_DEBOUNCE_MS = 300;
@@ -36,30 +32,20 @@ const STATUSES: AuditStatus[] = [
 
 const PLATFORMS: PlatformType[] = ["WEB", "MOBILE"];
 
-const WORKFLOW_STATUSES: AuditWorkflowStatus[] = [
-  "draft",
-  "in_review",
-  "validated",
-  "delivered",
-];
-
 interface Props {
   initialQuery: string;
   initialStatus: string;
   initialPlatform: string;
-  initialWorkflow: string;
 }
 
 export function AuditsFilters({
   initialQuery,
   initialStatus,
   initialPlatform,
-  initialWorkflow,
 }: Props) {
   const t = useTranslations("audits.list");
   const tStatus = useTranslations("constants.auditStatus");
   const tPlatform = useTranslations("constants.platform");
-  const tWorkflow = useTranslations("constants.workflowStatus");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -67,7 +53,6 @@ export function AuditsFilters({
   const [query, setQuery] = useState(initialQuery);
   const [status, setStatus] = useState(initialStatus || ALL);
   const [platform, setPlatform] = useState(initialPlatform || ALL);
-  const [workflow, setWorkflow] = useState(initialWorkflow || ALL);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -104,19 +89,14 @@ export function AuditsFilters({
   }, [query, initialQuery, pushParams]);
 
   const filtersActive = useMemo(
-    () =>
-      query.trim() !== "" ||
-      status !== ALL ||
-      platform !== ALL ||
-      workflow !== ALL,
-    [query, status, platform, workflow],
+    () => query.trim() !== "" || status !== ALL || platform !== ALL,
+    [query, status, platform],
   );
 
   const reset = () => {
     setQuery("");
     setStatus(ALL);
     setPlatform(ALL);
-    setWorkflow(ALL);
     router.replace(pathname);
   };
 
@@ -172,26 +152,6 @@ export function AuditsFilters({
           {PLATFORMS.map((p) => (
             <SelectItem key={p} value={p}>
               {tPlatform(p)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Select
-        value={workflow}
-        onValueChange={(v) => {
-          setWorkflow(v);
-          pushParams({ workflow: v === ALL ? null : v });
-        }}
-      >
-        <SelectTrigger className="sm:w-44" aria-label={t("filterWorkflowAria")}>
-          <SelectValue placeholder={t("filterWorkflowPlaceholder")} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>{t("filterAllWorkflow")}</SelectItem>
-          {WORKFLOW_STATUSES.map((w) => (
-            <SelectItem key={w} value={w}>
-              {tWorkflow(w)}
             </SelectItem>
           ))}
         </SelectContent>

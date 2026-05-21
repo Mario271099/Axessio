@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requirePermission } from "@/lib/server-permissions";
-import type { UserRole } from "@/types/domain";
 
 export interface ProofreaderActionResult {
   error: string | null;
@@ -14,10 +13,9 @@ export interface ProofreaderActionResult {
 // ============================================================================
 // Désigner un relecteur (proofreader) sur un audit
 // ----------------------------------------------------------------------------
-// Permission requise : `audit.assign_auditor` (admin + client_admin). Le
-// verrou granulaire — auditor doit être assigné à l'audit — est appliqué
-// côté RLS par la policy `assignees_proofreader_manage` (migration 27).
-// On laisse aussi passer l'auditor en s'appuyant sur cette policy.
+// Permission requise : `audit.assign_auditor` (admin + client_admin depuis
+// la spec rôles). La RLS (migration 35) restreint en plus le client_admin
+// aux audits de son propre client.
 //
 // Le profil cible doit être staff (admin ou auditor) ET ne pas être déjà
 // auditeur sur cet audit (on évite "se relire soi-même").
@@ -26,7 +24,7 @@ export async function assignProofreader(
   auditId: string,
   profileId: string,
 ): Promise<ProofreaderActionResult> {
-  const guard = await requirePermissionStaff();
+  const guard = await requirePermission("audit.assign_auditor");
   if (!guard.ok) return { error: guard.error };
 
   const supabase = await createClient();
@@ -93,7 +91,7 @@ export async function unassignProofreader(
   auditId: string,
   profileId: string,
 ): Promise<ProofreaderActionResult> {
-  const guard = await requirePermissionStaff();
+  const guard = await requirePermission("audit.assign_auditor");
   if (!guard.ok) return { error: guard.error };
 
   const supabase = await createClient();
@@ -117,18 +115,4 @@ export async function unassignProofreader(
 
   revalidatePath(`/audits/${auditId}`);
   return { error: null, success: true };
-}
-
-// ----------------------------------------------------------------------------
-// Garde dédiée : `canAssignProofreader` = admin + auditor. On ne passe pas
-// par `requirePermission("audit.assign_auditor")` car cette permission est
-// aussi accordée au client_admin, qui n'a pas vocation à désigner un
-// relecteur interne (RLS bloquerait de toute façon).
-// ----------------------------------------------------------------------------
-async function requirePermissionStaff(): Promise<
-  { ok: true; userId: string; role: UserRole } | { ok: false; error: string }
-> {
-  const guardAdmin = await requirePermission("audit.transition_workflow");
-  if (!guardAdmin.ok) return guardAdmin;
-  return guardAdmin;
 }

@@ -1,11 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import type {
-  AuditWorkflowStatus,
-  NCReviewStatus,
-  NCSeverity,
-} from "@/types/domain";
+import type { NCReviewStatus, NCSeverity } from "@/types/domain";
 import { NCDetail, type NCData } from "./nc-detail";
 import { openNCReview } from "./review-actions";
 
@@ -134,7 +130,7 @@ export default async function NCDetailPage({ params }: PageProps) {
       .order("sort_order", { ascending: true }),
     supabase
       .from("audits")
-      .select(`workflow_status, project:projects(name)`)
+      .select(`project:projects(name)`)
       .eq("id", uuid)
       .maybeSingle(),
   ]);
@@ -190,9 +186,6 @@ export default async function NCDetailPage({ params }: PageProps) {
       auditId={uuid}
       auditTitle={auditTitle}
       profile={{ role: profile.role, id: profile.id }}
-      workflowStatus={
-        (auditRes.data?.workflow_status ?? "draft") as AuditWorkflowStatus
-      }
       userAssignmentRole={userAssignmentRole}
     />
   );

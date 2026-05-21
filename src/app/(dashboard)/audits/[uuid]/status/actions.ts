@@ -10,6 +10,7 @@ import {
   type AuditLifecycleSnapshot,
   type AuditStatusErrorCode,
 } from "@/lib/audit-status";
+import { sendAuditDeliveredEmail } from "@/lib/workflow-emails";
 import type { AuditStatus } from "@/types/domain";
 
 export interface StatusTransitionResult {
@@ -132,6 +133,64 @@ export async function transitionAuditStatus(
     action: "status.transition",
     payload: { from: current, to: target, manual: true },
   });
+
+  // 7) Side-effects notifs / emails (best-effort, ne bloquent pas la transition)
+  if (target === "DELIVERED") {
+    try {
+      const { data: row } = await supabase
+        .from("audits")
+        .select(
+          `project:projects!inner(name, client:clients!inner(id, name))`,
+        )
+        .eq("id", auditId)
+        .maybeSingle();
+      const project = row?.project
+        ? Array.isArray(row.project)
+          ? row.project[0]
+          : row.project
+        : null;
+      const client = project?.client
+        ? Array.isArray(project.client)
+          ? project.client[0]
+          : project.client
+        : null;
+      if (client?.id) {
+        const { data: clientAdmins } = await supabase
+          .from("profiles")
+          .select("id, email, first_name, last_name")
+          .eq("client_id", client.id)
+          .eq("role", "client_admin")
+          .eq("is_active", true);
+        for (const ca of clientAdmins ?? []) {
+          // Notif in-app
+          await supabase.from("notifications").insert({
+            user_id: ca.id as string,
+            sender_id: guard.userId,
+            audit_id: auditId,
+            type: "audit.delivered",
+          });
+          // Email Resend (best-effort)
+          if (typeof ca.email === "string" && ca.email) {
+            const name = [ca.first_name, ca.last_name]
+              .filter((v) => typeof v === "string" && (v as string).trim())
+              .join(" ")
+              .trim();
+            await sendAuditDeliveredEmail({
+              to: ca.email,
+              recipientName: name,
+              auditId,
+              projectName: (project?.name as string | null) ?? "—",
+              clientName: (client.name as string | null) ?? "—",
+            }).catch((err) => {
+              console.error("[transitionAuditStatus] delivered email:", err);
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[transitionAuditStatus] delivered notifs:", err);
+    }
+  }
 
   revalidatePath(`/audits/${auditId}`);
   revalidatePath("/audits");

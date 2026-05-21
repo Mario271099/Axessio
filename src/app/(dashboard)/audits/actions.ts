@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { canEditAudit } from "@/lib/permissions";
-import { assertWorkflowEditable } from "@/lib/server-permissions";
 import { MANDATORY_PAGES } from "@/types/domain";
 import type {
   AuditStatus,
@@ -169,12 +168,6 @@ export async function updateAudit(
     return { error: t("forbidden") };
   }
 
-  const lockError = await assertWorkflowEditable(
-    auditId,
-    profile.role as UserRole,
-  );
-  if (lockError) return { error: lockError };
-
   const referenceId = formData.get("referenceId")?.toString();
   const platform = formData.get("platform")?.toString() as PlatformType;
   const serviceType = formData.get("serviceType")?.toString() as ServiceType;
@@ -253,12 +246,6 @@ export async function addPage(
   if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
     return { error: t("forbidden") };
   }
-  const lockError = await assertWorkflowEditable(
-    auditId,
-    profile.role as UserRole,
-  );
-  if (lockError) return { error: lockError };
-
   const name = formData.get("name")?.toString().trim();
   const url = formData.get("url")?.toString().trim() || null;
   const complexityValue = formData.get("complexity")?.toString();
@@ -320,12 +307,6 @@ export async function updatePage(
   if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
     return { error: t("forbidden") };
   }
-  const lockError = await assertWorkflowEditable(
-    auditId,
-    profile.role as UserRole,
-  );
-  if (lockError) return { error: lockError };
-
   const name = formData.get("name")?.toString().trim();
   const url = formData.get("url")?.toString().trim() || null;
   const complexityValue = formData.get("complexity")?.toString();
@@ -371,12 +352,6 @@ export async function deletePage(
   if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
     return { error: t("forbidden") };
   }
-  const lockError = await assertWorkflowEditable(
-    auditId,
-    profile.role as UserRole,
-  );
-  if (lockError) return { error: lockError };
-
   // On empêche uniquement la suppression de la page transversale (techniquement nécessaire)
   const { data: page } = await supabase
     .from("pages")

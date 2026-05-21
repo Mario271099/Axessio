@@ -36,7 +36,6 @@ const GROUPS: Array<{
       "audit.edit",
       "audit.delete",
       "audit.assign_auditor",
-      "audit.transition_workflow",
     ],
   },
   { key: "matrix", permissions: ["matrix.edit"] },
@@ -148,7 +147,11 @@ export default async function PermissionsDebugPage() {
                       <td className="px-4 py-2.5">
                         <div className="flex flex-col gap-0.5">
                           <span className="text-sm">
-                            {t(`perm.${permission}`)}
+                            {/* next-intl utilise `.` comme séparateur de
+                                namespace ; les codes de permission contiennent
+                                des `.` (ex. `audit.view`), donc on remplace
+                                par `_` pour matcher les clés JSON. */}
+                            {t(`perm.${permission.replace(/\./g, "_")}`)}
                           </span>
                           <code className="font-mono text-[10px] text-muted-foreground">
                             {permission}
