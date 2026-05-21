@@ -210,6 +210,8 @@ export interface NonConformity {
   criteriaId: string;
   testId: string | null;
   identifier: string | null;
+  /** Numéro séquentiel par audit (1, 2, 3…). Affiché en UI "NC #001". */
+  displayNumber: number;
   title: string;
   description: string | null;
   recommendation: string | null;

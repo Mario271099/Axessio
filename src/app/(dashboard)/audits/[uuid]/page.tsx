@@ -1,27 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  ChevronLeft,
-  ClipboardList,
-  Sparkles,
-  FileSearch,
-  ListChecks,
-  Pencil,
-  Users as UsersIcon,
-} from "lucide-react";
+import { ChevronLeft, Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
 import {
   AuditAssignees,
   type AssigneeEntry,
@@ -36,11 +26,19 @@ import {
   AuditStatusActions,
   type AvailableStatusTransition,
 } from "@/components/audit/audit-status-actions";
-import { SectionHeader } from "@/components/audit/section-header";
+import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
+import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
+import { AuditNextAction } from "@/components/audit/audit-next-action";
+import { AuditTimelineVertical } from "@/components/audit/audit-timeline-vertical";
+import { AuditKpiBar } from "@/components/audit/audit-kpi-bar";
+import {
+  InterlocutorsCard,
+  type Interlocutor,
+} from "@/components/audit/interlocutors-card";
 import type { AuditLifecycleSnapshot } from "@/lib/audit-status";
 import { availableManualTransitions } from "@/lib/audit-status";
-import { Progress } from "@/components/ui/progress";
-import { formatDate, formatScore, cn } from "@/lib/utils";
+import { MiniDonut } from "@/components/ui/mini-donut";
+import { cn } from "@/lib/utils";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import {
   canAssignAuditor,
@@ -50,7 +48,6 @@ import {
 import {
   getConformityLabel,
   getConformityLevel,
-  getScoreColorVar,
 } from "@/lib/score";
 import type {
   AuditStatus,
@@ -115,6 +112,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
   const [
     { count: pageCount },
     { count: ncCount },
+    { count: criticalNcCount },
     lifecycleRpc,
     currentScoreRpc,
   ] = await Promise.all([
@@ -127,6 +125,13 @@ export default async function AuditDetailPage({ params }: PageProps) {
       .select("id", { count: "exact", head: true })
       .eq("audit_id", uuid)
       .neq("status", "RESOLVED"),
+    // NC critiques ouvertes — KPI "risque" du bandeau.
+    supabase
+      .from("non_conformities")
+      .select("id", { count: "exact", head: true })
+      .eq("audit_id", uuid)
+      .neq("status", "RESOLVED")
+      .eq("severity", "CRITICAL"),
     // Snapshot des conditions de transition de statut (RPC migration 32).
     supabase.rpc("audit_status_lifecycle_view", { p_audit_id: uuid }),
     // Score temps réel calculé depuis la matrice (RPC migration 38).
@@ -282,8 +287,95 @@ export default async function AuditDetailPage({ params }: PageProps) {
     }
   }
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // Liste consolidée d'interlocuteurs (auditeurs + relecteurs + client admins
+  // côté client) pour la carte de droite. Le format est uniforme.
+  // ──────────────────────────────────────────────────────────────────────────
+  let clientContacts: Array<{
+    id: string;
+    name: string;
+    email: string | null;
+  }> = [];
+  if (client?.id) {
+    const { data: contactsRows } = await supabase
+      .from("profiles")
+      .select("id, first_name, last_name, email")
+      .eq("client_id", client.id)
+      .eq("is_active", true)
+      .in("role", ["client_admin", "client"])
+      .limit(10);
+    clientContacts = (contactsRows ?? []).map((p) => ({
+      id: p.id as string,
+      name:
+        [p.first_name, p.last_name]
+          .filter((v) => typeof v === "string" && (v as string).trim())
+          .join(" ")
+          .trim() ||
+        (p.email as string | null) ||
+        "—",
+      email: (p.email as string | null) ?? null,
+    }));
+  }
+
+  const interlocutors: Interlocutor[] = [
+    ...assignees.map((a) => ({
+      id: a.profileId,
+      name:
+        [a.firstName, a.lastName]
+          .filter((v) => v && v.trim().length > 0)
+          .join(" ")
+          .trim() ||
+        a.email ||
+        "—",
+      email: a.email,
+      role: "auditor" as const,
+      subtitle: null,
+    })),
+    ...proofreaders.map((p) => ({
+      id: p.profileId,
+      name:
+        [p.firstName, p.lastName]
+          .filter((v) => v && v.trim().length > 0)
+          .join(" ")
+          .trim() ||
+        p.email ||
+        "—",
+      email: p.email,
+      role: "proofreader" as const,
+      subtitle: null,
+    })),
+    ...clientContacts.map((c) => ({
+      id: c.id,
+      name: c.name,
+      email: c.email,
+      role: "client" as const,
+      subtitle: project?.name ?? client?.name ?? null,
+    })),
+  ];
+
+  // URL publique du projet (affichée à côté du nom dans le header).
+  const projectUrl = (project?.url as string | null) ?? null;
+  const referenceLabel = ref
+    ? `${REFERENCE_TYPE_LABELS[ref.type as ReferenceType]} ${ref.version}`
+    : t("unknownReference");
+
+  // Couleur d'accent du hero, dérivée du score (rouge/jaune/vert).
+  // Donne un signal visuel immédiat sur la santé de l'audit sans nécessiter
+  // de lecture du chiffre.
+  const heroAccent =
+    level === "non-compliant"
+      ? "from-destructive/15 via-destructive/5 to-transparent"
+      : level === "partial"
+        ? "from-warning/15 via-warning/5 to-transparent"
+        : "from-success/15 via-success/5 to-transparent";
+
+  // Un utilisateur "actif" sur l'audit = staff + a accès. Pour les boutons
+  // CTA du Next Action ; la RLS + permissions bloqueraient de toute façon.
+  const canAct = canEdit;
+
   return (
-    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
+    <div className="container mx-auto max-w-7xl space-y-5 p-6 md:p-8">
+      {/* Breadcrumb minimaliste */}
       <nav aria-label="Breadcrumb">
         <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
           <Link href="/audits">
@@ -293,218 +385,179 @@ export default async function AuditDetailPage({ params }: PageProps) {
         </Button>
       </nav>
 
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline">{client?.name ?? "—"}</Badge>
-            <span aria-hidden="true" className="text-muted-foreground">
-              /
-            </span>
-            <Badge variant="muted">
-              {tPlatform(audit.platform as PlatformType)}
-            </Badge>
-            <AuditStatusBadge status={audit.status as AuditStatus} />
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {project?.name ?? t("noProjectTitle")}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {ref
-              ? `${REFERENCE_TYPE_LABELS[ref.type as ReferenceType]} ${ref.version}`
-              : t("unknownReference")}{" "}
-            · {tServiceType(audit.service_type as ServiceType)}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-start gap-2">
-          {canExportReport && (
-            <ExportReportButton
-              auditId={uuid}
-              projectName={project?.name ?? "audit"}
-              variant="outline"
-            />
-          )}
-          {canEdit && (
-            <Button asChild variant="outline" className="gap-2">
-              <Link href={`/audits/${uuid}/edit`}>
-                <Pencil className="h-4 w-4" aria-hidden="true" />
-                {t("edit")}
-              </Link>
-            </Button>
-          )}
-          <Button asChild className="gap-2">
-            <Link href={`/audits/${uuid}/simulator`}>
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
-              {t("openSimulator")}
-            </Link>
-          </Button>
-        </div>
-      </header>
+      {/* Onglets de navigation (Dashboard / Échantillon / NC / ...) */}
+      <AuditTabsNav auditId={uuid} active="dashboard" />
 
       {/* ──────────────────────────────────────────────────────────────────
-          Actions rapides — 4 cartes prominentes, accès direct aux sections
+          HERO ADAPTATIF : gradient dérivé du score + identité + KPIs
+          ────────────────────────────────────────────────────────────────
+          Le contraste de teinte donne le pouls de l'audit au premier regard.
+          À gauche : projet, client, tags. À droite : score donut prominent.
       ────────────────────────────────────────────────────────────────── */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <QuickLink
-          href={`/audits/${uuid}/matrix`}
-          icon={ClipboardList}
-          title={t("quickLinks.matrixTitle")}
-          description={t("quickLinks.matrixDesc")}
-          tone="primary"
-        />
-        <QuickLink
-          href={`/audits/${uuid}/sample`}
-          icon={FileSearch}
-          title={t("quickLinks.sampleTitle")}
-          description={t("quickLinks.sampleDesc")}
-          tone="success"
-        />
-        <QuickLink
-          href={`/audits/${uuid}/anomalies`}
-          icon={ListChecks}
-          title={t("quickLinks.anomaliesTitle")}
-          description={t("quickLinks.anomaliesDesc")}
-          tone="warning"
-        />
-        <QuickLink
-          href={`/audits/${uuid}/simulator`}
-          icon={Sparkles}
-          title={t("quickLinks.simulatorTitle")}
-          description={t("quickLinks.simulatorDesc")}
-          tone="violet"
-        />
-      </div>
-
-      {/* ──────────────────────────────────────────────────────────────────
-          Section 1 · Vue d'ensemble : score hero + planning
-      ────────────────────────────────────────────────────────────────── */}
-      <SectionHeader
-        icon={Sparkles}
-        tone="primary"
-        title={t("sections.overview")}
-        description={t("sections.overviewDesc")}
-      />
-
-      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <Card>
-          <CardHeader>
-            <CardDescription>{t("conformityRate")}</CardDescription>
-            <CardTitle className="flex items-baseline gap-3">
-              <span
-                className="text-5xl font-bold tabular-nums"
-                style={{ color: `hsl(${getScoreColorVar(score)})` }}
-              >
-                {formatScore(score)}
-              </span>
-              <span
-                className={cn(
-                  "text-sm font-medium",
-                  level === "non-compliant" && "text-destructive",
-                  level === "partial" && "text-warning",
-                  level === "full" && "text-success",
+      <Card className="overflow-hidden border-0 shadow-sm ring-1 ring-border">
+        <div
+          className={cn(
+            "bg-gradient-to-br p-6 md:p-7",
+            heroAccent,
+          )}
+        >
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            {/* Identité projet */}
+            <div className="min-w-0 flex-1 space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="default" className="rounded-full">
+                  {client?.name ?? "—"}
+                </Badge>
+                <Badge variant="outline" className="rounded-full">
+                  {tPlatform(audit.platform as PlatformType)}
+                </Badge>
+                <AuditStatusBadge status={currentStatus} className="rounded-full" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+                {project?.name ?? t("noProjectTitle")}
+              </h1>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                {projectUrl && (
+                  <a
+                    href={projectUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="break-all text-primary underline-offset-2 hover:underline"
+                  >
+                    {projectUrl}
+                  </a>
                 )}
-              >
-                {getConformityLabel(score)}
-              </span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Progress
-              value={score}
-              fillColor={getScoreColorVar(score)}
-              aria-label={t("conformityAria", { score })}
-            />
-            <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-              <Stat
-                label={t("scoreInitial")}
-                value={formatScore(audit.initial_score)}
-              />
-              <Stat
-                label={t("scoreFinal")}
-                value={formatScore(audit.final_score)}
-              />
-              <Stat
-                label={t("samplePages")}
-                value={(pageCount ?? 0).toString()}
-              />
-              <Stat
-                label={t("openNCs")}
-                value={(ncCount ?? 0).toString()}
-              />
+                <span aria-hidden="true">·</span>
+                <span>{referenceLabel}</span>
+                <span aria-hidden="true">·</span>
+                <span>{tServiceType(audit.service_type as ServiceType)}</span>
+              </div>
+
+              {/* Actions header — boutons compacts, rangés en pills */}
+              <div className="flex flex-wrap items-center gap-2 pt-2">
+                {canExportReport && (
+                  <ExportReportButton
+                    auditId={uuid}
+                    projectName={project?.name ?? "audit"}
+                    variant="outline"
+                  />
+                )}
+                {canEdit && (
+                  <Button asChild variant="outline" className="gap-2 rounded-full">
+                    <Link href={`/audits/${uuid}/edit`}>
+                      <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                      {t("edit")}
+                    </Link>
+                  </Button>
+                )}
+              </div>
             </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t("planning")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <Row
-              label={t("startDate")}
-              value={formatDate(audit.expected_start_at)}
-            />
-            <Row
-              label={t("endDate")}
-              value={formatDate(audit.expected_end_at)}
-            />
-            <Row
-              label={t("restitutionDate")}
-              value={formatDate(audit.restitution_at)}
-            />
-            <Row
-              label={t("counterAuditDate")}
-              value={formatDate(audit.counter_audit_at)}
-            />
-            <Row
-              label={t("deliveredAt")}
-              value={formatDate(audit.delivered_at)}
-            />
-            <Row label={t("onlineAt")} value={formatDate(audit.online_at)} />
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* ──────────────────────────────────────────────────────────────────
-          Section 2 · Avancement : cycle de vie de l'audit
-      ────────────────────────────────────────────────────────────────── */}
-      <SectionHeader
-        icon={ListChecks}
-        tone="warning"
-        title={t("sections.progress")}
-        description={t("sections.progressDesc")}
-      />
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("lifecycleTitle")}</CardTitle>
-          <CardDescription>{t("lifecycleSubtitle")}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <AuditStatusActions
-            auditId={uuid}
-            currentStatus={currentStatus}
-            snapshot={statusSnapshot}
-            available={availableStatusTransitions}
-          />
-        </CardContent>
+            {/* Score donut prominent */}
+            <div className="flex shrink-0 items-center gap-4 md:flex-col md:items-end md:text-right">
+              <MiniDonut value={score} size={130} tone="score" />
+              <div>
+                <p
+                  className={cn(
+                    "text-sm font-semibold",
+                    level === "non-compliant" && "text-destructive",
+                    level === "partial" && "text-warning",
+                    level === "full" && "text-success",
+                  )}
+                >
+                  {getConformityLabel(score)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t("conformityRate")}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </Card>
 
       {/* ──────────────────────────────────────────────────────────────────
-          Section 3 · Équipe : auditeurs + relecteurs
+          NEXT ACTION : le cœur de la philosophie "Mission Control".
+          Lit le statut + complétion et propose UNE action claire.
       ────────────────────────────────────────────────────────────────── */}
-      <SectionHeader
-        icon={UsersIcon}
-        tone="success"
-        title={t("sections.team")}
-        description={t("sections.teamDesc")}
+      <AuditNextAction
+        auditId={uuid}
+        status={currentStatus}
+        snapshot={statusSnapshot}
+        canAct={canAct}
       />
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      {/* ──────────────────────────────────────────────────────────────────
+          KPI BAR : 4 indicateurs opérationnels en bandeau scanable.
+      ────────────────────────────────────────────────────────────────── */}
+      <AuditKpiBar
+        sampleCount={pageCount ?? 0}
+        matrixFilled={statusSnapshot.matrixFilled}
+        matrixTotal={statusSnapshot.matrixTotal}
+        openNcCount={ncCount ?? 0}
+        criticalNcCount={criticalNcCount ?? 0}
+      />
+
+      {/* ──────────────────────────────────────────────────────────────────
+          Grille principale : Cycle de vie (gauche, large) | Timeline +
+          Interlocuteurs (droite, sticky-ish)
+      ────────────────────────────────────────────────────────────────── */}
+      <div className="grid gap-5 lg:grid-cols-[2fr_1fr]">
+        {/* Colonne gauche : actions de cycle de vie */}
+        <Card id="lifecycle" className="scroll-mt-24">
+          <CardHeader>
+            <CardTitle className="text-base">{t("lifecycleTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <AuditStatusActions
+              auditId={uuid}
+              currentStatus={currentStatus}
+              snapshot={statusSnapshot}
+              available={availableStatusTransitions}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Colonne droite : timeline + interlocuteurs empilés */}
+        <div className="space-y-5">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">{t("timelineTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AuditTimelineVertical
+                expectedStartAt={audit.expected_start_at}
+                expectedEndAt={audit.expected_end_at}
+                restitutionAt={audit.restitution_at}
+                counterAuditAt={audit.counter_audit_at}
+                deliveredAt={audit.delivered_at}
+                onlineAt={audit.online_at}
+              />
+            </CardContent>
+          </Card>
+
+          <InterlocutorsCard
+            interlocutors={interlocutors}
+            canEdit={canManageAssignees || canManageProofreaders}
+            manageHref={
+              canManageAssignees || canManageProofreaders
+                ? `#team-${uuid}`
+                : undefined
+            }
+          />
+        </div>
+      </div>
+
+      {/* ──────────────────────────────────────────────────────────────────
+          ÉQUIPE : édition fine auditeurs / relecteurs (ancre)
+      ────────────────────────────────────────────────────────────────── */}
+      <div
+        id={`team-${uuid}`}
+        className="grid gap-5 lg:grid-cols-2 scroll-mt-24"
+      >
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{t("assigneesTitle")}</CardTitle>
-            <CardDescription>{t("assigneesSubtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
             <AuditAssignees
@@ -519,7 +572,6 @@ export default async function AuditDetailPage({ params }: PageProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{t("proofreadersTitle")}</CardTitle>
-            <CardDescription>{t("proofreadersSubtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
             <AuditProofreaders
@@ -535,65 +587,3 @@ export default async function AuditDetailPage({ params }: PageProps) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="font-medium tabular-nums">{value}</div>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between gap-4">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium">{value}</span>
-    </div>
-  );
-}
-
-function QuickLink({
-  href,
-  icon: Icon,
-  title,
-  description,
-  tone,
-}: {
-  href: string;
-  icon: React.ElementType;
-  title: string;
-  description: string;
-  tone?: "primary" | "warning" | "success" | "violet";
-}) {
-  const toneClasses = {
-    primary: "bg-primary/10 text-primary group-hover:bg-primary/15",
-    warning: "bg-warning/10 text-warning group-hover:bg-warning/15",
-    success: "bg-success/10 text-success group-hover:bg-success/15",
-    violet:
-      "bg-violet-500/10 text-violet-500 group-hover:bg-violet-500/15",
-  } as const;
-  const t = tone ?? "primary";
-  return (
-    <Link
-      href={href}
-      className="group flex flex-col gap-2 rounded-lg border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md"
-    >
-      <div
-        aria-hidden="true"
-        className={cn(
-          "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
-          toneClasses[t],
-        )}
-      >
-        <Icon className="h-5 w-5" />
-      </div>
-      <div className="min-w-0 space-y-0.5">
-        <div className="font-semibold leading-tight">{title}</div>
-        <div className="text-xs text-muted-foreground leading-snug">
-          {description}
-        </div>
-      </div>
-    </Link>
-  );
-}

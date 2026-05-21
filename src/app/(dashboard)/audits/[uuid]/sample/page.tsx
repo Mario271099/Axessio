@@ -1,11 +1,9 @@
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { canEditAudit } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
 import { SampleActionsBar } from "./sample-actions-bar";
 import type { ComplexityLevel, PageType } from "@/types/domain";
 
@@ -37,12 +35,7 @@ export default async function SamplePage({
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
-        <Link href={`/audits/${uuid}`}>
-          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          {t("back")}
-        </Link>
-      </Button>
+      <AuditTabsNav auditId={uuid} active="sample" />
 
       <header className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>

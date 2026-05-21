@@ -91,26 +91,25 @@ export interface AnomalyListItem {
   page: { name: string } | null;
   messageCount: number;
   attachmentCount: number;
+  /** Numéro séquentiel par audit (migration 41). */
+  displayNumber: number;
 }
 
 interface AnomaliesListProps {
   ncs: AnomalyListItem[];
   auditId: string;
-  auditTitle: string;
   role: UserRole;
 }
 
 export function AnomaliesList({
   ncs,
   auditId,
-  auditTitle,
   role,
 }: AnomaliesListProps) {
   const t = useTranslations("audits.anomalies");
   const tBulk = useTranslations("audits.anomalies.bulk");
   const tNcStatus = useTranslations("constants.ncStatus");
   const tNcSeverity = useTranslations("constants.ncSeverity");
-  const tList = useTranslations("audits.list");
   const tCommon = useTranslations("common");
   const locale = useLocale();
   const intl = intlLocale(locale);
@@ -296,30 +295,7 @@ export function AnomaliesList({
   };
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <nav
-        aria-label="Breadcrumb"
-        className="flex items-center gap-1 text-xs text-muted-foreground"
-      >
-        <Link
-          href="/audits"
-          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
-        >
-          {tList("title")}
-        </Link>
-        <ChevronRight className="h-3 w-3" aria-hidden="true" />
-        <Link
-          href={`/audits/${auditId}`}
-          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
-        >
-          {auditTitle}
-        </Link>
-        <ChevronRight className="h-3 w-3" aria-hidden="true" />
-        <span className="rounded px-1 py-0.5 font-medium text-foreground">
-          {t("breadcrumb")}
-        </span>
-      </nav>
-
+    <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
@@ -683,6 +659,11 @@ function NCRow({
       >
         <div className="min-w-0 flex-1 space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
+            {nc.displayNumber > 0 && (
+              <span className="rounded-md bg-primary/10 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-primary tabular-nums">
+                NC #{String(nc.displayNumber).padStart(3, "0")}
+              </span>
+            )}
             <SeverityBadge severity={nc.severity} />
             <Badge variant={statusVariant} className="text-[10px]">
               {tNcStatus(nc.status)}

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
   BookOpen,
+  ChevronLeft,
   ChevronRight,
   ExternalLink,
   FileText,
@@ -169,6 +170,13 @@ export interface NCData {
   page: PageData | null;
   /** Statut de relecture (migration 33). */
   reviewStatus: NCReviewStatus;
+  /** Numéro séquentiel par audit (migration 41). 0 = legacy non backfillé. */
+  displayNumber: number;
+}
+
+export interface NCSibling {
+  id: string;
+  displayNumber: number;
 }
 
 export interface NCDetailProps {
@@ -186,6 +194,10 @@ export interface NCDetailProps {
    * d'action de relecture et l'accès au fil 'review'.
    */
   userAssignmentRole: "auditor" | "proofreader" | "admin" | "none";
+  /** NC précédente dans l'audit (ordre display_number). null si première. */
+  prevNC: NCSibling | null;
+  /** NC suivante dans l'audit. null si dernière. */
+  nextNC: NCSibling | null;
 }
 
 export function NCDetail({
@@ -197,12 +209,13 @@ export function NCDetail({
   auditTitle,
   profile,
   userAssignmentRole,
+  prevNC,
+  nextNC,
 }: NCDetailProps) {
   const router = useRouter();
   const t = useTranslations("audits.ncDetail");
   const tNcStatus = useTranslations("constants.ncStatus");
   const tNcSeverity = useTranslations("constants.ncSeverity");
-  const tList = useTranslations("audits.list");
   const tAnomalies = useTranslations("audits.anomalies");
   const locale = useLocale();
   const intl = intlLocale(locale);
@@ -439,36 +452,71 @@ export function NCDetail({
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      {/* Breadcrumb -------------------------------------------------------- */}
-      <nav
-        aria-label="Breadcrumb"
-        className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
-      >
-        <Link
-          href="/audits"
-          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
-        >
-          {tList("title")}
-        </Link>
-        <ChevronRight className="h-3 w-3" aria-hidden="true" />
-        <Link
-          href={`/audits/${auditId}`}
-          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
-        >
-          {auditTitle}
-        </Link>
-        <ChevronRight className="h-3 w-3" aria-hidden="true" />
+      {/* Barre de navigation NC : retour liste + prev/next ----------------- */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href={`/audits/${auditId}/anomalies`}
-          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
+          className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
+          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
           {tAnomalies("breadcrumb")}
         </Link>
-        <ChevronRight className="h-3 w-3" aria-hidden="true" />
-        <span className="rounded px-1 py-0.5 font-medium text-foreground">
-          {t("breadcrumbDetail")}
-        </span>
-      </nav>
+
+        <div className="flex items-center gap-2">
+          <Button
+            asChild={!!prevNC}
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            disabled={!prevNC}
+            aria-label={
+              prevNC
+                ? t("prevAria", { num: prevNC.displayNumber })
+                : t("prevDisabled")
+            }
+          >
+            {prevNC ? (
+              <Link href={`/audits/${auditId}/anomalies/${prevNC.id}`}>
+                <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                <span className="tabular-nums">
+                  {t("prev", { num: String(prevNC.displayNumber).padStart(3, "0") })}
+                </span>
+              </Link>
+            ) : (
+              <span>
+                <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                {t("prevDisabled")}
+              </span>
+            )}
+          </Button>
+          <Button
+            asChild={!!nextNC}
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            disabled={!nextNC}
+            aria-label={
+              nextNC
+                ? t("nextAria", { num: nextNC.displayNumber })
+                : t("nextDisabled")
+            }
+          >
+            {nextNC ? (
+              <Link href={`/audits/${auditId}/anomalies/${nextNC.id}`}>
+                <span className="tabular-nums">
+                  {t("next", { num: String(nextNC.displayNumber).padStart(3, "0") })}
+                </span>
+                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
+            ) : (
+              <span>
+                {t("nextDisabled")}
+                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </span>
+            )}
+          </Button>
+        </div>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Colonne gauche (2/3) -------------------------------------------- */}
@@ -509,7 +557,14 @@ export function NCDetail({
                 {statusError}
               </p>
             )}
-            <h1 className="text-2xl font-bold tracking-tight">{nc.title}</h1>
+            <h1 className="flex flex-wrap items-baseline gap-2 text-2xl font-bold tracking-tight">
+              {nc.displayNumber > 0 && (
+                <span className="font-mono text-base font-semibold text-muted-foreground tabular-nums">
+                  NC #{String(nc.displayNumber).padStart(3, "0")}
+                </span>
+              )}
+              <span>{nc.title}</span>
+            </h1>
             <NCReviewActions
               ncId={nc.id}
               reviewStatus={nc.reviewStatus}

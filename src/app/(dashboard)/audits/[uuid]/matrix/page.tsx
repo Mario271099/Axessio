@@ -143,7 +143,6 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
   return (
     <ConformityMatrixLayout
       auditId={uuid}
-      auditTitle={project?.name ?? "Audit"}
       clientName={client?.name ?? null}
       referenceName={referenceName}
       canEdit={canEditMatrix(profile.role)}

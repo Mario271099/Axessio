@@ -8,13 +8,11 @@ import {
   useState,
   useTransition,
 } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   AlertTriangle,
   CheckCircle2,
-  ChevronRight,
   CircleDot,
   Loader2,
   RotateCcw,
@@ -24,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MiniDonut } from "@/components/ui/mini-donut";
+import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
 import { PagesSidebar } from "./pages-sidebar";
 import { PageMatrixContent } from "./page-matrix-content";
 import { NonConformityModal } from "./non-conformity-modal";
@@ -51,7 +50,6 @@ export interface MatrixConformity {
 
 interface Props {
   auditId: string;
-  auditTitle: string;
   clientName: string | null;
   referenceName: string;
   canEdit: boolean;
@@ -67,7 +65,6 @@ const conformityKey = (pageId: string, criteriaId: string) =>
 
 export function ConformityMatrixLayout({
   auditId,
-  auditTitle,
   clientName,
   referenceName,
   canEdit,
@@ -79,7 +76,6 @@ export function ConformityMatrixLayout({
 }: Props) {
   const router = useRouter();
   const t = useTranslations("audits.matrix");
-  const tList = useTranslations("audits.list");
   const tSave = useTranslations("audits.matrix.save");
   const [isPending, startTransition] = useTransition();
 
@@ -368,32 +364,11 @@ export function ConformityMatrixLayout({
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] flex-col">
-      {/* En-tête : breadcrumb + titre + score global -------------------- */}
-      <div className="border-b border-border bg-card/50 px-4 py-4 md:px-8">
-        <nav
-          aria-label="Breadcrumb"
-          className="flex items-center gap-1 text-xs text-muted-foreground"
-        >
-          <Link
-            href="/audits"
-            className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
-          >
-            {tList("title")}
-          </Link>
-          <ChevronRight className="h-3 w-3" aria-hidden="true" />
-          <Link
-            href={`/audits/${auditId}`}
-            className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
-          >
-            {auditTitle}
-          </Link>
-          <ChevronRight className="h-3 w-3" aria-hidden="true" />
-          <span className="rounded px-1 py-0.5 font-medium text-foreground">
-            {t("breadcrumbCurrent")}
-          </span>
-        </nav>
+      {/* En-tête : onglets audit + titre + score global ------------------ */}
+      <div className="border-b border-border bg-card/50 px-4 pt-2 pb-4 md:px-8">
+        <AuditTabsNav auditId={auditId} active="matrix" className="border-0" />
 
-        <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">

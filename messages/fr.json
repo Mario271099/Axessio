@@ -893,6 +893,81 @@
     }
   },
   "audits": {
+    "nextAction": {
+      "kicker": "Prochaine étape",
+      "cta": {
+        "openSample": "Ajouter des pages",
+        "openMatrix": "Ouvrir la matrice",
+        "openAnomalies": "Voir les anomalies",
+        "openSimulator": "Ouvrir le simulateur",
+        "openLifecycle": "Aller au cycle de vie",
+        "edit": "Modifier l'audit"
+      },
+      "states": {
+        "pending.noSample.title": "Composez l'échantillon",
+        "pending.noSample.description": "Ajoutez au moins une page représentative avant de planifier l'audit.",
+        "pending.ready.title": "Prêt à planifier",
+        "pending.ready.description": "L'échantillon est défini — passez l'audit en planifié pour démarrer.",
+        "planned.noDate.title": "Renseignez la date de démarrage",
+        "planned.noDate.description": "Aucune date n'est planifiée. Renseignez-la pour pouvoir démarrer.",
+        "planned.future.title": "Démarrage à venir",
+        "planned.future.description": "L'audit démarrera à la date prévue, rien à faire pour l'instant.",
+        "planned.start.title": "Lancez l'audit",
+        "planned.start.description": "La date de démarrage est atteinte, passez l'audit en cours.",
+        "inProgress.noMatrix.title": "Configurez la matrice",
+        "inProgress.noMatrix.description": "Le référentiel ne contient pas encore de critères évaluables.",
+        "inProgress.matrix.title": "Complétez la matrice",
+        "inProgress.matrix.description": "{filled} sur {total} cellules remplies ({percent} %). Encore un peu d'effort.",
+        "inProgress.ready.title": "Prêt à livrer",
+        "inProgress.ready.description": "Matrice complète à 100 % — livrez le rapport au client.",
+        "delivered.title": "Audit livré",
+        "delivered.description": "Suivez la remédiation côté client et leurs retours sur les NC.",
+        "remediation.title": "Phase de remédiation",
+        "remediation.description": "Le client corrige les NC. Suivez l'impact via le simulateur.",
+        "counterAudit.title": "Contre-audit en cours",
+        "counterAudit.description": "Réévaluez les critères corrigés et figez le score final.",
+        "completed.title": "Audit terminé",
+        "completed.description": "Toutes les étapes sont closes. Bravo.",
+        "archived.title": "Audit archivé",
+        "archived.description": "L'audit n'est plus actif.",
+        "unknown.title": "Statut inconnu",
+        "unknown.description": "Aucune action recommandée pour ce statut."
+      }
+    },
+    "kpiBar": {
+      "sample": "Échantillon",
+      "matrix": "Matrice",
+      "openNc": "NC ouvertes",
+      "criticalNc": "NC critiques"
+    },
+    "timeline": {
+      "ariaLabel": "Échéances de l'audit",
+      "notPlanned": "Non planifié",
+      "events": {
+        "start": "Démarrage prévu",
+        "end": "Fin prévue",
+        "restitution": "Restitution",
+        "counterAudit": "Contre-audit",
+        "delivered": "Livraison",
+        "online": "Mise en ligne"
+      }
+    },
+    "tabsNav": {
+      "ariaLabel": "Onglets de l'audit",
+      "dashboard": "Dashboard",
+      "sample": "Échantillon",
+      "anomalies": "Non-conformités",
+      "matrix": "Conformité",
+      "remediation": "Simulateur"
+    },
+    "interlocutors": {
+      "title": "Interlocuteurs",
+      "manage": "Gérer les interlocuteurs",
+      "empty": "Aucun interlocuteur pour cet audit.",
+      "messageCta": "Message",
+      "roleAuditor": "Auditeur",
+      "roleProofreader": "Relecteur"
+    },
     "list": {
       "title": "Audits",
       "subtitle": "{count, plural, =0 {Aucun audit accessible} one {# audit accessible} other {# audits accessibles}}.",
@@ -994,6 +1069,7 @@
       "unknownReference": "Référentiel inconnu",
       "edit": "Modifier",
       "openSimulator": "Ouvrir le simulateur",
+      "timelineTitle": "Échéances",
       "conformityRate": "Taux de conformité",
       "conformityAria": "Conformité : {score}%",
       "scoreInitial": "Score initial",
@@ -1300,6 +1376,12 @@
     },
     "ncDetail": {
       "breadcrumbDetail": "Détail",
+      "prev": "NC #{num}",
+      "next": "NC #{num}",
+      "prevDisabled": "Première",
+      "nextDisabled": "Dernière",
+      "prevAria": "Aller à la NC #{num} précédente",
+      "nextAria": "Aller à la NC #{num} suivante",
       "statusAria": "Statut de la non-conformité",
       "linkedCriterion": "Critère lié",
       "testLabel": "Test :",

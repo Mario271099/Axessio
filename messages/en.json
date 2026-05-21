@@ -893,6 +893,81 @@
     }
   },
   "audits": {
+    "nextAction": {
+      "kicker": "Next step",
+      "cta": {
+        "openSample": "Add pages",
+        "openMatrix": "Open the matrix",
+        "openAnomalies": "View anomalies",
+        "openSimulator": "Open simulator",
+        "openLifecycle": "Go to lifecycle",
+        "edit": "Edit audit"
+      },
+      "states": {
+        "pending.noSample.title": "Build the sample",
+        "pending.noSample.description": "Add at least one representative page before planning the audit.",
+        "pending.ready.title": "Ready to plan",
+        "pending.ready.description": "Sample is defined — move the audit to planned to get started.",
+        "planned.noDate.title": "Set the start date",
+        "planned.noDate.description": "No date is planned. Set one to be able to start.",
+        "planned.future.title": "Upcoming start",
+        "planned.future.description": "The audit will start at the planned date — nothing to do for now.",
+        "planned.start.title": "Launch the audit",
+        "planned.start.description": "The start date is reached, move the audit to in progress.",
+        "inProgress.noMatrix.title": "Set up the matrix",
+        "inProgress.noMatrix.description": "The reference has no criteria available yet.",
+        "inProgress.matrix.title": "Complete the matrix",
+        "inProgress.matrix.description": "{filled} of {total} cells filled ({percent}%). Keep going.",
+        "inProgress.ready.title": "Ready to deliver",
+        "inProgress.ready.description": "Matrix is 100% complete — deliver the report to the client.",
+        "delivered.title": "Audit delivered",
+        "delivered.description": "Follow client remediation and their feedback on NCs.",
+        "remediation.title": "Remediation phase",
+        "remediation.description": "The client is fixing NCs. Track impact via the simulator.",
+        "counterAudit.title": "Counter-audit in progress",
+        "counterAudit.description": "Re-evaluate fixed criteria and freeze the final score.",
+        "completed.title": "Audit completed",
+        "completed.description": "All steps are closed. Great work.",
+        "archived.title": "Audit archived",
+        "archived.description": "The audit is no longer active.",
+        "unknown.title": "Unknown status",
+        "unknown.description": "No recommended action for this status."
+      }
+    },
+    "kpiBar": {
+      "sample": "Sample",
+      "matrix": "Matrix",
+      "openNc": "Open NCs",
+      "criticalNc": "Critical NCs"
+    },
+    "timeline": {
+      "ariaLabel": "Audit schedule",
+      "notPlanned": "Not planned",
+      "events": {
+        "start": "Expected start",
+        "end": "Expected end",
+        "restitution": "Restitution",
+        "counterAudit": "Counter-audit",
+        "delivered": "Delivery",
+        "online": "Online"
+      }
+    },
+    "tabsNav": {
+      "ariaLabel": "Audit tabs",
+      "dashboard": "Dashboard",
+      "sample": "Sample",
+      "anomalies": "Non-conformities",
+      "matrix": "Conformity",
+      "remediation": "Simulator"
+    },
+    "interlocutors": {
+      "title": "Contacts",
+      "manage": "Manage contacts",
+      "empty": "No contact on this audit yet.",
+      "messageCta": "Message",
+      "roleAuditor": "Auditor",
+      "roleProofreader": "Proofreader"
+    },
     "list": {
       "title": "Audits",
       "subtitle": "{count, plural, =0 {No accessible audit} one {# accessible audit} other {# accessible audits}}.",
@@ -994,6 +1069,7 @@
       "unknownReference": "Unknown reference",
       "edit": "Edit",
       "openSimulator": "Open simulator",
+      "timelineTitle": "Schedule",
       "conformityRate": "Conformity rate",
       "conformityAria": "Conformity: {score}%",
       "scoreInitial": "Initial score",
@@ -1300,6 +1376,12 @@
     },
     "ncDetail": {
       "breadcrumbDetail": "Detail",
+      "prev": "NC #{num}",
+      "next": "NC #{num}",
+      "prevDisabled": "First",
+      "nextDisabled": "Last",
+      "prevAria": "Go to previous NC #{num}",
+      "nextAria": "Go to next NC #{num}",
       "statusAria": "Non-conformity status",
       "linkedCriterion": "Related criterion",
       "testLabel": "Test:",

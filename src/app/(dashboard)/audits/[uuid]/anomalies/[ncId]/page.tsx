@@ -21,6 +21,7 @@ export default async function NCDetailPage({ params }: PageProps) {
       `
       id, title, description, actual_result, recommendation,
       severity, status, page_id, test_reference, review_status,
+      display_number,
       criterion:criteria!inner(id, identifier, name, url, methodology),
       page:pages(id, name)
     `,
@@ -59,7 +60,45 @@ export default async function NCDetailPage({ params }: PageProps) {
       : null,
     page: page ? { id: page.id as string, name: page.name as string } : null,
     reviewStatus: (ncRow.review_status ?? "not_requested") as NCReviewStatus,
+    displayNumber: Number(ncRow.display_number ?? 0),
   };
+
+  // 1bis) NC voisines (précédente / suivante) au sein de l'audit, dans
+  // l'ordre de création. Deux requêtes minimalistes côté Supabase.
+  const currentNumber = nc.displayNumber;
+  const [{ data: prevRow }, { data: nextRow }] = await Promise.all([
+    currentNumber > 0
+      ? supabase
+          .from("non_conformities")
+          .select("id, display_number")
+          .eq("audit_id", uuid)
+          .lt("display_number", currentNumber)
+          .order("display_number", { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    supabase
+      .from("non_conformities")
+      .select("id, display_number")
+      .eq("audit_id", uuid)
+      .gt("display_number", currentNumber)
+      .order("display_number", { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  const prevNC = prevRow
+    ? {
+        id: prevRow.id as string,
+        displayNumber: Number(prevRow.display_number ?? 0),
+      }
+    : null;
+  const nextNC = nextRow
+    ? {
+        id: nextRow.id as string,
+        displayNumber: Number(nextRow.display_number ?? 0),
+      }
+    : null;
 
   // 2) Messages (tous fils confondus) + auteur. La RLS (migration 37) filtre
   // déjà selon le thread et le rôle de l'utilisateur — pas besoin de filtrer
@@ -187,6 +226,8 @@ export default async function NCDetailPage({ params }: PageProps) {
       auditTitle={auditTitle}
       profile={{ role: profile.role, id: profile.id }}
       userAssignmentRole={userAssignmentRole}
+      prevNC={prevNC}
+      nextNC={nextNC}
     />
   );
 }

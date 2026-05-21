@@ -1,5 +1,6 @@
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
 import { AnomaliesList, type AnomalyListItem } from "./anomalies-list";
 
 export default async function AnomaliesPage({
@@ -11,31 +12,19 @@ export default async function AnomaliesPage({
   const { uuid } = await params;
   const supabase = await createClient();
 
-  // 1) Audit + projet (pour le breadcrumb)
-  const { data: audit } = await supabase
-    .from("audits")
-    .select(`id, project:projects(name)`)
-    .eq("id", uuid)
-    .single();
-  const project = audit?.project
-    ? Array.isArray(audit.project)
-      ? audit.project[0]
-      : audit.project
-    : null;
-
-  // 2) NC + comptages messages/attachements en une seule requête grâce à
-  //    l'agrégation PostgREST (count sur une jointure renvoyée comme tableau).
+  // NC + comptages messages/attachements en une seule requête grâce à
+  // l'agrégation PostgREST (count sur une jointure renvoyée comme tableau).
   const { data } = await supabase
     .from("non_conformities")
     .select(
-      `id, title, status, severity, created_at,
+      `id, title, status, severity, created_at, display_number,
        criterion:criteria!inner(identifier, name),
        page:pages(name),
        messages:nc_messages(id),
        attachments:nc_attachments(id)`,
     )
     .eq("audit_id", uuid)
-    .order("created_at", { ascending: false });
+    .order("display_number", { ascending: true });
 
   const ncs: AnomalyListItem[] = (data ?? []).map((nc) => {
     const criterion = Array.isArray(nc.criterion)
@@ -59,15 +48,14 @@ export default async function AnomaliesPage({
       page: page ? { name: page.name as string } : null,
       messageCount: messages.length,
       attachmentCount: attachments.length,
+      displayNumber: Number(nc.display_number ?? 0),
     };
   });
 
   return (
-    <AnomaliesList
-      ncs={ncs}
-      auditId={uuid}
-      auditTitle={project?.name ?? "Audit"}
-      role={profile.role}
-    />
+    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
+      <AuditTabsNav auditId={uuid} active="anomalies" />
+      <AnomaliesList ncs={ncs} auditId={uuid} role={profile.role} />
+    </div>
   );
 }

@@ -1,10 +1,8 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { Button } from "@/components/ui/button";
+import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
 import { RemediationSimulator } from "@/components/audit/remediation-simulator";
 import { NC_CLOSED_STATUSES } from "@/lib/constants";
 import type {
@@ -180,14 +178,7 @@ export default async function SimulatorPage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <nav aria-label="Breadcrumb">
-        <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
-          <Link href={`/audits/${uuid}`}>
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-            {t("back")}
-          </Link>
-        </Button>
-      </nav>
+      <AuditTabsNav auditId={uuid} active="remediation" />
 
       <header className="space-y-1">
         <p className="text-xs text-muted-foreground">
