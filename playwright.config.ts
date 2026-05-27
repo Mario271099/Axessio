@@ -16,7 +16,12 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // Toujours un worker à la fois : le dev server Next 16 + Turbopack
+  // compile à la volée et envoie un payload Flight bizarre quand plusieurs
+  // requêtes hits une route pas encore compilée en parallèle (le client
+  // hydratait la page comme un not-found). Sequentiel = compilation
+  // déterministe, et la perte de temps est mineure (≤ 4 specs).
+  workers: 1,
   reporter: process.env.CI ? "github" : "list",
 
   use: {

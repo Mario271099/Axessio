@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -obE 'pagePath[^,]{0,40}' /tmp/r3.html)",
+      "Bash(grep -obE 'pagePath[^,]{0,40}' /tmp/home.html)",
+      "Bash(curl -s http://localhost:3000/setup-password -o /tmp/sp.html -w \"%{http_code}\\\\n\")",
+      "Bash(grep -obE 'pagePath[^,]{0,40}' /tmp/sp.html)",
+      "Bash(curl -s http://localhost:3000/api/health -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:3000/cookies -o /tmp/ck.html -w \"%{http_code}\\\\n\")",
+      "Bash(grep -obE 'pagePath[^,]{0,40}' /tmp/ck.html)",
+      "Bash(curl -s \"http://localhost:3000/login\" -H \"RSC: 1\" -H \"Next-Router-State-Tree: %5B%22%22%2C%7B%22children%22%3A%5B%22login%22%2C%7B%22children%22%3A%5B%22__PAGE__%22%2C%7B%7D%5D%7D%5D%7D%2Cnull%2Cnull%2Ctrue%5D\" -o /tmp/rsc.txt -w \"%{http_code}\\\\n\")",
+      "Bash(dd if=/tmp/rsc.txt bs=1 skip=2400 count=300)",
+      "Bash(dd if=/tmp/rsc.txt bs=1 skip=1800 count=400)",
+      "Bash(curl -s \"http://localhost:3000/login?_rsc=test\" -H \"RSC: 1\" -o /tmp/rsc2.txt -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s -o /tmp/pricing.html -w \"%{http_code} %{size_download}\\\\n\" http://localhost:3000/pricing)",
+      "Bash(curl -s -o /dev/null -w \"/legal: %{http_code}\\\\n/privacy: %{http_code}\\\\n/cookies: %{http_code}\\\\n/pricing: %{http_code}\\\\n\" http://localhost:3000/legal http://localhost:3000/privacy http://localhost:3000/cookies http://localhost:3000/pricing)",
+      "Bash(echo \"---\")",
+      "Bash(echo -n '__TRACKED_VAR__: ')",
+      "Bash(curl -so /dev/null -w '%{http_code}\\\\n' http://localhost:3000__TRACKED_VAR__)",
+      "Bash(curl -s http://localhost:3000/pricing -o /tmp/pr.html)"
+    ]
+  }
+}

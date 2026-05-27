@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { orgHasFeature } from "@/lib/billing/server";
 import { generatePDF, DEFAULT_FOOTER_TEMPLATE } from "@/lib/pdf";
 import {
   renderReportHTML,
@@ -60,6 +61,23 @@ export async function GET(req: Request, { params }: RouteParams) {
 
   if (!profile || profile.is_active === false) {
     return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
+  }
+
+  // ------------------------------------------------------------------
+  // 1.bis Feature gate : `export.pdf` (Starter+).
+  // Le check est server-side parce que l'URL `/api/audits/[uuid]/report`
+  // peut être appelée directement (curl, automatisation) — il ne suffit
+  // pas de masquer le bouton côté UI.
+  // ------------------------------------------------------------------
+  const hasExportFeature = await orgHasFeature("export.pdf");
+  if (!hasExportFeature) {
+    return NextResponse.json(
+      {
+        error:
+          "L'export PDF est inclus à partir du plan Starter. Mettez à jour votre abonnement pour l'activer.",
+      },
+      { status: 402 },
+    );
   }
 
   // ------------------------------------------------------------------

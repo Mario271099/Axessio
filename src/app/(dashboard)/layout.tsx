@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { ImpersonationBanner } from "@/components/layout/impersonation-banner";
+import { BrandingStyles } from "@/components/layout/branding-styles";
+import { getCurrentOrgBranding } from "@/lib/branding/server";
+import { resolveCurrentOrg } from "@/lib/current-org";
 
 // Toutes les pages sous /(dashboard) sont des vues authentifiées : on coupe
 // l'indexation pour ne pas exposer de surface privée à Google et pour ne pas
@@ -32,16 +35,25 @@ export default async function DashboardLayout({
   const supabase = await createClient();
 
   // Compteur "audits en cours" — alimente le badge de l'entrée Audits.
-  const { count: inProgressCount } = await supabase
-    .from("audits")
-    .select("id", { count: "exact", head: true })
-    .in("status", IN_PROGRESS_STATUSES);
+  // Et résolution de l'org active pour le selector sidebar (Phase 1 tenancy).
+  // Branding éventuel pour le logo de la sidebar (Phase 5).
+  const [{ count: inProgressCount }, org, branding] = await Promise.all([
+    supabase
+      .from("audits")
+      .select("id", { count: "exact", head: true })
+      .in("status", IN_PROGRESS_STATUSES),
+    resolveCurrentOrg(),
+    getCurrentOrgBranding(),
+  ]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
+      <BrandingStyles />
       <Sidebar
         profile={profile}
         counts={{ inProgressAudits: inProgressCount ?? 0 }}
+        org={org}
+        brandLogoUrl={branding?.logoUrl ?? null}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">

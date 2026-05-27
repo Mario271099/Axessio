@@ -33,6 +33,7 @@ import { can, canImpersonateAs, type Permission } from "@/lib/permissions";
 import { signOut } from "@/app/(auth)/actions";
 import { exitImpersonationAndRedirect } from "@/app/(dashboard)/admin/impersonation/actions";
 import { ImpersonationLauncher } from "@/components/layout/impersonation-launcher";
+import { OrgSwitcher } from "@/components/layout/org-switcher";
 import type { Profile, UserRole } from "@/types/domain";
 
 type IconKey =
@@ -43,7 +44,8 @@ type IconKey =
   | "users"
   | "references"
   | "settings"
-  | "permissions";
+  | "permissions"
+  | "organizations";
 
 const ICONS = {
   dashboard: LayoutDashboard,
@@ -54,6 +56,7 @@ const ICONS = {
   references: BookMarked,
   settings: Settings,
   permissions: KeyRound,
+  organizations: Building2,
 } as const;
 
 type ItemKey =
@@ -64,7 +67,8 @@ type ItemKey =
   | "users"
   | "references"
   | "settings"
-  | "permissions";
+  | "permissions"
+  | "organizations";
 
 type SectionKey = "main" | "management" | "admin" | "other";
 
@@ -115,6 +119,9 @@ const SECTIONS: NavSection[] = [
   {
     sectionKey: "other",
     items: [
+      // Page de gestion des organisations dont le user est membre.
+      // Visible à tout user authentifié — le contenu s'adapte au membership.
+      { href: "/organizations", itemKey: "organizations", iconKey: "organizations", permission: null },
       { href: "/settings", itemKey: "settings", iconKey: "settings", permission: null },
     ],
   },
@@ -127,9 +134,16 @@ export interface NavCounts {
 interface SidebarProps {
   profile: Profile;
   counts: NavCounts;
+  /** Org active + liste des memberships pour le switcher. */
+  org: {
+    current: import("@/types/domain").OrganizationMembership | null;
+    available: import("@/types/domain").OrganizationMembership[];
+  };
+  /** Logo personnalisé de l'org active (Enterprise). Null = logo Axessio. */
+  brandLogoUrl?: string | null;
 }
 
-export function Sidebar({ profile, counts }: SidebarProps) {
+export function Sidebar({ profile, counts, org, brandLogoUrl }: SidebarProps) {
   const pathname = usePathname();
   // Pour le filtrage sidebar on raisonne sur le rôle EFFECTIF (impersonation).
   // L'entrée "Voir comme" reste au contraire conditionnée par le rôle RÉEL.
@@ -146,9 +160,25 @@ export function Sidebar({ profile, counts }: SidebarProps) {
           aria-label={t("brandHomeAria")}
           className="-mx-2 inline-flex items-center gap-2 rounded-md px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          <AxIcon size={28} aria-label="" />
-          <span className="text-base font-bold tracking-tight">Axessio</span>
+          {brandLogoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={brandLogoUrl}
+              alt=""
+              className="h-7 w-auto max-w-[10rem] object-contain"
+            />
+          ) : (
+            <>
+              <AxIcon size={28} aria-label="" />
+              <span className="text-base font-bold tracking-tight">Axessio</span>
+            </>
+          )}
         </Link>
+      </div>
+
+      {/* Sélecteur d'organisation active */}
+      <div className="border-b border-border p-3">
+        <OrgSwitcher current={org.current} available={org.available} />
       </div>
 
       {/* Navigation */}

@@ -4,6 +4,8 @@ import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
 import { RemediationSimulator } from "@/components/audit/remediation-simulator";
+import { FeatureUpsell } from "@/components/billing/feature-upsell";
+import { orgHasFeature } from "@/lib/billing/server";
 import { NC_CLOSED_STATUSES } from "@/lib/constants";
 import type {
   NCSeverity,
@@ -44,6 +46,33 @@ export default async function SimulatorPage({ params }: PageProps) {
 
   if (error || !audit) {
     notFound();
+  }
+
+  // Gate "Simulateur de remédiation" : feature `remediation.simulator`
+  // (incluse à partir du plan Starter). Si l'org est en Free, on affiche
+  // un upsell complet à la place du composant — la navigation par tab
+  // reste accessible pour montrer le contexte.
+  const hasSimulator = await orgHasFeature("remediation.simulator");
+  if (!hasSimulator) {
+    const project = Array.isArray(audit.project) ? audit.project[0] : audit.project;
+    const client = project?.client
+      ? Array.isArray(project.client)
+        ? project.client[0]
+        : project.client
+      : null;
+    return (
+      <div className="container mx-auto max-w-4xl space-y-6 p-6 md:p-8">
+        <AuditTabsNav auditId={uuid} active="remediation" />
+        <header className="space-y-1">
+          <p className="text-xs text-muted-foreground">
+            {client?.name ?? "—"} · {project?.name ?? "—"}
+          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+        </header>
+        <FeatureUpsell feature="remediation.simulator" />
+      </div>
+    );
   }
 
   const project = Array.isArray(audit.project) ? audit.project[0] : audit.project;

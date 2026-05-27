@@ -52,3 +52,73 @@ export async function requirePermission(
   }
   return { ok: true, userId: user.id, role };
 }
+
+// ============================================================================
+// RBAC org-scopé (Phase 3 — alignée sur migrations 47/48)
+// ============================================================================
+
+/**
+ * Vérifie une permission atomique sur l'organisation active de l'utilisateur
+ * (cf. `current_org()` SQL = `profiles.current_org_id`). C'est le helper à
+ * privilégier dans les nouvelles server actions : il interroge directement
+ * la matrice `role_permissions` persistée, donc reste cohérent avec ce que
+ * la RLS verra.
+ *
+ * Retourne `false` si l'utilisateur n'a pas d'org active OU si le RPC échoue
+ * (fail-closed).
+ */
+export async function hasOrgPermission(code: Permission): Promise<boolean> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("has_org_permission", {
+    p_code: code,
+  });
+  if (error) return false;
+  return data === true;
+}
+
+/**
+ * Précharge l'ensemble des permissions effectives sur l'org active en un
+ * seul round-trip. Utile pour préparer un objet `perms` exposé au layout
+ * client (au lieu de N appels `hasOrgPermission`).
+ */
+export async function loadMyOrgPermissions(): Promise<Set<Permission>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("my_org_permissions");
+  if (error || !Array.isArray(data)) return new Set();
+  return new Set(data as Permission[]);
+}
+
+interface OrgPermissionGuardSuccess {
+  ok: true;
+  userId: string;
+}
+
+export type OrgPermissionGuard =
+  | OrgPermissionGuardSuccess
+  | PermissionGuardFailure;
+
+/**
+ * Variante org-scopée de `requirePermission`. À utiliser dans les server
+ * actions qui ciblent une ressource appartenant à l'org active. La double
+ * vérification (code + RLS) reste essentielle : ce guard sert à donner un
+ * message d'erreur lisible avant que la RLS coupe la requête.
+ */
+export async function requireOrgPermission(
+  permission: Permission,
+): Promise<OrgPermissionGuard> {
+  const supabase = await createClient();
+  const t = await getTranslations("errors");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: t("notAuthenticated") };
+
+  const { data, error } = await supabase.rpc("has_org_permission", {
+    p_code: permission,
+  });
+  if (error || data !== true) {
+    return { ok: false, error: t("forbidden") };
+  }
+  return { ok: true, userId: user.id };
+}

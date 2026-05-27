@@ -15,6 +15,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // `server-only` jette une erreur quand il est importé en dehors d'un
+      // Server Component (par design côté Next). En test on l'aliase vers un
+      // module vide pour pouvoir tester les helpers serveur en isolation.
+      "server-only": path.resolve(__dirname, "./src/test-utils/server-only.ts"),
     },
   },
 });

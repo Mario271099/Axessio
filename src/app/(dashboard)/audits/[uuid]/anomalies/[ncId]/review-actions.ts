@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { requireFeature } from "@/lib/billing/server";
 import type { NCReviewStatus, UserRole } from "@/types/domain";
 
 export interface NCReviewActionResult {
@@ -96,6 +97,18 @@ export async function requestNCReview(
   const ctx = await loadNCContext(ncId);
   if ("error" in ctx) return { ok: false, message: ctx.error };
   const t = await getTranslations("audits.ncReview.errors");
+
+  // Feature gate : cycle de relecture inclus à partir de Pro. On n'ouvre
+  // PAS de nouveau cycle si le plan ne le permet pas. Les transitions
+  // (approve/changes/cancel) d'un cycle déjà ouvert restent accessibles.
+  const feature = await requireFeature("audit.proofreading");
+  if (!feature.ok) {
+    return {
+      ok: false,
+      errorCode: "NC_REVIEW_DENIED",
+      message: feature.error,
+    };
+  }
 
   // Permission : admin OU auditeur assigné
   if (ctx.assignmentRole !== "admin" && ctx.assignmentRole !== "auditor") {

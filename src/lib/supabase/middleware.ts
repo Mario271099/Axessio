@@ -48,11 +48,21 @@ export async function updateSession(request: NextRequest) {
     return response;
   }
 
-  // Pas connecté : routes publiques autorisées
+  // Pas connecté : routes publiques autorisées (marketing + auth + pages
+  // légales). Toute nouvelle page indexable côté SEO doit être ajoutée ici.
+  const PUBLIC_PATHS = new Set([
+    "/",
+    "/login",
+    "/pricing",
+    "/legal",
+    "/privacy",
+    "/cookies",
+  ]);
   const isPublicRoute =
-    pathname === "/" ||
-    pathname === "/login" ||
+    PUBLIC_PATHS.has(pathname) ||
     pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/webhooks") ||
+    pathname.startsWith("/api/v1") ||
     pathname.startsWith("/_next") ||
     pathname.includes(".");
 

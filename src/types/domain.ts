@@ -8,6 +8,75 @@
  */
 
 // ============================================================================
+// Tenancy — organisations (Phase 1 du refactor RBAC)
+// ============================================================================
+export type OrgType = "individual" | "agency" | "company" | "enterprise";
+export type OrgRole =
+  | "owner"
+  | "admin"
+  | "manager"
+  | "member"
+  | "viewer"
+  | "guest";
+
+export interface Organization {
+  id: string;
+  slug: string;
+  name: string;
+  type: OrgType;
+  billingEmail: string;
+  dataResidency: "eu" | "us" | "asia";
+  createdAt: string;
+}
+
+/** Personnalisation visuelle d'une org (gated par la feature `branding.custom`). */
+export interface OrgBranding {
+  logoUrl: string | null;
+  primaryColor: string | null; // #RRGGBB
+  accentColor: string | null;  // #RRGGBB
+  supportEmail: string | null;
+  customDomain: string | null;
+}
+
+export interface OrganizationMembership {
+  organizationId: string;
+  organizationName: string;
+  organizationSlug: string;
+  organizationType: OrgType;
+  role: OrgRole;
+}
+
+/** UUID stable de l'organisation interne Axessio (cf. migration 43). */
+export const AXESSIO_INTERNAL_ORG_ID =
+  "00000000-0000-0000-0000-000000000001";
+
+// ============================================================================
+// Workspaces (Phase 6) — sous-divisions à l'intérieur d'une org
+// ============================================================================
+export interface Workspace {
+  id: string;
+  organizationId: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  isDefault: boolean;
+  isArchived: boolean;
+  createdAt: string;
+}
+
+/** Workspace + rôle effectif de l'utilisateur (incluant l'héritage org). */
+export interface WorkspaceMembership {
+  workspaceId: string;
+  organizationId: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  isDefault: boolean;
+  isArchived: boolean;
+  effectiveRole: OrgRole;
+}
+
+// ============================================================================
 // Rôles & utilisateurs
 // ============================================================================
 // L'ordre reflète la hiérarchie de privilèges (admin > auditor > client_admin > client).

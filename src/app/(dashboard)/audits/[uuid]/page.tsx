@@ -4,6 +4,7 @@ import { ChevronLeft, Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { orgHasFeature } from "@/lib/billing/server";
 import {
   Card,
   CardContent,
@@ -99,12 +100,16 @@ export default async function AuditDetailPage({ params }: PageProps) {
 
   // Export PDF : staff plateforme (admin/auditor) OU client_admin du client
   // propriétaire de l'audit. Les clients simples passent par leur admin.
-  const canExportReport =
+  // Le check de feature `export.pdf` est ajouté en AND : sans Starter+,
+  // le bouton ne s'affiche pas (l'API renvoie 402 si on bypass).
+  const canExportRole =
     profile.role === "admin" ||
     profile.role === "auditor" ||
     (profile.role === "client_admin" &&
       client?.id != null &&
       profile.clientId === client.id);
+  const hasExportFeature = await orgHasFeature("export.pdf");
+  const canExportReport = canExportRole && hasExportFeature;
 
   // Édition des métadonnées audit : permission rôle uniquement.
   const canEdit = canEditAudit(profile.role);

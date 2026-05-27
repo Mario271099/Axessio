@@ -5,6 +5,11 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { canEditAudit } from "@/lib/permissions";
+import { PLANS, planLimit, type PlanCode } from "@/lib/billing/plans";
+import {
+  countActiveAuditsInOrg,
+  countAuditsCreatedThisMonthInOrg,
+} from "@/lib/billing/usage";
 import { MANDATORY_PAGES } from "@/types/domain";
 import type {
   AuditStatus,
@@ -67,6 +72,58 @@ export async function createAudit(
 
   if (Object.keys(fieldErrors).length > 0) {
     return { error: t("fieldErrors"), fieldErrors };
+  }
+
+  // ============================================================================
+  // Limites de plan : `max_active_audits` (concurrents) + `max_audits_per_month`.
+  // Le projet détermine l'organisation, et l'organisation détermine le plan.
+  // On lit la limite depuis le catalogue TS (`PLANS[plan_code]`) — strictement
+  // aligné avec le seed SQL, donc fiable et sans round-trip supplémentaire.
+  // ============================================================================
+  const { data: projectRow } = await supabase
+    .from("projects")
+    .select("organization_id")
+    .eq("id", projectId!)
+    .maybeSingle();
+  if (projectRow?.organization_id) {
+    const orgId = projectRow.organization_id as string;
+    const { data: subRow } = await supabase
+      .from("subscriptions")
+      .select("plan_code")
+      .eq("organization_id", orgId)
+      .maybeSingle();
+    const planCode: PlanCode =
+      subRow?.plan_code && subRow.plan_code in PLANS
+        ? (subRow.plan_code as PlanCode)
+        : "free";
+
+    const maxActive = planLimit(planCode, "max_active_audits");
+    const maxPerMonth = planLimit(planCode, "max_audits_per_month");
+
+    // On parallélise les deux comptages — chacun fait un COUNT(*) léger.
+    const [activeCount, monthCount] = await Promise.all([
+      maxActive !== null ? countActiveAuditsInOrg(orgId) : Promise.resolve(0),
+      maxPerMonth !== null
+        ? countAuditsCreatedThisMonthInOrg(orgId)
+        : Promise.resolve(0),
+    ]);
+
+    if (maxActive !== null && activeCount >= maxActive) {
+      return {
+        error: t("limitMaxActiveAuditsReached", {
+          limit: maxActive,
+          plan: PLANS[planCode].name,
+        }),
+      };
+    }
+    if (maxPerMonth !== null && monthCount >= maxPerMonth) {
+      return {
+        error: t("limitMaxAuditsPerMonthReached", {
+          limit: maxPerMonth,
+          plan: PLANS[planCode].name,
+        }),
+      };
+    }
   }
 
   const { data: audit, error: auditError } = await supabase

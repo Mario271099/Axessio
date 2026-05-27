@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/audit-status-auto",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/webhook-dispatch",
+      "schedule": "* * * * *"
     }
   ]
 }

@@ -8,10 +8,14 @@
 // La RLS Postgres est la deuxième ligne de défense : ce module ne remplace
 // PAS les policies, il les complète côté UX en cachant les actions interdites.
 
-import type { UserRole } from "@/types/domain";
+import type { OrgRole, UserRole } from "@/types/domain";
 
 // ============================================================================
 // Catalogue des permissions atomiques
+// ----------------------------------------------------------------------------
+// Ce type est la source de vérité côté code. Il DOIT rester aligné avec
+// le seed de la migration 47 (`public.permissions`). Quand tu ajoutes une
+// permission ici, ajoute la ligne SQL correspondante dans la migration.
 // ============================================================================
 export type Permission =
   // Audit
@@ -39,6 +43,28 @@ export type Permission =
   | "audit_logs.view_all"
   | "impersonate"
   | "permissions.debug";
+
+/** Catalogue exhaustif — utilisé pour les pages debug et l'introspection. */
+export const ALL_PERMISSIONS: ReadonlyArray<Permission> = [
+  "audit.view",
+  "audit.edit",
+  "audit.delete",
+  "audit.assign_auditor",
+  "matrix.edit",
+  "nc.create",
+  "nc.edit",
+  "nc.delete",
+  "nc.update_status_client",
+  "remediation.view",
+  "chat.read",
+  "chat.write",
+  "client.manage",
+  "project.manage",
+  "user.manage",
+  "audit_logs.view_all",
+  "impersonate",
+  "permissions.debug",
+];
 
 // ============================================================================
 // Matrice rôle → permissions
@@ -158,3 +184,95 @@ export const isStaff = (r: UserRole): boolean => r === "admin" || r === "auditor
  */
 export const canAssignProofreader = (r: UserRole): boolean =>
   r === "admin" || r === "client_admin";
+
+// ============================================================================
+// RBAC org-scopé (Phase 3 — migrations 47/48)
+// ----------------------------------------------------------------------------
+// Le mapping ci-dessous DOIT rester strictement aligné avec le seed
+// `role_permissions` (scope='org') de la migration 47. Si tu ajoutes une
+// permission à un rôle, modifie les deux endroits.
+//
+// Ce mapping est utilisé côté UI (rendu conditionnel rapide sans round-trip
+// DB). Côté serveur, préfère la fonction SQL `has_org_permission(...)` qui
+// lit la matrice persistée — c'est la source de vérité opposable à la RLS.
+// ============================================================================
+
+const OWNER_ADMIN_ORG_PERMS: ReadonlyArray<Permission> = ALL_PERMISSIONS;
+
+const MANAGER_ORG_PERMS: ReadonlyArray<Permission> = [
+  "audit.view",
+  "audit.edit",
+  "audit.assign_auditor",
+  "matrix.edit",
+  "nc.create",
+  "nc.edit",
+  "nc.delete",
+  "nc.update_status_client",
+  "remediation.view",
+  "chat.read",
+  "chat.write",
+  "project.manage",
+];
+
+const MEMBER_ORG_PERMS: ReadonlyArray<Permission> = [
+  "audit.view",
+  "audit.edit",
+  "matrix.edit",
+  "nc.create",
+  "nc.edit",
+  "nc.update_status_client",
+  "remediation.view",
+  "chat.read",
+  "chat.write",
+];
+
+const VIEWER_ORG_PERMS: ReadonlyArray<Permission> = [
+  "audit.view",
+  "remediation.view",
+  "chat.read",
+];
+
+const GUEST_ORG_PERMS: ReadonlyArray<Permission> = [
+  "audit.view",
+  "nc.update_status_client",
+  "remediation.view",
+  "chat.read",
+  "chat.write",
+];
+
+export const ORG_PERMISSIONS: Record<OrgRole, ReadonlySet<Permission>> = {
+  owner:   new Set(OWNER_ADMIN_ORG_PERMS),
+  admin:   new Set(OWNER_ADMIN_ORG_PERMS),
+  manager: new Set(MANAGER_ORG_PERMS),
+  member:  new Set(MEMBER_ORG_PERMS),
+  viewer:  new Set(VIEWER_ORG_PERMS),
+  guest:   new Set(GUEST_ORG_PERMS),
+};
+
+/** Vérification atomique sur un rôle d'organisation. */
+export function canOrg(role: OrgRole, permission: Permission): boolean {
+  return ORG_PERMISSIONS[role].has(permission);
+}
+
+/** Liste lisible des permissions d'un rôle d'org (debug, page admin). */
+export function listOrgPermissions(role: OrgRole): Permission[] {
+  return Array.from(ORG_PERMISSIONS[role]);
+}
+
+/**
+ * Hiérarchie numérique des rôles d'organisation, alignée sur la fonction
+ * SQL `has_org_role(min_role)` (migration 42). Permet de comparer côté code
+ * sans round-trip DB.
+ */
+export const ORG_ROLE_WEIGHT: Record<OrgRole, number> = {
+  guest:   1,
+  viewer:  2,
+  member:  3,
+  manager: 4,
+  admin:   5,
+  owner:   6,
+};
+
+export function orgRoleAtLeast(role: OrgRole, min: OrgRole): boolean {
+  return ORG_ROLE_WEIGHT[role] >= ORG_ROLE_WEIGHT[min];
+}
