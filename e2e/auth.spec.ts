@@ -17,10 +17,15 @@ test.describe("Authentification", () => {
   test("affiche le formulaire de connexion sur /login", async ({ page }) => {
     await page.goto("/login");
 
+    // `exact: true` parce que le toggle "Afficher le mot de passe" porte un
+    // aria-label qui contient également "Mot de passe" → sans exact, le
+    // sélecteur résout 2 éléments et viole le strict mode de Playwright.
     await expect(page.getByLabel("Adresse email")).toBeVisible();
-    await expect(page.getByLabel("Mot de passe")).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /se connecter/i }),
+      page.getByLabel("Mot de passe", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /^se connecter$/i }),
     ).toBeVisible();
   });
 
@@ -42,7 +47,7 @@ test.describe("Authentification", () => {
     await page.goto("/login");
 
     await page.getByLabel("Adresse email").fill(E2E_USER_EMAIL);
-    await page.getByLabel("Mot de passe").fill("mot-de-passe-volontairement-faux");
+    await page.getByLabel("Mot de passe", { exact: true }).fill("mot-de-passe-volontairement-faux");
 
     await page.getByRole("button", { name: /se connecter/i }).click();
 

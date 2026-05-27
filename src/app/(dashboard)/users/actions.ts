@@ -10,7 +10,9 @@ import { InvitationEmail } from "@/emails/invitation-email";
 import { isValidEmail, isValidUuid } from "@/lib/validation";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import { canManageUsers } from "@/lib/permissions";
-import type { UserRole } from "@/types/domain";
+import { PLANS, planLimit, type PlanCode } from "@/lib/billing/plans";
+import { countMembersInOrg } from "@/lib/billing/usage";
+import { AXESSIO_INTERNAL_ORG_ID, type UserRole } from "@/types/domain";
 
 // Plafonds : 30 invitations / heure et 10 renvois / heure par auditeur.
 // Cible : empêcher le mail-bombing involontaire (script bugué) et le spam
@@ -190,6 +192,38 @@ export async function inviteUser(
       return { error: t("clientNotFound") };
     }
     clientName = client.name as string;
+  }
+
+  // ============================================================================
+  // Limite de plan : `max_members` sur l'organisation cible.
+  //   - role staff (admin/auditor) → org "Axessio Internal" (UUID fixe)
+  //   - role client_admin/client   → clientId == organization_id (backfill
+  //                                  migration 43 : 1 client legacy = 1 org)
+  // Le plan staff est toujours Pro+ historiquement, mais on garde la même
+  // logique pour la cohérence (et pour le jour où on basculera Axessio
+  // Internal sur un plan Enterprise-only).
+  // ============================================================================
+  const targetOrgId = clientId ?? AXESSIO_INTERNAL_ORG_ID;
+  const { data: subRow } = await ctx.supabase
+    .from("subscriptions")
+    .select("plan_code")
+    .eq("organization_id", targetOrgId)
+    .maybeSingle();
+  const planCode: PlanCode =
+    subRow?.plan_code && subRow.plan_code in PLANS
+      ? (subRow.plan_code as PlanCode)
+      : "free";
+  const maxMembers = planLimit(planCode, "max_members");
+  if (maxMembers !== null) {
+    const memberCount = await countMembersInOrg(targetOrgId);
+    if (memberCount >= maxMembers) {
+      return {
+        error: t("limitMaxMembersReached", {
+          limit: maxMembers,
+          plan: PLANS[planCode].name,
+        }),
+      };
+    }
   }
 
   const admin = createAdminClient();

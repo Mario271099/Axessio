@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requirePermission } from "@/lib/server-permissions";
+import { orgHasFeature } from "@/lib/billing/server";
 
 export interface AssigneeActionResult {
   error: string | null;
@@ -38,6 +39,26 @@ export async function assignAuditor(
   if (target.is_active === false) return { error: t("userInactive") };
   if (target.role !== "auditor" && target.role !== "admin") {
     return { error: t("assigneeMustBeStaff") };
+  }
+
+  // Feature gate `audit.collaboration` (Pro+) : un audit peut toujours
+  // avoir UN auditeur (la valeur de base). On ne refuse l'ajout d'un
+  // deuxième auditeur (= collaboration) que si le plan ne l'inclut pas.
+  // Une assignation idempotente sur un auditeur déjà présent reste OK.
+  const hasCollaboration = await orgHasFeature("audit.collaboration");
+  if (!hasCollaboration) {
+    const { data: existing } = await supabase
+      .from("audit_assignees")
+      .select("profile_id")
+      .eq("audit_id", auditId)
+      .eq("role", "auditor");
+    const already = existing ?? [];
+    const otherAuditorAlreadyPresent =
+      already.length > 0 &&
+      !already.some((a) => (a.profile_id as string) === profileId);
+    if (otherAuditorAlreadyPresent) {
+      return { error: t("collaborationGated") };
+    }
   }
 
   // ON CONFLICT DO NOTHING équivalent via try/insert + onConflict ne sont

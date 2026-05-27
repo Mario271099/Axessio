@@ -48,6 +48,14 @@ export function PublicFooter() {
             </li>
             <li>
               <Link
+                href="/pricing"
+                className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {t("footer.links.pricing")}
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/legal"
                 className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >

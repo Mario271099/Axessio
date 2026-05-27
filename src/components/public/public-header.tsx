@@ -37,6 +37,14 @@ export function PublicHeader() {
                 {t("nav.standards")}
               </Link>
             </li>
+            <li className="hidden sm:block">
+              <Link
+                href="/pricing"
+                className="rounded-md px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {t("nav.pricing")}
+              </Link>
+            </li>
             <li>
               <Button asChild size="sm">
                 <Link href="/login">{t("nav.login")}</Link>
