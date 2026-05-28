@@ -7,7 +7,7 @@
     },
     {
       "path": "/api/cron/webhook-dispatch",
-      "schedule": "* * * * *"
+      "schedule": "* * * * 1"
     }
   ]
 }
