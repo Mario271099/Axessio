@@ -6,16 +6,22 @@ import {
   Heading,
   Hr,
   Html,
+  Img,
   Preview,
   Section,
   Text,
 } from "@react-email/components";
+import {
+  AXESSIO_DEFAULT_OUTPUT_BRANDING,
+  type OutputBranding,
+} from "@/lib/branding/output";
 
 export interface AuditDeliveredEmailProps {
   recipientName: string;
   projectName: string;
   clientName: string;
   auditUrl: string;
+  branding?: OutputBranding;
 }
 
 export function AuditDeliveredEmail({
@@ -23,10 +29,12 @@ export function AuditDeliveredEmail({
   projectName,
   clientName,
   auditUrl,
+  branding = AXESSIO_DEFAULT_OUTPUT_BRANDING,
 }: AuditDeliveredEmailProps) {
   const greeting = recipientName.trim()
     ? `Bonjour ${recipientName},`
     : "Bonjour,";
+  const brandName = branding.brandName;
 
   return (
     <Html lang="fr">
@@ -37,10 +45,21 @@ export function AuditDeliveredEmail({
       <Body style={body}>
         <Container style={container}>
           <Section style={headerSection}>
-            <Heading style={brand}>Axessio</Heading>
-            <Text style={subBrand}>
-              Plateforme d&apos;audits d&apos;accessibilité numérique
-            </Text>
+            {branding.logoUrl ? (
+              <Img
+                src={branding.logoUrl}
+                alt={brandName}
+                height={40}
+                style={logoImg}
+              />
+            ) : (
+              <Heading style={{ ...brand, color: branding.primaryColor }}>
+                {brandName}
+              </Heading>
+            )}
+            {branding.tagline ? (
+              <Text style={subBrand}>{branding.tagline}</Text>
+            ) : null}
           </Section>
 
           <Section style={card}>
@@ -62,7 +81,10 @@ export function AuditDeliveredEmail({
             </Text>
 
             <Section style={ctaSection}>
-              <Button href={auditUrl} style={ctaButton}>
+              <Button
+                href={auditUrl}
+                style={{ ...ctaButton, backgroundColor: branding.primaryColor }}
+              >
                 Consulter l&apos;audit
               </Button>
             </Section>
@@ -71,19 +93,22 @@ export function AuditDeliveredEmail({
               Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre
               navigateur :
             </Text>
-            <Text style={linkFallback}>{auditUrl}</Text>
+            <Text style={{ ...linkFallback, color: branding.primaryColor }}>
+              {auditUrl}
+            </Text>
 
             <Hr style={hr} />
 
             <Text style={muted}>
-              Pour toute question, contactez votre interlocuteur Axessio
+              Pour toute question, contactez votre interlocuteur {brandName}{" "}
               habituel.
             </Text>
           </Section>
 
           <Section style={footer}>
             <Text style={footerText}>
-              Axessio — Plateforme d&apos;audits d&apos;accessibilité
+              {brandName}
+              {branding.tagline ? ` — ${branding.tagline}` : ""}
             </Text>
           </Section>
         </Container>
@@ -111,6 +136,12 @@ const container: React.CSSProperties = {
 const headerSection: React.CSSProperties = {
   textAlign: "center",
   paddingBottom: "24px",
+};
+
+const logoImg: React.CSSProperties = {
+  margin: "0 auto",
+  maxHeight: "40px",
+  objectFit: "contain",
 };
 
 const brand: React.CSSProperties = {

@@ -6,6 +6,13 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { orgHasFeature } from "@/lib/billing/server";
+import { PLANS, planHasFeature, type PlanCode } from "@/lib/billing/plans";
+import {
+  AXESSIO_DEFAULT_OUTPUT_BRANDING,
+  sanitizeHexColor,
+  sanitizeLogoUrl,
+  type OutputBranding,
+} from "./output";
 import type { OrgBranding } from "@/types/domain";
 
 interface BrandingRow {
@@ -57,6 +64,57 @@ export async function getOrgBrandingById(
     .eq("id", organizationId)
     .maybeSingle();
   return fromRow(data as BrandingRow | null);
+}
+
+/**
+ * Résout le branding d'une org pour les sorties hors-session (emails, PDF,
+ * cron). Contrairement à `getCurrentOrgBranding`, ne dépend PAS de
+ * `current_org()` : on passe l'org cible explicitement et on lit son plan via
+ * `subscriptions` (la feature `branding.custom` gate l'application).
+ *
+ * Renvoie TOUJOURS un objet valide : si l'org n'a pas la feature, ou si une
+ * valeur manque, on retombe sur les défauts Axessio. Le caller n'a donc jamais
+ * à gérer le cas null.
+ */
+export async function resolveOutputBranding(
+  organizationId: string | null | undefined,
+): Promise<OutputBranding> {
+  if (!organizationId) return AXESSIO_DEFAULT_OUTPUT_BRANDING;
+
+  const admin = createAdminClient();
+
+  // 1) Le plan de l'org doit inclure `branding.custom`.
+  const { data: sub } = await admin
+    .from("subscriptions")
+    .select("plan_code")
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  const planCode: PlanCode =
+    sub?.plan_code && (sub.plan_code as string) in PLANS
+      ? (sub.plan_code as PlanCode)
+      : "free";
+  if (!planHasFeature(planCode, "branding.custom")) {
+    return AXESSIO_DEFAULT_OUTPUT_BRANDING;
+  }
+
+  // 2) Lecture du nom + colonnes branding.
+  const { data: org } = await admin
+    .from("organizations")
+    .select("name, logo_url, primary_color, support_email")
+    .eq("id", organizationId)
+    .maybeSingle();
+  if (!org) return AXESSIO_DEFAULT_OUTPUT_BRANDING;
+
+  const brandName = (org.name as string | null)?.trim() || "Axessio";
+  return {
+    brandName,
+    logoUrl: sanitizeLogoUrl(org.logo_url as string | null),
+    primaryColor: sanitizeHexColor(org.primary_color as string | null),
+    // Pas de tagline Axessio sur une marque cliente (white-label).
+    tagline: null,
+    supportEmail: (org.support_email as string | null)?.trim() || null,
+    isCustom: true,
+  };
 }
 
 interface UpdateInput {

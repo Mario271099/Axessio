@@ -6,11 +6,16 @@ import {
   Heading,
   Hr,
   Html,
+  Img,
   Preview,
   Section,
   Text,
 } from "@react-email/components";
 import { USER_ROLE_LABELS } from "@/lib/constants";
+import {
+  AXESSIO_DEFAULT_OUTPUT_BRANDING,
+  type OutputBranding,
+} from "@/lib/branding/output";
 import type { UserRole } from "@/types/domain";
 
 export interface InvitationEmailProps {
@@ -19,6 +24,7 @@ export interface InvitationEmailProps {
   role: UserRole;
   clientName: string | null;
   invitationUrl: string;
+  branding?: OutputBranding;
 }
 
 export function InvitationEmail({
@@ -27,35 +33,48 @@ export function InvitationEmail({
   role,
   clientName,
   invitationUrl,
+  branding = AXESSIO_DEFAULT_OUTPUT_BRANDING,
 }: InvitationEmailProps) {
   const roleLabel = USER_ROLE_LABELS[role];
   const greeting = recipientName.trim()
     ? `Bonjour ${recipientName},`
     : "Bonjour,";
+  const brandName = branding.brandName;
 
   return (
     <Html lang="fr">
       <Head />
-      <Preview>Vous avez été invité·e à rejoindre Axessio</Preview>
+      <Preview>Vous avez été invité·e à rejoindre {brandName}</Preview>
       <Body style={body}>
         <Container style={container}>
           <Section style={headerSection}>
-            <Heading style={brand}>Axessio</Heading>
-            <Text style={subBrand}>
-              Plateforme d&apos;audits d&apos;accessibilité numérique
-            </Text>
+            {branding.logoUrl ? (
+              <Img
+                src={branding.logoUrl}
+                alt={brandName}
+                height={40}
+                style={logoImg}
+              />
+            ) : (
+              <Heading style={{ ...brand, color: branding.primaryColor }}>
+                {brandName}
+              </Heading>
+            )}
+            {branding.tagline ? (
+              <Text style={subBrand}>{branding.tagline}</Text>
+            ) : null}
           </Section>
 
           <Section style={card}>
             <Heading as="h2" style={h2}>
-              Bienvenue sur Axessio
+              Bienvenue sur {brandName}
             </Heading>
 
             <Text style={paragraph}>{greeting}</Text>
 
             <Text style={paragraph}>
-              <strong>{inviterName}</strong> vous invite à rejoindre Axessio en
-              tant que <strong>{roleLabel}</strong>
+              <strong>{inviterName}</strong> vous invite à rejoindre {brandName}{" "}
+              en tant que <strong>{roleLabel}</strong>
               {clientName ? (
                 <>
                   {" "}
@@ -71,7 +90,10 @@ export function InvitationEmail({
             </Text>
 
             <Section style={ctaSection}>
-              <Button href={invitationUrl} style={ctaButton}>
+              <Button
+                href={invitationUrl}
+                style={{ ...ctaButton, backgroundColor: branding.primaryColor }}
+              >
                 Accepter l&apos;invitation
               </Button>
             </Section>
@@ -80,7 +102,9 @@ export function InvitationEmail({
               Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre
               navigateur :
             </Text>
-            <Text style={linkFallback}>{invitationUrl}</Text>
+            <Text style={{ ...linkFallback, color: branding.primaryColor }}>
+              {invitationUrl}
+            </Text>
 
             <Hr style={hr} />
 
@@ -92,7 +116,8 @@ export function InvitationEmail({
 
           <Section style={footer}>
             <Text style={footerText}>
-              Axessio — Plateforme d&apos;audits d&apos;accessibilité
+              {brandName}
+              {branding.tagline ? ` — ${branding.tagline}` : ""}
             </Text>
           </Section>
         </Container>
@@ -120,6 +145,12 @@ const container: React.CSSProperties = {
 const headerSection: React.CSSProperties = {
   textAlign: "center",
   paddingBottom: "24px",
+};
+
+const logoImg: React.CSSProperties = {
+  margin: "0 auto",
+  maxHeight: "40px",
+  objectFit: "contain",
 };
 
 const brand: React.CSSProperties = {

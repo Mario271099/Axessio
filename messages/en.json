@@ -65,7 +65,8 @@
         "pricing": "Pricing",
         "legal": "Legal notice",
         "privacy": "Privacy",
-        "cookies": "Cookies"
+        "cookies": "Cookies",
+        "accessibility": "Accessibility"
       }
     },
     "faq": {
@@ -83,6 +84,58 @@
           "a": "Yes. Every PDF report can be generated in French or English, with labels, badges and metadata in the target language."
         }
       ]
+    }
+  },
+  "accessibility": {
+    "metaTitle": "Accessibility statement",
+    "metaDescription": "Axessio accessibility statement: RGAA conformity status, non-accessible content, contact and remedies.",
+    "title": "Accessibility statement",
+    "lastUpdated": "Issued on {date}",
+    "intro": "Axessio is committed to making its platform accessible in accordance with Article 47 of French law no. 2005-102 of 11 February 2005. This accessibility statement applies to the Axessio platform (web application).",
+    "sections": {
+      "state": {
+        "title": "Conformity status",
+        "lines": [
+          "The Axessio platform is not yet compliant with the French General Accessibility Improvement Framework (RGAA), version 4.1, as no conformity audit has been completed to date.",
+          "A full RGAA audit is planned; this statement will be updated with the conformity rate and detailed results once it is carried out."
+        ]
+      },
+      "results": {
+        "title": "Test results",
+        "lines": [
+          "The RGAA 4.1 conformity audit has not yet been performed. The overall conformity rate (criteria met / applicable criteria) will be published here once the audit is complete.",
+          "In the meantime, accessibility is considered from the design stage: semantic HTML structure, ARIA attributes, associated form labels, keyboard navigation and contrast."
+        ]
+      },
+      "nonAccessible": {
+        "title": "Non-accessible content",
+        "lines": [
+          "The content listed below is not accessible for the following reasons: possible non-conformities to be confirmed during the audit, disproportionate-burden exemptions, and third-party content beyond our control.",
+          "This section will be completed with the precise list of non-conformities identified during the RGAA audit."
+        ]
+      },
+      "establishment": {
+        "title": "Preparation of this statement",
+        "lines": [
+          "This statement was prepared on {date}.",
+          "It is based on a self-assessment carried out internally by the Axessio team. An assessment by an external provider is planned."
+        ]
+      },
+      "feedback": {
+        "title": "Feedback and contact",
+        "lines": [
+          "If you are unable to access a piece of content or a service on the platform, you can contact us to be directed to an accessible alternative or to obtain the content in another form.",
+          "Email address: accessibilite@axessio.app.",
+          "We aim to respond within 5 working days."
+        ]
+      },
+      "remedy": {
+        "title": "Remedies",
+        "lines": [
+          "If you notice an accessibility defect preventing you from accessing content or a feature, you report it to us, and you do not obtain a response, you are entitled to refer the matter to the Defender of Rights (Défenseur des droits).",
+          "Several options are available: the online form at https://formulaire.defenseurdesdroits.fr, the list of regional delegates with their contact details at https://www.defenseurdesdroits.fr/saisir/delegues, or by post (free, no stamp): Défenseur des droits, Libre réponse 71120, 75342 Paris CEDEX 07."
+        ]
+      }
     }
   },
   "legal": {
@@ -374,6 +427,8 @@
     "invalidColorFormat": "Invalid color. Use a #RRGGBB hex code.",
     "invalidDomainFormat": "Invalid domain.",
     "invalidUrl": "Invalid URL. It must start with http(s)://.",
+    "webhookUrlNotHttps": "The webhook URL must use https://.",
+    "webhookUrlPrivate": "This URL points to an internal host or private IP. Use a public address reachable from the Internet.",
     "workspaceNameRequired": "Workspace name is required.",
     "invalidSlug": "Invalid slug. Use lowercase letters, digits and hyphens.",
     "noEventSelected": "Select at least one event to forward.",
@@ -1604,6 +1659,12 @@
         "retry": "Retry",
         "errorBannerTitle": "Save failed",
         "dismiss": "Dismiss"
+      },
+      "recovery": {
+        "title": "Unsaved changes detected",
+        "description": "{count, plural, one {# change was not saved} other {# changes were not saved}} during your last session. Do you want to restore it?",
+        "restore": "Restore changes",
+        "dismiss": "Discard"
       },
       "sidebar": {
         "aria": "Audit pages",

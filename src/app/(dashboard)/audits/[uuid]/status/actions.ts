@@ -181,6 +181,8 @@ export async function transitionAuditStatus(
               auditId,
               projectName: (project?.name as string | null) ?? "—",
               clientName: (client.name as string | null) ?? "—",
+              // 1 client legacy = 1 organization (id préservé, backfill mig. 43)
+              organizationId: (client.id as string | null) ?? null,
             }).catch((err) => {
               console.error("[transitionAuditStatus] delivered email:", err);
             });

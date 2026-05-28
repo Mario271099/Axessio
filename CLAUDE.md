@@ -182,6 +182,21 @@ L'autorisation finale = AND des 4 axes via le pipeline `authorize()` (auth → t
 - Une seule fonction `current_org()` ; un seul claim/cookie source.
 - Migrations toujours idempotentes (`IF NOT EXISTS`, `DROP ... IF EXISTS`).
 
+### Précédence des autorisations
+
+Deux systèmes coexistent. **Pour toute nouvelle logique, la permission d'organisation prime ; `profiles.role` est legacy.**
+
+1. **Source de vérité (nouveau code multi-tenant)** : permission atomique d'organisation.
+   - UI : `canOrg(perms, "code")` (perms chargées via `loadMyOrgPermissions()`).
+   - Server action : `await requireOrgPermission("code")` en tête d'action.
+   - SQL/RLS : `has_org_permission('code')` / `has_org_permission_on('code', org_id)`.
+2. **Legacy (à ne PAS étendre)** : `profiles.role` (`admin`/`auditor`/`client_admin`/`client`) via `canEditAudit()`, `canEditNC()`, `is_auditor()`, etc.
+   - Encore actif car les policies WRITE (audits/pages/NC) tournent toujours dessus — la bascule se fait par étapes pour éviter une coupure de service.
+   - **Règle** : ne jamais introduire un nouveau check basé sur `role`. Si tu touches une action déjà gardée par `role`, c'est l'occasion de la migrer vers `requireOrgPermission()` (avec un test qui prouve qu'un membre sans la permission est refusé).
+   - `Profile.role` côté TS porte un rappel de cette précédence dans sa JSDoc (`src/types/domain.ts`). Pas de tag `@deprecated` brut : le champ sert aussi au rendu UI légitime (badge de rôle, bannière d'impersonation), un strike-through global serait trompeur.
+
+Reste à migrer (backlog, ~37 occurrences) : grep `profile.role ===` et `can*(profile.role)` dans `src/app/**/actions.ts`. Cibler en priorité `audits/actions.ts`, `audits/[uuid]/matrix/actions.ts`, `audits/[uuid]/anomalies/[ncId]/actions.ts`.
+
 ## Roadmap produit (anciennes phases — historique)
 
 - [x] Auth + Dashboard + Multi-tenant + RLS (legacy)

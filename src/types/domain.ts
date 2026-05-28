@@ -92,13 +92,21 @@ export interface Profile {
   firstName: string;
   lastName: string;
   /**
-   * Rôle **effectif** — éventuellement remplacé par le rôle d'impersonation
-   * (View as). C'est le rôle que l'UI doit utiliser pour les checks de
-   * permission et le rendu conditionnel.
+   * Rôle **plateforme effectif** — éventuellement remplacé par le rôle
+   * d'impersonation (View as). C'est le rôle que l'UI doit utiliser pour le
+   * rendu conditionnel.
    *
    * Pour TOUTE vérification côté serveur (server actions, RLS), il faut au
    * contraire utiliser le rôle réel issu de `profiles.role`. Le module
    * `lib/server-permissions.ts` y veille déjà.
+   *
+   * ⚠️ Précédence d'autorisation (cf. CLAUDE.md § "Précédence des
+   * autorisations") : pour toute NOUVELLE logique multi-tenant, la source de
+   * vérité est la permission d'organisation (`canOrg()` /
+   * `requireOrgPermission()` / `has_org_permission()` côté SQL), PAS ce champ.
+   * `role` reste le mécanisme legacy qui gate encore les writes plateforme
+   * (audits/pages/NC), conservé tant que la bascule par étape n'est pas
+   * terminée. Ne pas inliner de nouveau check `role === "..."`.
    */
   role: UserRole;
   /** Rôle réel en base — utile pour afficher la bannière "Vous voyez en tant que". */

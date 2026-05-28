@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { orgHasFeature } from "@/lib/billing/server";
+import { resolveOutputBranding } from "@/lib/branding/server";
 import { generatePDF, DEFAULT_FOOTER_TEMPLATE } from "@/lib/pdf";
 import {
   renderReportHTML,
@@ -247,8 +248,12 @@ export async function GET(req: Request, { params }: RouteParams) {
     (profile.email as string | null) ||
     "—";
 
+  // Branding white-label : 1 client legacy = 1 organization (id préservé).
+  const branding = await resolveOutputBranding(client.id as string | null);
+
   const reportData: ReportData = {
     generatedAt: new Date().toISOString(),
+    branding,
     auditor: {
       name: auditorName,
       role: profile.role as "admin" | "auditor" | "client_admin" | "client",

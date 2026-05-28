@@ -1,0 +1,52 @@
+# Déclencheur externe du dispatcher de webhooks sortants.
+#
+# Contexte : le plan Vercel Hobby interdit les crons sous-quotidiens, donc on
+# ne peut plus planifier /api/cron/webhook-dispatch toutes les 2 min via
+# vercel.json. En attendant un passage au plan Pro (ou une bascule pg_cron
+# côté Supabase), on ping l'endpoint depuis GitHub Actions.
+#
+# Limite connue : les crons GitHub Actions sont "best-effort" — l'intervalle
+# réel est ~5-15 min, pas garanti à la minute. Acceptable temporairement pour
+# des webhooks (le back-off et les retries côté dispatcher absorbent le délai).
+#
+# Setup unique (Settings > Secrets and variables > Actions) :
+#   - WEBHOOK_DISPATCH_URL : URL complète de l'endpoint en prod,
+#       ex. https://axessio.vercel.app/api/cron/webhook-dispatch
+#   - CRON_SECRET          : même valeur que la variable d'env Vercel CRON_SECRET
+
+name: Webhook dispatch
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {} # permet un déclenchement manuel depuis l'onglet Actions
+
+# Évite que deux runs se chevauchent si l'un traîne.
+concurrency:
+  group: webhook-dispatch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping webhook dispatcher
+        env:
+          DISPATCH_URL: ${{ secrets.WEBHOOK_DISPATCH_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$DISPATCH_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::error::Secrets WEBHOOK_DISPATCH_URL et/ou CRON_SECRET manquants."
+            exit 1
+          fi
+          code=$(curl -sS -m 60 -o /tmp/body -w "%{http_code}" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$DISPATCH_URL")
+          echo "HTTP $code"
+          cat /tmp/body || true
+          echo ""
+          if [ "$code" != "200" ]; then
+            echo "::error::Le dispatcher a répondu HTTP $code (attendu 200)."
+            exit 1
+          fi

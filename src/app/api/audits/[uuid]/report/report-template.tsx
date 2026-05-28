@@ -4,6 +4,10 @@ import {
   getConformityLevel,
 } from "@/lib/score";
 import { NC_SEVERITY_ORDER } from "@/lib/constants";
+import {
+  AXESSIO_DEFAULT_OUTPUT_BRANDING,
+  type OutputBranding,
+} from "@/lib/branding/output";
 import type {
   AuditStatus,
   ConformityStatus,
@@ -25,6 +29,8 @@ export type ReportLocale = "fr" | "en";
 
 export interface ReportData {
   generatedAt: string;
+  /** Branding de sortie (org white-label ou défauts Axessio). */
+  branding: OutputBranding;
   auditor: {
     name: string;
     role: UserRole;
@@ -602,6 +608,11 @@ const PRINT_CSS = `
     letter-spacing: -0.03em;
     color: ${COLORS.text};
   }
+  .cover .brand .logo-img {
+    max-height: 18mm;
+    max-width: 70mm;
+    object-fit: contain;
+  }
   .cover .brand .tagline {
     margin-top: 4px;
     font-size: 11pt;
@@ -1122,12 +1133,19 @@ const PRINT_CSS = `
 // Page de garde
 // ============================================================================
 function renderCover(data: ReportData, locale: ReportLocale, d: Dict): string {
-  const { audit, project, client, reference, auditor, generatedAt } = data;
+  const { audit, project, client, reference, auditor, generatedAt, branding } =
+    data;
+  // Logo custom (image) si fourni, sinon wordmark texte au nom de la marque.
+  const brandMark = branding.logoUrl
+    ? `<img class="logo-img" src="${esc(branding.logoUrl)}" alt="${esc(branding.brandName)}" />`
+    : `<p class="logo">${esc(branding.brandName)}</p>`;
+  // Tagline : celle de la marque si custom, sinon la tagline i18n du rapport.
+  const tagline = branding.tagline ?? d.coverTagline;
   return `
     <header class="cover" role="banner">
       <div class="brand">
-        <p class="logo">Axessio</p>
-        <p class="tagline">${esc(d.coverTagline)}</p>
+        ${brandMark}
+        <p class="tagline">${esc(tagline)}</p>
       </div>
 
       <div class="hero">
@@ -1820,16 +1838,16 @@ export function renderReportHTML(
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${esc(title)}</title>
     <meta name="description" content="${esc(subject)}" />
-    <meta name="author" content="Axessio" />
+    <meta name="author" content="${esc(data.branding.brandName)}" />
     <meta name="keywords" content="${esc(keywords)}" />
 
     <meta name="dc.title" content="${esc(title)}" />
-    <meta name="dc.creator" content="Axessio" />
+    <meta name="dc.creator" content="${esc(data.branding.brandName)}" />
     <meta name="dc.subject" content="${esc(subject)}" />
     <meta name="dc.description" content="${esc(description)}" />
     <meta name="dc.language" content="${esc(htmlLang)}" />
     <meta name="dc.date" content="${esc(data.generatedAt)}" />
-    <meta name="dc.publisher" content="Axessio" />
+    <meta name="dc.publisher" content="${esc(data.branding.brandName)}" />
     <meta name="dcterms.created" content="${esc(data.generatedAt)}" />
 
     <style>${PRINT_CSS}</style>

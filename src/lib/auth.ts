@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   readImpersonationCookie,
   resolveEffectiveRole,
@@ -84,6 +85,29 @@ export async function requireProfile(): Promise<Profile> {
 
     if (insertError || !created) {
       throw new Error("Profil utilisateur introuvable et impossible à créer.");
+    }
+
+    // Observabilité : un profil créé à la volée = un user qui a obtenu une
+    // session Supabase Auth sans passer par le flow d'invitation (signup
+    // public, magic link). On le trace pour détecter les états incohérents
+    // (role=client sans client_id). Le console.warn sera capté par Sentry une
+    // fois branché (cf. roadmap S1.5).
+    console.warn(
+      `[requireProfile] profil auto-créé id=${user.id} email=${user.email ?? "?"} (role=client, client_id=null)`,
+    );
+    try {
+      // audit_logs a RLS (SELECT only) : l'insert doit passer par la
+      // service-role pour ne pas être refusé. Best-effort — on ne bloque
+      // jamais l'authentification sur un échec de log.
+      const admin = createAdminClient();
+      await admin.from("audit_logs").insert({
+        actor_id: user.id,
+        actor_role: "client",
+        action: "profile.auto_created",
+        payload: { email: user.email ?? null, source: "requireProfile" },
+      });
+    } catch {
+      // swallow : la trace est best-effort.
     }
 
     return await mapProfile(created);

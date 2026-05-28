@@ -41,8 +41,6 @@ import type {
 } from "@/types/domain";
 
 export interface MatrixConformity {
-  id: string;
-  auditId: string;
   pageId: string;
   criteriaId: string;
   status: ConformityStatus;
@@ -62,6 +60,10 @@ interface Props {
 
 const conformityKey = (pageId: string, criteriaId: string) =>
   `${pageId}:${criteriaId}`;
+
+// Sentinelle pour encoder une suppression en attente dans le diff localStorage
+// (clé présente dans pendingChanges mais absente de conformityMap).
+const DELETED_SENTINEL = "__deleted__";
 
 export function ConformityMatrixLayout({
   auditId,
@@ -107,6 +109,14 @@ export function ConformityMatrixLayout({
     "idle" | "saving" | "saved" | "error"
   >("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Persistance localStorage : protège la saisie si le réseau tombe ou si
+  // l'onglet est fermé avant le flush. Clé par audit — localStorage est déjà
+  // cloisonné par profil OS/navigateur. Une entrée = diff non sauvegardé.
+  const storageKey = `axessio:matrix:${auditId}`;
+  const [recoverable, setRecoverable] = useState<{
+    diff: Record<string, string>;
+  } | null>(null);
 
   const updateLocal = useCallback(
     (pageId: string, criteriaId: string, status: ConformityStatus | null) => {
@@ -203,6 +213,86 @@ export function ConformityMatrixLayout({
       void flushPendingRef.current();
     };
   }, []);
+
+  // Au montage : si un diff non sauvegardé existe pour cet audit, on propose
+  // de le reprendre (sans l'appliquer automatiquement — l'auditeur décide).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { diff?: Record<string, string> };
+      if (parsed?.diff && Object.keys(parsed.diff).length > 0) {
+        setRecoverable({ diff: parsed.diff });
+      }
+    } catch {
+      // entrée corrompue : on l'ignore.
+    }
+    // Volontairement [] : lecture unique au montage. storageKey est stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persiste le diff en attente à chaque changement. On saute le tout premier
+  // run (montage) pour ne pas écraser une éventuelle session récupérable avant
+  // que l'effet de lecture ci-dessus ne l'ait captée.
+  const persistFirstRunRef = useRef(true);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (persistFirstRunRef.current) {
+      persistFirstRunRef.current = false;
+      return;
+    }
+    if (pendingChanges.size === 0) {
+      window.localStorage.removeItem(storageKey);
+      return;
+    }
+    const diff: Record<string, string> = {};
+    for (const key of pendingChanges) {
+      diff[key] = conformityMap.get(key) ?? DELETED_SENTINEL;
+    }
+    try {
+      window.localStorage.setItem(
+        storageKey,
+        JSON.stringify({ savedAt: Date.now(), diff }),
+      );
+    } catch {
+      // quota plein / mode privé : best-effort, on ignore.
+    }
+  }, [pendingChanges, conformityMap, storageKey]);
+
+  const applyRecovery = useCallback(() => {
+    if (!recoverable) return;
+    const keys = Object.keys(recoverable.diff);
+    // Mémorise la valeur serveur courante pour un rollback correct en cas
+    // d'échec de flush ultérieur.
+    for (const key of keys) {
+      if (!previousValuesRef.current.has(key)) {
+        previousValuesRef.current.set(key, conformityMap.get(key) ?? null);
+      }
+    }
+    setConformityMap((prev) => {
+      const next = new Map(prev);
+      for (const [key, val] of Object.entries(recoverable.diff)) {
+        if (val === DELETED_SENTINEL) next.delete(key);
+        else next.set(key, val as ConformityStatus);
+      }
+      return next;
+    });
+    setPendingChanges((prev) => {
+      const next = new Set(prev);
+      for (const key of keys) next.add(key);
+      return next;
+    });
+    setSaveStatus("idle");
+    setRecoverable(null);
+  }, [recoverable, conformityMap]);
+
+  const dismissRecovery = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(storageKey);
+    }
+    setRecoverable(null);
+  }, [storageKey]);
 
   const handleBulkThematic = useCallback(
     async (thematicId: string, status: ConformityStatus) => {
@@ -408,6 +498,50 @@ export function ConformityMatrixLayout({
           </Card>
         </div>
       </div>
+
+      {/* Bannière de reprise : une saisie non sauvegardée a été retrouvée. */}
+      {recoverable && (
+        <div
+          role="alert"
+          className="border-b border-warning/40 bg-warning/10 px-4 py-3 md:px-8"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex min-w-0 items-start gap-2 text-sm">
+              <RotateCcw
+                className="mt-0.5 h-4 w-4 shrink-0 text-warning"
+                aria-hidden="true"
+              />
+              <div className="min-w-0">
+                <p className="font-semibold">{t("recovery.title")}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("recovery.description", {
+                    count: Object.keys(recoverable.diff).length,
+                  })}
+                </p>
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                onClick={applyRecovery}
+                className="gap-1.5"
+              >
+                <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                {t("recovery.restore")}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={dismissRecovery}
+              >
+                {t("recovery.dismiss")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Layout matrix --------------------------------------------------- */}
       <div className="flex flex-1 flex-col lg:flex-row">

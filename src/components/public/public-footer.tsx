@@ -78,6 +78,14 @@ export function PublicFooter() {
                 {t("footer.links.cookies")}
               </Link>
             </li>
+            <li>
+              <Link
+                href="/accessibility"
+                className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {t("footer.links.accessibility")}
+              </Link>
+            </li>
           </ul>
         </nav>
 

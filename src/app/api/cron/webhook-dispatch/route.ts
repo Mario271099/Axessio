@@ -5,6 +5,7 @@ import {
   nextAttemptDelaySec,
   signWebhookPayload,
 } from "@/lib/webhooks/server";
+import { assertPublicUrl } from "@/lib/webhooks/ssrf";
 
 // Cron de dispatch des webhooks sortants. Tourne fréquemment (every minute)
 // pour rester réactif. À chaque tick :
@@ -128,38 +129,56 @@ export async function GET(req: Request) {
     let responseExcerpt = "";
     let errorMessage: string | null = null;
 
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-      const response = await fetch(endpoint.url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "User-Agent": "Axessio-Webhooks/1.0",
-          "X-Axessio-Event": delivery.event_type,
-          "X-Axessio-Delivery": delivery.id,
-          "X-Axessio-Signature": signature,
-        },
-        body: rawBody,
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
-      httpStatus = response.status;
-      // On lit un extrait court pour le debug, on ne stocke pas la réponse
-      // intégrale (le serveur abonné peut renvoyer du contenu volumineux).
-      responseExcerpt = (await response.text()).slice(0, 1024);
-    } catch (err) {
-      errorMessage =
-        err instanceof Error ? err.message : "Network error";
+    // Recheck SSRF juste avant l'envoi : un endpoint validé à la création peut
+    // depuis avoir migré son DNS vers une IP privée (DNS rebinding). On bloque
+    // ici aussi pour fermer la fenêtre.
+    const ssrf = await assertPublicUrl(endpoint.url);
+    if (!ssrf.ok) {
+      errorMessage = `SSRF blocked: ${ssrf.reason} (${ssrf.detail})`;
+    } else {
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+        const response = await fetch(endpoint.url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "User-Agent": "Axessio-Webhooks/1.0",
+            "X-Axessio-Event": delivery.event_type,
+            "X-Axessio-Delivery": delivery.id,
+            "X-Axessio-Signature": signature,
+          },
+          body: rawBody,
+          signal: controller.signal,
+          // Pas de follow : un endpoint public ne doit pas pouvoir rediriger
+          // vers une cible privée. Toute 3xx sera comptée comme failure ci-dessous.
+          redirect: "manual",
+        });
+        clearTimeout(timer);
+        httpStatus = response.status;
+        // On lit un extrait court pour le debug, on ne stocke pas la réponse
+        // intégrale (le serveur abonné peut renvoyer du contenu volumineux).
+        responseExcerpt = (await response.text()).slice(0, 1024);
+      } catch (err) {
+        errorMessage =
+          err instanceof Error ? err.message : "Network error";
+      }
     }
 
     const isSuccess =
       typeof httpStatus === "number" && httpStatus >= 200 && httpStatus < 300;
+    // 3xx : avec redirect=manual, fetch renvoie le statut sans suivre.
+    // On le traite comme une erreur permanente (endpoint mal configuré).
+    const isRedirect =
+      typeof httpStatus === "number" && httpStatus >= 300 && httpStatus < 400;
     const isPermanentFailure =
-      typeof httpStatus === "number" &&
-      httpStatus >= 400 &&
-      httpStatus < 500 &&
-      httpStatus !== 429;
+      isRedirect ||
+      (typeof httpStatus === "number" &&
+        httpStatus >= 400 &&
+        httpStatus < 500 &&
+        httpStatus !== 429) ||
+      // SSRF block = échec permanent : l'URL ne sera jamais valide.
+      (!ssrf.ok);
 
     let nextStatus: "success" | "retry" | "failed";
     let nextAttemptAt: string | null = null;

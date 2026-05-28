@@ -57,6 +57,7 @@ export async function updateSession(request: NextRequest) {
     "/legal",
     "/privacy",
     "/cookies",
+    "/accessibility",
   ]);
   const isPublicRoute =
     PUBLIC_PATHS.has(pathname) ||

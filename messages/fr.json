@@ -65,7 +65,8 @@
         "pricing": "Tarifs",
         "legal": "Mentions légales",
         "privacy": "Confidentialité",
-        "cookies": "Cookies"
+        "cookies": "Cookies",
+        "accessibility": "Accessibilité"
       }
     },
     "faq": {
@@ -83,6 +84,58 @@
           "a": "Oui. Chaque rapport PDF se génère au choix en français ou en anglais, avec libellés, badges et métadonnées dans la langue cible."
         }
       ]
+    }
+  },
+  "accessibility": {
+    "metaTitle": "Déclaration d'accessibilité",
+    "metaDescription": "Déclaration d'accessibilité d'Axessio : état de conformité RGAA, contenus non accessibles, contact et voies de recours.",
+    "title": "Déclaration d'accessibilité",
+    "lastUpdated": "Établie le {date}",
+    "intro": "Axessio s'engage à rendre sa plateforme accessible conformément à l'article 47 de la loi n° 2005-102 du 11 février 2005. Cette déclaration d'accessibilité s'applique à la plateforme Axessio (application web).",
+    "sections": {
+      "state": {
+        "title": "État de conformité",
+        "lines": [
+          "La plateforme Axessio n'est pas encore conforme au Référentiel général d'amélioration de l'accessibilité (RGAA), version 4.1, faute d'audit de conformité finalisé à ce jour.",
+          "Un audit RGAA complet est planifié ; cette déclaration sera mise à jour avec le taux de conformité et les résultats détaillés dès sa réalisation."
+        ]
+      },
+      "results": {
+        "title": "Résultats des tests",
+        "lines": [
+          "L'audit de conformité au RGAA 4.1 n'a pas encore été réalisé. Le taux de conformité global (nombre de critères respectés / nombre de critères applicables) sera publié ici à l'issue de l'audit.",
+          "Dans l'intervalle, l'accessibilité est prise en compte dès la conception : structure sémantique HTML, attributs ARIA, libellés de formulaire associés, navigation au clavier et contrastes."
+        ]
+      },
+      "nonAccessible": {
+        "title": "Contenus non accessibles",
+        "lines": [
+          "Les contenus listés ci-après ne sont pas accessibles pour les raisons suivantes : non-conformités éventuelles à confirmer lors de l'audit, dérogations pour charge disproportionnée et contenus de tiers non maîtrisés.",
+          "Cette section sera complétée par la liste précise des non-conformités identifiées lors de l'audit RGAA."
+        ]
+      },
+      "establishment": {
+        "title": "Établissement de cette déclaration",
+        "lines": [
+          "Cette déclaration a été établie le {date}.",
+          "Elle s'appuie sur l'auto-évaluation menée en interne par l'équipe Axessio. Une évaluation par un prestataire externe est prévue."
+        ]
+      },
+      "feedback": {
+        "title": "Retour d'information et contact",
+        "lines": [
+          "Si vous n'arrivez pas à accéder à un contenu ou à un service de la plateforme, vous pouvez nous contacter pour être orienté·e vers une alternative accessible ou obtenir le contenu sous une autre forme.",
+          "Adresse email : accessibilite@axessio.app.",
+          "Nous nous efforçons de répondre dans un délai de 5 jours ouvrés."
+        ]
+      },
+      "remedy": {
+        "title": "Voies de recours",
+        "lines": [
+          "Si vous constatez un défaut d'accessibilité vous empêchant d'accéder à un contenu ou à une fonctionnalité, que vous nous le signalez et que vous ne parvenez pas à obtenir une réponse, vous êtes en droit de saisir le Défenseur des droits.",
+          "Plusieurs moyens sont à votre disposition : le formulaire en ligne sur https://formulaire.defenseurdesdroits.fr, la liste des délégués de votre région avec leurs coordonnées sur https://www.defenseurdesdroits.fr/saisir/delegues, ou par courrier (gratuit, sans timbre) : Défenseur des droits, Libre réponse 71120, 75342 Paris CEDEX 07."
+        ]
+      }
     }
   },
   "legal": {
@@ -374,6 +427,8 @@
     "invalidColorFormat": "Couleur invalide. Utilisez un code hexadécimal #RRGGBB.",
     "invalidDomainFormat": "Domaine invalide.",
     "invalidUrl": "URL invalide. Elle doit commencer par http(s)://.",
+    "webhookUrlNotHttps": "L'URL du webhook doit utiliser https://.",
+    "webhookUrlPrivate": "Cette URL pointe vers un hôte interne ou une IP privée. Utilisez une adresse publique accessible depuis Internet.",
     "workspaceNameRequired": "Le nom du workspace est requis.",
     "invalidSlug": "Slug invalide. Utilisez des lettres minuscules, chiffres et tirets.",
     "noEventSelected": "Sélectionnez au moins un événement à transmettre.",
@@ -1604,6 +1659,12 @@
         "retry": "Réessayer",
         "errorBannerTitle": "Sauvegarde impossible",
         "dismiss": "Masquer"
+      },
+      "recovery": {
+        "title": "Saisie non sauvegardée détectée",
+        "description": "{count, plural, one {# modification n'avait pas été enregistrée} other {# modifications n'avaient pas été enregistrées}} lors de votre dernière session. Voulez-vous la reprendre ?",
+        "restore": "Reprendre la saisie",
+        "dismiss": "Ignorer"
       },
       "sidebar": {
         "aria": "Pages de l'audit",

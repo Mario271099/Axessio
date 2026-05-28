@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/login", "/legal", "/privacy", "/cookies"],
+        allow: ["/", "/login", "/legal", "/privacy", "/cookies", "/accessibility"],
         // Tout ce qui est derrière auth est explicitement exclu pour ne pas
         // gaspiller le crawl-budget des moteurs et éviter d'indexer du
         // contenu utilisateur (qui de toute façon retournerait 401/redirect).

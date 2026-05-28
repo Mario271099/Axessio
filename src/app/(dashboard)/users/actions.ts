@@ -12,6 +12,7 @@ import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import { canManageUsers } from "@/lib/permissions";
 import { PLANS, planLimit, type PlanCode } from "@/lib/billing/plans";
 import { countMembersInOrg } from "@/lib/billing/usage";
+import { resolveOutputBranding } from "@/lib/branding/server";
 import { AXESSIO_INTERNAL_ORG_ID, type UserRole } from "@/types/domain";
 
 // Plafonds : 30 invitations / heure et 10 renvois / heure par auditeur.
@@ -96,9 +97,12 @@ async function sendInvitationEmail(params: {
   role: UserRole;
   clientName: string | null;
   invitationUrl: string;
+  /** Org cible de l'invitation, pour résoudre le branding white-label. */
+  organizationId?: string | null;
 }) {
   const tErrors = await getTranslations("errors");
   const tEmails = await getTranslations("emails");
+  const branding = await resolveOutputBranding(params.organizationId);
   const html = await render(
     InvitationEmail({
       recipientName: params.recipientName,
@@ -106,6 +110,7 @@ async function sendInvitationEmail(params: {
       role: params.role,
       clientName: params.clientName,
       invitationUrl: params.invitationUrl,
+      branding,
     }),
   );
 
@@ -114,6 +119,7 @@ async function sendInvitationEmail(params: {
     to: params.to,
     subject: tEmails("invitationSubject"),
     html,
+    ...(branding.supportEmail ? { replyTo: branding.supportEmail } : {}),
   });
 
   if (error) {
@@ -258,6 +264,7 @@ export async function inviteUser(
     role,
     clientName,
     invitationUrl,
+    organizationId: targetOrgId,
   });
   if (sendError) {
     return {
@@ -423,6 +430,7 @@ export async function resendInvitation(
     role,
     clientName,
     invitationUrl: linkData.properties.action_link,
+    organizationId: clientId ?? AXESSIO_INTERNAL_ORG_ID,
   });
   if (sendError) return { error: sendError };
 

@@ -9,6 +9,7 @@ import {
   WEBHOOK_EVENTS,
   type WebhookEventType,
 } from "@/lib/webhooks/server";
+import { assertPublicUrl } from "@/lib/webhooks/ssrf";
 
 export interface WebhookActionResult {
   error: string | null;
@@ -57,7 +58,14 @@ export async function createWebhookEndpoint(
   const description = (formData.get("description") as string | null)?.trim() ?? "";
   const eventsRaw = formData.getAll("events").map(String);
 
-  if (!/^https?:\/\//i.test(url)) return { error: t("invalidUrl") };
+  // Garde anti-SSRF : on rejette toute URL non-https, hôte interne, ou qui
+  // résout (DNS) vers une IP privée. Le dispatcher refera le check à chaque
+  // envoi pour contrer le DNS rebinding.
+  const ssrf = await assertPublicUrl(url);
+  if (!ssrf.ok) {
+    const key = ssrf.reason === "non_https" ? "webhookUrlNotHttps" : "webhookUrlPrivate";
+    return { error: t(key) };
+  }
 
   const events: WebhookEventType[] = eventsRaw.filter((e): e is WebhookEventType =>
     (WEBHOOK_EVENTS as readonly string[]).includes(e),

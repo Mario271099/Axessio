@@ -8,6 +8,7 @@
 import { render } from "@react-email/components";
 import { resend, FROM_EMAIL } from "@/lib/resend";
 import { AuditDeliveredEmail } from "@/emails/audit-delivered-email";
+import { resolveOutputBranding } from "@/lib/branding/server";
 
 // URL absolue vers une page audit. Utilisée dans les emails pour que le
 // destinataire ouvre l'app dans son navigateur (pas un lien relatif qui ne
@@ -31,14 +32,18 @@ export async function sendAuditDeliveredEmail(params: {
   auditId: string;
   projectName: string;
   clientName: string;
+  /** Org du client (= clients.id par backfill) pour résoudre le branding. */
+  organizationId?: string | null;
 }): Promise<string | null> {
   const auditUrl = buildAuditUrl(params.auditId);
+  const branding = await resolveOutputBranding(params.organizationId);
   const html = await render(
     AuditDeliveredEmail({
       recipientName: params.recipientName,
       projectName: params.projectName,
       clientName: params.clientName,
       auditUrl,
+      branding,
     }),
   );
 
@@ -47,6 +52,7 @@ export async function sendAuditDeliveredEmail(params: {
     to: params.to,
     subject: `Rapport d'audit livré — ${params.projectName}`,
     html,
+    ...(branding.supportEmail ? { replyTo: branding.supportEmail } : {}),
   });
 
   return error?.message ?? null;
