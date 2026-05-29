@@ -8,12 +8,20 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import { extractBearerToken, hashApiToken, type ApiScope } from "./server";
+
+// Quota par token : 100 requêtes / minute. Compteur global (Redis via S1.3)
+// → la limite tient même réparti sur plusieurs lambdas.
+export const API_RATE_LIMIT = 100;
+const API_RATE_WINDOW_MS = 60_000;
 
 export interface ApiTokenContext {
   tokenId: string;
   organizationId: string;
   scopes: ApiScope[];
+  /** État du quota au moment de l'authentification (pour les headers RateLimit-*). */
+  rateLimit: { limit: number; remaining: number; resetSeconds: number };
 }
 
 export interface ApiAuthSuccess {
@@ -43,6 +51,38 @@ function forbidden(message: string): ApiAuthFailure {
   return {
     ok: false,
     response: NextResponse.json({ error: message }, { status: 403 }),
+  };
+}
+
+function tooManyRequests(resetSeconds: number): ApiAuthFailure {
+  return {
+    ok: false,
+    response: NextResponse.json(
+      { error: "Rate limit exceeded" },
+      {
+        status: 429,
+        headers: {
+          "RateLimit-Limit": String(API_RATE_LIMIT),
+          "RateLimit-Remaining": "0",
+          "RateLimit-Reset": String(resetSeconds),
+          "Retry-After": String(resetSeconds),
+        },
+      },
+    ),
+  };
+}
+
+/**
+ * Headers RateLimit-* (IETF draft) à attacher aux réponses de succès d'un
+ * endpoint API, à partir du contexte d'authentification.
+ */
+export function apiRateLimitHeaders(
+  ctx: ApiTokenContext,
+): Record<string, string> {
+  return {
+    "RateLimit-Limit": String(ctx.rateLimit.limit),
+    "RateLimit-Remaining": String(ctx.rateLimit.remaining),
+    "RateLimit-Reset": String(ctx.rateLimit.resetSeconds),
   };
 }
 
@@ -76,6 +116,16 @@ export async function authenticateApi(req: Request): Promise<ApiAuthResult> {
     scopes: string[];
   };
 
+  // Quota par token (après validation, avant tout traitement métier).
+  const rl = await rateLimit(
+    `apitoken:${row.token_id}`,
+    API_RATE_LIMIT,
+    API_RATE_WINDOW_MS,
+  );
+  if (!rl.ok) {
+    return tooManyRequests(retryAfterSeconds(rl.resetMs));
+  }
+
   // Bump usage sans bloquer la réponse (fire-and-forget).
   void admin.rpc("touch_api_token", { p_token_id: row.token_id });
 
@@ -85,6 +135,11 @@ export async function authenticateApi(req: Request): Promise<ApiAuthResult> {
       tokenId: row.token_id,
       organizationId: row.organization_id,
       scopes: (row.scopes ?? []) as ApiScope[],
+      rateLimit: {
+        limit: API_RATE_LIMIT,
+        remaining: rl.remaining,
+        resetSeconds: retryAfterSeconds(rl.resetMs),
+      },
     },
   };
 }

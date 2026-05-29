@@ -11,7 +11,11 @@
 // scopée à ctx.organizationId.
 
 import { NextResponse } from "next/server";
-import { authenticateApi, requireScope } from "@/lib/api-tokens/auth";
+import {
+  authenticateApi,
+  requireScope,
+  apiRateLimitHeaders,
+} from "@/lib/api-tokens/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -53,9 +57,14 @@ export async function GET(req: Request) {
     query = query.lt("created_at", cursor);
   }
 
+  const headers = apiRateLimitHeaders(auth.ctx);
+
   const { data, error } = await query;
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500, headers },
+    );
   }
 
   const rows = data ?? [];
@@ -63,12 +72,15 @@ export async function GET(req: Request) {
   const slice = hasMore ? rows.slice(0, limit) : rows;
   const nextCursor = hasMore ? slice[slice.length - 1]?.created_at : null;
 
-  return NextResponse.json({
-    data: slice,
-    pagination: {
-      limit,
-      has_more: hasMore,
-      next_cursor: nextCursor,
+  return NextResponse.json(
+    {
+      data: slice,
+      pagination: {
+        limit,
+        has_more: hasMore,
+        next_cursor: nextCursor,
+      },
     },
-  });
+    { headers },
+  );
 }
