@@ -854,7 +854,8 @@
       "references": "Standards",
       "settings": "Settings",
       "permissions": "Permissions",
-      "organizations": "Organizations"
+      "organizations": "Organizations",
+      "adminOverview": "Platform view"
     },
     "user": {
       "profile": "My profile",
@@ -989,6 +990,46 @@
       "noClient": "No client",
       "unknownProject": "Unknown project",
       "updatedOn": "Updated on {date}"
+    }
+  },
+  "admin": {
+    "overview": {
+      "metaTitle": "Platform dashboard",
+      "title": "Platform dashboard",
+      "subtitle": "Overview of Axessio activity: users, organizations, audits and subscriptions.",
+      "kpi": {
+        "users": "Users",
+        "usersNote": "{active} active",
+        "organizations": "Organizations",
+        "audits": "Audits",
+        "nonConformities": "Non-conformities"
+      },
+      "subscriptions": {
+        "title": "Subscriptions by plan",
+        "plan": "Plan",
+        "count": "Organizations",
+        "none": "No subscription recorded."
+      },
+      "auditsByStatus": {
+        "title": "Audits by status"
+      },
+      "lookup": {
+        "title": "Look up a user",
+        "desc": "Find a user by email to see their organizations, roles and associated plan.",
+        "label": "User email",
+        "placeholder": "name@example.com",
+        "search": "Search",
+        "noResults": "No user found for “{query}”.",
+        "colName": "Name",
+        "colEmail": "Email",
+        "colRole": "Platform role",
+        "colOrg": "Organization",
+        "colOrgRole": "Org role",
+        "colPlan": "Plan",
+        "noOrg": "No organization",
+        "active": "Active",
+        "inactive": "Disabled"
+      }
     }
   },
   "roles": {

@@ -45,7 +45,8 @@ type IconKey =
   | "references"
   | "settings"
   | "permissions"
-  | "organizations";
+  | "organizations"
+  | "adminOverview";
 
 const ICONS = {
   dashboard: LayoutDashboard,
@@ -57,6 +58,7 @@ const ICONS = {
   settings: Settings,
   permissions: KeyRound,
   organizations: Building2,
+  adminOverview: Shield,
 } as const;
 
 type ItemKey =
@@ -68,7 +70,8 @@ type ItemKey =
   | "references"
   | "settings"
   | "permissions"
-  | "organizations";
+  | "organizations"
+  | "adminOverview";
 
 type SectionKey = "main" | "management" | "admin" | "other";
 
@@ -112,6 +115,7 @@ const SECTIONS: NavSection[] = [
   {
     sectionKey: "admin",
     items: [
+      { href: "/admin/overview", itemKey: "adminOverview", iconKey: "adminOverview", permission: "permissions.debug" },
       { href: "/users", itemKey: "users", iconKey: "users", permission: "user.manage" },
       { href: "/admin/permissions", itemKey: "permissions", iconKey: "permissions", permission: "permissions.debug" },
     ],
