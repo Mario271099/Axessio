@@ -1,11 +1,21 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type Mock,
+} from "vitest";
 import { promises as dns } from "node:dns";
 import { assertPublicUrl, isPrivateIPv4, isPrivateIPv6 } from "./ssrf";
 
 // `assertPublicUrl` fait une vraie résolution DNS via `dns.promises.lookup`.
 // On spy sur la méthode pour contrôler le retour sans réseau. Les cas
-// littéraux et de parsing fonctionnent sans DNS du tout.
-const lookupSpy = vi.spyOn(dns, "lookup");
+// littéraux et de parsing fonctionnent sans DNS du tout. Cast en `Mock` :
+// `dns.lookup` est surchargé, le type inféré du spy rend mockImplementation
+// inutilisable sans suppression — le cast simplifie sans `@ts-expect-error`.
+const lookupSpy = vi.spyOn(dns, "lookup") as unknown as Mock;
 
 beforeEach(() => {
   lookupSpy.mockReset();
@@ -234,7 +244,6 @@ describe("assertPublicUrl — IPs littérales", () => {
 describe("assertPublicUrl — DNS lookup", () => {
   it("rejette un hostname qui résout vers une IP privée", async () => {
     lookupSpy.mockImplementation(
-      // @ts-expect-error - signature overload polymorphe
       async () => [{ address: "10.0.0.5", family: 4 }],
     );
     const r = await assertPublicUrl("https://evil.example.com/hook");
@@ -244,7 +253,6 @@ describe("assertPublicUrl — DNS lookup", () => {
 
   it("rejette si UNE des IPs résolues est privée (multi-record)", async () => {
     lookupSpy.mockImplementation(
-      // @ts-expect-error - overload polymorphe
       async () => [
         { address: "1.2.3.4", family: 4 },
         { address: "192.168.1.1", family: 4 },
@@ -258,7 +266,6 @@ describe("assertPublicUrl — DNS lookup", () => {
 
   it("rejette un hostname qui résout vers une IPv6 ULA", async () => {
     lookupSpy.mockImplementation(
-      // @ts-expect-error - overload polymorphe
       async () => [{ address: "fc00::1", family: 6 }],
     );
     const r = await assertPublicUrl("https://v6.example.com/hook");
@@ -268,7 +275,6 @@ describe("assertPublicUrl — DNS lookup", () => {
 
   it("accepte un hostname public", async () => {
     lookupSpy.mockImplementation(
-      // @ts-expect-error - overload polymorphe
       async () => [
         { address: "1.1.1.1", family: 4 },
         { address: "2606:4700:4700::1111", family: 6 },
@@ -284,7 +290,6 @@ describe("assertPublicUrl — DNS lookup", () => {
 
   it("rejette si DNS échoue (NXDOMAIN)", async () => {
     lookupSpy.mockImplementation(
-      // @ts-expect-error - overload polymorphe
       async () => {
         throw new Error("ENOTFOUND");
       },
@@ -296,7 +301,6 @@ describe("assertPublicUrl — DNS lookup", () => {
 
   it("rejette si DNS retourne 0 adresse", async () => {
     lookupSpy.mockImplementation(
-      // @ts-expect-error - overload polymorphe
       async () => [],
     );
     const r = await assertPublicUrl("https://empty.example.com/hook");

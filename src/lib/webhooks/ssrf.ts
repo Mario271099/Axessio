@@ -18,7 +18,7 @@
 //      un endpoint public de rediriger vers une cible privée.
 
 import "server-only";
-import { promises as dns } from "node:dns";
+import { promises as dns, type LookupAddress } from "node:dns";
 import net from "node:net";
 
 // ============================================================================
@@ -75,8 +75,9 @@ export function isPrivateIPv4(ip: string): boolean {
 // ============================================================================
 
 function ipv6ToBytes(ip: string): Uint8Array {
-  // Strip zone identifier (fe80::1%eth0) avant parsing.
-  const clean = ip.split("%")[0];
+  // Strip zone identifier (fe80::1%eth0) avant parsing. split renvoie toujours
+  // au moins un élément, mais noUncheckedIndexedAccess l'ignore → fallback.
+  const clean = ip.split("%")[0] ?? ip;
 
   // Split sur "::" : au plus une fois (raccourci d'élision).
   const dcParts = clean.split("::");
@@ -92,17 +93,19 @@ function ipv6ToBytes(ip: string): Uint8Array {
 
   // Embedded IPv4 (ex: ::ffff:1.2.3.4) — convertit le dernier groupe en 2 hex.
   const lastList = tail ?? head;
-  if (lastList.length > 0 && lastList[lastList.length - 1].includes(".")) {
-    const v4 = lastList.pop() as string;
-    const v4parts = v4.split(".").map(Number);
+  const lastItem = lastList[lastList.length - 1];
+  if (lastItem !== undefined && lastItem.includes(".")) {
+    lastList.pop();
+    const v4parts = lastItem.split(".").map(Number);
     if (
       v4parts.length !== 4 ||
       v4parts.some((n) => !Number.isInteger(n) || n < 0 || n > 255)
     ) {
       throw new Error(`Invalid embedded IPv4 in ${ip}`);
     }
-    lastList.push(((v4parts[0] << 8) | v4parts[1]).toString(16));
-    lastList.push(((v4parts[2] << 8) | v4parts[3]).toString(16));
+    const [a = 0, b = 0, c = 0, d = 0] = v4parts;
+    lastList.push(((a << 8) | b).toString(16));
+    lastList.push(((c << 8) | d).toString(16));
   }
 
   let parts: string[];
@@ -120,8 +123,8 @@ function ipv6ToBytes(ip: string): Uint8Array {
   const bytes = new Uint8Array(16);
   for (let i = 0; i < 8; i++) {
     const group = parts[i];
-    if (!/^[0-9a-fA-F]{1,4}$/.test(group)) {
-      throw new Error(`Invalid IPv6 group "${group}" in ${ip}`);
+    if (group === undefined || !/^[0-9a-fA-F]{1,4}$/.test(group)) {
+      throw new Error(`Invalid IPv6 group in ${ip}`);
     }
     const v = parseInt(group, 16);
     bytes[i * 2] = (v >> 8) & 0xff;
@@ -180,10 +183,10 @@ export function isPrivateIPv6(ip: string): boolean {
   if (b[0] === 0x20 && b[1] === 0x01 && b[2] === 0x0d && b[3] === 0xb8) return true;
 
   // fc00::/7 — ULA (unique local addresses)
-  if ((b[0] & 0xfe) === 0xfc) return true;
+  if (((b[0] ?? 0) & 0xfe) === 0xfc) return true;
 
   // fe80::/10 — link-local
-  if (b[0] === 0xfe && (b[1] & 0xc0) === 0x80) return true;
+  if (b[0] === 0xfe && ((b[1] ?? 0) & 0xc0) === 0x80) return true;
 
   // ff00::/8 — multicast
   if (b[0] === 0xff) return true;
@@ -307,7 +310,7 @@ export async function assertPublicUrl(rawUrl: string): Promise<SsrfCheckResult> 
 
   // 6) Résolution DNS — tous les A/AAAA. `verbatim: true` pour éviter le
   // tri qui pourrait masquer une mauvaise IP en fin de liste.
-  let addresses: dns.LookupAddress[];
+  let addresses: LookupAddress[];
   try {
     addresses = await dns.lookup(host, { all: true, verbatim: true });
   } catch (err) {

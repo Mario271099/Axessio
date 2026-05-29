@@ -6,7 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe, isStripeReady } from "@/lib/billing/stripe";
-import { PLANS, type PlanCode } from "@/lib/billing/plans";
+import type { PlanCode } from "@/lib/billing/plans";
 
 export interface BillingActionResult {
   error: string | null;
@@ -167,6 +167,3 @@ export async function openCustomerPortal(
 export async function refreshBilling(slug: string): Promise<void> {
   revalidatePath(`/organizations/${slug}/billing`);
 }
-
-// Catalogue côté server component (évite l'import direct depuis page.tsx)
-export const PLAN_CATALOGUE = PLANS;
