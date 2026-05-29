@@ -1,17 +1,18 @@
 // Rate limiter à fenêtre fixe, avec deux backends :
 //
-//   - Upstash Redis (REST) si UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN
-//     sont présents → compteur GLOBAL, partagé entre toutes les lambdas Vercel.
-//     C'est le mode prod : il ferme la faille du compteur par-instance.
+//   - Redis (via REDIS_URL) si la variable est présente → compteur GLOBAL,
+//     partagé entre toutes les lambdas Vercel. C'est le mode prod : il ferme
+//     la faille du compteur par-instance. Marche avec n'importe quel provider
+//     Redis exposant une chaîne `redis://` ou `rediss://` (Redis Cloud,
+//     Vercel Redis, Upstash, etc.).
 //   - Fallback in-memory (Map JS) sinon → utile en dev local et comme filet
-//     si Upstash est momentanément indisponible. NON fiable en multi-instance
+//     si Redis est momentanément indisponible. NON fiable en multi-instance
 //     (chaque lambda a sa propre Map) mais mieux que rien.
 //
-// L'API est désormais ASYNCHRONE (`await rateLimit(...)`) : un compteur Redis
-// implique forcément un aller-retour réseau. La forme du résultat est
-// inchangée pour les appelants.
+// L'API est ASYNCHRONE (`await rateLimit(...)`) : un compteur Redis implique
+// un aller-retour réseau. La forme du résultat est inchangée pour les appelants.
 
-import { Redis } from "@upstash/redis";
+import Redis from "ioredis";
 
 type Bucket = { count: number; resetAt: number };
 
@@ -34,15 +35,35 @@ export interface RateLimitResult {
 
 // ----------------------------------------------------------------------------
 // Backend Redis (lazy singleton). `undefined` = pas encore résolu,
-// `null` = indisponible (env vars absentes) → on reste en in-memory.
+// `null` = indisponible (REDIS_URL absent) → on reste en in-memory.
+//
+// Le client est créé une seule fois et réutilisé entre les invocations chaudes
+// de la lambda (instancier ioredis ouvre une connexion TCP persistante). La
+// création est paresseuse pour ne PAS ouvrir de connexion au build (évaluation
+// des modules pendant `next build`).
 // ----------------------------------------------------------------------------
 let redisClient: Redis | null | undefined;
 
 function getRedis(): Redis | null {
   if (redisClient !== undefined) return redisClient;
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  redisClient = url && token ? new Redis({ url, token }) : null;
+  const url = process.env.REDIS_URL;
+  if (!url) {
+    redisClient = null;
+    return null;
+  }
+  const client = new Redis(url, {
+    // Bornes serverless : on échoue vite pour retomber sur l'in-memory plutôt
+    // que de faire poireauter l'utilisateur si Redis est injoignable.
+    maxRetriesPerRequest: 1,
+    connectTimeout: 5_000,
+    commandTimeout: 3_000,
+    // Stoppe les reconnexions en boucle (bruit + maintien process).
+    retryStrategy: (times) => (times > 2 ? null : Math.min(times * 200, 800)),
+  });
+  // Sans handler, une erreur de connexion ioredis remonte en "unhandled".
+  // Les appels concrets sont protégés par try/catch (fail-open in-memory).
+  client.on("error", () => {});
+  redisClient = client;
   return redisClient;
 }
 
@@ -129,9 +150,9 @@ export async function rateLimit(
   try {
     return await rateLimitRedis(redis, key, limit, windowMs);
   } catch {
-    // Upstash injoignable : on dégrade vers l'in-memory plutôt que de bloquer
-    // un utilisateur légitime (fail-open contrôlé — la limite reste appliquée
-    // au niveau de l'instance courante).
+    // Redis injoignable : on dégrade vers l'in-memory plutôt que de bloquer un
+    // utilisateur légitime (fail-open contrôlé — la limite reste appliquée au
+    // niveau de l'instance courante).
     return rateLimitInMemory(key, limit, windowMs);
   }
 }
