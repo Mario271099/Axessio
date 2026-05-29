@@ -1,7 +1,9 @@
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { orgHasFeature } from "@/lib/billing/server";
 import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
 import { AnomaliesList, type AnomalyListItem } from "./anomalies-list";
+import { ExportNcButton } from "./export-nc-button";
 
 export default async function AnomaliesPage({
   params,
@@ -52,9 +54,18 @@ export default async function AnomaliesPage({
     };
   });
 
+  // Bouton export CSV gated par la feature `export.pdf` (capacité d'export) ;
+  // masqué s'il n'y a pas de NC. L'action re-vérifie l'autorisation + la feature.
+  const canExportCsv = ncs.length > 0 && (await orgHasFeature("export.pdf"));
+
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
       <AuditTabsNav auditId={uuid} active="anomalies" />
+      {canExportCsv && (
+        <div className="flex justify-end">
+          <ExportNcButton auditId={uuid} />
+        </div>
+      )}
       <AnomaliesList ncs={ncs} auditId={uuid} role={profile.role} />
     </div>
   );

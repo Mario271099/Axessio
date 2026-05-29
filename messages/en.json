@@ -1727,6 +1727,7 @@
       "title": "Non-conformities",
       "subtitle": "{count, plural, =0 {No non-conformity in this audit} one {# non-conformity in this audit} other {# non-conformities in this audit}}",
       "newNC": "New NC",
+      "exportCsv": "Export CSV",
       "kpi": {
         "total": "Total",
         "toFix": "To fix",
