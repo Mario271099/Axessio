@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { orgHasFeature } from "@/lib/billing/server";
 import { resolveOutputBranding } from "@/lib/branding/server";
+import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import { generatePDF, DEFAULT_FOOTER_TEMPLATE } from "@/lib/pdf";
 import {
   renderReportHTML,
@@ -136,6 +137,26 @@ export async function GET(req: Request, { params }: RouteParams) {
 
   if (!isAuthorized) {
     return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
+  }
+
+  // ------------------------------------------------------------------
+  // 3.bis Anti-DoS : le rendu PDF lance Chromium (Puppeteer), ~512 Mo et
+  // 10-30 s par job. Sans garde, un utilisateur peut déclencher des dizaines
+  // de jobs en parallèle (boucle curl) et saturer les invocations + la
+  // facture. On limite par utilisateur ET par organisation, AVANT le
+  // chargement des données et le lancement de Chromium.
+  // ------------------------------------------------------------------
+  const perUser = await rateLimit(`pdf:${user.id}`, 5, 5 * 60_000);
+  const perOrg = await rateLimit(`pdf:org:${client.id}`, 20, 60 * 60_000);
+  const limited = !perUser.ok ? perUser : !perOrg.ok ? perOrg : null;
+  if (limited) {
+    const retryAfter = retryAfterSeconds(limited.resetMs);
+    return NextResponse.json(
+      {
+        error: `Trop de générations de PDF. Réessayez dans ${retryAfter} s.`,
+      },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } },
+    );
   }
 
   // ------------------------------------------------------------------

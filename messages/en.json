@@ -909,7 +909,8 @@
       "errors": {
         "missing": "Email and password are required.",
         "sessionFailed": "Session could not be created. Check your Supabase configuration.",
-        "signIn": "Error: {message}"
+        "signIn": "Error: {message}",
+        "rateLimited": "Too many login attempts. Try again in {seconds}s."
       }
     },
     "setupPassword": {

@@ -30,12 +30,39 @@ export function LoginForm() {
       return;
     }
 
+    // Garde anti-brute-force serveur AVANT le sign-in. Si l'endpoint est
+    // injoignable (réseau, déploiement), on ne bloque pas une connexion
+    // légitime : on laisse passer (fail-open côté UX).
+    try {
+      const guard = await fetch("/api/auth/login-attempt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (guard.status === 429) {
+        const data = (await guard.json().catch(() => ({}))) as {
+          retryAfter?: number;
+        };
+        setError(t("errors.rateLimited", { seconds: data.retryAfter ?? 60 }));
+        setPending(false);
+        return;
+      }
+    } catch {
+      // endpoint indisponible → on continue sans bloquer.
+    }
+
     const supabase = createClient();
 
     const { data, error: signInError } =
       await supabase.auth.signInWithPassword({ email, password });
 
     if (signInError) {
+      // Trace l'échec côté serveur (fire-and-forget, sans bloquer l'UI).
+      void fetch("/api/auth/login-failed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      }).catch(() => {});
       setError(t("errors.signIn", { message: signInError.message }));
       setPending(false);
       return;

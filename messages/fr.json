@@ -909,7 +909,8 @@
       "errors": {
         "missing": "Email et mot de passe requis.",
         "sessionFailed": "La session n'a pas pu être créée. Vérifie tes paramètres Supabase.",
-        "signIn": "Erreur : {message}"
+        "signIn": "Erreur : {message}",
+        "rateLimited": "Trop de tentatives de connexion. Réessayez dans {seconds} s."
       }
     },
     "setupPassword": {
