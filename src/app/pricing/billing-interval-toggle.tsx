@@ -21,7 +21,7 @@ interface Props {
 
 export function BillingIntervalToggle({ yearlySavingsPercent }: Props) {
   const t = useTranslations("pricing");
-  const tFeatures = useTranslations("organizations.branding.features");
+  const tFeatures = useTranslations("organizations.billing.features");
   const [interval, setInterval] = useState<"monthly" | "yearly">("yearly");
 
   return (
