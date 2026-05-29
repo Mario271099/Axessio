@@ -135,7 +135,6 @@ async function handleCheckoutCompleted(
 async function handleSubscriptionChanged(
   sub: Stripe.Subscription,
 ): Promise<void> {
-  const planCode = sub.metadata?.plan_code ?? null;
   const customerId = typeof sub.customer === "string" ? sub.customer : null;
   if (!customerId) return;
 
@@ -150,10 +149,17 @@ async function handleSubscriptionChanged(
     .maybeSingle();
   if (!row) return;
 
+  // Plan effectif : on le dérive du price ID de l'abonnement (source de vérité
+  // côté Stripe). Indispensable pour les changements de plan via le Customer
+  // Portal, où la metadata `plan_code` reste celle du checkout initial.
+  // Fallbacks : metadata, puis plan actuel en base.
+  const derived = await planCodeFromPrice(admin, sub);
+  const planCode = derived ?? sub.metadata?.plan_code ?? row.plan_code;
+
   await admin
     .from("subscriptions")
     .update({
-      plan_code: planCode ?? row.plan_code,
+      plan_code: planCode,
       status: sub.status,
       billing_interval: deriveInterval(sub),
       current_period_start: secondsToIso(periodStart(sub)),
@@ -162,6 +168,25 @@ async function handleSubscriptionChanged(
       stripe_subscription_id: sub.id,
     })
     .eq("organization_id", row.organization_id);
+}
+
+// Retrouve le code de plan correspondant au price de l'abonnement, en
+// interrogeant subscription_plans (colonnes stripe_price_id_monthly/yearly).
+// Retourne null si le price n'est rattaché à aucun plan connu.
+async function planCodeFromPrice(
+  admin: ReturnType<typeof createAdminClient>,
+  sub: Stripe.Subscription,
+): Promise<string | null> {
+  const priceId = sub.items.data[0]?.price?.id;
+  if (!priceId) return null;
+  const { data } = await admin
+    .from("subscription_plans")
+    .select("code")
+    .or(
+      `stripe_price_id_monthly.eq.${priceId},stripe_price_id_yearly.eq.${priceId}`,
+    )
+    .maybeSingle();
+  return (data?.code as string | undefined) ?? null;
 }
 
 async function handleSubscriptionDeleted(

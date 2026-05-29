@@ -3,7 +3,7 @@
 Toute l'infrastructure technique est déjà en place côté code :
 
 - Client Stripe ([src/lib/billing/stripe.ts](src/lib/billing/stripe.ts)) avec `isStripeReady()` pour fail-friendly
-- Webhook signé ([src/app/api/webhooks/stripe/route.ts](src/app/api/webhooks/stripe/route.ts)) qui consomme 5 événements
+- Webhook signé ([src/app/api/webhooks/stripe/route.ts](src/app/api/webhooks/stripe/route.ts)) qui consomme 6 événements
 - Server actions `startCheckout()` / `openCustomerPortal()` ([src/app/(dashboard)/organizations/[slug]/billing/actions.ts](src/app/(dashboard)/organizations/[slug]/billing/actions.ts))
 - Table `subscription_plans` avec colonnes `stripe_product_id`, `stripe_price_id_monthly`, `stripe_price_id_yearly`
 
@@ -16,6 +16,28 @@ Tant que ces colonnes restent NULL et qu'il n'y a pas de `STRIPE_SECRET_KEY`, la
 - Compte Stripe créé sur [stripe.com](https://stripe.com)
 - Accès au projet Vercel
 - Accès SQL Editor Supabase
+
+---
+
+## 0. Chemin rapide (recommandé) — script d'automatisation
+
+Au lieu de créer les produits/prix à la main (sections 2-3-7), un script le fait
+via l'API Stripe et te sort le SQL prêt à coller :
+
+```bash
+STRIPE_SECRET_KEY=sk_test_xxx npm run stripe:setup
+```
+
+Le script (idempotent — relançable sans créer de doublons) :
+- crée les produits **Axessio Starter** / **Axessio Pro** + leurs prix mensuel/annuel ;
+- affiche les `UPDATE subscription_plans ...` à coller dans Supabase (étape 7).
+
+Il te reste alors **uniquement** : la clé/secret webhook (sections 4-5-6), le SQL
+affiché (étape 7), l'activation du Customer Portal, et le redéploiement.
+
+> Note plan Vercel : le webhook Stripe est une route API entrante classique
+> (`POST /api/webhooks/stripe`) — il **fonctionne sur le plan Hobby**. La limite
+> Hobby ne concerne que les crons sous-quotidiens, pas les webhooks entrants.
 
 ---
 
@@ -262,7 +284,7 @@ select code, stripe_price_id_monthly from subscription_plans;
 1. User clique sur le bouton "Gérer l'abonnement" qui ouvre le Customer Portal
 2. Dans le portal, il change de plan
 3. Webhook `customer.subscription.updated` met `plan_code='pro'`
-4. La metadata `plan_code` n'est PAS sur l'event Stripe par défaut — le code retrouve l'org via `stripe_customer_id` et garde le `plan_code` existant. Pour propager le nouveau plan, il faut le mapper côté code (cf. `route.ts` ligne `dispatch.handleSubscriptionChanged`).
+4. Le nouveau plan est **dérivé du price ID** de l'abonnement (`handleSubscriptionChanged` → `planCodeFromPrice`, qui interroge `subscription_plans`). La metadata `plan_code` n'étant pas mise à jour par le portal, c'est le price ID qui fait foi. **Prérequis** : les `stripe_price_id_monthly/yearly` doivent être renseignés en base (étape 7) — sinon le plan ne peut pas être dérivé et reste inchangé.
 
 ### Annulation
 1. User → Customer Portal → "Annuler l'abonnement"
