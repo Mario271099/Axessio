@@ -191,11 +191,15 @@ Deux systèmes coexistent. **Pour toute nouvelle logique, la permission d'organi
    - Server action : `await requireOrgPermission("code")` en tête d'action.
    - SQL/RLS : `has_org_permission('code')` / `has_org_permission_on('code', org_id)`.
 2. **Legacy (à ne PAS étendre)** : `profiles.role` (`admin`/`auditor`/`client_admin`/`client`) via `canEditAudit()`, `canEditNC()`, `is_auditor()`, etc.
-   - Encore actif car les policies WRITE (audits/pages/NC) tournent toujours dessus — la bascule se fait par étapes pour éviter une coupure de service.
-   - **Règle** : ne jamais introduire un nouveau check basé sur `role`. Si tu touches une action déjà gardée par `role`, c'est l'occasion de la migrer vers `requireOrgPermission()` (avec un test qui prouve qu'un membre sans la permission est refusé).
+   - Encore actif car les policies WRITE (audits/pages/NC) tournent toujours dessus.
+   - **Règle** : ne jamais introduire un nouveau check basé sur `role`.
    - `Profile.role` côté TS porte un rappel de cette précédence dans sa JSDoc (`src/types/domain.ts`). Pas de tag `@deprecated` brut : le champ sert aussi au rendu UI légitime (badge de rôle, bannière d'impersonation), un strike-through global serait trompeur.
 
-Reste à migrer (backlog, ~37 occurrences) : grep `profile.role ===` et `can*(profile.role)` dans `src/app/**/actions.ts`. Cibler en priorité `audits/actions.ts`, `audits/[uuid]/matrix/actions.ts`, `audits/[uuid]/anomalies/[ncId]/actions.ts`.
+> ⚠️ **NE PAS migrer mécaniquement les checks `profile.role` vers `requireOrgPermission()`** — c'est un piège à escalade de privilège, pas un refacto. Analyse (mai 2026) :
+> - Le backfill (migration 43) a mappé : `client` → org `member`, `client_admin` → org `admin`/`owner`.
+> - Or `ORG_PERMISSIONS[member]` contient `audit.edit`/`matrix.edit`/`nc.create`/`nc.edit`, alors que le `client` legacy ne les a PAS. Migrer les writes laisserait donc **les clients éditer audits/matrice/NC**, et les `client_admin` (org admin = toutes perms) gagneraient `user.manage`, `audit.delete`, etc.
+> - Cause racine : les perms du `client` legacy correspondent **exactement** au rôle d'org `guest`, pas `member` — le mapping du backfill est trop généreux.
+> - Décision : **statu quo** tant qu'on n'a pas tranché le modèle d'org cible. Une vraie bascule exige d'abord une migration data (re-mapper `client` → `guest` et/ou resserrer `ORG_PERMISSIONS[member]`), pas un simple find-replace.
 
 ## Roadmap produit (anciennes phases — historique)
 
