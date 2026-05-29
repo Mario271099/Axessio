@@ -138,7 +138,7 @@ export async function inviteUser(
   if (ctx.error) return { error: ctx.error };
   const t = await getTranslations("errors");
 
-  const limit = rateLimit(
+  const limit = await rateLimit(
     `inviteUser:${ctx.inviterId}`,
     INVITE_LIMIT,
     INVITE_WINDOW_MS,
@@ -351,7 +351,7 @@ export async function resendInvitation(
 
   if (!isValidUuid(userId)) return { error: t("invalidUser") };
 
-  const limit = rateLimit(
+  const limit = await rateLimit(
     `resendInvitation:${ctx.inviterId}`,
     RESEND_LIMIT,
     RESEND_WINDOW_MS,

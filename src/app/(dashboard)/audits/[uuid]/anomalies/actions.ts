@@ -52,7 +52,7 @@ async function requireAuditor(): Promise<
 async function checkBulkRateLimit(
   userId: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const limit = rateLimit(`bulkNC:${userId}`, BULK_LIMIT, BULK_WINDOW_MS);
+  const limit = await rateLimit(`bulkNC:${userId}`, BULK_LIMIT, BULK_WINDOW_MS);
   if (limit.ok) return { ok: true };
   const t = await getTranslations("errors");
   return {

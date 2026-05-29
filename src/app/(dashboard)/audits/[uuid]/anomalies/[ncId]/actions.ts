@@ -172,7 +172,7 @@ export async function sendMessage(
     return { error: t("forbidden") };
   }
 
-  const limit = rateLimit(
+  const limit = await rateLimit(
     `sendMessage:${auth.userId}`,
     MESSAGE_LIMIT,
     MESSAGE_WINDOW_MS,
