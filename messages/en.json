@@ -1462,7 +1462,12 @@
       "filterPlatformAria": "Filter by platform",
       "filterPlatformPlaceholder": "Platform",
       "filterAllPlatforms": "All platforms",
+      "filterMine": "My audits",
+      "filterMineAria": "Only show audits I'm assigned to",
       "resetFilters": "Reset",
+      "sortBy": "Sort by {column}",
+      "sortAriaAsc": "Sort ascending",
+      "sortAriaDesc": "Sort descending",
       "pagination": {
         "summary": "Audits {from}-{to} of {total}",
         "previous": "Previous",

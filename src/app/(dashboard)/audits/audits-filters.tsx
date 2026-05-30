@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { RotateCcw, Search } from "lucide-react";
+import { RotateCcw, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -36,12 +37,17 @@ interface Props {
   initialQuery: string;
   initialStatus: string;
   initialPlatform: string;
+  initialMine: boolean;
+  /** Si false, on n'affiche pas le toggle « Mes audits » (non-staff). */
+  canSeeMine: boolean;
 }
 
 export function AuditsFilters({
   initialQuery,
   initialStatus,
   initialPlatform,
+  initialMine,
+  canSeeMine,
 }: Props) {
   const t = useTranslations("audits.list");
   const tStatus = useTranslations("constants.auditStatus");
@@ -53,6 +59,7 @@ export function AuditsFilters({
   const [query, setQuery] = useState(initialQuery);
   const [status, setStatus] = useState(initialStatus || ALL);
   const [platform, setPlatform] = useState(initialPlatform || ALL);
+  const [mine, setMine] = useState(initialMine);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -89,15 +96,22 @@ export function AuditsFilters({
   }, [query, initialQuery, pushParams]);
 
   const filtersActive = useMemo(
-    () => query.trim() !== "" || status !== ALL || platform !== ALL,
-    [query, status, platform],
+    () => query.trim() !== "" || status !== ALL || platform !== ALL || mine,
+    [query, status, platform, mine],
   );
 
   const reset = () => {
     setQuery("");
     setStatus(ALL);
     setPlatform(ALL);
+    setMine(false);
     router.replace(pathname);
+  };
+
+  const toggleMine = () => {
+    const next = !mine;
+    setMine(next);
+    pushParams({ mine: next ? "1" : null });
   };
 
   return (
@@ -156,6 +170,24 @@ export function AuditsFilters({
           ))}
         </SelectContent>
       </Select>
+
+      {canSeeMine && (
+        <Button
+          type="button"
+          variant={mine ? "default" : "outline"}
+          size="sm"
+          onClick={toggleMine}
+          aria-pressed={mine}
+          aria-label={t("filterMineAria")}
+          className={cn(
+            "gap-1.5",
+            mine && "bg-primary text-primary-foreground",
+          )}
+        >
+          <User className="h-3.5 w-3.5" aria-hidden="true" />
+          {t("filterMine")}
+        </Button>
+      )}
 
       {filtersActive && (
         <Button
