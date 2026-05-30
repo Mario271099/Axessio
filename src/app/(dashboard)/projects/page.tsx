@@ -1,7 +1,9 @@
+import { FolderKanban } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export default async function ProjectsPage() {
   await requireProfile();
@@ -40,9 +42,7 @@ export default async function ProjectsPage() {
             );
           })}
           {(projects ?? []).length === 0 && (
-            <p className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
-              {t("empty")}
-            </p>
+            <EmptyState icon={FolderKanban} title={t("empty")} />
           )}
         </CardContent>
       </Card>

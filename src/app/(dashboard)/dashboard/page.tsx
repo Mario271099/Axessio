@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { AuditStatus, NCSeverity } from "@/types/domain";
 import { KpiCard } from "@/components/dashboard/kpi-card";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   StatusPie,
   type StatusBreakdown,
@@ -293,7 +294,7 @@ export default async function DashboardPage() {
         </CardHeader>
         <CardContent>
           {recentAudits.length === 0 ? (
-            <EmptyState
+            <DashboardEmpty
               title={t("recent.emptyTitle")}
               description={t("recent.emptyDesc")}
               cta={t("recent.createCta")}
@@ -389,7 +390,7 @@ function ScoreText({ score }: { score: number | null | undefined }) {
   );
 }
 
-function EmptyState({
+function DashboardEmpty({
   title,
   description,
   cta,
@@ -399,23 +400,13 @@ function EmptyState({
   cta: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border py-12 text-center">
-      <div
-        aria-hidden="true"
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
-      >
-        <ClipboardList className="h-6 w-6" />
-      </div>
-      <div className="space-y-1">
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </div>
-      <Button asChild size="sm" className="mt-2">
+    <EmptyState icon={ClipboardList} title={title} description={description}>
+      <Button asChild size="sm">
         <Link href="/audits/new">
           <Plus aria-hidden="true" className="h-4 w-4" />
           {cta}
         </Link>
       </Button>
-    </div>
+    </EmptyState>
   );
 }

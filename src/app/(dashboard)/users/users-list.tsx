@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Dialog,
   DialogContent,
@@ -300,34 +301,33 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
       <Card>
         <CardContent className="p-0">
           {filtered.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-12 text-center">
-              <div
-                aria-hidden="true"
-                className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
+            <div className="p-6">
+              <EmptyState
+                icon={Users}
+                title={
+                  users.length === 0
+                    ? t("empty.noUsers")
+                    : t("empty.noResults")
+                }
+                className="border-0"
               >
-                <Users className="h-6 w-6" />
-              </div>
-              <p className="text-sm font-medium">
-                {users.length === 0
-                  ? t("empty.noUsers")
-                  : t("empty.noResults")}
-              </p>
-              {users.length === 0 ? (
-                <Button size="sm" onClick={() => setInviteOpen(true)}>
-                  <UserPlus className="h-4 w-4" aria-hidden="true" />
-                  {t("empty.inviteFirst")}
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={resetFilters}
-                  className="gap-1.5"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-                  {tCommon("reset")}
-                </Button>
-              )}
+                {users.length === 0 ? (
+                  <Button size="sm" onClick={() => setInviteOpen(true)}>
+                    <UserPlus className="h-4 w-4" aria-hidden="true" />
+                    {t("empty.inviteFirst")}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={resetFilters}
+                    className="gap-1.5"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                    {tCommon("reset")}
+                  </Button>
+                )}
+              </EmptyState>
             </div>
           ) : (
             <div className="overflow-x-auto">

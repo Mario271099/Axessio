@@ -53,7 +53,7 @@ export function AuditTabsNav({
       aria-label={t("ariaLabel")}
       className={cn("border-b border-border", className)}
     >
-      <ul className="flex flex-wrap gap-1 overflow-x-auto">
+      <ul className="flex flex-wrap gap-1">
         {tabs.map((tab) => {
           const isActive = tab.key === active;
           return (

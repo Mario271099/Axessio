@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { ChevronRight, Plus } from "lucide-react";
+import { ChevronRight, ClipboardCheck, Plus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
 import { formatDate, formatScore } from "@/lib/utils";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
@@ -165,10 +166,29 @@ export default async function AuditsPage({ searchParams }: PageProps) {
               {error.message}
             </div>
           ) : audits.length === 0 ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">
-              {total === 0 && !query && !statusFilter && !platformFilter
-                ? t("empty")
-                : t("noResults")}
+            <div className="p-6">
+              <EmptyState
+                icon={ClipboardCheck}
+                title={
+                  total === 0 && !query && !statusFilter && !platformFilter
+                    ? t("empty")
+                    : t("noResults")
+                }
+                className="border-0"
+              >
+                {canCreateAudit &&
+                  total === 0 &&
+                  !query &&
+                  !statusFilter &&
+                  !platformFilter && (
+                    <Button asChild size="sm">
+                      <Link href="/audits/new">
+                        <Plus className="h-4 w-4" aria-hidden="true" />
+                        {t("newAudit")}
+                      </Link>
+                    </Button>
+                  )}
+              </EmptyState>
             </div>
           ) : (
             <div className="overflow-x-auto">

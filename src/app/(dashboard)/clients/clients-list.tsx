@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState as SharedEmptyState } from "@/components/ui/empty-state";
 import {
   Dialog,
   DialogContent,
@@ -178,7 +179,7 @@ export function ClientsList({ clients }: ClientsListProps) {
 
       {/* Grille ou empty ----------------------------------------------- */}
       {clients.length === 0 ? (
-        <EmptyState onCreate={() => setDialogOpen(true)} />
+        <ClientsEmpty onCreate={() => setDialogOpen(true)} />
       ) : filtered.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
@@ -323,27 +324,19 @@ function ClientCard({ client }: { client: ClientListItem }) {
   );
 }
 
-function EmptyState({ onCreate }: { onCreate: () => void }) {
+function ClientsEmpty({ onCreate }: { onCreate: () => void }) {
   const t = useTranslations("clients");
   return (
-    <Card>
-      <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
-        <div
-          aria-hidden="true"
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary"
-        >
-          <Building2 className="h-8 w-8" />
-        </div>
-        <div className="space-y-1">
-          <p className="text-base font-semibold">{t("empty.title")}</p>
-          <p className="text-sm text-muted-foreground">{t("empty.desc")}</p>
-        </div>
-        <Button onClick={onCreate} className="mt-2">
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          {t("empty.cta")}
-        </Button>
-      </CardContent>
-    </Card>
+    <SharedEmptyState
+      icon={Building2}
+      title={t("empty.title")}
+      description={t("empty.desc")}
+    >
+      <Button onClick={onCreate}>
+        <Plus className="h-4 w-4" aria-hidden="true" />
+        {t("empty.cta")}
+      </Button>
+    </SharedEmptyState>
   );
 }
 
