@@ -28,6 +28,16 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { SeverityBadge } from "@/components/audit/severity-badge";
 import {
   Accordion,
@@ -217,6 +227,9 @@ export function NCDetail({
   const tNcStatus = useTranslations("constants.ncStatus");
   const tNcSeverity = useTranslations("constants.ncSeverity");
   const tAnomalies = useTranslations("audits.anomalies");
+  const tCommon = useTranslations("common");
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
+  const [attachmentToDelete, setAttachmentToDelete] = useState<AttachmentData | null>(null);
   const locale = useLocale();
   const intl = intlLocale(locale);
   // « isAuditor » historique = peut modifier la NC (titre, sévérité, statut).
@@ -309,7 +322,7 @@ export function NCDetail({
 
   const handleDeleteMessage = async (messageId: string) => {
     if (deletingMessageId) return;
-    if (!window.confirm(t("confirmDeleteMessage"))) return;
+    setMessageToDelete(null);
     setDeletingMessageId(messageId);
     setSendError(null);
     try {
@@ -376,8 +389,7 @@ export function NCDetail({
 
   const handleDeleteAttachment = async (attachment: AttachmentData) => {
     if (deletingId) return;
-    if (!window.confirm(t("confirmDeleteCapture"))) return;
-
+    setAttachmentToDelete(null);
     setDeletingId(attachment.id);
     setUploadError(null);
     try {
@@ -878,7 +890,7 @@ export function NCDetail({
                               size="icon"
                               variant="destructive"
                               className="absolute right-1.5 top-1.5 h-7 w-7 rounded-full opacity-0 shadow transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-                              onClick={() => handleDeleteAttachment(att)}
+                              onClick={() => setAttachmentToDelete(att)}
                               disabled={isDeleting}
                               aria-label={t("deleteAria", { name: displayName })}
                             >
@@ -1071,7 +1083,7 @@ export function NCDetail({
                               <button
                                 type="button"
                                 className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-md opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 group-hover:opacity-100"
-                                onClick={() => handleDeleteMessage(m.id)}
+                                onClick={() => setMessageToDelete(m.id)}
                                 disabled={isDeleting}
                                 aria-label={t("deleteMessageAria")}
                               >
@@ -1179,6 +1191,54 @@ export function NCDetail({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Confirmation suppression message */}
+      <AlertDialog
+        open={messageToDelete !== null}
+        onOpenChange={(o) => !o && setMessageToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("confirmDeleteMessage")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                if (messageToDelete) void handleDeleteMessage(messageToDelete);
+              }}
+            >
+              {tCommon("delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Confirmation suppression capture */}
+      <AlertDialog
+        open={attachmentToDelete !== null}
+        onOpenChange={(o) => !o && setAttachmentToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("confirmDeleteCapture")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                if (attachmentToDelete) void handleDeleteAttachment(attachmentToDelete);
+              }}
+            >
+              {tCommon("delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -35,6 +35,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
 import { cn } from "@/lib/utils";
 import { intlLocale } from "@/lib/intl";
@@ -93,10 +103,13 @@ export function ClientDetail({
 }: ClientDetailProps) {
   const router = useRouter();
   const t = useTranslations("clientDetail");
+  const tCommon = useTranslations("common");
   const locale = useLocale();
   const intl = intlLocale(locale);
   const [editClientOpen, setEditClientOpen] = useState(false);
   const [createProjectOpen, setCreateProjectOpen] = useState(false);
+  const [toggleConfirmOpen, setToggleConfirmOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<ProjectItem | null>(null);
   const [editingProject, setEditingProject] = useState<ProjectItem | null>(null);
   const [toggleError, setToggleError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<{
@@ -109,11 +122,7 @@ export function ClientDetail({
 
   const handleToggleActive = () => {
     const next = !client.isActive;
-    const message = next
-      ? t("confirmReactivate", { name: client.name })
-      : t("confirmDeactivate", { name: client.name });
-    if (!window.confirm(message)) return;
-
+    setToggleConfirmOpen(false);
     setToggleError(null);
     startToggleTransition(async () => {
       const result = await toggleClientActive(client.id, next);
@@ -133,12 +142,7 @@ export function ClientDetail({
       });
       return;
     }
-    if (
-      !window.confirm(t("confirmDeleteProject", { name: project.name }))
-    ) {
-      return;
-    }
-
+    setProjectToDelete(null);
     setDeleteError(null);
     setDeletingId(project.id);
     startDeleteTransition(async () => {
@@ -207,7 +211,7 @@ export function ClientDetail({
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleToggleActive}
+            onClick={() => setToggleConfirmOpen(true)}
             disabled={isToggling}
             className={cn(
               client.isActive && "text-destructive hover:text-destructive",
@@ -488,7 +492,16 @@ export function ClientDetail({
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                      onClick={() => handleDeleteProject(project)}
+                      onClick={() => {
+                        if (project.auditCount > 0) {
+                          setDeleteError({
+                            projectId: project.id,
+                            message: t("projectHasAudits", { count: project.auditCount }),
+                          });
+                          return;
+                        }
+                        setProjectToDelete(project);
+                      }}
                       disabled={isDeleting && deletingId === project.id}
                       aria-label={t("deleteProjectAria", { name: project.name })}
                     >
@@ -532,6 +545,57 @@ export function ClientDetail({
         }}
         onSuccess={() => router.refresh()}
       />
+
+      {/* Confirmation activation/désactivation client */}
+      <AlertDialog open={toggleConfirmOpen} onOpenChange={setToggleConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {client.isActive
+                ? t("confirmDeactivate", { name: client.name })
+                : t("confirmReactivate", { name: client.name })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              variant={client.isActive ? "destructive" : "default"}
+              onClick={handleToggleActive}
+            >
+              {client.isActive ? tCommon("delete") : tCommon("save")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Confirmation suppression projet */}
+      <AlertDialog
+        open={projectToDelete !== null}
+        onOpenChange={(o) => !o && setProjectToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {projectToDelete
+                ? t("confirmDeleteProject", { name: projectToDelete.name })
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                if (projectToDelete) handleDeleteProject(projectToDelete);
+              }}
+            >
+              {tCommon("delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

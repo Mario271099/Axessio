@@ -344,6 +344,7 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
+    "confirmTitle": "Confirm action",
     "edit": "Edit",
     "back": "Back",
     "next": "Next",
@@ -864,6 +865,9 @@
       "exitImpersonation": "Exit view-as mode"
     },
     "brandHomeAria": "Axessio — back to dashboard",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "mobileNavDesc": "Application main navigation",
     "legal": {
       "label": "Legal",
       "mentions": "Legal notice",
@@ -1266,7 +1270,38 @@
     "role": "Role",
     "language": "Language",
     "languageFr": "Français",
-    "languageEn": "English"
+    "languageEn": "English",
+    "profileSection": {
+      "title": "Profile",
+      "description": "Update your identity and interface language.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "languageHint": "Applies to all labels in the application.",
+      "save": "Save",
+      "saving": "Saving…",
+      "success": "Profile updated."
+    },
+    "passwordSection": {
+      "title": "Change password",
+      "description": "For security, your current password is required before any change.",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "save": "Update",
+      "saving": "Updating…",
+      "success": "Password updated.",
+      "hintLength": "At least 8 characters."
+    },
+    "errors": {
+      "firstNameRequired": "First name is required.",
+      "lastNameRequired": "Last name is required.",
+      "invalidLanguage": "Invalid language.",
+      "currentPasswordRequired": "Current password is required.",
+      "newPasswordTooShort": "New password must be at least 8 characters.",
+      "passwordMismatch": "The two passwords do not match.",
+      "sameAsCurrent": "The new password must differ from the current one.",
+      "currentPasswordWrong": "Current password is incorrect."
+    }
   },
   "constants": {
     "auditStatus": {

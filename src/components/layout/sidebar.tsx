@@ -3,21 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import {
-  BookMarked,
-  Building2,
-  CalendarDays,
-  ChevronUp,
-  ClipboardCheck,
-  Eye,
-  KeyRound,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-  Shield,
-  Users,
-  UserCircle,
-} from "lucide-react";
+import { ChevronUp, Eye, LogOut, Settings, Shield, UserCircle } from "lucide-react";
 import { cn, initials } from "@/lib/utils";
 import { AxIcon } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
@@ -29,111 +15,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { USER_ROLE_BADGE_VARIANT, USER_ROLE_LABELS } from "@/lib/constants";
-import { can, canImpersonateAs, type Permission } from "@/lib/permissions";
+import { can, canImpersonateAs } from "@/lib/permissions";
 import { signOut } from "@/app/(auth)/actions";
 import { exitImpersonationAndRedirect } from "@/app/(dashboard)/admin/impersonation/actions";
 import { ImpersonationLauncher } from "@/components/layout/impersonation-launcher";
 import { OrgSwitcher } from "@/components/layout/org-switcher";
+import { ICONS, SECTIONS, type NavCounts } from "@/components/layout/nav-config";
 import type { Profile, UserRole } from "@/types/domain";
 
-type IconKey =
-  | "dashboard"
-  | "audits"
-  | "planning"
-  | "clients"
-  | "users"
-  | "references"
-  | "settings"
-  | "permissions"
-  | "organizations"
-  | "adminOverview";
-
-const ICONS = {
-  dashboard: LayoutDashboard,
-  audits: ClipboardCheck,
-  planning: CalendarDays,
-  clients: Building2,
-  users: Users,
-  references: BookMarked,
-  settings: Settings,
-  permissions: KeyRound,
-  organizations: Building2,
-  adminOverview: Shield,
-} as const;
-
-type ItemKey =
-  | "dashboard"
-  | "audits"
-  | "planning"
-  | "clients"
-  | "users"
-  | "references"
-  | "settings"
-  | "permissions"
-  | "organizations"
-  | "adminOverview";
-
-type SectionKey = "main" | "management" | "admin" | "other";
-
-interface NavItem {
-  href: string;
-  itemKey: ItemKey;
-  iconKey: IconKey;
-  /**
-   * Permission requise pour voir l'entrée. `null` = visible pour tous les
-   * rôles authentifiés. Le contrôle final reste côté serveur (RLS + checks
-   * dans les server actions) — la sidebar ne fait que cacher l'évident.
-   */
-  permission: Permission | null;
-  /** Clé du compteur à afficher en badge (depuis `counts`). */
-  badgeKey?: keyof NavCounts;
-}
-
-interface NavSection {
-  sectionKey: SectionKey;
-  items: NavItem[];
-}
-
-const SECTIONS: NavSection[] = [
-  {
-    sectionKey: "main",
-    items: [
-      { href: "/dashboard", itemKey: "dashboard", iconKey: "dashboard", permission: null },
-      { href: "/audits", itemKey: "audits", iconKey: "audits", permission: "audit.view", badgeKey: "inProgressAudits" },
-      // Planning : réservé au staff (admin + auditor) — ils ont audit.edit.
-      { href: "/planning", itemKey: "planning", iconKey: "planning", permission: "audit.edit" },
-    ],
-  },
-  {
-    sectionKey: "management",
-    items: [
-      // Clients/projets sont visibles aux admin + auditeurs (auditor a project.manage).
-      { href: "/clients", itemKey: "clients", iconKey: "clients", permission: "project.manage" },
-      { href: "/references", itemKey: "references", iconKey: "references", permission: "project.manage" },
-    ],
-  },
-  {
-    sectionKey: "admin",
-    items: [
-      { href: "/admin/overview", itemKey: "adminOverview", iconKey: "adminOverview", permission: "permissions.debug" },
-      { href: "/users", itemKey: "users", iconKey: "users", permission: "user.manage" },
-      { href: "/admin/permissions", itemKey: "permissions", iconKey: "permissions", permission: "permissions.debug" },
-    ],
-  },
-  {
-    sectionKey: "other",
-    items: [
-      // Page de gestion des organisations dont le user est membre.
-      // Visible à tout user authentifié — le contenu s'adapte au membership.
-      { href: "/organizations", itemKey: "organizations", iconKey: "organizations", permission: null },
-      { href: "/settings", itemKey: "settings", iconKey: "settings", permission: null },
-    ],
-  },
-];
-
-export interface NavCounts {
-  inProgressAudits: number;
-}
+export type { NavCounts };
 
 interface SidebarProps {
   profile: Profile;

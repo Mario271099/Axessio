@@ -35,6 +35,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -156,13 +166,11 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
     });
   };
 
-  const handleToggleActive = (user: UserListItem) => {
-    const next = !user.isActive;
-    const message = next
-      ? t("confirmReactivate", { email: user.email })
-      : t("confirmDeactivate", { email: user.email });
-    if (!window.confirm(message)) return;
+  const [toggleTarget, setToggleTarget] = useState<UserListItem | null>(null);
 
+  const runToggleActive = (user: UserListItem) => {
+    const next = !user.isActive;
+    setToggleTarget(null);
     setPendingId(user.id);
     startTransition(async () => {
       const result = await toggleUserActive(user.id, next);
@@ -357,7 +365,7 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
                       isPending={pendingId === user.id}
                       onEditRole={() => setEditingUser(user)}
                       onResend={() => handleResend(user)}
-                      onToggleActive={() => handleToggleActive(user)}
+                      onToggleActive={() => setToggleTarget(user)}
                     />
                   ))}
                 </tbody>
@@ -383,6 +391,36 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
         }}
         onSuccess={() => router.refresh()}
       />
+
+      {/* Confirmation activation/désactivation utilisateur */}
+      <AlertDialog
+        open={toggleTarget !== null}
+        onOpenChange={(o) => !o && setToggleTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {toggleTarget
+                ? toggleTarget.isActive
+                  ? t("confirmDeactivate", { email: toggleTarget.email })
+                  : t("confirmReactivate", { email: toggleTarget.email })
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              variant={toggleTarget?.isActive ? "destructive" : "default"}
+              onClick={() => {
+                if (toggleTarget) runToggleActive(toggleTarget);
+              }}
+            >
+              {toggleTarget?.isActive ? tCommon("delete") : tCommon("save")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -25,6 +25,16 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { SeverityBadge } from "@/components/audit/severity-badge";
 import {
   Select,
@@ -274,10 +284,11 @@ export function AnomaliesList({
     });
   };
 
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
   const handleBulkDelete = () => {
     if (ids.length === 0) return;
-    const ok = window.confirm(tBulk("deleteConfirm", { count: ids.length }));
-    if (!ok) return;
+    setDeleteOpen(false);
     setFeedback(null);
     startTransition(async () => {
       const res = await bulkDeleteNCs(auditId, ids);
@@ -548,16 +559,37 @@ export function AnomaliesList({
               </DropdownMenu>
 
               {allowBulkDelete && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleBulkDelete}
-                  disabled={isPending}
-                  className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                >
-                  <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                  {tBulk("delete")}
-                </Button>
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDeleteOpen(true)}
+                    disabled={isPending}
+                    className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    {tBulk("delete")}
+                  </Button>
+                  <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {tBulk("deleteConfirm", { count: ids.length })}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
+                        <AlertDialogAction
+                          variant="destructive"
+                          onClick={handleBulkDelete}
+                        >
+                          {tCommon("delete")}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
               )}
 
               <Button

@@ -344,6 +344,7 @@
     "save": "Enregistrer",
     "cancel": "Annuler",
     "delete": "Supprimer",
+    "confirmTitle": "Confirmer l'action",
     "edit": "Modifier",
     "back": "Retour",
     "next": "Suivant",
@@ -864,6 +865,9 @@
       "exitImpersonation": "Sortir du mode visualisation"
     },
     "brandHomeAria": "Axessio — retour au tableau de bord",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "mobileNavDesc": "Navigation principale de l'application",
     "legal": {
       "label": "Légal",
       "mentions": "Mentions légales",
@@ -1266,7 +1270,38 @@
     "role": "Rôle",
     "language": "Langue",
     "languageFr": "Français",
-    "languageEn": "English"
+    "languageEn": "English",
+    "profileSection": {
+      "title": "Profil",
+      "description": "Mets à jour ton identité et ta langue d'interface.",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "languageHint": "Affecte tous les libellés de l'application.",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "success": "Profil mis à jour."
+    },
+    "passwordSection": {
+      "title": "Changer de mot de passe",
+      "description": "Pour la sécurité, ton mot de passe actuel est exigé avant tout changement.",
+      "currentPassword": "Mot de passe actuel",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le nouveau mot de passe",
+      "save": "Mettre à jour",
+      "saving": "Mise à jour…",
+      "success": "Mot de passe mis à jour.",
+      "hintLength": "Au moins 8 caractères."
+    },
+    "errors": {
+      "firstNameRequired": "Le prénom est requis.",
+      "lastNameRequired": "Le nom est requis.",
+      "invalidLanguage": "Langue invalide.",
+      "currentPasswordRequired": "Le mot de passe actuel est requis.",
+      "newPasswordTooShort": "Le nouveau mot de passe doit faire au moins 8 caractères.",
+      "passwordMismatch": "Les deux mots de passe ne correspondent pas.",
+      "sameAsCurrent": "Le nouveau mot de passe doit être différent de l'actuel.",
+      "currentPasswordWrong": "Mot de passe actuel incorrect."
+    }
   },
   "constants": {
     "auditStatus": {

@@ -58,7 +58,12 @@ export default async function DashboardLayout({
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <ImpersonationBanner profile={profile} />
-        <Topbar profile={profile} />
+        <Topbar
+          profile={profile}
+          counts={{ inProgressAudits: inProgressCount ?? 0 }}
+          org={org}
+          brandLogoUrl={branding?.logoUrl ?? null}
+        />
 
         <main
           id="main"

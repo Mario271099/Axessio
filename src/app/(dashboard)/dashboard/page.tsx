@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { AuditStatus, NCSeverity } from "@/types/domain";
 import { KpiCard } from "@/components/dashboard/kpi-card";
-import { EvolutionChart } from "@/components/dashboard/evolution-chart";
 import {
   StatusPie,
   type StatusBreakdown,
@@ -55,7 +54,7 @@ export default async function DashboardPage() {
     recentNcRes,
     profileExtraRes,
   ] = await Promise.all([
-    // Liste des 10 audits les plus récents — couverte par idx_audits_updated_at_desc.
+    // Liste des 5 audits les plus récents — couverte par idx_audits_updated_at_desc.
     supabase
       .from("audits")
       .select(
@@ -63,7 +62,7 @@ export default async function DashboardPage() {
          project:projects(name, client:clients(name))`,
       )
       .order("updated_at", { ascending: false })
-      .limit(10),
+      .limit(5),
     // Répartition par statut via RPC — un aller-retour Postgres (filtered count).
     supabase.rpc("audits_status_breakdown"),
     // Total audits accessibles à l'utilisateur (RLS appliquée).
@@ -184,7 +183,7 @@ export default async function DashboardPage() {
     }).format(new Date(iso));
   };
 
-  const recentAudits = auditList.slice(0, 5);
+  const recentAudits = auditList;
 
   return (
     <div className="container mx-auto max-w-7xl space-y-8 p-6 md:p-8">
@@ -269,11 +268,6 @@ export default async function DashboardPage() {
           />
         </div>
       </div>
-
-      {/* ============================================================== */}
-      {/* Évolution                                                       */}
-      {/* ============================================================== */}
-      <EvolutionChart />
 
       {/* ============================================================== */}
       {/* Activité + Pie                                                  */}
