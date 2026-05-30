@@ -166,10 +166,14 @@ export async function inviteUser(
   }
   const role = roleRaw as UserRole;
 
-  if (role === "auditor" && clientId !== null) {
+  // Les rôles staff (admin/auditor) appartiennent à Axessio Internal, jamais à
+  // un client. Les rôles client (client_admin/client) doivent toujours avoir
+  // un client_id valide.
+  const isStaffRole = role === "admin" || role === "auditor";
+  if (isStaffRole && clientId !== null) {
     return { error: t("auditorNoClient") };
   }
-  if (role !== "auditor") {
+  if (!isStaffRole) {
     if (!clientId) {
       return { error: t("roleNeedsClient") };
     }
@@ -291,8 +295,10 @@ export async function updateUserRole(
   if (!isValidUuid(userId)) return { error: t("invalidUser") };
   if (!ALLOWED_ROLES.includes(newRole)) return { error: t("invalidRole") };
 
+  // Staff (admin/auditor) : pas de client_id. Sinon : client_id obligatoire.
+  const isStaffRole = newRole === "admin" || newRole === "auditor";
   let nextClientId: string | null;
-  if (newRole === "auditor") {
+  if (isStaffRole) {
     nextClientId = null;
   } else {
     if (!clientId) {

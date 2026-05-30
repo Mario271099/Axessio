@@ -254,6 +254,7 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">{t("filterAllRoles")}</SelectItem>
+              <SelectItem value="admin">{t("rolesOption.admin")}</SelectItem>
               <SelectItem value="auditor">{t("rolesOption.auditor")}</SelectItem>
               <SelectItem value="client_admin">
                 {t("rolesOption.client_admin")}
@@ -807,13 +808,16 @@ function InviteUserDialog({
               value={role}
               onValueChange={(v) => {
                 setRole(v as UserRole);
-                if (v === "auditor") setClientId("");
+                if (v === "auditor" || v === "admin") setClientId("");
               }}
             >
               <SelectTrigger id="invite-role" aria-label={t("inviteDialog.role")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="admin">
+                  {t("rolesOption.admin")}
+                </SelectItem>
                 <SelectItem value="auditor">
                   {t("rolesOption.auditor")}
                 </SelectItem>
@@ -963,7 +967,7 @@ function EditRoleDialog({
               value={role}
               onValueChange={(v) => {
                 setRole(v as UserRole);
-                if (v === "auditor") setClientId("");
+                if (v === "auditor" || v === "admin") setClientId("");
               }}
             >
               <SelectTrigger
@@ -973,6 +977,9 @@ function EditRoleDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="admin">
+                  {t("rolesOption.admin")}
+                </SelectItem>
                 <SelectItem value="auditor">
                   {t("rolesOption.auditor")}
                 </SelectItem>
