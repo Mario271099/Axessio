@@ -8,6 +8,10 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { LOCALE_COOKIE, isLocale, type Locale } from "@/i18n/config";
+import {
+  NOTIFICATION_TYPES,
+  type NotificationType,
+} from "./notification-types";
 
 export interface SettingsActionResult {
   error: string | null;
@@ -263,6 +267,68 @@ export async function deleteAvatar(): Promise<SettingsActionResult> {
 //     migration 23), donc l'historique reste lisible.
 //  5. Signe out + redirect vers /login.
 // ============================================================================
+// ============================================================================
+// Préférences de notification
+// ----------------------------------------------------------------------------
+// Les types acceptés sont ceux émis par les triggers SQL (cf. migration 63).
+// Toute écriture sur un type non listé est rejetée pour éviter d'amasser des
+// lignes orphelines au gré des renommages de types côté trigger.
+// Catalogue partagé client/serveur : voir `notification-types.ts`.
+// ============================================================================
+export async function getNotificationPreferences(): Promise<
+  Record<NotificationType, boolean>
+> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const defaults = Object.fromEntries(
+    NOTIFICATION_TYPES.map((t) => [t, true]),
+  ) as Record<NotificationType, boolean>;
+  if (!user) return defaults;
+
+  const { data } = await supabase
+    .from("notification_preferences")
+    .select("type, enabled")
+    .eq("user_id", user.id);
+
+  for (const row of data ?? []) {
+    const type = row.type as string;
+    if ((NOTIFICATION_TYPES as readonly string[]).includes(type)) {
+      defaults[type as NotificationType] = row.enabled as boolean;
+    }
+  }
+  return defaults;
+}
+
+export async function setNotificationPreference(
+  type: NotificationType,
+  enabled: boolean,
+): Promise<SettingsActionResult> {
+  const tCommon = await getTranslations("errors");
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: tCommon("notAuthenticated") };
+
+  if (!(NOTIFICATION_TYPES as readonly string[]).includes(type)) {
+    return { error: tCommon("forbidden") };
+  }
+
+  const { error } = await supabase
+    .from("notification_preferences")
+    .upsert(
+      { user_id: user.id, type, enabled, updated_at: new Date().toISOString() },
+      { onConflict: "user_id,type" },
+    );
+  if (error) return { error: error.message };
+
+  revalidatePath("/settings");
+  return { error: null, success: true };
+}
+
 export async function deleteAccount(
   formData: FormData,
 ): Promise<SettingsActionResult> {

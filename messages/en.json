@@ -1304,6 +1304,21 @@
       "errorTooLarge": "File too large (maximum 2 MB).",
       "errorBadType": "Unsupported format. Use PNG, JPEG or WebP."
     },
+    "notificationsSection": {
+      "title": "Notifications",
+      "description": "Choose which notifications you want to receive in the top-bar bell.",
+      "hint": "You can adjust these at any time. Notifications already received are not affected.",
+      "types": {
+        "nc_message": {
+          "label": "New message on a non-conformity (client thread)",
+          "description": "When someone comments on a NC you are part of."
+        },
+        "nc_review_message": {
+          "label": "New message on a non-conformity (review thread)",
+          "description": "When an auditor or proofreader posts in the internal review thread."
+        }
+      }
+    },
     "dangerZone": {
       "section": "Danger zone",
       "sectionDescription": "Irreversible actions. Use with caution.",

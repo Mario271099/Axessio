@@ -1304,6 +1304,21 @@
       "errorTooLarge": "Fichier trop volumineux (maximum 2 Mo).",
       "errorBadType": "Format non supporté. Utilise PNG, JPEG ou WebP."
     },
+    "notificationsSection": {
+      "title": "Notifications",
+      "description": "Choisis les notifications que tu veux recevoir dans la cloche du bandeau supérieur.",
+      "hint": "Tu peux ajuster ces préférences à tout moment. Les notifications déjà reçues ne sont pas affectées.",
+      "types": {
+        "nc_message": {
+          "label": "Nouveau message sur une non-conformité (fil client)",
+          "description": "Quand quelqu'un commente une NC à laquelle tu participes."
+        },
+        "nc_review_message": {
+          "label": "Nouveau message sur une non-conformité (fil review)",
+          "description": "Quand un auditeur ou relecteur ajoute un message dans le fil de relecture interne."
+        }
+      }
+    },
     "dangerZone": {
       "section": "Zone dangereuse",
       "sectionDescription": "Actions irréversibles. À utiliser avec précaution.",

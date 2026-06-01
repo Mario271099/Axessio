@@ -6,6 +6,8 @@ import { ProfileForm } from "./profile-form";
 import { PasswordForm } from "./password-form";
 import { AvatarUpload } from "./avatar-upload";
 import { DeleteAccountForm } from "./delete-account-form";
+import { NotificationPreferencesForm } from "./notification-preferences-form";
+import { getNotificationPreferences } from "./actions";
 
 function buildInitials(firstName: string, lastName: string, email: string) {
   const first = firstName?.trim()[0] ?? "";
@@ -24,6 +26,8 @@ export default async function SettingsPage() {
     profile.lastName,
     profile.email,
   );
+
+  const notificationPreferences = await getNotificationPreferences();
 
   return (
     <div className="container mx-auto max-w-3xl space-y-6 p-6 md:p-8">
@@ -86,6 +90,23 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent>
           <PasswordForm />
+        </CardContent>
+      </Card>
+
+      {/* Section Notifications ----------------------------------------- */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            {t("notificationsSection.title")}
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {t("notificationsSection.description")}
+          </p>
+        </CardHeader>
+        <CardContent>
+          <NotificationPreferencesForm
+            initialPreferences={notificationPreferences}
+          />
         </CardContent>
       </Card>
 
