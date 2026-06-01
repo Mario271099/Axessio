@@ -329,6 +329,158 @@ export async function setNotificationPreference(
   return { error: null, success: true };
 }
 
+// ============================================================================
+// MFA TOTP (Supabase Auth MFA)
+// ----------------------------------------------------------------------------
+// Flux d'activation :
+//  1. enrollMfa() crée un facteur TOTP en statut "unverified" et renvoie
+//     QR code + secret. L'UI affiche le QR pour scan dans une app
+//     authenticator (1Password, Google Authenticator, Authy, etc.).
+//  2. verifyMfaEnrollment(factorId, code) challenge + vérifie le 1er code
+//     généré par l'app. À succès, le facteur passe en "verified" et
+//     l'AAL de la session monte à 'aal2'.
+//
+// Flux de désactivation :
+//  - unenrollMfa(factorId, code) : le user doit ressaisir un code valide,
+//    on appelle challengeAndVerify (qui monte aussi l'AAL à aal2) puis
+//    on supprime le facteur.
+//
+// Annulation pendant l'enrollement :
+//  - cancelMfaEnrollment(factorId) supprime simplement un facteur encore
+//    unverified — pas besoin d'aal2 puisqu'il n'a jamais été activé.
+// ============================================================================
+export interface MfaStatus {
+  enabled: boolean;
+  factorId: string | null;
+}
+
+export interface MfaEnrollResult extends SettingsActionResult {
+  factorId?: string;
+  qrCode?: string;
+  secret?: string;
+  uri?: string;
+}
+
+export async function getMfaStatus(): Promise<MfaStatus> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.mfa.listFactors();
+  if (error || !data) return { enabled: false, factorId: null };
+  const verified = data.totp.find((f) => f.status === "verified");
+  return { enabled: !!verified, factorId: verified?.id ?? null };
+}
+
+export async function enrollMfa(): Promise<MfaEnrollResult> {
+  const tCommon = await getTranslations("errors");
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: tCommon("notAuthenticated") };
+
+  // Si un facteur unverified traîne d'un précédent essai abandonné, on le
+  // nettoie pour repartir d'un état propre (Supabase ne permet qu'un seul
+  // facteur TOTP par user).
+  const { data: factors } = await supabase.auth.mfa.listFactors();
+  if (factors) {
+    for (const f of factors.all) {
+      if (f.factor_type === "totp" && f.status === "unverified") {
+        await supabase.auth.mfa.unenroll({ factorId: f.id });
+      }
+    }
+  }
+
+  const { data, error } = await supabase.auth.mfa.enroll({
+    factorType: "totp",
+    friendlyName: `Axessio (${user.email ?? user.id})`,
+  });
+  if (error || !data) return { error: error?.message ?? tCommon("forbidden") };
+
+  return {
+    error: null,
+    success: true,
+    factorId: data.id,
+    qrCode: data.totp.qr_code,
+    secret: data.totp.secret,
+    uri: data.totp.uri,
+  };
+}
+
+export async function verifyMfaEnrollment(
+  factorId: string,
+  code: string,
+): Promise<SettingsActionResult> {
+  const t = await getTranslations("settings.errors");
+  const tCommon = await getTranslations("errors");
+  const supabase = await createClient();
+
+  const trimmed = code.replace(/\s+/g, "");
+  if (!/^\d{6}$/.test(trimmed)) {
+    return { error: t("mfaCodeInvalid") };
+  }
+  if (!factorId) return { error: tCommon("forbidden") };
+
+  const { data: challengeData, error: challengeError } =
+    await supabase.auth.mfa.challenge({ factorId });
+  if (challengeError || !challengeData) {
+    return { error: challengeError?.message ?? tCommon("forbidden") };
+  }
+
+  const { error: verifyError } = await supabase.auth.mfa.verify({
+    factorId,
+    challengeId: challengeData.id,
+    code: trimmed,
+  });
+  if (verifyError) return { error: t("mfaCodeRejected") };
+
+  revalidatePath("/settings");
+  return { error: null, success: true };
+}
+
+export async function unenrollMfa(
+  factorId: string,
+  code: string,
+): Promise<SettingsActionResult> {
+  const t = await getTranslations("settings.errors");
+  const tCommon = await getTranslations("errors");
+  const supabase = await createClient();
+
+  const trimmed = code.replace(/\s+/g, "");
+  if (!/^\d{6}$/.test(trimmed)) {
+    return { error: t("mfaCodeInvalid") };
+  }
+  if (!factorId) return { error: tCommon("forbidden") };
+
+  // challengeAndVerify bump l'AAL de la session à aal2 — requis pour pouvoir
+  // dénregistrer un facteur vérifié.
+  const { error: verifyError } = await supabase.auth.mfa.challengeAndVerify({
+    factorId,
+    code: trimmed,
+  });
+  if (verifyError) return { error: t("mfaCodeRejected") };
+
+  const { error: unenrollError } = await supabase.auth.mfa.unenroll({
+    factorId,
+  });
+  if (unenrollError) return { error: unenrollError.message };
+
+  revalidatePath("/settings");
+  return { error: null, success: true };
+}
+
+export async function cancelMfaEnrollment(
+  factorId: string,
+): Promise<SettingsActionResult> {
+  const tCommon = await getTranslations("errors");
+  const supabase = await createClient();
+  if (!factorId) return { error: tCommon("forbidden") };
+
+  const { error } = await supabase.auth.mfa.unenroll({ factorId });
+  if (error) return { error: error.message };
+
+  revalidatePath("/settings");
+  return { error: null, success: true };
+}
+
 export async function deleteAccount(
   formData: FormData,
 ): Promise<SettingsActionResult> {

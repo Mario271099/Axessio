@@ -1304,6 +1304,28 @@
       "errorTooLarge": "Fichier trop volumineux (maximum 2 Mo).",
       "errorBadType": "Format non supporté. Utilise PNG, JPEG ou WebP."
     },
+    "mfaSection": {
+      "title": "Authentification à deux facteurs",
+      "description": "Une couche de sécurité supplémentaire : à chaque connexion, on te demandera un code généré par ton app authenticator.",
+      "statusEnabled": "Activée",
+      "statusDisabled": "Désactivée",
+      "hintEnabled": "Tu utilises une app d'authentification (TOTP) en plus de ton mot de passe.",
+      "hintDisabled": "Ajoute une app d'authentification (TOTP) pour sécuriser ta connexion.",
+      "enable": "Activer",
+      "disable": "Désactiver",
+      "enrollTitle": "Configurer ton application d'authentification",
+      "enrollStep1": "Ouvre ton app authenticator (Google Authenticator, 1Password, Authy…) et choisis « Ajouter un compte ».",
+      "qrAlt": "Code QR à scanner avec ton app authenticator",
+      "secretLabel": "Si tu ne peux pas scanner, saisis ce code manuellement",
+      "copy": "Copier",
+      "copied": "Copié",
+      "codeLabel": "Code à 6 chiffres",
+      "verifyCta": "Activer le 2FA",
+      "errorEnroll": "Impossible de démarrer l'activation. Réessaie dans un instant.",
+      "disableDialogTitle": "Désactiver l'authentification à deux facteurs ?",
+      "disableDialogDescription": "Pour confirmer, saisis le code à 6 chiffres affiché dans ton app authenticator.",
+      "disableConfirm": "Désactiver"
+    },
     "notificationsSection": {
       "title": "Notifications",
       "description": "Choisis les notifications que tu veux recevoir dans la cloche du bandeau supérieur.",
@@ -1344,7 +1366,9 @@
       "avatarBadType": "Format non supporté. Utilise PNG, JPEG ou WebP.",
       "deleteAccountConfirmMismatch": "La confirmation ne correspond pas à ton adresse e-mail.",
       "deleteAccountLastAdmin": "Tu es le dernier super-administrateur actif. Promeus un autre utilisateur avant de partir.",
-      "deleteAccountOwnerOfOrgs": "Tu es propriétaire d'au moins une organisation. Transfère la propriété avant de supprimer ton compte."
+      "deleteAccountOwnerOfOrgs": "Tu es propriétaire d'au moins une organisation. Transfère la propriété avant de supprimer ton compte.",
+      "mfaCodeInvalid": "Le code doit être composé de 6 chiffres.",
+      "mfaCodeRejected": "Code refusé. Vérifie l'heure de ton téléphone et réessaie."
     }
   },
   "constants": {

@@ -7,7 +7,8 @@ import { PasswordForm } from "./password-form";
 import { AvatarUpload } from "./avatar-upload";
 import { DeleteAccountForm } from "./delete-account-form";
 import { NotificationPreferencesForm } from "./notification-preferences-form";
-import { getNotificationPreferences } from "./actions";
+import { MfaSection } from "./mfa-section";
+import { getMfaStatus, getNotificationPreferences } from "./actions";
 
 function buildInitials(firstName: string, lastName: string, email: string) {
   const first = firstName?.trim()[0] ?? "";
@@ -27,7 +28,10 @@ export default async function SettingsPage() {
     profile.email,
   );
 
-  const notificationPreferences = await getNotificationPreferences();
+  const [notificationPreferences, mfaStatus] = await Promise.all([
+    getNotificationPreferences(),
+    getMfaStatus(),
+  ]);
 
   return (
     <div className="container mx-auto max-w-3xl space-y-6 p-6 md:p-8">
@@ -90,6 +94,24 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent>
           <PasswordForm />
+        </CardContent>
+      </Card>
+
+      {/* Section 2FA ---------------------------------------------------- */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            {t("mfaSection.title")}
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {t("mfaSection.description")}
+          </p>
+        </CardHeader>
+        <CardContent>
+          <MfaSection
+            initialEnabled={mfaStatus.enabled}
+            initialFactorId={mfaStatus.factorId}
+          />
         </CardContent>
       </Card>
 
