@@ -1,26 +1,25 @@
 import Link from "next/link";
-import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  ChevronRight,
-  ClipboardCheck,
-  Plus,
-} from "lucide-react";
+import { ClipboardCheck, Plus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
-import { cn, formatDate, formatScore } from "@/lib/utils";
-import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import { canEditAudit } from "@/lib/permissions";
 import type { Metadata } from "next";
-import type { AuditStatus, PlatformType, ReferenceType } from "@/types/domain";
+import type {
+  AuditStatus,
+  PlatformType,
+  ReferenceType,
+} from "@/types/domain";
 import { AuditsFilters } from "./audits-filters";
 import { AuditsPagination } from "./audits-pagination";
+import {
+  AuditsTable,
+  type AuditTableRow,
+  type SortColumn,
+} from "./audits-table";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("audits.list");
@@ -46,7 +45,6 @@ const ALLOWED_STATUSES: ReadonlySet<AuditStatus> = new Set([
 
 const ALLOWED_PLATFORMS: ReadonlySet<PlatformType> = new Set(["WEB", "MOBILE"]);
 
-type SortColumn = "updated_at" | "status" | "final_score";
 const ALLOWED_SORT_COLUMNS: ReadonlySet<SortColumn> = new Set([
   "updated_at",
   "status",
@@ -69,7 +67,6 @@ export default async function AuditsPage({ searchParams }: PageProps) {
   const profile = await requireProfile();
   const supabase = await createClient();
   const t = await getTranslations("audits.list");
-  const tPlatform = await getTranslations("constants.platform");
 
   const sp = await searchParams;
 
@@ -177,24 +174,35 @@ export default async function AuditsPage({ searchParams }: PageProps) {
   if (sortColumn !== "updated_at") baseParams.set("sort", sortColumn);
   if (sortDir !== "desc") baseParams.set("dir", sortDir);
 
-  // Helper pour les liens d'en-tête sortable. Toggle la direction si on
-  // re-clique sur la même colonne, sinon défaut desc.
-  function buildSortHref(col: SortColumn): string {
-    const params = new URLSearchParams(baseParams);
-    const isActive = col === sortColumn;
-    const nextDir: "asc" | "desc" = isActive
-      ? sortDir === "asc"
-        ? "desc"
-        : "asc"
-      : "desc";
-    if (col === "updated_at") params.delete("sort");
-    else params.set("sort", col);
-    if (nextDir === "desc") params.delete("dir");
-    else params.set("dir", "asc");
-    params.delete("page");
-    const qs = params.toString();
-    return qs ? `/audits?${qs}` : "/audits";
-  }
+  // Aplatit les jointures Supabase (`reference` et `project.client` peuvent
+  // arriver sous forme de tableau selon le résolveur) pour passer une shape
+  // stable au client component.
+  const rows: AuditTableRow[] = audits.map((a) => {
+    const project = Array.isArray(a.project) ? a.project[0] : a.project;
+    const client = project?.client
+      ? Array.isArray(project.client)
+        ? project.client[0]
+        : project.client
+      : null;
+    const ref = Array.isArray(a.reference) ? a.reference[0] : a.reference;
+    return {
+      id: a.id as string,
+      status: a.status as AuditStatus,
+      platform: a.platform as PlatformType,
+      initial_score: a.initial_score as number | null,
+      final_score: a.final_score as number | null,
+      updated_at: a.updated_at as string,
+      reference: ref
+        ? { type: ref.type as ReferenceType, version: ref.version as string }
+        : null,
+      project: project
+        ? {
+            name: project.name as string,
+            client: client ? { name: client.name as string } : null,
+          }
+        : null,
+    };
+  });
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
@@ -262,124 +270,14 @@ export default async function AuditsPage({ searchParams }: PageProps) {
               </EmptyState>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <caption className="sr-only">{t("caption")}</caption>
-                <thead className="border-b border-border bg-muted/40">
-                  <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                    <th scope="col" className="px-4 py-2 font-medium">
-                      {t("columns.project")}
-                    </th>
-                    <th scope="col" className="px-4 py-2 font-medium">
-                      {t("columns.client")}
-                    </th>
-                    <th scope="col" className="px-4 py-2 font-medium">
-                      {t("columns.reference")}
-                    </th>
-                    <th scope="col" className="px-4 py-2 font-medium">
-                      {t("columns.platform")}
-                    </th>
-                    <th scope="col" className="px-4 py-2 font-medium">
-                      <SortHeader
-                        href={buildSortHref("status")}
-                        label={t("columns.status")}
-                        active={sortColumn === "status"}
-                        dir={sortDir}
-                        sortLabel={t("sortBy", { column: t("columns.status") })}
-                      />
-                    </th>
-                    <th scope="col" className="px-4 py-2 font-medium tabular-nums">
-                      <SortHeader
-                        href={buildSortHref("final_score")}
-                        label={t("columns.score")}
-                        active={sortColumn === "final_score"}
-                        dir={sortDir}
-                        sortLabel={t("sortBy", { column: t("columns.score") })}
-                      />
-                    </th>
-                    <th scope="col" className="px-4 py-2 font-medium">
-                      <SortHeader
-                        href={buildSortHref("updated_at")}
-                        label={t("columns.updated")}
-                        active={sortColumn === "updated_at"}
-                        dir={sortDir}
-                        sortLabel={t("sortBy", { column: t("columns.updated") })}
-                      />
-                    </th>
-                    <th scope="col" className="px-4 py-2">
-                      <span className="sr-only">{t("columns.action")}</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {audits.map((a) => {
-                    const project = Array.isArray(a.project)
-                      ? a.project[0]
-                      : a.project;
-                    const client = project?.client
-                      ? Array.isArray(project.client)
-                        ? project.client[0]
-                        : project.client
-                      : null;
-                    const ref = Array.isArray(a.reference)
-                      ? a.reference[0]
-                      : a.reference;
-                    const score = a.final_score ?? a.initial_score;
-
-                    return (
-                      <tr key={a.id} className="text-sm hover:bg-accent/30">
-                        <td className="px-4 py-3">
-                          <Link
-                            href={`/audits/${a.id}`}
-                            className="font-medium hover:underline focus-visible:outline-none focus-visible:underline"
-                          >
-                            {project?.name ?? "—"}
-                          </Link>
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground">
-                          {client?.name ?? "—"}
-                        </td>
-                        <td className="px-4 py-3">
-                          {ref ? (
-                            <span>
-                              {REFERENCE_TYPE_LABELS[ref.type as ReferenceType]}{" "}
-                              <span className="text-muted-foreground">
-                                {ref.version}
-                              </span>
-                            </span>
-                          ) : (
-                            "—"
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground">
-                          {tPlatform(a.platform as PlatformType)}
-                        </td>
-                        <td className="px-4 py-3">
-                          <AuditStatusBadge status={a.status as AuditStatus} />
-                        </td>
-                        <td className="px-4 py-3 tabular-nums">
-                          {formatScore(score)}
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground">
-                          {formatDate(a.updated_at)}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <Link
-                            href={`/audits/${a.id}`}
-                            aria-label={t("viewAudit", {
-                              name: project?.name ?? "",
-                            })}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
-                          >
-                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <AuditsTable
+              audits={rows}
+              sortColumn={sortColumn}
+              sortDir={sortDir}
+              baseParamsStr={baseParams.toString()}
+              canEditAudits={canEditAudits}
+              canDeleteAudits={profile.role === "admin"}
+            />
           )}
 
           {total > 0 && (
@@ -396,41 +294,5 @@ export default async function AuditsPage({ searchParams }: PageProps) {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// SortHeader — un <th> cliquable qui toggle la direction de tri. Rendu côté
-// serveur (pas de JS).
-// ---------------------------------------------------------------------------
-function SortHeader({
-  href,
-  label,
-  active,
-  dir,
-  sortLabel,
-}: {
-  href: string;
-  label: string;
-  active: boolean;
-  dir: "asc" | "desc";
-  sortLabel: string;
-}) {
-  const Arrow = active ? (dir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
-  return (
-    <Link
-      href={href}
-      aria-label={sortLabel}
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-md transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        active ? "text-foreground" : "text-muted-foreground",
-      )}
-    >
-      {label}
-      <Arrow
-        className={cn("h-3 w-3", active ? "opacity-100" : "opacity-40")}
-        aria-hidden="true"
-      />
-    </Link>
   );
 }

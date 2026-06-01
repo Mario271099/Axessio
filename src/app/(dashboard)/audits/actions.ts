@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { canEditAudit } from "@/lib/permissions";
+import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import { PLANS, planLimit, type PlanCode } from "@/lib/billing/plans";
 import {
   countActiveAuditsInOrg,
@@ -25,6 +26,17 @@ export interface ActionState {
   fieldErrors?: Record<string, string>;
   success?: boolean;
 }
+
+export interface BulkAuditsResult {
+  error: string | null;
+  count?: number;
+}
+
+// 30 actions bulk audits / minute. Plus restrictif que NC (60) parce qu'une
+// suppression d'audit cascade sur pages/critères/NC : volume potentiellement
+// énorme. Borne le débit côté serveur même si le client tente une boucle.
+const BULK_AUDITS_LIMIT = 30;
+const BULK_AUDITS_WINDOW_MS = 60 * 1000;
 
 // ============================================================================
 // Création d'un audit
@@ -425,4 +437,118 @@ export async function deletePage(
 
   revalidatePath(`/audits/${auditId}/sample`);
   return { error: null, success: true };
+}
+
+// ============================================================================
+// Actions en masse sur la liste des audits
+// ----------------------------------------------------------------------------
+// Authentification + rôle vérifiés à chaque action (jamais de confiance dans
+// les flags client). Le filtrage RLS reste la deuxième ligne de défense
+// (un user ne peut écrire que sur les audits qui passent ses policies).
+// ============================================================================
+async function requireBulkEditor(): Promise<
+  { ok: true; userId: string; role: UserRole } | { ok: false; error: string }
+> {
+  const supabase = await createClient();
+  const t = await getTranslations("errors");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: t("notAuthenticated") };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
+    return { ok: false, error: t("forbidden") };
+  }
+  return { ok: true, userId: user.id, role: profile.role as UserRole };
+}
+
+async function checkBulkAuditsRateLimit(
+  userId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const limit = await rateLimit(
+    `bulkAudits:${userId}`,
+    BULK_AUDITS_LIMIT,
+    BULK_AUDITS_WINDOW_MS,
+  );
+  if (limit.ok) return { ok: true };
+  const t = await getTranslations("errors");
+  return {
+    ok: false,
+    error: t("rateLimited", { seconds: retryAfterSeconds(limit.resetMs) }),
+  };
+}
+
+function validateAuditIds(
+  ids: string[],
+): { ok: true } | { ok: false; errorKey: "auditIdMissing" | "bulkNoSelection" } {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return { ok: false, errorKey: "bulkNoSelection" };
+  }
+  return { ok: true };
+}
+
+export async function bulkArchiveAudits(
+  auditIds: string[],
+): Promise<BulkAuditsResult> {
+  const auth = await requireBulkEditor();
+  if (!auth.ok) return { error: auth.error };
+
+  const rl = await checkBulkAuditsRateLimit(auth.userId);
+  if (!rl.ok) return { error: rl.error };
+
+  const t = await getTranslations("errors");
+  const guard = validateAuditIds(auditIds);
+  if (!guard.ok) return { error: t(guard.errorKey) };
+
+  const supabase = await createClient();
+  const { error, count } = await supabase
+    .from("audits")
+    .update({ status: "ARCHIVED" as AuditStatus }, { count: "exact" })
+    .in("id", auditIds);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/audits");
+  revalidatePath("/dashboard");
+  return { error: null, count: count ?? 0 };
+}
+
+export async function bulkDeleteAudits(
+  auditIds: string[],
+): Promise<BulkAuditsResult> {
+  const auth = await requireBulkEditor();
+  if (!auth.ok) return { error: auth.error };
+
+  // Suppression hard réservée au super-admin. canEditAudit() suffit pour
+  // l'archivage mais pas pour wiper la donnée — on garde un garde-fou
+  // supplémentaire ici.
+  if (auth.role !== "admin") {
+    const t = await getTranslations("errors");
+    return { error: t("forbidden") };
+  }
+
+  const rl = await checkBulkAuditsRateLimit(auth.userId);
+  if (!rl.ok) return { error: rl.error };
+
+  const t = await getTranslations("errors");
+  const guard = validateAuditIds(auditIds);
+  if (!guard.ok) return { error: t(guard.errorKey) };
+
+  const supabase = await createClient();
+  const { error, count } = await supabase
+    .from("audits")
+    .delete({ count: "exact" })
+    .in("id", auditIds);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/audits");
+  revalidatePath("/dashboard");
+  return { error: null, count: count ?? 0 };
 }
