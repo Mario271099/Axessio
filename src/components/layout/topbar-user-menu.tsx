@@ -19,19 +19,31 @@ interface Props {
   lastName: string;
   email: string;
   roleLabel: string;
+  avatarUrl: string | null;
 }
 
-export function TopbarUserMenu({ firstName, lastName, email, roleLabel }: Props) {
+export function TopbarUserMenu({
+  firstName,
+  lastName,
+  email,
+  roleLabel,
+  avatarUrl,
+}: Props) {
   const t = useTranslations("sidebar.user");
   const fullName = [firstName, lastName].filter(Boolean).join(" ").trim() || email;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="ml-1 flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-xs font-semibold text-primary transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         aria-label={fullName}
       >
-        {initials(firstName || "?", lastName || "?")}
+        {avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          initials(firstName || "?", lastName || "?")
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side="bottom" className="w-56">
         <DropdownMenuLabel className="flex flex-col">

@@ -1292,6 +1292,29 @@
       "success": "Password updated.",
       "hintLength": "At least 8 characters."
     },
+    "avatarSection": {
+      "title": "Profile picture",
+      "description": "Shown in the top bar and next to your messages. Visible to members of your organizations.",
+      "upload": "Upload a picture",
+      "replace": "Replace picture",
+      "delete": "Remove",
+      "hint": "PNG, JPEG or WebP. Maximum 2 MB.",
+      "success": "Profile picture updated.",
+      "deleteSuccess": "Profile picture removed.",
+      "errorTooLarge": "File too large (maximum 2 MB).",
+      "errorBadType": "Unsupported format. Use PNG, JPEG or WebP."
+    },
+    "dangerZone": {
+      "section": "Danger zone",
+      "sectionDescription": "Irreversible actions. Use with caution.",
+      "title": "Delete my account",
+      "description": "Your account and personal data will be permanently deleted. Audits you created remain visible but without your name attached.",
+      "trigger": "Delete my account",
+      "dialogTitle": "Permanently delete this account?",
+      "dialogDescription": "This action cannot be undone. To confirm, type your email address below.",
+      "confirmLabel": "Type '{email}' to confirm",
+      "confirmCta": "Delete permanently"
+    },
     "errors": {
       "firstNameRequired": "First name is required.",
       "lastNameRequired": "Last name is required.",
@@ -1300,7 +1323,13 @@
       "newPasswordTooShort": "New password must be at least 8 characters.",
       "passwordMismatch": "The two passwords do not match.",
       "sameAsCurrent": "The new password must differ from the current one.",
-      "currentPasswordWrong": "Current password is incorrect."
+      "currentPasswordWrong": "Current password is incorrect.",
+      "avatarFileRequired": "No file selected.",
+      "avatarTooLarge": "File too large (maximum 2 MB).",
+      "avatarBadType": "Unsupported format. Use PNG, JPEG or WebP.",
+      "deleteAccountConfirmMismatch": "Confirmation does not match your email address.",
+      "deleteAccountLastAdmin": "You are the last active super-admin. Promote another user before leaving.",
+      "deleteAccountOwnerOfOrgs": "You own at least one organization. Transfer ownership before deleting your account."
     }
   },
   "constants": {

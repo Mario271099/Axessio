@@ -115,6 +115,8 @@ export interface Profile {
   impersonating: boolean;
   clientId: string | null; // null pour les staff (admin / auditor)
   language: "fr" | "en";
+  /** URL publique de l'avatar uploadé sur Supabase Storage. null = initiales. */
+  avatarUrl: string | null;
 }
 
 // ============================================================================

@@ -1292,6 +1292,29 @@
       "success": "Mot de passe mis à jour.",
       "hintLength": "Au moins 8 caractères."
     },
+    "avatarSection": {
+      "title": "Photo de profil",
+      "description": "Affichée dans la barre du haut et à côté de tes messages. Visible par les membres de tes organisations.",
+      "upload": "Importer une photo",
+      "replace": "Changer la photo",
+      "delete": "Supprimer",
+      "hint": "PNG, JPEG ou WebP. Maximum 2 Mo.",
+      "success": "Photo de profil mise à jour.",
+      "deleteSuccess": "Photo de profil supprimée.",
+      "errorTooLarge": "Fichier trop volumineux (maximum 2 Mo).",
+      "errorBadType": "Format non supporté. Utilise PNG, JPEG ou WebP."
+    },
+    "dangerZone": {
+      "section": "Zone dangereuse",
+      "sectionDescription": "Actions irréversibles. À utiliser avec précaution.",
+      "title": "Supprimer mon compte",
+      "description": "Ton compte et tes données personnelles seront supprimés définitivement. Les audits que tu as créés restent visibles mais sans nom d'auteur.",
+      "trigger": "Supprimer mon compte",
+      "dialogTitle": "Supprimer définitivement ce compte ?",
+      "dialogDescription": "Cette action ne peut pas être annulée. Pour confirmer, saisis ton adresse e-mail dans le champ ci-dessous.",
+      "confirmLabel": "Saisis « {email} » pour confirmer",
+      "confirmCta": "Supprimer définitivement"
+    },
     "errors": {
       "firstNameRequired": "Le prénom est requis.",
       "lastNameRequired": "Le nom est requis.",
@@ -1300,7 +1323,13 @@
       "newPasswordTooShort": "Le nouveau mot de passe doit faire au moins 8 caractères.",
       "passwordMismatch": "Les deux mots de passe ne correspondent pas.",
       "sameAsCurrent": "Le nouveau mot de passe doit être différent de l'actuel.",
-      "currentPasswordWrong": "Mot de passe actuel incorrect."
+      "currentPasswordWrong": "Mot de passe actuel incorrect.",
+      "avatarFileRequired": "Aucun fichier sélectionné.",
+      "avatarTooLarge": "Fichier trop volumineux (maximum 2 Mo).",
+      "avatarBadType": "Format non supporté. Utilise PNG, JPEG ou WebP.",
+      "deleteAccountConfirmMismatch": "La confirmation ne correspond pas à ton adresse e-mail.",
+      "deleteAccountLastAdmin": "Tu es le dernier super-administrateur actif. Promeus un autre utilisateur avant de partir.",
+      "deleteAccountOwnerOfOrgs": "Tu es propriétaire d'au moins une organisation. Transfère la propriété avant de supprimer ton compte."
     }
   },
   "constants": {

@@ -57,6 +57,7 @@ export async function Topbar({ profile, counts, org, brandLogoUrl }: TopbarProps
           lastName={profile.lastName}
           email={profile.email}
           roleLabel={USER_ROLE_LABELS[profile.role]}
+          avatarUrl={profile.avatarUrl}
         />
       </div>
     </header>

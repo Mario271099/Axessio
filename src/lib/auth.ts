@@ -15,6 +15,7 @@ interface ProfileRow {
   role: string;
   client_id: string | null;
   language: string;
+  avatar_url?: string | null;
   is_active?: boolean | null;
 }
 
@@ -35,6 +36,7 @@ async function mapProfile(row: ProfileRow): Promise<Profile> {
     impersonating,
     clientId: row.client_id,
     language: (row.language === "en" ? "en" : "fr") as Profile["language"],
+    avatarUrl: row.avatar_url ?? null,
   };
 }
 
@@ -50,7 +52,7 @@ export async function requireProfile(): Promise<Profile> {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, email, first_name, last_name, role, client_id, language, is_active",
+      "id, email, first_name, last_name, role, client_id, language, avatar_url, is_active",
     )
     .eq("id", user.id)
     .maybeSingle();
@@ -80,7 +82,9 @@ export async function requireProfile(): Promise<Profile> {
         client_id: null,
         language: "fr",
       })
-      .select("id, email, first_name, last_name, role, client_id, language")
+      .select(
+        "id, email, first_name, last_name, role, client_id, language, avatar_url",
+      )
       .single();
 
     if (insertError || !created) {
