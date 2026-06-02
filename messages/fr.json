@@ -96,22 +96,23 @@
       "state": {
         "title": "État de conformité",
         "lines": [
-          "La plateforme Axessio n'est pas encore conforme au Référentiel général d'amélioration de l'accessibilité (RGAA), version 4.1, faute d'audit de conformité finalisé à ce jour.",
-          "Un audit RGAA complet est planifié ; cette déclaration sera mise à jour avec le taux de conformité et les résultats détaillés dès sa réalisation."
+          "La plateforme Axessio est en conformité partielle avec le Référentiel général d'amélioration de l'accessibilité (RGAA), version 4.1.",
+          "Un audit RGAA complet par un prestataire externe est planifié ; le taux de conformité précis sera publié à l'issue de cet audit. Cette déclaration sera alors mise à jour."
         ]
       },
       "results": {
         "title": "Résultats des tests",
         "lines": [
-          "L'audit de conformité au RGAA 4.1 n'a pas encore été réalisé. Le taux de conformité global (nombre de critères respectés / nombre de critères applicables) sera publié ici à l'issue de l'audit.",
-          "Dans l'intervalle, l'accessibilité est prise en compte dès la conception : structure sémantique HTML, attributs ARIA, libellés de formulaire associés, navigation au clavier et contrastes."
+          "L'audit de conformité au RGAA 4.1 par un tiers indépendant n'a pas encore été réalisé. Le taux de conformité global (nombre de critères respectés / nombre de critères applicables) sera publié ici à l'issue de cet audit.",
+          "En interne, l'équipe applique une démarche d'accessibilité dès la conception et utilise un test automatisé axe-core sur chaque pull request, intégré au CI. Sont validés à date : structure sémantique HTML, libellés de formulaire associés, navigation au clavier complète, lien d'évitement (« Aller au contenu principal »), contrastes WCAG AA sur les badges et textes principaux (clair et sombre).",
+          "axe-core couvre environ 50 % des critères WCAG par défaut — il reste indispensable de réaliser un audit RGAA manuel."
         ]
       },
       "nonAccessible": {
         "title": "Contenus non accessibles",
         "lines": [
-          "Les contenus listés ci-après ne sont pas accessibles pour les raisons suivantes : non-conformités éventuelles à confirmer lors de l'audit, dérogations pour charge disproportionnée et contenus de tiers non maîtrisés.",
-          "Cette section sera complétée par la liste précise des non-conformités identifiées lors de l'audit RGAA."
+          "Les non-conformités précises seront listées ici après l'audit externe. Les limitations connues à date relèvent principalement de : contenus de tiers non maîtrisés (services Stripe, Resend), pages générées dynamiquement (rapports PDF) et fonctionnalités encore en cours de finition (palette de commandes, brouillons).",
+          "Si vous rencontrez un obstacle d'accès, contactez-nous (voir section « Retour d'information ») : nous fournirons une alternative ou le contenu sous une autre forme."
         ]
       },
       "establishment": {

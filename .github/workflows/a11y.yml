@@ -1,0 +1,77 @@
+# Audit axe-core automatisé sur chaque pull request.
+#
+# Lance e2e/a11y.spec.ts sur les pages publiques (accueil, login, pricing,
+# /accessibility). Bloque le merge si une violation `critical` ou `serious`
+# est détectée — filet anti-régression pour les pages les plus exposées.
+#
+# Les pages authentifiées (dashboard) sont skippées en CI tant qu'on n'a
+# pas de user de test fiable : la spec teste déjà `test.skip` si
+# E2E_USER_EMAIL/E2E_USER_PASSWORD ne sont pas définis.
+#
+# Couverture axe-core = ~50% de WCAG (le reste exige un audit manuel) —
+# ne remplace pas l'audit RGAA, c'est un complément.
+#
+# Setup unique (Settings > Secrets and variables > Actions) :
+#   - NEXT_PUBLIC_SUPABASE_URL
+#   - NEXT_PUBLIC_SUPABASE_ANON_KEY
+# (le build Next 16 charge ces vars publiques au boot du dev server)
+
+name: Accessibilité (axe-core)
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "messages/**"
+      - "e2e/a11y.spec.ts"
+      - "playwright.config.ts"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/a11y.yml"
+  workflow_dispatch: {}
+
+concurrency:
+  group: a11y-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  axe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CI: "true"
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify required secrets
+        run: |
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
+            echo "::error::Secrets NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY requis (Settings > Secrets > Actions)."
+            exit 1
+          fi
+
+      - name: Run axe-core on public pages
+        # Le grep filtre uniquement le describe « pages publiques » — les
+        # tests dashboard restent skip via E2E_USER_* non définis.
+        run: npx playwright test e2e/a11y.spec.ts --grep "pages publiques"
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

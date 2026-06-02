@@ -96,22 +96,23 @@
       "state": {
         "title": "Conformity status",
         "lines": [
-          "The Axessio platform is not yet compliant with the French General Accessibility Improvement Framework (RGAA), version 4.1, as no conformity audit has been completed to date.",
-          "A full RGAA audit is planned; this statement will be updated with the conformity rate and detailed results once it is carried out."
+          "The Axessio platform is in partial conformity with the French General Accessibility Improvement Framework (RGAA), version 4.1.",
+          "A full RGAA audit by an external provider is planned; the precise conformity rate will be published once it is carried out. This statement will then be updated."
         ]
       },
       "results": {
         "title": "Test results",
         "lines": [
-          "The RGAA 4.1 conformity audit has not yet been performed. The overall conformity rate (criteria met / applicable criteria) will be published here once the audit is complete.",
-          "In the meantime, accessibility is considered from the design stage: semantic HTML structure, ARIA attributes, associated form labels, keyboard navigation and contrast."
+          "The RGAA 4.1 conformity audit by an independent third party has not yet been performed. The overall conformity rate (criteria met / applicable criteria) will be published here once that audit is complete.",
+          "Internally the team follows accessibility-by-design and runs an automated axe-core test on every pull request, integrated into CI. Currently validated: semantic HTML structure, associated form labels, full keyboard navigation, skip link (\"Skip to main content\"), WCAG AA contrast on badges and main text (light and dark).",
+          "axe-core covers roughly 50% of WCAG criteria — a manual RGAA audit remains essential."
         ]
       },
       "nonAccessible": {
         "title": "Non-accessible content",
         "lines": [
-          "The content listed below is not accessible for the following reasons: possible non-conformities to be confirmed during the audit, disproportionate-burden exemptions, and third-party content beyond our control.",
-          "This section will be completed with the precise list of non-conformities identified during the RGAA audit."
+          "The precise list of non-conformities will be published here after the external audit. Known limitations to date relate mainly to: third-party content beyond our control (Stripe, Resend), dynamically generated content (PDF reports), and features still in progress (command palette, drafts).",
+          "If you encounter an accessibility issue, please contact us (see \"Feedback\" section): we will provide an alternative or the content in another form."
         ]
       },
       "establishment": {

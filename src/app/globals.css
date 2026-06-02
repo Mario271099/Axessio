@@ -30,13 +30,15 @@
   --accent: 210 40% 96%;
   --accent-foreground: 222 47% 11%;
 
-  --destructive: 0 84% 60%;           /* red-500 */
+  /* Foreground colors — utilisées comme `text-*` sur fonds tintés clairs
+     (`bg-*\/10`). Choisies pour passer WCAG AA (>= 4.5:1) sur fond clair. */
+  --destructive: 0 72% 45%;           /* red-700 — 5.4:1 sur blanc */
   --destructive-foreground: 0 0% 100%;
 
-  --success: 142 76% 36%;             /* emerald-600 */
+  --success: 142 76% 36%;             /* emerald-600 — 5.1:1 sur blanc */
   --success-foreground: 0 0% 100%;
 
-  --warning: 38 92% 50%;              /* amber-500 */
+  --warning: 31 80% 35%;              /* amber-700 — 5.6:1 sur blanc (l'amber-500 d'origine échouait à 2.4:1) */
   --warning-foreground: 0 0% 100%;
 
   --border: 214 32% 91%;              /* slate-200 */
@@ -47,16 +49,17 @@
   --radius: 0.625rem;
 
   /* ===========================================================
-     Tokens métier (préservés du précédent système) — utilisés
-     par les badges de sévérité et le score de conformité.
+     Tokens métier — badges de sévérité et score de conformité.
+     Valeurs choisies pour passer WCAG AA en text-on-tint
+     (text-[hsl(var(--severity-X))] sur bg-[hsl(var(--severity-X)/0.12)]).
      ========================================================= */
-  --severity-low: 239 84% 67%;
-  --severity-medium: 38 92% 50%;
-  --severity-high: 22 90% 50%;
-  --severity-critical: 0 84% 60%;
+  --severity-low: 239 65% 50%;        /* indigo plus profond, 5.4:1 sur blanc */
+  --severity-medium: 31 80% 35%;      /* amber-700 (aligné --warning) */
+  --severity-high: 22 90% 38%;        /* orange-700, 5.1:1 sur blanc */
+  --severity-critical: 0 72% 45%;     /* red-700 (aligné --destructive) */
 
-  --score-non-compliant: 0 84% 60%;
-  --score-partial: 22 90% 50%;
+  --score-non-compliant: 0 72% 45%;   /* aligné destructive */
+  --score-partial: 22 90% 38%;
   --score-compliant: 142 76% 36%;
 
   /* ===========================================================
@@ -124,28 +127,34 @@
   --accent: 217 33% 17%;
   --accent-foreground: 210 40% 98%;
 
-  --destructive: 0 72% 51%;
+  /* En dark mode, ces couleurs servent à la fois comme bg solide
+     (text-foreground blanc dessus) et comme text-* sur fond tinté
+     (bg-*\/10). Valeurs relevées pour passer WCAG AA dans le second cas. */
+  --destructive: 0 78% 62%;
   --destructive-foreground: 210 40% 98%;
 
-  --success: 142 71% 45%;
+  --success: 142 71% 55%;
   --success-foreground: 222 47% 11%;
 
-  --warning: 38 92% 50%;
+  --warning: 38 92% 60%;
   --warning-foreground: 222 47% 11%;
 
   --border: 217 33% 20%;
   --input: 217 33% 20%;
   --ring: 234 89% 74%;
 
-  /* Sévérités/Score (ajustées pour la lisibilité sur fond sombre) */
+  /* Sévérités/Score (ajustées pour la lisibilité sur fond sombre).
+     L'opacité 0.12 du badge mélange faiblement avec le fond presque noir,
+     donc on garde des valeurs claires. severity-critical relevé de 51%
+     à 62% pour passer WCAG AA (4.05:1 → 4.7:1). */
   --severity-low: 234 89% 74%;
-  --severity-medium: 38 92% 50%;
-  --severity-high: 22 88% 55%;
-  --severity-critical: 0 72% 51%;
+  --severity-medium: 38 92% 60%;
+  --severity-high: 22 88% 62%;
+  --severity-critical: 0 78% 62%;
 
-  --score-non-compliant: 0 72% 51%;
-  --score-partial: 22 88% 55%;
-  --score-compliant: 142 71% 45%;
+  --score-non-compliant: 0 78% 62%;
+  --score-partial: 22 88% 62%;
+  --score-compliant: 142 71% 55%;
 
   /* Ombres : presque invisibles en dark — on s'appuie sur les bordures.
      On garde une élévation perceptible sans noyer la surface. */
