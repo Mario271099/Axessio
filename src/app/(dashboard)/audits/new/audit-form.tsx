@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { InfoTip } from "@/components/ui/info-tip";
 import {
   createAudit,
   type ActionState,
@@ -201,9 +202,34 @@ export function AuditForm({ projects, references }: AuditFormProps) {
               description={t("steps.reference.description")}
             >
               <div className="space-y-2">
-                <Label htmlFor="ref-select">
-                  {t("steps.reference.field")} *
-                </Label>
+                <div className="flex items-center gap-1.5">
+                  <Label htmlFor="ref-select">
+                    {t("steps.reference.field")} *
+                  </Label>
+                  <InfoTip label={t("steps.reference.helpAria")}>
+                    <div className="space-y-1.5">
+                      <p className="font-semibold">
+                        {t("steps.reference.help.title")}
+                      </p>
+                      <p>
+                        <strong>RGAA :</strong>{" "}
+                        {t("steps.reference.help.rgaa")}
+                      </p>
+                      <p>
+                        <strong>WCAG :</strong>{" "}
+                        {t("steps.reference.help.wcag")}
+                      </p>
+                      <p>
+                        <strong>RAWeb :</strong>{" "}
+                        {t("steps.reference.help.raweb")}
+                      </p>
+                      <p>
+                        <strong>RAAM :</strong>{" "}
+                        {t("steps.reference.help.raam")}
+                      </p>
+                    </div>
+                  </InfoTip>
+                </div>
                 <Select value={referenceId} onValueChange={setReferenceId}>
                   <SelectTrigger id="ref-select" aria-required="true">
                     <SelectValue

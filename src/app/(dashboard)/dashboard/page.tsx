@@ -23,6 +23,7 @@ import {
   ActivityTimeline,
   type ActivityEvent,
 } from "@/components/dashboard/activity-timeline";
+import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist";
 import { intlLocale } from "@/lib/intl";
 
 const STATUS_GROUPS = {
@@ -188,6 +189,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="container mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+      {/* ============================================================== */}
+      {/* Check-list onboarding (apparait jusqu'à 100% complete)          */}
+      {/* ============================================================== */}
+      <OnboardingChecklist />
+
       {/* ============================================================== */}
       {/* Hero                                                            */}
       {/* ============================================================== */}

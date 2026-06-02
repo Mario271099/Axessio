@@ -947,6 +947,30 @@
     }
   },
   "dashboard": {
+    "onboarding": {
+      "title": "Bien démarrer avec {name}",
+      "subtitle": "{completed} sur {total} étapes complétées — finis l'installation pour profiter de tout Axessio.",
+      "progressAria": "Progression : {percent}%",
+      "itemCta": "Aller →",
+      "items": {
+        "logo": {
+          "label": "Ajouter le logo de ton organisation",
+          "description": "Personnalise les rapports et l'interface avec ton identité visuelle."
+        },
+        "members": {
+          "label": "Inviter un coéquipier",
+          "description": "Travaille à plusieurs sur tes audits."
+        },
+        "project": {
+          "label": "Créer ton premier projet",
+          "description": "Un projet regroupe les audits d'un même site ou produit."
+        },
+        "audit": {
+          "label": "Lancer ton premier audit",
+          "description": "Choisis un référentiel et démarre l'évaluation."
+        }
+      }
+    },
     "hero": {
       "kicker": "Tableau de bord",
       "greeting": "Bonjour, {name}",
@@ -1588,6 +1612,14 @@
           "description": "Le référentiel détermine la liste des critères à évaluer.",
           "field": "Référentiel d'accessibilité",
           "placeholder": "Choisir un référentiel…",
+          "helpAria": "Aide sur les référentiels d'accessibilité",
+          "help": {
+            "title": "Quel référentiel choisir ?",
+            "rgaa": "Référentiel français pour les sites publics (loi 2005). Le plus utilisé en France.",
+            "wcag": "Standard international (W3C). À privilégier pour un audit international ou un produit B2B mondial.",
+            "raweb": "Référentiel belge équivalent au RGAA, basé sur WCAG 2.1 AA.",
+            "raam": "Référentiel d'audit des applications mobiles, complément au RGAA pour iOS/Android."
+          },
           "platform": "Plateforme",
           "serviceType": "Type de prestation",
           "language": "Langue de l'audit"
@@ -1772,6 +1804,22 @@
     "sample": {
       "back": "Retour à l'audit",
       "title": "Échantillon",
+      "pageTypesHelpAria": "À quoi servent les différents types de pages ?",
+      "pageTypesHelp": {
+        "title": "Les trois types de pages de l'échantillon",
+        "mandatory": {
+          "label": "Obligatoire :",
+          "text": "Pages standard d'un site (accueil, contact, mentions légales). Créées automatiquement."
+        },
+        "representative": {
+          "label": "Représentative :",
+          "text": "Pages choisies pour leur intérêt fonctionnel (formulaire, panier, recherche)."
+        },
+        "transversal": {
+          "label": "Éléments transverses :",
+          "text": "Composants présents sur toutes les pages (header, footer, navigation). Non supprimable."
+        }
+      },
       "subtitle": "{count, plural, =0 {Aucune page testée} one {# page testée} other {# pages testées}}.",
       "cardTitle": "Pages de l'échantillon",
       "addPage": "Ajouter une page",
@@ -2019,6 +2067,14 @@
       "recommendation": "Recommandation",
       "recommendationPlaceholder": "Action corrective proposée.",
       "severity": "Sévérité",
+      "severityHelpAria": "Comment choisir la sévérité ?",
+      "severityHelp": {
+        "title": "Niveaux de sévérité",
+        "critical": "Bloque entièrement l'usage par certains utilisateurs (lecteur d'écran impossible, clavier inaccessible).",
+        "high": "Gêne forte sans bloquer (saisie laborieuse, contraste très faible).",
+        "medium": "Inconfort notable mais contournable (libellés peu clairs).",
+        "low": "Amélioration souhaitable, impact mineur."
+      },
       "screenshots": "Captures d'écran",
       "titleRequired": "Le titre est requis.",
       "thematicRequired": "La thématique est requise.",

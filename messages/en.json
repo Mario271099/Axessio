@@ -947,6 +947,30 @@
     }
   },
   "dashboard": {
+    "onboarding": {
+      "title": "Get started with {name}",
+      "subtitle": "{completed} of {total} steps complete — finish setup to unlock all of Axessio.",
+      "progressAria": "Progress: {percent}%",
+      "itemCta": "Go →",
+      "items": {
+        "logo": {
+          "label": "Add your organization logo",
+          "description": "Customize reports and UI with your brand identity."
+        },
+        "members": {
+          "label": "Invite a teammate",
+          "description": "Work on audits together with your team."
+        },
+        "project": {
+          "label": "Create your first project",
+          "description": "A project groups all audits for the same site or product."
+        },
+        "audit": {
+          "label": "Launch your first audit",
+          "description": "Pick a reference framework and start evaluating."
+        }
+      }
+    },
     "hero": {
       "kicker": "Dashboard",
       "greeting": "Hello, {name}",
@@ -1588,6 +1612,14 @@
           "description": "The reference determines the list of criteria to evaluate.",
           "field": "Accessibility reference",
           "placeholder": "Choose a reference…",
+          "helpAria": "Help on accessibility reference frameworks",
+          "help": {
+            "title": "Which reference to pick?",
+            "rgaa": "French framework for public-sector sites (2005 law). Most widely used in France.",
+            "wcag": "International standard (W3C). Best for international audits or global B2B products.",
+            "raweb": "Belgian framework equivalent to RGAA, based on WCAG 2.1 AA.",
+            "raam": "Mobile app audit framework, RGAA companion for iOS/Android."
+          },
           "platform": "Platform",
           "serviceType": "Service type",
           "language": "Audit language"
@@ -1772,6 +1804,22 @@
     "sample": {
       "back": "Back to audit",
       "title": "Sample",
+      "pageTypesHelpAria": "What are the different page types?",
+      "pageTypesHelp": {
+        "title": "The three sample page types",
+        "mandatory": {
+          "label": "Mandatory:",
+          "text": "Standard site pages (home, contact, legal). Created automatically."
+        },
+        "representative": {
+          "label": "Representative:",
+          "text": "Pages picked for their functional interest (form, cart, search)."
+        },
+        "transversal": {
+          "label": "Transversal elements:",
+          "text": "Components present on every page (header, footer, nav). Cannot be deleted."
+        }
+      },
       "subtitle": "{count, plural, =0 {No page tested} one {# page tested} other {# pages tested}}.",
       "cardTitle": "Sample pages",
       "addPage": "Add a page",
@@ -2019,6 +2067,14 @@
       "recommendation": "Recommendation",
       "recommendationPlaceholder": "Proposed corrective action.",
       "severity": "Severity",
+      "severityHelpAria": "How to choose severity?",
+      "severityHelp": {
+        "title": "Severity levels",
+        "critical": "Fully blocks usage for some users (screen reader impossible, keyboard inaccessible).",
+        "high": "Strong friction without blocking (painful input, very low contrast).",
+        "medium": "Noticeable discomfort but workable (unclear labels).",
+        "low": "Desirable improvement, minor impact."
+      },
       "screenshots": "Screenshots",
       "titleRequired": "Title is required.",
       "thematicRequired": "Topic is required.",

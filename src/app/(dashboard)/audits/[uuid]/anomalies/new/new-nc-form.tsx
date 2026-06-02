@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FileDropZone } from "@/components/ui/file-drop-zone";
+import { InfoTip } from "@/components/ui/info-tip";
 import { createClient } from "@/lib/supabase/client";
 import { addAttachment } from "@/app/(dashboard)/audits/[uuid]/anomalies/[ncId]/actions";
 import { parseMethodology } from "@/lib/methodology";
@@ -431,7 +432,30 @@ export function NewNCForm({
             </div>
 
             <div className="space-y-2 sm:max-w-xs">
-              <Label htmlFor="nc-severity">{t("severity")}</Label>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="nc-severity">{t("severity")}</Label>
+                <InfoTip label={t("severityHelpAria")}>
+                  <div className="space-y-1.5">
+                    <p className="font-semibold">{t("severityHelp.title")}</p>
+                    <p>
+                      <strong>{tSeverity("CRITICAL")} :</strong>{" "}
+                      {t("severityHelp.critical")}
+                    </p>
+                    <p>
+                      <strong>{tSeverity("HIGH")} :</strong>{" "}
+                      {t("severityHelp.high")}
+                    </p>
+                    <p>
+                      <strong>{tSeverity("MEDIUM")} :</strong>{" "}
+                      {t("severityHelp.medium")}
+                    </p>
+                    <p>
+                      <strong>{tSeverity("LOW")} :</strong>{" "}
+                      {t("severityHelp.low")}
+                    </p>
+                  </div>
+                </InfoTip>
+              </div>
               <Select
                 value={severity}
                 onValueChange={(v) => setSeverity(v as NCSeverity)}

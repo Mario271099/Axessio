@@ -4,6 +4,7 @@ import { canEditAudit } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
+import { InfoTip } from "@/components/ui/info-tip";
 import { SampleActionsBar } from "./sample-actions-bar";
 import type { ComplexityLevel, PageType } from "@/types/domain";
 
@@ -38,7 +39,28 @@ export default async function SamplePage({
       <AuditTabsNav auditId={uuid} active="sample" />
 
       <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t("title")}
+          </h1>
+          <InfoTip label={t("pageTypesHelpAria")}>
+            <div className="space-y-1.5">
+              <p className="font-semibold">{t("pageTypesHelp.title")}</p>
+              <p>
+                <strong>{t("pageTypesHelp.mandatory.label")}</strong>{" "}
+                {t("pageTypesHelp.mandatory.text")}
+              </p>
+              <p>
+                <strong>{t("pageTypesHelp.representative.label")}</strong>{" "}
+                {t("pageTypesHelp.representative.text")}
+              </p>
+              <p>
+                <strong>{t("pageTypesHelp.transversal.label")}</strong>{" "}
+                {t("pageTypesHelp.transversal.text")}
+              </p>
+            </div>
+          </InfoTip>
+        </div>
         <p className="text-sm text-muted-foreground">
           {t("subtitle", { count: list.length })}
         </p>
