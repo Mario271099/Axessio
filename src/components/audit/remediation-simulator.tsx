@@ -71,7 +71,7 @@ export interface SimulatorThematic {
 }
 
 type SeverityFilter = "ALL" | NCSeverity;
-type StatusFilter = "ALL" | "TODO" | "IN_PROGRESS" | "FIXED" | "FALSE_POSITIVE";
+type StatusFilter = "ALL" | "TODO" | "IN_PROGRESS" | "FIXED";
 type PageFilter = "ALL" | "TRANSVERSAL" | string;
 type ThematicFilter = "ALL" | string;
 type SortMode =
@@ -86,7 +86,6 @@ const STATUS_FILTER_TO_DB: Record<StatusFilter, NCStatus[] | null> = {
   TODO: ["OPEN"],
   IN_PROGRESS: ["IN_PROGRESS"],
   FIXED: ["CORRECTED", "RESOLVED"],
-  FALSE_POSITIVE: ["NON_REPRODUCIBLE", "REJECTED", "CANCELLED"],
 };
 
 const STATUS_FILTER_KEYS: StatusFilter[] = [
@@ -94,7 +93,6 @@ const STATUS_FILTER_KEYS: StatusFilter[] = [
   "TODO",
   "IN_PROGRESS",
   "FIXED",
-  "FALSE_POSITIVE",
 ];
 
 const SORT_KEYS: SortMode[] = [

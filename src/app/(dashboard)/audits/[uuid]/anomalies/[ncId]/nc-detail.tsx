@@ -116,15 +116,9 @@ const STATUS_BADGE_VARIANT: Record<
   TO_FIX: "warning",
   IN_PROGRESS: "secondary",
   FIXED: "success",
-  FALSE_POSITIVE: "muted",
 };
 
-const NEW_STATUSES = [
-  "TO_FIX",
-  "IN_PROGRESS",
-  "FIXED",
-  "FALSE_POSITIVE",
-] as const;
+const NEW_STATUSES = ["TO_FIX", "IN_PROGRESS", "FIXED"] as const;
 
 type NewStatus = (typeof NEW_STATUSES)[number];
 

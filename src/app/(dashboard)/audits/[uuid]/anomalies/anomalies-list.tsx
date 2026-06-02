@@ -12,7 +12,6 @@ import {
   Layers,
   Loader2,
   MessageSquare,
-  MinusCircle,
   Paperclip,
   Plus,
   RotateCcw,
@@ -76,15 +75,9 @@ const STATUS_BADGE_VARIANT: Record<
   TO_FIX: "warning",
   IN_PROGRESS: "secondary",
   FIXED: "success",
-  FALSE_POSITIVE: "muted",
 };
 
-const FILTER_STATUSES = [
-  "TO_FIX",
-  "IN_PROGRESS",
-  "FIXED",
-  "FALSE_POSITIVE",
-] as const;
+const FILTER_STATUSES = ["TO_FIX", "IN_PROGRESS", "FIXED"] as const;
 
 const FILTER_SEVERITIES: NCSeverity[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
@@ -154,7 +147,6 @@ export function AnomaliesList({
       TO_FIX: 0,
       IN_PROGRESS: 0,
       FIXED: 0,
-      FALSE_POSITIVE: 0,
     } as Record<string, number>;
     for (const nc of ncs) {
       if (nc.status in c) c[nc.status]! += 1;
@@ -338,16 +330,16 @@ export function AnomaliesList({
           value={counters.TO_FIX ?? 0}
         />
         <KpiCard
+          icon={Loader2}
+          tone="primary"
+          label={t("kpi.inProgress")}
+          value={counters.IN_PROGRESS ?? 0}
+        />
+        <KpiCard
           icon={CheckCircle2}
           tone="success"
           label={t("kpi.fixed")}
           value={counters.FIXED ?? 0}
-        />
-        <KpiCard
-          icon={MinusCircle}
-          tone="muted"
-          label={t("kpi.falsePositive")}
-          value={counters.FALSE_POSITIVE ?? 0}
         />
       </div>
 

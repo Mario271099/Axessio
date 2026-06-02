@@ -256,6 +256,10 @@ export interface PageConformity {
 // ============================================================================
 export type NCSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
+// Note : la valeur 'FALSE_POSITIVE' a été retirée du cycle (migration 64).
+// Une NC identifiée à tort doit désormais être supprimée, pas masquée
+// derrière un statut. Les valeurs legacy (OPEN, CORRECTED, etc.) sont
+// conservées pour compatibilité avec les anciens enregistrements.
 export type NCStatus =
   | "OPEN"
   | "IN_PROGRESS"
@@ -265,8 +269,7 @@ export type NCStatus =
   | "REJECTED"
   | "CANCELLED"
   | "TO_FIX"
-  | "FIXED"
-  | "FALSE_POSITIVE";
+  | "FIXED";
 
 /**
  * Cycle de relecture interne d'une NC. Indépendant de NCStatus (qui est le

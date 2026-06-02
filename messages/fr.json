@@ -1417,8 +1417,7 @@
       "REJECTED": "Rejetée",
       "CANCELLED": "Annulée",
       "TO_FIX": "À corriger",
-      "FIXED": "Corrigée",
-      "FALSE_POSITIVE": "Faux positif"
+      "FIXED": "Corrigée"
     },
     "ncSeverity": {
       "LOW": "Faible",
@@ -1943,8 +1942,8 @@
       "kpi": {
         "total": "Total",
         "toFix": "À corriger",
-        "fixed": "Corrigées",
-        "falsePositive": "Faux positifs"
+        "inProgress": "En cours",
+        "fixed": "Corrigées"
       },
       "searchPlaceholder": "Rechercher par titre…",
       "searchAria": "Rechercher par titre",
@@ -2127,7 +2126,6 @@
         "TODO": "À corriger",
         "IN_PROGRESS": "En cours",
         "FIXED": "Corrigée",
-        "FALSE_POSITIVE": "Faux positif",
         "SEVERITY_DESC": "Sévérité (décroissante)",
         "SEVERITY_ASC": "Sévérité (croissante)",
         "BY_PAGE": "Grouper par page",

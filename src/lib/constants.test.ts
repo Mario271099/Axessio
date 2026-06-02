@@ -144,10 +144,9 @@ describe("NC_STATUS_LABELS", () => {
     "CANCELLED",
     "TO_FIX",
     "FIXED",
-    "FALSE_POSITIVE",
   ];
 
-  it("couvre exactement les 10 statuts NC du domaine", () => {
+  it("couvre exactement les 9 statuts NC du domaine", () => {
     expectMapCoversKeys(NC_STATUS_LABELS, EXPECTED);
   });
 

@@ -1417,8 +1417,7 @@
       "REJECTED": "Rejected",
       "CANCELLED": "Cancelled",
       "TO_FIX": "To fix",
-      "FIXED": "Fixed",
-      "FALSE_POSITIVE": "False positive"
+      "FIXED": "Fixed"
     },
     "ncSeverity": {
       "LOW": "Low",
@@ -1943,8 +1942,8 @@
       "kpi": {
         "total": "Total",
         "toFix": "To fix",
-        "fixed": "Fixed",
-        "falsePositive": "False positives"
+        "inProgress": "In progress",
+        "fixed": "Fixed"
       },
       "searchPlaceholder": "Search by title…",
       "searchAria": "Search by title",
@@ -2127,7 +2126,6 @@
         "TODO": "To fix",
         "IN_PROGRESS": "In progress",
         "FIXED": "Fixed",
-        "FALSE_POSITIVE": "False positive",
         "SEVERITY_DESC": "Severity (descending)",
         "SEVERITY_ASC": "Severity (ascending)",
         "BY_PAGE": "Group by page",

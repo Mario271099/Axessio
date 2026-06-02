@@ -12,12 +12,7 @@ export interface BulkResult {
   count?: number;
 }
 
-const ALLOWED_STATUSES: NCStatus[] = [
-  "TO_FIX",
-  "IN_PROGRESS",
-  "FIXED",
-  "FALSE_POSITIVE",
-];
+const ALLOWED_STATUSES: NCStatus[] = ["TO_FIX", "IN_PROGRESS", "FIXED"];
 
 const ALLOWED_SEVERITIES: NCSeverity[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 

@@ -323,7 +323,6 @@ const STRINGS_FR: Dict = {
     CANCELLED: "Annulée",
     TO_FIX: "À corriger",
     FIXED: "Corrigée",
-    FALSE_POSITIVE: "Faux positif",
   },
 };
 
@@ -441,7 +440,6 @@ const STRINGS_EN: Dict = {
     CANCELLED: "Cancelled",
     TO_FIX: "To fix",
     FIXED: "Fixed",
-    FALSE_POSITIVE: "False positive",
   },
 };
 
@@ -1583,7 +1581,6 @@ const STATUS_BADGE_CLASS: Record<NCStatus, string> = {
   NON_REPRODUCIBLE: "status-rejected",
   REJECTED: "status-rejected",
   CANCELLED: "status-rejected",
-  FALSE_POSITIVE: "status-rejected",
   TO_FIX: "status-open",
 };
 

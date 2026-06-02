@@ -74,7 +74,6 @@ export const NC_STATUS_LABELS: Record<NCStatus, string> = {
   CANCELLED: "Annulée",
   TO_FIX: "À corriger",
   FIXED: "Corrigée",
-  FALSE_POSITIVE: "Faux positif",
 };
 
 /** Statuts considérés comme "fermés" — utilisés par le simulateur de remédiation. */
