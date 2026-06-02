@@ -401,6 +401,7 @@
     "emailSendFailed": "Failed to send email.",
     "createClientFailed": "Failed to create client.",
     "createProjectFailed": "Failed to create project.",
+    "noOrganization": "No active organization. Switch to one from the org picker.",
     "createFailed": "Creation failed.",
     "storagePathMissing": "Storage path missing.",
     "fileNameMissing": "File name missing.",

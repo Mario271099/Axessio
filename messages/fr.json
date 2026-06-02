@@ -401,6 +401,7 @@
     "emailSendFailed": "Échec de l'envoi de l'email.",
     "createClientFailed": "Échec de la création du client.",
     "createProjectFailed": "Échec de la création du projet.",
+    "noOrganization": "Aucune organisation active. Bascule sur une organisation depuis le sélecteur.",
     "createFailed": "Échec de la création.",
     "storagePathMissing": "Chemin de stockage manquant.",
     "fileNameMissing": "Nom de fichier manquant.",
