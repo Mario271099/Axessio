@@ -911,12 +911,62 @@
       "submit": "Se connecter",
       "submitting": "Connexion en cours…",
       "footer": "Pas encore de compte ?",
-      "footerCta": "Contactez votre administrateur.",
+      "footerCta": "Contactez votre administrateur",
+      "contactAdminSubject": "Demande d'accès à la plateforme Axessio",
+      "resetSuccess": "Mot de passe mis à jour. Connecte-toi avec ton nouveau mot de passe.",
+      "dismissBanner": "Fermer ce message",
       "errors": {
         "missing": "Email et mot de passe requis.",
         "sessionFailed": "La session n'a pas pu être créée. Vérifie tes paramètres Supabase.",
         "signIn": "Erreur : {message}",
         "rateLimited": "Trop de tentatives de connexion. Réessayez dans {seconds} s."
+      }
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "subtitle": "Saisis ton adresse email — on t'envoie un lien pour en définir un nouveau.",
+      "email": "Adresse email",
+      "emailPlaceholder": "vous@entreprise.com",
+      "submit": "Envoyer le lien",
+      "submitting": "Envoi en cours…",
+      "backToLogin": "Retour à la connexion",
+      "footer": "Le lien est valable une heure environ.",
+      "successTitle": "Lien envoyé",
+      "successDesc": "Si un compte existe pour cette adresse, tu recevras un email avec un lien pour réinitialiser ton mot de passe. Pense à vérifier les spams.",
+      "errors": {
+        "missing": "Saisis ton adresse email."
+      }
+    },
+    "resetPassword": {
+      "title": "Définir un nouveau mot de passe",
+      "subtitle": "Choisis un mot de passe qui n'est utilisé nulle part ailleurs.",
+      "footerPrefix": "Compte concerné :",
+      "footer": "Une fois changé, on te demandera de te reconnecter.",
+      "expiredTitle": "Lien expiré",
+      "expiredSubtitle": "Le lien de réinitialisation n'est plus valide. Demande-en un nouveau.",
+      "requestNew": "Demander un nouveau lien",
+      "backToLogin": "Retour à la connexion",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "strength": "Force du mot de passe : {label}",
+      "strengthLevels": {
+        "tooShort": "Trop court",
+        "weak": "Faible",
+        "medium": "Moyen",
+        "strong": "Fort"
+      },
+      "criteria": {
+        "minLength": "Au moins 8 caractères",
+        "uppercase": "Au moins une majuscule",
+        "digit": "Au moins un chiffre"
+      },
+      "mismatch": "Les deux mots de passe ne correspondent pas.",
+      "submit": "Mettre à jour mon mot de passe",
+      "submitting": "Mise à jour…",
+      "errors": {
+        "notMet": "Le mot de passe ne respecte pas les critères de sécurité.",
+        "mismatch": "Les mots de passe ne correspondent pas.",
+        "update": "Échec de la mise à jour : {message}"
       }
     },
     "setupPassword": {

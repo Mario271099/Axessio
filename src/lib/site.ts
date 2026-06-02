@@ -41,6 +41,9 @@ export const SITE = {
   twitter: "@axessio",
   locale: { fr: "fr_FR", en: "en_US" },
   url: normalize(process.env.NEXT_PUBLIC_APP_URL ?? FALLBACK_URL),
+  // Adresse de support — utilisée par le lien « Contactez votre
+  // administrateur » sur /login et les voies de retour a11y.
+  supportEmail: "contact@axessio.app",
 } as const;
 
 export function siteUrl(path = "/"): string {

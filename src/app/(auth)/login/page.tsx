@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { LoginForm } from "./login-form";
+import { LoginResetBanner } from "./login-reset-banner";
 import { SITE } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -29,8 +30,23 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function LoginPage() {
+interface LoginPageProps {
+  searchParams: Promise<{ reset?: string }>;
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
   const t = await getTranslations("auth.login");
+  const sp = await searchParams;
+
+  // `?reset=1` est posé par `/reset-password` après un changement réussi.
+  // Affichage d'une bannière de succès pour confirmer à l'utilisateur que
+  // sa demande a abouti.
+  const showResetSuccess = sp.reset === "1";
+
+  // Pré-remplit le sujet de l'email pour faciliter la réponse côté support.
+  const mailto = `mailto:${SITE.supportEmail}?subject=${encodeURIComponent(
+    t("contactAdminSubject"),
+  )}`;
 
   return (
     <AuthLayout
@@ -39,10 +55,16 @@ export default async function LoginPage() {
       footer={
         <>
           {t("footer")}{" "}
-          <span className="font-medium text-foreground">{t("footerCta")}</span>
+          <a
+            href={mailto}
+            className="font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded"
+          >
+            {t("footerCta")}
+          </a>
         </>
       }
     >
+      {showResetSuccess && <LoginResetBanner />}
       <LoginForm />
     </AuthLayout>
   );

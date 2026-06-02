@@ -911,12 +911,62 @@
       "submit": "Sign in",
       "submitting": "Signing in…",
       "footer": "Don't have an account yet?",
-      "footerCta": "Contact your administrator.",
+      "footerCta": "Contact your administrator",
+      "contactAdminSubject": "Access request for the Axessio platform",
+      "resetSuccess": "Password updated. Sign in with your new password.",
+      "dismissBanner": "Dismiss this message",
       "errors": {
         "missing": "Email and password are required.",
         "sessionFailed": "Session could not be created. Check your Supabase configuration.",
         "signIn": "Error: {message}",
         "rateLimited": "Too many login attempts. Try again in {seconds}s."
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot your password?",
+      "subtitle": "Enter your email — we'll send you a link to set a new one.",
+      "email": "Email address",
+      "emailPlaceholder": "you@company.com",
+      "submit": "Send link",
+      "submitting": "Sending…",
+      "backToLogin": "Back to sign in",
+      "footer": "The link is valid for about one hour.",
+      "successTitle": "Link sent",
+      "successDesc": "If an account exists for this address, you'll receive an email with a reset link. Check your spam folder if needed.",
+      "errors": {
+        "missing": "Enter your email address."
+      }
+    },
+    "resetPassword": {
+      "title": "Set a new password",
+      "subtitle": "Pick a password you don't use anywhere else.",
+      "footerPrefix": "Account:",
+      "footer": "After the change you'll be asked to sign in again.",
+      "expiredTitle": "Link expired",
+      "expiredSubtitle": "This reset link is no longer valid. Request a new one.",
+      "requestNew": "Request a new link",
+      "backToLogin": "Back to sign in",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "strength": "Password strength: {label}",
+      "strengthLevels": {
+        "tooShort": "Too short",
+        "weak": "Weak",
+        "medium": "Medium",
+        "strong": "Strong"
+      },
+      "criteria": {
+        "minLength": "At least 8 characters",
+        "uppercase": "At least one uppercase letter",
+        "digit": "At least one digit"
+      },
+      "mismatch": "Passwords don't match.",
+      "submit": "Update my password",
+      "submitting": "Updating…",
+      "errors": {
+        "notMet": "Password doesn't meet the security criteria.",
+        "mismatch": "Passwords don't match.",
+        "update": "Update failed: {message}"
       }
     },
     "setupPassword": {

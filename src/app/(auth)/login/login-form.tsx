@@ -123,8 +123,7 @@ export function LoginForm() {
         <div className="flex items-center justify-between">
           <Label htmlFor="password">{t("password")}</Label>
           <Link
-            href="/login"
-            tabIndex={-1}
+            href="/forgot-password"
             className="text-xs text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded"
           >
             {t("forgotPassword")}
