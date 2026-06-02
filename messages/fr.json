@@ -1463,34 +1463,68 @@
         "edit": "Modifier l'audit"
       },
       "states": {
-        "pending.noSample.title": "Composez l'échantillon",
-        "pending.noSample.description": "Ajoutez au moins une page représentative avant de planifier l'audit.",
-        "pending.ready.title": "Prêt à planifier",
-        "pending.ready.description": "L'échantillon est défini — passez l'audit en planifié pour démarrer.",
-        "planned.noDate.title": "Renseignez la date de démarrage",
-        "planned.noDate.description": "Aucune date n'est planifiée. Renseignez-la pour pouvoir démarrer.",
-        "planned.future.title": "Démarrage à venir",
-        "planned.future.description": "L'audit démarrera à la date prévue, rien à faire pour l'instant.",
-        "planned.start.title": "Lancez l'audit",
-        "planned.start.description": "La date de démarrage est atteinte, passez l'audit en cours.",
-        "inProgress.noMatrix.title": "Configurez la matrice",
-        "inProgress.noMatrix.description": "Le référentiel ne contient pas encore de critères évaluables.",
-        "inProgress.matrix.title": "Complétez la matrice",
-        "inProgress.matrix.description": "{filled} sur {total} cellules remplies ({percent} %). Encore un peu d'effort.",
-        "inProgress.ready.title": "Prêt à livrer",
-        "inProgress.ready.description": "Matrice complète à 100 % — livrez le rapport au client.",
-        "delivered.title": "Audit livré",
-        "delivered.description": "Suivez la remédiation côté client et leurs retours sur les NC.",
-        "remediation.title": "Phase de remédiation",
-        "remediation.description": "Le client corrige les NC. Suivez l'impact via le simulateur.",
-        "counterAudit.title": "Contre-audit en cours",
-        "counterAudit.description": "Réévaluez les critères corrigés et figez le score final.",
-        "completed.title": "Audit terminé",
-        "completed.description": "Toutes les étapes sont closes. Bravo.",
-        "archived.title": "Audit archivé",
-        "archived.description": "L'audit n'est plus actif.",
-        "unknown.title": "Statut inconnu",
-        "unknown.description": "Aucune action recommandée pour ce statut."
+        "pending": {
+          "noSample": {
+            "title": "Composez l'échantillon",
+            "description": "Ajoutez au moins une page représentative avant de planifier l'audit."
+          },
+          "ready": {
+            "title": "Prêt à planifier",
+            "description": "L'échantillon est défini — passez l'audit en planifié pour démarrer."
+          }
+        },
+        "planned": {
+          "noDate": {
+            "title": "Renseignez la date de démarrage",
+            "description": "Aucune date n'est planifiée. Renseignez-la pour pouvoir démarrer."
+          },
+          "future": {
+            "title": "Démarrage à venir",
+            "description": "L'audit démarrera à la date prévue, rien à faire pour l'instant."
+          },
+          "start": {
+            "title": "Lancez l'audit",
+            "description": "La date de démarrage est atteinte, passez l'audit en cours."
+          }
+        },
+        "inProgress": {
+          "noMatrix": {
+            "title": "Configurez la matrice",
+            "description": "Le référentiel ne contient pas encore de critères évaluables."
+          },
+          "matrix": {
+            "title": "Complétez la matrice",
+            "description": "{filled} sur {total} cellules remplies ({percent} %). Encore un peu d'effort."
+          },
+          "ready": {
+            "title": "Prêt à livrer",
+            "description": "Matrice complète à 100 % — livrez le rapport au client."
+          }
+        },
+        "delivered": {
+          "title": "Audit livré",
+          "description": "Suivez la remédiation côté client et leurs retours sur les NC."
+        },
+        "remediation": {
+          "title": "Phase de remédiation",
+          "description": "Le client corrige les NC. Suivez l'impact via le simulateur."
+        },
+        "counterAudit": {
+          "title": "Contre-audit en cours",
+          "description": "Réévaluez les critères corrigés et figez le score final."
+        },
+        "completed": {
+          "title": "Audit terminé",
+          "description": "Toutes les étapes sont closes. Bravo."
+        },
+        "archived": {
+          "title": "Audit archivé",
+          "description": "L'audit n'est plus actif."
+        },
+        "unknown": {
+          "title": "Statut inconnu",
+          "description": "Aucune action recommandée pour ce statut."
+        }
       }
     },
     "kpiBar": {

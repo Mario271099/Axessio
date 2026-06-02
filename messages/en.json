@@ -1463,34 +1463,68 @@
         "edit": "Edit audit"
       },
       "states": {
-        "pending.noSample.title": "Build the sample",
-        "pending.noSample.description": "Add at least one representative page before planning the audit.",
-        "pending.ready.title": "Ready to plan",
-        "pending.ready.description": "Sample is defined — move the audit to planned to get started.",
-        "planned.noDate.title": "Set the start date",
-        "planned.noDate.description": "No date is planned. Set one to be able to start.",
-        "planned.future.title": "Upcoming start",
-        "planned.future.description": "The audit will start at the planned date — nothing to do for now.",
-        "planned.start.title": "Launch the audit",
-        "planned.start.description": "The start date is reached, move the audit to in progress.",
-        "inProgress.noMatrix.title": "Set up the matrix",
-        "inProgress.noMatrix.description": "The reference has no criteria available yet.",
-        "inProgress.matrix.title": "Complete the matrix",
-        "inProgress.matrix.description": "{filled} of {total} cells filled ({percent}%). Keep going.",
-        "inProgress.ready.title": "Ready to deliver",
-        "inProgress.ready.description": "Matrix is 100% complete — deliver the report to the client.",
-        "delivered.title": "Audit delivered",
-        "delivered.description": "Follow client remediation and their feedback on NCs.",
-        "remediation.title": "Remediation phase",
-        "remediation.description": "The client is fixing NCs. Track impact via the simulator.",
-        "counterAudit.title": "Counter-audit in progress",
-        "counterAudit.description": "Re-evaluate fixed criteria and freeze the final score.",
-        "completed.title": "Audit completed",
-        "completed.description": "All steps are closed. Great work.",
-        "archived.title": "Audit archived",
-        "archived.description": "The audit is no longer active.",
-        "unknown.title": "Unknown status",
-        "unknown.description": "No recommended action for this status."
+        "pending": {
+          "noSample": {
+            "title": "Build the sample",
+            "description": "Add at least one representative page before planning the audit."
+          },
+          "ready": {
+            "title": "Ready to plan",
+            "description": "Sample is defined — move the audit to planned to get started."
+          }
+        },
+        "planned": {
+          "noDate": {
+            "title": "Set the start date",
+            "description": "No date is planned. Set one to be able to start."
+          },
+          "future": {
+            "title": "Upcoming start",
+            "description": "The audit will start at the planned date — nothing to do for now."
+          },
+          "start": {
+            "title": "Launch the audit",
+            "description": "The start date is reached, move the audit to in progress."
+          }
+        },
+        "inProgress": {
+          "noMatrix": {
+            "title": "Set up the matrix",
+            "description": "The reference has no criteria available yet."
+          },
+          "matrix": {
+            "title": "Complete the matrix",
+            "description": "{filled} of {total} cells filled ({percent}%). Keep going."
+          },
+          "ready": {
+            "title": "Ready to deliver",
+            "description": "Matrix is 100% complete — deliver the report to the client."
+          }
+        },
+        "delivered": {
+          "title": "Audit delivered",
+          "description": "Follow client remediation and their feedback on NCs."
+        },
+        "remediation": {
+          "title": "Remediation phase",
+          "description": "The client is fixing NCs. Track impact via the simulator."
+        },
+        "counterAudit": {
+          "title": "Counter-audit in progress",
+          "description": "Re-evaluate fixed criteria and freeze the final score."
+        },
+        "completed": {
+          "title": "Audit completed",
+          "description": "All steps are closed. Great work."
+        },
+        "archived": {
+          "title": "Audit archived",
+          "description": "The audit is no longer active."
+        },
+        "unknown": {
+          "title": "Unknown status",
+          "description": "No recommended action for this status."
+        }
       }
     },
     "kpiBar": {
