@@ -101,6 +101,11 @@ const AUDITOR_PERMS: ReadonlyArray<Permission> = [
   "remediation.view",
   "chat.read",
   "chat.write",
+  // Quick-fix Phase 0 (en attendant la refonte rôles unifiés) : un auditeur
+  // peut créer un client dans son org. Sans ça un freelance ne peut rien
+  // initier seul. La gate quota (`max_clients` du plan) sera ajoutée en
+  // Phase 3 et complétera ce contrôle de permission.
+  "client.manage",
   "project.manage",
   "impersonate", // limité à `client` côté UI (cf. canImpersonate ci-dessous)
 ];
