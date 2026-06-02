@@ -19,6 +19,11 @@
 --   chat.read  → chat.client.read  + chat.review.read
 --   chat.write → chat.client.write + chat.review.write
 --
+-- Postgres ne permet pas de retirer une valeur d'un enum sans recréer le
+-- type. Les fonctions et policies qui référencent l'enum doivent donc être
+-- droppées au préalable puis recréées. Cette migration fait les deux dans
+-- la même transaction pour rester atomique.
+--
 -- Idempotente (skips si l'enum a déjà 4 valeurs).
 -- ============================================================================
 
@@ -53,16 +58,37 @@ on conflict (code) do update
 delete from public.permissions where code in ('chat.read', 'chat.write');
 
 -- ----------------------------------------------------------------------------
--- 2) Dépendances à supprimer avant de pouvoir recréer l'enum
---    - fonctions retournant ou prenant org_role
---    - colonnes typées org_role
+-- 2) Drop les policies qui dépendent de has_org_role / has_workspace_role
+--    (on les recréera plus bas avec la même sémantique, ajustée à la
+--    nouvelle hiérarchie 4 niveaux)
+-- ----------------------------------------------------------------------------
+drop policy if exists organizations_update on public.organizations;
+drop policy if exists organizations_delete on public.organizations;
+drop policy if exists org_members_select on public.organization_members;
+drop policy if exists org_members_manage on public.organization_members;
+drop policy if exists org_auth_methods_select on public.org_auth_methods;
+drop policy if exists org_auth_methods_manage on public.org_auth_methods;
+drop policy if exists workspaces_manage on public.workspaces;
+drop policy if exists workspace_members_select on public.workspace_members;
+drop policy if exists workspace_members_manage on public.workspace_members;
+drop policy if exists webhook_endpoints_select on public.webhook_endpoints;
+drop policy if exists webhook_endpoints_manage on public.webhook_endpoints;
+drop policy if exists webhook_deliveries_select on public.webhook_deliveries;
+drop policy if exists api_tokens_select on public.api_tokens;
+drop policy if exists api_tokens_manage on public.api_tokens;
+drop policy if exists audit_logs_select_org_admin on public.audit_logs;
+
+-- ----------------------------------------------------------------------------
+-- 3) Drop les fonctions typées org_role
 -- ----------------------------------------------------------------------------
 drop function if exists public.has_org_role(uuid, public.org_role);
 drop function if exists public.has_workspace_role(uuid, public.org_role);
 drop function if exists public.my_organizations();
 drop function if exists public.my_workspaces();
 
--- Passage des colonnes en text le temps de la migration data.
+-- ----------------------------------------------------------------------------
+-- 4) Passage des colonnes en text pour le remap data
+-- ----------------------------------------------------------------------------
 alter table public.organization_members
   alter column role drop default;
 alter table public.organization_members
@@ -74,7 +100,7 @@ alter table public.workspace_members
   alter column role type text using role::text;
 
 -- ----------------------------------------------------------------------------
--- 3) Mapping data : 6 valeurs legacy → 4 valeurs cibles
+-- 5) Mapping data : 6 → 4 valeurs
 -- ----------------------------------------------------------------------------
 update public.organization_members
    set role = 'auditor'
@@ -93,12 +119,11 @@ update public.workspace_members
  where role = 'guest';
 
 -- ----------------------------------------------------------------------------
--- 4) Recréer l'enum org_role avec 4 valeurs (drop + create)
+-- 6) Recréer l'enum + re-typer les colonnes
 -- ----------------------------------------------------------------------------
 drop type if exists public.org_role;
 create type public.org_role as enum ('owner', 'admin', 'auditor', 'viewer');
 
--- Re-typer les colonnes avec le nouvel enum.
 alter table public.organization_members
   alter column role type public.org_role using role::public.org_role;
 
@@ -109,7 +134,7 @@ alter table public.workspace_members
   alter column role set default 'auditor'::public.org_role;
 
 -- ----------------------------------------------------------------------------
--- 5) Recréer les helpers
+-- 7) Recréer les helpers (signatures et hiérarchie alignées sur 4 valeurs)
 -- ----------------------------------------------------------------------------
 create or replace function public.has_org_role(
   p_org_id uuid,
@@ -153,17 +178,15 @@ security definer
 set search_path = public
 as $$
   with my_role as (
-    -- direct workspace membership prime sur l'héritage org
     select role from public.workspace_members
      where workspace_id = p_workspace_id and user_id = auth.uid()
     union all
     select m.role
-      from public.workspace_members w
-      join public.workspaces ws on ws.id = w.workspace_id
+      from public.workspaces ws
       join public.organization_members m
         on m.organization_id = ws.organization_id
        and m.user_id = auth.uid()
-     where w.workspace_id = p_workspace_id
+     where ws.id = p_workspace_id
        and m.role in ('owner','admin')
      limit 1
   ),
@@ -252,7 +275,163 @@ as $$
 $$;
 
 -- ----------------------------------------------------------------------------
--- 6) Re-seed role_permissions selon la matrice cible
+-- 8) Recréer les policies droppées au point 2
+--    Note : 'manager' (legacy) devient 'auditor' partout. Le seuil 'admin'
+--    et 'owner' restent inchangés.
+-- ----------------------------------------------------------------------------
+
+-- organizations
+create policy organizations_update on public.organizations
+  for update to authenticated
+  using (
+    public.is_admin()
+    or public.has_org_role(id, 'admin')
+  )
+  with check (
+    public.is_admin()
+    or public.has_org_role(id, 'admin')
+  );
+
+create policy organizations_delete on public.organizations
+  for delete to authenticated
+  using (
+    public.is_admin()
+    or public.has_org_role(id, 'owner')
+  );
+
+-- organization_members
+create policy org_members_select on public.organization_members
+  for select to authenticated
+  using (
+    public.is_admin()
+    or user_id = auth.uid()
+    or public.has_org_role(organization_id, 'auditor')
+  );
+
+create policy org_members_manage on public.organization_members
+  for all to authenticated
+  using (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  )
+  with check (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  );
+
+-- org_auth_methods (mig. 53)
+create policy org_auth_methods_select on public.org_auth_methods
+  for select to authenticated
+  using (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  );
+
+create policy org_auth_methods_manage on public.org_auth_methods
+  for all to authenticated
+  using (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  )
+  with check (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  );
+
+-- workspaces (mig. 54)
+create policy workspaces_manage on public.workspaces
+  for all to authenticated
+  using (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  )
+  with check (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  );
+
+create policy workspace_members_select on public.workspace_members
+  for select to authenticated
+  using (
+    public.is_admin()
+    or user_id = auth.uid()
+    or public.has_workspace_role(workspace_id, 'auditor')
+  );
+
+create policy workspace_members_manage on public.workspace_members
+  for all to authenticated
+  using (
+    public.is_admin()
+    or public.has_workspace_role(workspace_id, 'admin')
+  )
+  with check (
+    public.is_admin()
+    or public.has_workspace_role(workspace_id, 'admin')
+  );
+
+-- webhook_endpoints + deliveries (mig. 56)
+create policy webhook_endpoints_select on public.webhook_endpoints
+  for select to authenticated
+  using (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  );
+
+create policy webhook_endpoints_manage on public.webhook_endpoints
+  for all to authenticated
+  using (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  )
+  with check (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  );
+
+create policy webhook_deliveries_select on public.webhook_deliveries
+  for select to authenticated
+  using (
+    public.is_admin()
+    or exists (
+      select 1 from public.webhook_endpoints e
+       where e.id = webhook_deliveries.endpoint_id
+         and public.has_org_role(e.organization_id, 'admin')
+    )
+  );
+
+-- api_tokens (mig. 58)
+create policy api_tokens_select on public.api_tokens
+  for select to authenticated
+  using (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  );
+
+create policy api_tokens_manage on public.api_tokens
+  for all to authenticated
+  using (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  )
+  with check (
+    public.is_admin()
+    or public.has_org_role(organization_id, 'admin')
+  );
+
+-- audit_logs (mig. 59) — la policy d'origine combinait organization_id et
+-- has_org_role(organization_id, 'admin'). On reprend tel quel.
+create policy audit_logs_select_org_admin on public.audit_logs
+  for select to authenticated
+  using (
+    public.is_admin()
+    or (
+      organization_id is not null
+      and public.has_org_role(organization_id, 'admin')
+    )
+  );
+
+-- ----------------------------------------------------------------------------
+-- 9) Re-seed role_permissions selon la matrice cible (4 rôles)
 -- ----------------------------------------------------------------------------
 delete from public.role_permissions where scope = 'org';
 
