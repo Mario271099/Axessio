@@ -25,10 +25,8 @@ interface OrgSwitcherProps {
 const ROLE_VARIANT = {
   owner: "default",
   admin: "default",
-  manager: "secondary",
-  member: "secondary",
+  auditor: "secondary",
   viewer: "muted",
-  guest: "muted",
 } as const;
 
 /**

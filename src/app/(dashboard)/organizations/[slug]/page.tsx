@@ -40,10 +40,8 @@ const ROLE_TONE: Record<
 > = {
   owner: "success",
   admin: "default",
-  manager: "default",
-  member: "secondary",
+  auditor: "secondary",
   viewer: "muted",
-  guest: "muted",
 };
 
 export default async function OrganizationDetailPage({

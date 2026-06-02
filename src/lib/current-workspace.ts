@@ -33,7 +33,11 @@ export async function loadMyWorkspaces(): Promise<WorkspaceMembership[]> {
     description: row.description,
     isDefault: row.is_default,
     isArchived: row.is_archived,
-    effectiveRole: row.effective_role ?? "guest",
+    // Phase 2 (mig. 67) : viewer remplace l'ancien fallback "guest"
+    // — quand un user n'a aucun rôle effectif il ne devrait pas voir le
+    // workspace de toute façon (filtré par RLS), mais on garde un défaut
+    // sûr en lecture seule.
+    effectiveRole: row.effective_role ?? "viewer",
   }));
 }
 

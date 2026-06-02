@@ -572,10 +572,8 @@
     "role": {
       "owner": "Propriétaire",
       "admin": "Administrateur",
-      "manager": "Gestionnaire",
-      "member": "Membre",
-      "viewer": "Lecteur",
-      "guest": "Invité"
+      "auditor": "Auditeur",
+      "viewer": "Lecteur"
     }
   },
   "organizations": {
@@ -590,10 +588,8 @@
     "role": {
       "owner": "Propriétaire",
       "admin": "Administrateur",
-      "manager": "Gestionnaire",
-      "member": "Membre",
-      "viewer": "Lecteur",
-      "guest": "Invité"
+      "auditor": "Auditeur",
+      "viewer": "Lecteur"
     },
     "detail": {
       "metaTitle": "Organisation — {slug}",
@@ -1288,8 +1284,10 @@
         "nc_delete": "Supprimer une NC",
         "nc_update_status_client": "Marquer une NC corrigée",
         "remediation_view": "Accéder à la remédiation",
-        "chat_read": "Lire la discussion",
-        "chat_write": "Écrire dans la discussion",
+        "chat_client_read": "Lire le fil client d'une NC",
+        "chat_client_write": "Écrire dans le fil client d'une NC",
+        "chat_review_read": "Lire le fil de relecture interne",
+        "chat_review_write": "Écrire dans le fil de relecture interne",
         "client_manage": "Gérer les clients",
         "project_manage": "Gérer les projets",
         "user_manage": "Gérer les utilisateurs",

@@ -11,13 +11,21 @@
 // Tenancy — organisations (Phase 1 du refactor RBAC)
 // ============================================================================
 export type OrgType = "individual" | "agency" | "company" | "enterprise";
-export type OrgRole =
-  | "owner"
-  | "admin"
-  | "manager"
-  | "member"
-  | "viewer"
-  | "guest";
+
+/**
+ * Rôles d'organisation — 4 valeurs depuis la Phase 2 (mig. 67).
+ * Voir ROLES_ROADMAP.md pour la matrice complète.
+ *
+ *   owner   : 1 par org, droits absolus + transfert de propriété
+ *   admin   : tout sauf transfert d'ownership
+ *   auditor : crée projets/audits, édite matrice et NC, fil client + review
+ *   viewer  : lecture + commentaires (fil client + review), pas d'édition
+ *
+ * Les invités externes (PO d'un customer, auditeur ponctuel) ne sont JAMAIS
+ * dans cette enum : ils passent par `audit_assignees.role = 'contact'`
+ * (Porte 2 — voir Phase 5).
+ */
+export type OrgRole = "owner" | "admin" | "auditor" | "viewer";
 
 export interface Organization {
   id: string;

@@ -50,7 +50,13 @@ const GROUPS: Array<{
   },
   {
     key: "collab",
-    permissions: ["remediation.view", "chat.read", "chat.write"],
+    permissions: [
+      "remediation.view",
+      "chat.client.read",
+      "chat.client.write",
+      "chat.review.read",
+      "chat.review.write",
+    ],
   },
   {
     key: "admin",

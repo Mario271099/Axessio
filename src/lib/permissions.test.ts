@@ -22,23 +22,17 @@ const ALL_USER_ROLES: readonly UserRole[] = [
   "client",
 ];
 
-const ALL_ORG_ROLES: readonly OrgRole[] = [
-  "owner",
-  "admin",
-  "manager",
-  "member",
-  "viewer",
-  "guest",
-];
+// Phase 2 (mig. 67) : enum org_role passé de 6 à 4 valeurs.
+const ALL_ORG_ROLES: readonly OrgRole[] = ["owner", "admin", "auditor", "viewer"];
 
 // ============================================================================
 // Catalogue
 // ============================================================================
 describe("ALL_PERMISSIONS catalogue", () => {
-  it("contient au moins les 18 permissions atomiques attendues", () => {
-    // Si on en ajoute, ce nombre monte — mais on garde un test "garde-fou"
-    // pour éviter une régression silencieuse.
-    expect(ALL_PERMISSIONS.length).toBeGreaterThanOrEqual(18);
+  it("contient au moins les 20 permissions atomiques attendues", () => {
+    // Phase 2 a split chat.read/write en chat.client.* + chat.review.* —
+    // le compte total passe à 20 minimum.
+    expect(ALL_PERMISSIONS.length).toBeGreaterThanOrEqual(20);
   });
 
   it("n'a pas de doublons", () => {
@@ -50,6 +44,13 @@ describe("ALL_PERMISSIONS catalogue", () => {
     expect(ALL_PERMISSIONS).toContain("audit.view");
     expect(ALL_PERMISSIONS).toContain("audit.delete");
     expect(ALL_PERMISSIONS).toContain("user.manage");
+  });
+
+  it("expose les 4 permissions chat scopées par fil (Phase 2)", () => {
+    expect(ALL_PERMISSIONS).toContain("chat.client.read");
+    expect(ALL_PERMISSIONS).toContain("chat.client.write");
+    expect(ALL_PERMISSIONS).toContain("chat.review.read");
+    expect(ALL_PERMISSIONS).toContain("chat.review.write");
   });
 });
 
@@ -76,7 +77,6 @@ describe("PERMISSIONS (rôles plateforme)", () => {
   });
 
   it("client_admin peut assigner un auditeur mais pas créer une NC", () => {
-    // Cf. permissions.ts : client_admin a 'audit.assign_auditor' mais pas 'nc.create'.
     expect(can("client_admin", "audit.assign_auditor")).toBe(true);
     expect(can("client_admin", "nc.create")).toBe(false);
   });
@@ -88,11 +88,18 @@ describe("PERMISSIONS (rôles plateforme)", () => {
     expect(can("auditor", "user.manage")).toBe(false);
   });
 
-  it("tous les rôles peuvent accéder à remediation.view et chat.read", () => {
+  it("tous les rôles peuvent lire le fil client d'une NC", () => {
     for (const role of ALL_USER_ROLES) {
       expect(can(role, "remediation.view")).toBe(true);
-      expect(can(role, "chat.read")).toBe(true);
+      expect(can(role, "chat.client.read")).toBe(true);
     }
+  });
+
+  it("seul le staff plateforme (admin + auditor) voit le fil review", () => {
+    expect(can("admin", "chat.review.read")).toBe(true);
+    expect(can("auditor", "chat.review.read")).toBe(true);
+    expect(can("client_admin", "chat.review.read")).toBe(false);
+    expect(can("client", "chat.review.read")).toBe(false);
   });
 });
 
@@ -139,10 +146,10 @@ describe("isStaff", () => {
 });
 
 // ============================================================================
-// ORG_PERMISSIONS — Phase 3 (RBAC org-scopé)
+// ORG_PERMISSIONS — Phase 2 : 4 rôles, chat scopé par fil
 // ============================================================================
 describe("ORG_PERMISSIONS (rôles organisation)", () => {
-  it("couvre exactement les 6 rôles OrgRole", () => {
+  it("couvre exactement les 4 rôles OrgRole", () => {
     expect(Object.keys(ORG_PERMISSIONS).sort()).toEqual(
       [...ALL_ORG_ROLES].sort(),
     );
@@ -155,52 +162,73 @@ describe("ORG_PERMISSIONS (rôles organisation)", () => {
     }
   });
 
-  it("manager peut éditer un audit + NC mais pas user.manage ni client.manage", () => {
-    expect(canOrg("manager", "audit.edit")).toBe(true);
-    expect(canOrg("manager", "nc.create")).toBe(true);
-    expect(canOrg("manager", "nc.delete")).toBe(true);
-    expect(canOrg("manager", "user.manage")).toBe(false);
-    expect(canOrg("manager", "client.manage")).toBe(false);
+  it("auditor crée projets/audits/NC et édite la matrice", () => {
+    expect(canOrg("auditor", "project.manage")).toBe(true);
+    expect(canOrg("auditor", "audit.edit")).toBe(true);
+    expect(canOrg("auditor", "audit.delete")).toBe(true);
+    expect(canOrg("auditor", "nc.create")).toBe(true);
+    expect(canOrg("auditor", "nc.delete")).toBe(true);
+    expect(canOrg("auditor", "matrix.edit")).toBe(true);
   });
 
-  it("member peut créer une NC mais pas la supprimer", () => {
-    expect(canOrg("member", "nc.create")).toBe(true);
-    expect(canOrg("member", "nc.edit")).toBe(true);
-    expect(canOrg("member", "nc.delete")).toBe(false);
+  it("auditor ne peut pas gérer clients, membres, facturation", () => {
+    expect(canOrg("auditor", "client.manage")).toBe(false);
+    expect(canOrg("auditor", "user.manage")).toBe(false);
   });
 
-  it("viewer ne peut qu'audit.view + remediation.view + chat.read", () => {
-    expect(listOrgPermissions("viewer").sort()).toEqual(
-      ["audit.view", "chat.read", "remediation.view"].sort(),
+  it("auditor a accès aux DEUX fils de discussion NC", () => {
+    expect(canOrg("auditor", "chat.client.read")).toBe(true);
+    expect(canOrg("auditor", "chat.client.write")).toBe(true);
+    expect(canOrg("auditor", "chat.review.read")).toBe(true);
+    expect(canOrg("auditor", "chat.review.write")).toBe(true);
+  });
+
+  it("viewer peut lire et commenter dans les DEUX fils, mais n'édite rien", () => {
+    expect(canOrg("viewer", "audit.view")).toBe(true);
+    expect(canOrg("viewer", "chat.client.read")).toBe(true);
+    expect(canOrg("viewer", "chat.client.write")).toBe(true);
+    expect(canOrg("viewer", "chat.review.read")).toBe(true);
+    expect(canOrg("viewer", "chat.review.write")).toBe(true);
+
+    expect(canOrg("viewer", "audit.edit")).toBe(false);
+    expect(canOrg("viewer", "matrix.edit")).toBe(false);
+    expect(canOrg("viewer", "nc.create")).toBe(false);
+    expect(canOrg("viewer", "nc.delete")).toBe(false);
+  });
+
+  it("viewer n'expose que la lecture seule + chat (set borné)", () => {
+    const perms = new Set(listOrgPermissions("viewer"));
+    expect(perms).toEqual(
+      new Set<Permission>([
+        "audit.view",
+        "remediation.view",
+        "chat.client.read",
+        "chat.client.write",
+        "chat.review.read",
+        "chat.review.write",
+      ]),
     );
   });
 
-  it("guest peut écrire dans le chat et changer le statut client d'une NC", () => {
-    expect(canOrg("guest", "chat.write")).toBe(true);
-    expect(canOrg("guest", "nc.update_status_client")).toBe(true);
-    // mais pas créer ni supprimer
-    expect(canOrg("guest", "nc.create")).toBe(false);
-    expect(canOrg("guest", "nc.delete")).toBe(false);
-  });
-
-  it("aucun rôle org < admin n'a audit.delete", () => {
-    const lower: OrgRole[] = ["manager", "member", "viewer", "guest"];
+  it("seuls owner/admin peuvent supprimer un audit, gérer les clients/users", () => {
+    const lower: OrgRole[] = ["auditor", "viewer"];
     for (const role of lower) {
-      expect(canOrg(role, "audit.delete")).toBe(false);
+      expect(canOrg(role, "client.manage")).toBe(false);
+      expect(canOrg(role, "user.manage")).toBe(false);
     }
+    // auditor garde audit.delete (cf. ROLES_ROADMAP.md), viewer non.
+    expect(canOrg("viewer", "audit.delete")).toBe(false);
   });
 });
 
 // ============================================================================
-// Hiérarchie OrgRole
+// Hiérarchie OrgRole — 4 niveaux désormais
 // ============================================================================
 describe("ORG_ROLE_WEIGHT + orgRoleAtLeast", () => {
-  it("ordonne strictement owner > admin > manager > member > viewer > guest", () => {
+  it("ordonne strictement owner > admin > auditor > viewer", () => {
     expect(ORG_ROLE_WEIGHT.owner).toBeGreaterThan(ORG_ROLE_WEIGHT.admin);
-    expect(ORG_ROLE_WEIGHT.admin).toBeGreaterThan(ORG_ROLE_WEIGHT.manager);
-    expect(ORG_ROLE_WEIGHT.manager).toBeGreaterThan(ORG_ROLE_WEIGHT.member);
-    expect(ORG_ROLE_WEIGHT.member).toBeGreaterThan(ORG_ROLE_WEIGHT.viewer);
-    expect(ORG_ROLE_WEIGHT.viewer).toBeGreaterThan(ORG_ROLE_WEIGHT.guest);
+    expect(ORG_ROLE_WEIGHT.admin).toBeGreaterThan(ORG_ROLE_WEIGHT.auditor);
+    expect(ORG_ROLE_WEIGHT.auditor).toBeGreaterThan(ORG_ROLE_WEIGHT.viewer);
   });
 
   it("attribue un poids unique à chaque rôle", () => {
@@ -220,15 +248,16 @@ describe("ORG_ROLE_WEIGHT + orgRoleAtLeast", () => {
     }
   });
 
-  it("guest ne satisfait que guest", () => {
-    expect(orgRoleAtLeast("guest", "viewer")).toBe(false);
-    expect(orgRoleAtLeast("guest", "guest")).toBe(true);
+  it("viewer ne satisfait que viewer", () => {
+    expect(orgRoleAtLeast("viewer", "auditor")).toBe(false);
+    expect(orgRoleAtLeast("viewer", "viewer")).toBe(true);
   });
 
-  it("admin satisfait manager/member/viewer/guest mais pas owner", () => {
-    expect(orgRoleAtLeast("admin", "manager")).toBe(true);
-    expect(orgRoleAtLeast("admin", "guest")).toBe(true);
-    expect(orgRoleAtLeast("admin", "owner")).toBe(false);
+  it("auditor satisfait viewer mais pas admin/owner", () => {
+    expect(orgRoleAtLeast("auditor", "viewer")).toBe(true);
+    expect(orgRoleAtLeast("auditor", "auditor")).toBe(true);
+    expect(orgRoleAtLeast("auditor", "admin")).toBe(false);
+    expect(orgRoleAtLeast("auditor", "owner")).toBe(false);
   });
 });
 

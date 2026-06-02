@@ -572,10 +572,8 @@
     "role": {
       "owner": "Owner",
       "admin": "Admin",
-      "manager": "Manager",
-      "member": "Member",
-      "viewer": "Viewer",
-      "guest": "Guest"
+      "auditor": "Auditor",
+      "viewer": "Viewer"
     }
   },
   "organizations": {
@@ -590,10 +588,8 @@
     "role": {
       "owner": "Owner",
       "admin": "Admin",
-      "manager": "Manager",
-      "member": "Member",
-      "viewer": "Viewer",
-      "guest": "Guest"
+      "auditor": "Auditor",
+      "viewer": "Viewer"
     },
     "detail": {
       "metaTitle": "Organization — {slug}",
@@ -1288,8 +1284,10 @@
         "nc_delete": "Delete a NC",
         "nc_update_status_client": "Mark a NC as fixed",
         "remediation_view": "Access remediation",
-        "chat_read": "Read the discussion",
-        "chat_write": "Write in the discussion",
+        "chat_client_read": "Read the client thread on a NC",
+        "chat_client_write": "Write in the client thread on a NC",
+        "chat_review_read": "Read the internal review thread",
+        "chat_review_write": "Write in the internal review thread",
         "client_manage": "Manage clients",
         "project_manage": "Manage projects",
         "user_manage": "Manage users",
