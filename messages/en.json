@@ -846,6 +846,24 @@
       }
     }
   },
+  "commandPalette": {
+    "title": "Global search",
+    "description": "Search audits, projects, clients; jump to a dashboard page.",
+    "placeholder": "Search an audit, a project, a client…",
+    "startTyping": "Type at least 2 characters to search.",
+    "noResults": "No results.",
+    "hint": "↑ ↓ to navigate, ⏎ to open",
+    "kbdClose": "Esc",
+    "triggerLabel": "Search",
+    "openAria": "Open global search (shortcut ⌘ K)",
+    "nav": {
+      "dashboard": "Dashboard",
+      "audits": "My audits",
+      "clients": "My clients",
+      "projects": "My projects",
+      "settings": "Settings"
+    }
+  },
   "sidebar": {
     "navAria": "Main navigation",
     "sections": {

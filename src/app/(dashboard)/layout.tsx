@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { ImpersonationBanner } from "@/components/layout/impersonation-banner";
 import { BrandingStyles } from "@/components/layout/branding-styles";
+import { CommandPalette } from "@/components/layout/command-palette";
 import { getCurrentOrgBranding } from "@/lib/branding/server";
 import { resolveCurrentOrg } from "@/lib/current-org";
 
@@ -49,6 +50,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <BrandingStyles />
+      <CommandPalette />
       <Sidebar
         profile={profile}
         counts={{ inProgressAudits: inProgressCount ?? 0 }}

@@ -846,6 +846,24 @@
       }
     }
   },
+  "commandPalette": {
+    "title": "Recherche globale",
+    "description": "Recherche audits, projets, clients ; saute vers une page du dashboard.",
+    "placeholder": "Rechercher un audit, un projet, un client…",
+    "startTyping": "Tape au moins 2 caractères pour lancer la recherche.",
+    "noResults": "Aucun résultat.",
+    "hint": "↑ ↓ pour naviguer, ⏎ pour ouvrir",
+    "kbdClose": "Esc",
+    "triggerLabel": "Rechercher",
+    "openAria": "Ouvrir la recherche globale (raccourci ⌘ K)",
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "audits": "Mes audits",
+      "clients": "Mes clients",
+      "projects": "Mes projets",
+      "settings": "Paramètres"
+    }
+  },
   "sidebar": {
     "navAria": "Navigation principale",
     "sections": {

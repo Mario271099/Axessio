@@ -5,6 +5,7 @@ import { LanguageToggle } from "@/components/layout/language-toggle";
 import { NotificationsBell } from "@/components/layout/notifications-bell";
 import { TopbarUserMenu } from "@/components/layout/topbar-user-menu";
 import { MobileNavSheet } from "@/components/layout/mobile-nav-sheet";
+import { CommandPaletteTrigger } from "@/components/layout/command-palette-trigger";
 import { AxIcon } from "@/components/brand";
 import { fetchNotifications } from "@/app/(dashboard)/notifications/actions";
 import { USER_ROLE_LABELS } from "@/lib/constants";
@@ -46,7 +47,8 @@ export async function Topbar({ profile, counts, org, brandLogoUrl }: TopbarProps
         </Link>
       </div>
 
-      <div className="ml-auto flex items-center gap-1">
+      <div className="ml-auto flex items-center gap-2">
+        <CommandPaletteTrigger />
         <NotificationsBell initial={initialNotifications} />
 
         <LanguageToggle />
