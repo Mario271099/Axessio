@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { useTranslations, useFormatter } from "next-intl";
+import { ChevronLeft, Loader2, RotateCcw, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useDraftStorage } from "@/hooks/use-draft-storage";
 import {
   Card,
   CardContent,
@@ -73,7 +74,9 @@ export function NewNCForm({
 }: NewNCFormProps) {
   const router = useRouter();
   const t = useTranslations("audits.anomaliesNew");
+  const tDraft = useTranslations("audits.anomaliesNew.draft");
   const tSeverity = useTranslations("constants.ncSeverity");
+  const format = useFormatter();
 
   // -- Cascade thématique → critère → test ---------------------------------
   const [thematicId, setThematicId] = useState<string>("");
@@ -90,6 +93,67 @@ export function NewNCForm({
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
   const [submitting, startTransition] = useTransition();
+
+  // ---- Brouillon localStorage --------------------------------------------
+  // Snapshot du formulaire sans les fichiers (non sérialisables) ni les
+  // états d'UI (error/warning/submitting). Sauvegarde debounced.
+  type Draft = {
+    thematicId: string;
+    criteriaId: string;
+    testReference: string;
+    pageId: string;
+    title: string;
+    description: string;
+    actualResult: string;
+    recommendation: string;
+    severity: NCSeverity;
+  };
+  const draftValue: Draft = {
+    thematicId,
+    criteriaId,
+    testReference,
+    pageId,
+    title,
+    description,
+    actualResult,
+    recommendation,
+    severity,
+  };
+  const draft = useDraftStorage<Draft>(`nc-draft:${auditId}`, draftValue, {
+    paused: submitting,
+    // Tant que l'utilisateur n'a rien tapé d'utile, on n'écrit pas — ça
+    // évite de créer un brouillon « vide » qui referait apparaître le
+    // banner inutilement au prochain montage.
+    shouldPersist: (v) =>
+      Boolean(
+        v.title.trim() ||
+          v.description.trim() ||
+          v.actualResult.trim() ||
+          v.recommendation.trim() ||
+          v.pageId ||
+          v.criteriaId,
+      ),
+  });
+
+  function restoreDraft() {
+    if (!draft.available) return;
+    const v = draft.available.value;
+    // Ordre important : thematic d'abord — les useEffect de cascade
+    // resetteraient criteriaId/testReference sinon. On positionne tout
+    // dans le même render tick côté React, puis on laisse les effets
+    // de cascade valider (ce qu'ils feront sans rien casser puisque
+    // criteriaId appartient bien à thematicId dans un brouillon valide).
+    setThematicId(v.thematicId);
+    setCriteriaId(v.criteriaId);
+    setTestReference(v.testReference);
+    setPageId(v.pageId);
+    setTitle(v.title);
+    setDescription(v.description);
+    setActualResult(v.actualResult);
+    setRecommendation(v.recommendation);
+    setSeverity(v.severity);
+    draft.dismissAvailable();
+  }
 
   // -- Données dérivées de la sélection --------------------------------------
   const filteredCriteria = useMemo(
@@ -224,6 +288,11 @@ export function NewNCForm({
         );
       }
 
+      // La NC est créée — on peut purger le brouillon. Si l'upload des
+      // captures a échoué, ce n'est pas grave pour le brouillon : la NC
+      // existe déjà côté serveur, ré-uploadable depuis sa page de détail.
+      draft.clear();
+
       router.push(`/audits/${auditId}/anomalies/${ncId}`);
     });
   };
@@ -257,6 +326,45 @@ export function NewNCForm({
             >
               {noPages ? t("noPages") : t("noCriteria")}
             </p>
+          )}
+
+          {draft.available && (
+            <div
+              role="status"
+              className="mb-4 flex flex-col gap-3 rounded-md border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <p className="text-sm">
+                <span className="font-medium">{tDraft("bannerTitle")}</span>{" "}
+                <span className="text-muted-foreground">
+                  {tDraft("bannerHint", {
+                    when: format.relativeTime(draft.available.savedAt),
+                  })}
+                </span>
+              </p>
+              <div className="flex shrink-0 gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    draft.clear();
+                  }}
+                  className="gap-1"
+                >
+                  <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  {tDraft("discard")}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={restoreDraft}
+                  className="gap-1"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                  {tDraft("restore")}
+                </Button>
+              </div>
+            </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -484,7 +592,21 @@ export function NewNCForm({
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
+            <div className="flex flex-col items-stretch gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+              {draft.savedAt ? (
+                <p
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"
+                  aria-live="polite"
+                >
+                  <Save className="h-3 w-3" aria-hidden="true" />
+                  {tDraft("savedAt", {
+                    when: format.relativeTime(draft.savedAt),
+                  })}
+                </p>
+              ) : (
+                <span aria-hidden="true" />
+              )}
+              <div className="flex items-center justify-end gap-2">
               <Button
                 asChild
                 type="button"
@@ -508,6 +630,7 @@ export function NewNCForm({
                 )}
                 {t("submit")}
               </Button>
+              </div>
             </div>
           </form>
         </CardContent>

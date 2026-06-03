@@ -2224,6 +2224,13 @@
       "back": "Retour aux non-conformités",
       "title": "Nouvelle non-conformité",
       "subtitle": "Renseignez le critère concerné, la page testée et la description de l'anomalie.",
+      "draft": {
+        "bannerTitle": "Brouillon trouvé.",
+        "bannerHint": "Sauvegardé {when} sur cet appareil.",
+        "restore": "Reprendre",
+        "discard": "Supprimer",
+        "savedAt": "Brouillon enregistré {when}"
+      },
       "info": "Informations",
       "noPages": "Cet audit n'a aucune page configurée. Ajoutez d'abord des pages dans l'échantillon.",
       "noCriteria": "Aucun critère trouvé pour le référentiel de cet audit.",

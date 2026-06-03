@@ -2224,6 +2224,13 @@
       "back": "Back to non-conformities",
       "title": "New non-conformity",
       "subtitle": "Provide the affected criterion, the tested page and the description of the anomaly.",
+      "draft": {
+        "bannerTitle": "Draft found.",
+        "bannerHint": "Saved {when} on this device.",
+        "restore": "Restore",
+        "discard": "Discard",
+        "savedAt": "Draft saved {when}"
+      },
       "info": "Information",
       "noPages": "This audit has no page configured. Add pages to the sample first.",
       "noCriteria": "No criterion found for the reference of this audit.",
