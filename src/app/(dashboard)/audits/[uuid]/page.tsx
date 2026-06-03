@@ -373,8 +373,17 @@ export default async function AuditDetailPage({ params }: PageProps) {
     })),
   ];
 
-  // URL publique du projet (affichée à côté du nom dans le header).
-  const projectUrl = (project?.url as string | null) ?? null;
+  // Identité du site/app audité (mig. 74) avec fallback sur les anciennes
+  // données projet pour les audits créés avant la refonte.
+  const siteName =
+    (audit.site_name as string | null)?.trim() ||
+    (project?.name as string | null) ||
+    null;
+  const siteUrl =
+    (audit.site_url as string | null)?.trim() ||
+    (project?.url as string | null) ||
+    null;
+  const isMobileAudit = audit.platform === "MOBILE";
   const referenceLabel = ref
     ? `${REFERENCE_TYPE_LABELS[ref.type as ReferenceType]} ${ref.version}`
     : t("unknownReference");
@@ -433,21 +442,31 @@ export default async function AuditDetailPage({ params }: PageProps) {
                 </Badge>
                 <AuditStatusBadge status={currentStatus} className="rounded-full" />
               </div>
-              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                {project?.name ?? t("noProjectTitle")}
-              </h1>
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                  {project?.name ?? t("noProjectTitle")}
+                </p>
+                <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+                  {siteName ?? t("noProjectTitle")}
+                </h1>
+              </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                {projectUrl && (
-                  <a
-                    href={projectUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="break-all text-primary underline-offset-2 hover:underline"
-                  >
-                    {projectUrl}
-                  </a>
-                )}
-                <span aria-hidden="true">·</span>
+                {siteUrl &&
+                  (isMobileAudit ? (
+                    <span className="break-all font-mono text-xs text-foreground/80">
+                      {siteUrl}
+                    </span>
+                  ) : (
+                    <a
+                      href={siteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="break-all text-primary underline-offset-2 hover:underline"
+                    >
+                      {siteUrl}
+                    </a>
+                  ))}
+                {siteUrl && <span aria-hidden="true">·</span>}
                 <span>{referenceLabel}</span>
                 <span aria-hidden="true">·</span>
                 <span>{tServiceType(audit.service_type as ServiceType)}</span>

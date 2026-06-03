@@ -298,6 +298,8 @@ export async function updateAudit(
   const serviceType = formData.get("serviceType")?.toString() as ServiceType;
   const status = formData.get("status")?.toString() as AuditStatus;
   const language = formData.get("language")?.toString() ?? "fr";
+  const siteName = formData.get("siteName")?.toString().trim() ?? "";
+  const siteUrl = formData.get("siteUrl")?.toString().trim() ?? "";
   const expectedStartAt = formData.get("expectedStartAt")?.toString() || null;
   const expectedEndAt = formData.get("expectedEndAt")?.toString() || null;
   const restitutionAt = formData.get("restitutionAt")?.toString() || null;
@@ -306,14 +308,29 @@ export async function updateAudit(
     formData.get("accessibilityLink")?.toString() || null;
   const notes = formData.get("notes")?.toString() || null;
 
+  // Garde-fou serveur (cohérent avec createAudit) : RAAM → MOBILE forcé.
+  let effectivePlatform: PlatformType = platform;
+  if (referenceId) {
+    const { data: refRow } = await supabase
+      .from("references")
+      .select("type")
+      .eq("id", referenceId)
+      .maybeSingle();
+    if (refRow?.type === "RAAM") {
+      effectivePlatform = "MOBILE";
+    }
+  }
+
   const { error } = await supabase
     .from("audits")
     .update({
       reference_id: referenceId,
-      platform,
+      platform: effectivePlatform,
       service_type: serviceType,
       status,
       language,
+      site_name: siteName || null,
+      site_url: siteUrl || null,
       expected_start_at: expectedStartAt,
       expected_end_at: expectedEndAt,
       restitution_at: restitutionAt,

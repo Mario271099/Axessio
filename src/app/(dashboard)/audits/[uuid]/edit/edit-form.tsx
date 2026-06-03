@@ -31,6 +31,8 @@ interface EditAuditFormProps {
     serviceType: string;
     status: string;
     language: string;
+    siteName: string;
+    siteUrl: string;
     expectedStartAt: string | null;
     expectedEndAt: string | null;
     restitutionAt: string | null;
@@ -76,6 +78,18 @@ export function EditAuditForm({
   const [serviceType, setServiceType] = useState(initial.serviceType);
   const [status, setStatus] = useState(initial.status);
   const [language, setLanguage] = useState(initial.language);
+  const [siteName, setSiteName] = useState(initial.siteName);
+  const [siteUrl, setSiteUrl] = useState(initial.siteUrl);
+
+  // RAAM = référentiel mobile-only : la plateforme est verrouillée sur
+  // MOBILE comme dans le formulaire de création (audit-form.tsx).
+  const selectedRef = references.find((r) => r.id === referenceId) ?? null;
+  const isMobileReference = selectedRef?.type === "RAAM";
+  // Synchro auto si l'utilisateur passe à RAAM avec WEB sélectionné.
+  if (isMobileReference && platform !== "MOBILE") {
+    setPlatform("MOBILE");
+  }
+  const isMobile = platform === "MOBILE";
 
   if (state.success) {
     router.push(`/audits/${auditId}`);
@@ -92,6 +106,8 @@ export function EditAuditForm({
       <input type="hidden" name="serviceType" value={serviceType} />
       <input type="hidden" name="status" value={status} />
       <input type="hidden" name="language" value={language} />
+      <input type="hidden" name="siteName" value={siteName} />
+      <input type="hidden" name="siteUrl" value={siteUrl} />
 
       {state.error && (
         <p
@@ -126,8 +142,17 @@ export function EditAuditForm({
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="platform-edit">{t("platform")}</Label>
-              <Select value={platform} onValueChange={setPlatform}>
-                <SelectTrigger id="platform-edit">
+              <Select
+                value={platform}
+                onValueChange={setPlatform}
+                disabled={isMobileReference}
+              >
+                <SelectTrigger
+                  id="platform-edit"
+                  aria-describedby={
+                    isMobileReference ? "platform-edit-lock" : undefined
+                  }
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -135,6 +160,14 @@ export function EditAuditForm({
                   <SelectItem value="MOBILE">{tPlatform("MOBILE")}</SelectItem>
                 </SelectContent>
               </Select>
+              {isMobileReference && (
+                <p
+                  id="platform-edit-lock"
+                  className="text-xs text-muted-foreground"
+                >
+                  {tNew("steps.reference.platformLockedRaam")}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -153,6 +186,41 @@ export function EditAuditForm({
                   </SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="site-name-edit">
+                {tNew("steps.reference.siteName")}
+              </Label>
+              <Input
+                id="site-name-edit"
+                value={siteName}
+                onChange={(e) => setSiteName(e.target.value)}
+                placeholder={
+                  isMobile
+                    ? tNew("steps.reference.siteNamePlaceholderMobile")
+                    : tNew("steps.reference.siteNamePlaceholderWeb")
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="site-url-edit">
+                {isMobile
+                  ? tNew("steps.reference.siteIdMobile")
+                  : tNew("steps.reference.siteUrlWeb")}
+              </Label>
+              <Input
+                id="site-url-edit"
+                value={siteUrl}
+                onChange={(e) => setSiteUrl(e.target.value)}
+                type={isMobile ? "text" : "url"}
+                placeholder={
+                  isMobile ? "com.exemple.monapp" : "https://exemple.com"
+                }
+              />
             </div>
           </div>
 

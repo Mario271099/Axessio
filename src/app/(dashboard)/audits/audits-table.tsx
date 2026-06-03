@@ -41,6 +41,7 @@ export interface AuditTableRow {
   initial_score: number | null;
   final_score: number | null;
   updated_at: string;
+  site_name: string | null;
   reference: { type: ReferenceType; version: string } | null;
   project: { name: string; client: { name: string } | null } | null;
 }
@@ -283,9 +284,16 @@ export function AuditsTable({
                   <td className="px-4 py-3">
                     <Link
                       href={`/audits/${a.id}`}
-                      className="font-medium hover:underline focus-visible:outline-none focus-visible:underline"
+                      className="block focus-visible:outline-none"
                     >
-                      {a.project?.name ?? "—"}
+                      <span className="font-medium hover:underline">
+                        {a.site_name?.trim() || a.project?.name || "—"}
+                      </span>
+                      {a.site_name?.trim() && a.project?.name && (
+                        <span className="block text-xs text-muted-foreground">
+                          {a.project.name}
+                        </span>
+                      )}
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">

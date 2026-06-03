@@ -133,7 +133,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
     .from("audits")
     .select(
       `
-      id, status, platform,
+      id, status, platform, site_name,
       initial_score, final_score, updated_at,
       reference:references(type, version),
       project:projects!inner(name, client:clients(name))
@@ -197,6 +197,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
       initial_score: a.initial_score as number | null,
       final_score: a.final_score as number | null,
       updated_at: a.updated_at as string,
+      site_name: (a.site_name as string | null) ?? null,
       reference: ref
         ? { type: ref.type as ReferenceType, version: ref.version as string }
         : null,

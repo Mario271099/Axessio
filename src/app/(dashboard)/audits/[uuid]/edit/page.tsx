@@ -25,6 +25,7 @@ export default async function EditAuditPage({
       .select(
         `
         id, reference_id, platform, service_type, status, language,
+        site_name, site_url,
         expected_start_at, expected_end_at, restitution_at, counter_audit_at,
         accessibility_link, notes,
         project:projects(name, client:clients(name))
@@ -85,6 +86,8 @@ export default async function EditAuditPage({
           serviceType: audit.service_type,
           status: audit.status,
           language: audit.language,
+          siteName: (audit.site_name as string | null) ?? "",
+          siteUrl: (audit.site_url as string | null) ?? "",
           expectedStartAt: audit.expected_start_at,
           expectedEndAt: audit.expected_end_at,
           restitutionAt: audit.restitution_at,
