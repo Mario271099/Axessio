@@ -145,9 +145,9 @@ pour une consultance qui invite 50 PO chez ses clients sans payer
 | 1 | 1 | Schema : clients découplés des orgs (mig. 66) | ✅ ([81ca418](#)) |
 | 1 | 4 | Code : `createClient`/`createProject` sans miroir org | ✅ (inclus en P1) |
 | 2 | 2 | Rôles d'org : 6 → 4 valeurs + split `chat.client/review` (mig. 67 + 68) | ✅ ([c98d71b](#) + [e5e91aa](#)) |
-| 3 | **6A** | Migration `profiles.is_platform_admin` + backfill + `is_admin()` SQL | ⏳ |
-| 3 | 5 | Porte 2 : contacts client via `audit_assignees` (role + RLS) | ⏳ |
-| 3 | 9 | RLS contacts : fil review masqué pour les contacts | ⏳ (couvert par 5) |
+| 3 | 6A | Migration `profiles.is_platform_admin` + backfill + `is_admin()` SQL (mig. 69) | ✅ ([ec50d66](#)) |
+| 3 | 5 | Porte 2 : contacts client via `audit_assignees` (role + RLS) (mig. 70) | ✅ ([ec50d66](#)) |
+| 3 | 9 | RLS contacts : fil review masqué pour les contacts | ✅ (couvert par 5) |
 | 4 | 3 | `org_limits` overridables + `max_clients` (mig. 71) | ✅ |
 | 4 | 8 | Nouvelles limites côté UI billing + Stripe | ✅ |
 | 5 | 6B | TS : `Profile.isPlatformAdmin` + bascule des ~10 checks super-admin | ✅ |
