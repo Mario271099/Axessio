@@ -81,10 +81,60 @@ export function AuditForm({ projects, references }: AuditFormProps) {
   const [platform, setPlatform] = useState<PlatformType>("WEB");
   const [serviceType, setServiceType] = useState<ServiceType>("AUDIT");
   const [language, setLanguage] = useState("fr");
+  const [siteName, setSiteName] = useState("");
+  const [siteUrl, setSiteUrl] = useState("");
+
+  // Dates pour validation cliente (l'envoi reste contrôlé par le name
+  // attribute des inputs). La date du jour sert de borne inférieure au
+  // démarrage prévu.
+  const today = useMemo(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+      .toISOString()
+      .slice(0, 10);
+  }, []);
+  const [expectedStartAt, setExpectedStartAt] = useState("");
+  const [expectedEndAt, setExpectedEndAt] = useState("");
+  const [restitutionAt, setRestitutionAt] = useState("");
+  const [counterAuditAt, setCounterAuditAt] = useState("");
+
+  // Validation chronologique des dates (cohérence métier du planning).
+  // Strict > pour que deux dates identiques ne passent pas non plus.
+  const dateError = useMemo<string | null>(() => {
+    if (expectedStartAt && expectedStartAt <= today) {
+      return t("steps.planning.errors.startBeforeToday");
+    }
+    if (
+      expectedStartAt &&
+      expectedEndAt &&
+      expectedEndAt <= expectedStartAt
+    ) {
+      return t("steps.planning.errors.endBeforeStart");
+    }
+    if (expectedEndAt && restitutionAt && restitutionAt <= expectedEndAt) {
+      return t("steps.planning.errors.restitutionBeforeEnd");
+    }
+    if (restitutionAt && counterAuditAt && counterAuditAt <= restitutionAt) {
+      return t("steps.planning.errors.counterBeforeRestitution");
+    }
+    return null;
+  }, [
+    t,
+    today,
+    expectedStartAt,
+    expectedEndAt,
+    restitutionAt,
+    counterAuditAt,
+  ]);
 
   const canGoNext1 = projectId.length > 0;
   const canGoNext2 =
-    referenceId.length > 0 && platform.length > 0 && serviceType.length > 0;
+    referenceId.length > 0 &&
+    platform.length > 0 &&
+    serviceType.length > 0 &&
+    siteName.trim().length > 0 &&
+    siteUrl.trim().length > 0;
+  const canSubmit = canGoNext1 && canGoNext2 && dateError === null;
 
   const selectedProject = useMemo(
     () => projects.find((p) => p.id === projectId) ?? null,
@@ -126,6 +176,8 @@ export function AuditForm({ projects, references }: AuditFormProps) {
       <input type="hidden" name="platform" value={platform} />
       <input type="hidden" name="serviceType" value={serviceType} />
       <input type="hidden" name="language" value={language} />
+      <input type="hidden" name="siteName" value={siteName} />
+      <input type="hidden" name="siteUrl" value={siteUrl} />
 
       <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
         <Stepper
@@ -293,6 +345,56 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                 </div>
               </div>
 
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="site-name">
+                    {t("steps.reference.siteName")} *
+                  </Label>
+                  <Input
+                    id="site-name"
+                    value={siteName}
+                    onChange={(e) => setSiteName(e.target.value)}
+                    required
+                    aria-required="true"
+                    placeholder={
+                      platform === "MOBILE"
+                        ? t("steps.reference.siteNamePlaceholderMobile")
+                        : t("steps.reference.siteNamePlaceholderWeb")
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t("steps.reference.siteNameHint")}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="site-url">
+                    {platform === "MOBILE"
+                      ? t("steps.reference.siteIdMobile")
+                      : t("steps.reference.siteUrlWeb")}{" "}
+                    *
+                  </Label>
+                  <Input
+                    id="site-url"
+                    value={siteUrl}
+                    onChange={(e) => setSiteUrl(e.target.value)}
+                    required
+                    aria-required="true"
+                    type={platform === "MOBILE" ? "text" : "url"}
+                    placeholder={
+                      platform === "MOBILE"
+                        ? "com.exemple.monapp"
+                        : "https://exemple.com"
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {platform === "MOBILE"
+                      ? t("steps.reference.siteIdMobileHint")
+                      : t("steps.reference.siteUrlWebHint")}
+                  </p>
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="language-select">
                   {t("steps.reference.language")}
@@ -323,13 +425,27 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                     <Label htmlFor="start-date">
                       {t("steps.planning.startDate")}
                     </Label>
-                    <Input id="start-date" name="expectedStartAt" type="date" />
+                    <Input
+                      id="start-date"
+                      name="expectedStartAt"
+                      type="date"
+                      value={expectedStartAt}
+                      onChange={(e) => setExpectedStartAt(e.target.value)}
+                      min={today}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="end-date">
                       {t("steps.planning.endDate")}
                     </Label>
-                    <Input id="end-date" name="expectedEndAt" type="date" />
+                    <Input
+                      id="end-date"
+                      name="expectedEndAt"
+                      type="date"
+                      value={expectedEndAt}
+                      onChange={(e) => setExpectedEndAt(e.target.value)}
+                      min={expectedStartAt || today}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="restitution-date">
@@ -339,6 +455,9 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                       id="restitution-date"
                       name="restitutionAt"
                       type="date"
+                      value={restitutionAt}
+                      onChange={(e) => setRestitutionAt(e.target.value)}
+                      min={expectedEndAt || expectedStartAt || today}
                     />
                   </div>
                   <div className="space-y-2">
@@ -349,9 +468,25 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                       id="counter-audit-date"
                       name="counterAuditAt"
                       type="date"
+                      value={counterAuditAt}
+                      onChange={(e) => setCounterAuditAt(e.target.value)}
+                      min={restitutionAt || expectedEndAt || expectedStartAt || today}
                     />
                   </div>
                 </div>
+
+                {dateError && (
+                  <p
+                    role="alert"
+                    className="inline-flex w-full items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+                  >
+                    <AlertCircle
+                      className="mt-0.5 h-4 w-4 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span>{dateError}</span>
+                  </p>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="a11y-link">
@@ -422,7 +557,8 @@ export function AuditForm({ projects, references }: AuditFormProps) {
               disabled={
                 pending ||
                 (step === 1 && !canGoNext1) ||
-                (step === 2 && !canGoNext2)
+                (step === 2 && !canGoNext2) ||
+                (step === 3 && !canSubmit)
               }
             >
               {step === 3 ? (

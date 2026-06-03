@@ -68,6 +68,8 @@ export async function createAudit(
   const platform = formData.get("platform")?.toString() as PlatformType;
   const serviceType = formData.get("serviceType")?.toString() as ServiceType;
   const language = formData.get("language")?.toString() ?? "fr";
+  const siteName = formData.get("siteName")?.toString().trim() ?? "";
+  const siteUrl = formData.get("siteUrl")?.toString().trim() ?? "";
   const expectedStartAt = formData.get("expectedStartAt")?.toString() || null;
   const expectedEndAt = formData.get("expectedEndAt")?.toString() || null;
   const restitutionAt = formData.get("restitutionAt")?.toString() || null;
@@ -81,9 +83,45 @@ export async function createAudit(
   if (!referenceId) fieldErrors.referenceId = t("selectReference");
   if (!platform) fieldErrors.platform = t("selectPlatform");
   if (!serviceType) fieldErrors.serviceType = t("selectServiceType");
+  if (!siteName) fieldErrors.siteName = t("siteNameRequired");
+  if (!siteUrl) fieldErrors.siteUrl = t("siteUrlRequired");
 
   if (Object.keys(fieldErrors).length > 0) {
     return { error: t("fieldErrors"), fieldErrors };
+  }
+
+  // Validation chronologique : chaque date doit être strictement supérieure
+  // à la précédente. Re-check côté serveur — l'UI peut être contournée.
+  if (expectedStartAt) {
+    const today = new Date();
+    const startDate = new Date(expectedStartAt);
+    if (
+      startDate.getTime() <=
+      new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
+    ) {
+      return { error: t("dateStartBeforeToday") };
+    }
+  }
+  if (
+    expectedStartAt &&
+    expectedEndAt &&
+    new Date(expectedEndAt) <= new Date(expectedStartAt)
+  ) {
+    return { error: t("dateEndBeforeStart") };
+  }
+  if (
+    expectedEndAt &&
+    restitutionAt &&
+    new Date(restitutionAt) <= new Date(expectedEndAt)
+  ) {
+    return { error: t("dateRestitutionBeforeEnd") };
+  }
+  if (
+    restitutionAt &&
+    counterAuditAt &&
+    new Date(counterAuditAt) <= new Date(restitutionAt)
+  ) {
+    return { error: t("dateCounterBeforeRestitution") };
   }
 
   // ============================================================================
@@ -147,6 +185,8 @@ export async function createAudit(
       platform,
       status: "PENDING" as AuditStatus,
       language,
+      site_name: siteName,
+      site_url: siteUrl,
       expected_start_at: expectedStartAt,
       expected_end_at: expectedEndAt,
       restitution_at: restitutionAt,

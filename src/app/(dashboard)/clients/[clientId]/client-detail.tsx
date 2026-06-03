@@ -887,16 +887,9 @@ function CreateProjectDialog({
               autoFocus
               placeholder={t("createProject.namePlaceholder")}
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="create-project-url">{t("createProject.url")}</Label>
-            <Input
-              id="create-project-url"
-              name="url"
-              type="url"
-              placeholder={t("createProject.urlPlaceholder")}
-            />
+            <p className="text-xs text-muted-foreground">
+              {t("createProject.urlMovedToAudit")}
+            </p>
           </div>
 
           <DialogFooter>
