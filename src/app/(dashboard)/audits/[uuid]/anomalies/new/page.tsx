@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { canCreateNC } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
+import { listNCTemplatesForAudit } from "@/app/(dashboard)/organizations/[slug]/nc-templates/actions";
 import { NewNCForm, type NCThematic, type NCCriterion, type NCPage } from "./new-nc-form";
 
 interface PageProps {
@@ -71,12 +72,17 @@ export default async function NewNCPage({ params }: PageProps) {
     methodology: (c.methodology as string | null) ?? null,
   }));
 
+  // Templates de NC pré-remplis pour cette org/référentiel. Le picker côté
+  // client n'affiche rien si la liste est vide — pas besoin de feature gate.
+  const templates = await listNCTemplatesForAudit(uuid);
+
   return (
     <NewNCForm
       auditId={uuid}
       pages={pages}
       thematics={thematics}
       criteria={criteria}
+      templates={templates}
     />
   );
 }

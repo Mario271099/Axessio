@@ -360,6 +360,7 @@
   "errors": {
     "notAuthenticated": "Not authenticated.",
     "forbidden": "Action denied by your role permissions.",
+    "requiredField": "Required field: {field}.",
     "auditorOnly": "Access restricted to internal auditors.",
     "auditorOnlyShort": "Action restricted to auditors.",
     "auditorOrAdminOnly": "Action restricted to auditors and client administrators.",
@@ -610,7 +611,44 @@
       "workspacesCta": "Workspaces",
       "webhooksCta": "Webhooks",
       "apiTokensCta": "API tokens",
-      "auditLogsCta": "Audit log"
+      "auditLogsCta": "Audit log",
+      "ncTemplatesCta": "NC templates"
+    },
+    "ncTemplates": {
+      "metaTitle": "NC templates — {slug}",
+      "title": "Non-conformity templates",
+      "subtitle": "Pre-fill the NC creation form with a default title, description and recommendation. Saves time on recurring findings.",
+      "back": "Back to organization",
+      "newCta": "New template",
+      "newTitle": "Create NC template",
+      "newDesc": "Provide a short label, the title and the pre-filled texts. Auditors will then pick it from the NC form.",
+      "editTitle": "Edit template",
+      "editDesc": "Existing NCs created from this template are not modified.",
+      "deleteTitle": "Delete template?",
+      "deleteDesc": "The \"{label}\" template will be permanently deleted. Existing NCs already created with this template are not affected.",
+      "edit": "Edit",
+      "delete": "Delete",
+      "create": "Create",
+      "save": "Save",
+      "cancel": "Cancel",
+      "empty": "No templates for this organization. Create one to pre-fill your recurring NCs.",
+      "forbidden": "Only organization owners and admins can manage NC templates.",
+      "badgeAllReferences": "All references",
+      "form": {
+        "label": "Label",
+        "labelPlaceholder": "Insufficient contrast",
+        "labelHint": "Short name shown in the template picker.",
+        "reference": "Reference",
+        "referenceAll": "All references",
+        "referenceHint": "Restrict the template to a specific reference, or leave universal.",
+        "severity": "Severity",
+        "title": "NC title",
+        "titlePlaceholder": "Text contrast is insufficient against its background.",
+        "description": "Description",
+        "descriptionPlaceholder": "Detail the context or affected elements.",
+        "recommendation": "Recommendation",
+        "recommendationPlaceholder": "Describe the expected fix (target ratio, RGAA technique, etc.)."
+      }
     },
     "apiTokens": {
       "metaTitle": "API tokens — {slug}",
@@ -2231,6 +2269,9 @@
         "discard": "Discard",
         "savedAt": "Draft saved {when}"
       },
+      "templatesLabel": "Start from a template:",
+      "templatesPlaceholder": "Choose a template…",
+      "templatesAria": "Choose a non-conformity template",
       "info": "Information",
       "noPages": "This audit has no page configured. Add pages to the sample first.",
       "noCriteria": "No criterion found for the reference of this audit.",

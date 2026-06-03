@@ -326,6 +326,26 @@ export interface NonConformityEnriched extends NonConformity {
   page: Pick<AuditPage, "id" | "name"> | null;
 }
 
+/**
+ * Template de NC pré-rempli, scopé à une organisation (mig. 77).
+ * Pré-remplit le formulaire de création de NC avec un titre/description/
+ * recommandation/sévérité par défaut. Optionnellement liés à un référentiel
+ * et/ou critère précis pour filtrer la disponibilité du template.
+ */
+export interface NCTemplate {
+  id: string;
+  organizationId: string;
+  label: string;
+  referenceId: string | null;
+  criterionId: string | null;
+  severity: NCSeverity;
+  titleTemplate: string;
+  descriptionTemplate: string | null;
+  recommendationTemplate: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ============================================================================
 // Client & Project
 // ============================================================================

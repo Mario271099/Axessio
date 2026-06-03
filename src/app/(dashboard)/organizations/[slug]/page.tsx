@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Building2, ChevronLeft, CreditCard, History, Key, Layers, Mail, Palette, User as UserIcon, Webhook } from "lucide-react";
+import { Building2, ChevronLeft, CreditCard, FileText, History, Key, Layers, Mail, Palette, User as UserIcon, Webhook } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
@@ -183,6 +183,12 @@ export default async function OrganizationDetailPage({
               <Link href={`/organizations/${org.slug}/audit-logs`}>
                 <History className="h-4 w-4" aria-hidden="true" />
                 {t("auditLogsCta")}
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link href={`/organizations/${org.slug}/nc-templates`}>
+                <FileText className="h-4 w-4" aria-hidden="true" />
+                {t("ncTemplatesCta")}
               </Link>
             </Button>
           </div>

@@ -360,6 +360,7 @@
   "errors": {
     "notAuthenticated": "Non authentifié.",
     "forbidden": "Action refusée par les permissions de votre rôle.",
+    "requiredField": "Champ obligatoire : {field}.",
     "auditorOnly": "Accès réservé aux auditeurs internes.",
     "auditorOnlyShort": "Action réservée aux auditeurs.",
     "auditorOrAdminOnly": "Action réservée aux aux auditeurs et aux administrateurs client.",
@@ -610,7 +611,44 @@
       "workspacesCta": "Workspaces",
       "webhooksCta": "Webhooks",
       "apiTokensCta": "Tokens API",
-      "auditLogsCta": "Journal d'audit"
+      "auditLogsCta": "Journal d'audit",
+      "ncTemplatesCta": "Modèles de NC"
+    },
+    "ncTemplates": {
+      "metaTitle": "Modèles de NC — {slug}",
+      "title": "Modèles de non-conformité",
+      "subtitle": "Pré-remplit le formulaire de création de NC avec un titre, une description et une recommandation par défaut. Gagne du temps sur les anomalies récurrentes.",
+      "back": "Retour à l'organisation",
+      "newCta": "Nouveau modèle",
+      "newTitle": "Créer un modèle de NC",
+      "newDesc": "Renseignez un libellé court, le titre et les textes pré-remplis. Les auditeurs pourront ensuite les sélectionner depuis le formulaire de création.",
+      "editTitle": "Modifier le modèle",
+      "editDesc": "Les NC déjà créées à partir de ce modèle ne sont pas modifiées.",
+      "deleteTitle": "Supprimer le modèle ?",
+      "deleteDesc": "Le modèle « {label} » sera définitivement supprimé. Les NC déjà créées avec ce modèle ne sont pas affectées.",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "create": "Créer",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "empty": "Aucun modèle pour cette organisation. Créez-en un pour pré-remplir vos NC récurrentes.",
+      "forbidden": "Seuls les propriétaires et administrateurs de l'organisation peuvent gérer les modèles de NC.",
+      "badgeAllReferences": "Tous référentiels",
+      "form": {
+        "label": "Libellé",
+        "labelPlaceholder": "Contraste insuffisant",
+        "labelHint": "Nom court visible dans le sélecteur de modèle.",
+        "reference": "Référentiel",
+        "referenceAll": "Tous les référentiels",
+        "referenceHint": "Limite la disponibilité du modèle à un référentiel précis, ou laisse universel.",
+        "severity": "Sévérité",
+        "title": "Titre de la NC",
+        "titlePlaceholder": "Le contraste du texte est insuffisant par rapport à son arrière-plan.",
+        "description": "Description",
+        "descriptionPlaceholder": "Détaillez le contexte ou les éléments concernés.",
+        "recommendation": "Recommandation",
+        "recommendationPlaceholder": "Décrivez la correction attendue (ratio cible, technique RGAA, etc.)."
+      }
     },
     "apiTokens": {
       "metaTitle": "Tokens API — {slug}",
@@ -2231,6 +2269,9 @@
         "discard": "Supprimer",
         "savedAt": "Brouillon enregistré {when}"
       },
+      "templatesLabel": "Partir d'un modèle :",
+      "templatesPlaceholder": "Choisir un modèle…",
+      "templatesAria": "Choisir un modèle de non-conformité",
       "info": "Informations",
       "noPages": "Cet audit n'a aucune page configurée. Ajoutez d'abord des pages dans l'échantillon.",
       "noCriteria": "Aucun critère trouvé pour le référentiel de cet audit.",

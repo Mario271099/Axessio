@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations, useFormatter } from "next-intl";
-import { ChevronLeft, Loader2, RotateCcw, Save, Trash2 } from "lucide-react";
+import { ChevronLeft, Loader2, RotateCcw, Save, Sparkles, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDraftStorage } from "@/hooks/use-draft-storage";
+import type { NCTemplate } from "@/types/domain";
 import {
   Card,
   CardContent,
@@ -64,6 +65,7 @@ interface NewNCFormProps {
   pages: NCPage[];
   thematics: NCThematic[];
   criteria: NCCriterion[];
+  templates: NCTemplate[];
 }
 
 export function NewNCForm({
@@ -71,6 +73,7 @@ export function NewNCForm({
   pages,
   thematics,
   criteria,
+  templates,
 }: NewNCFormProps) {
   const router = useRouter();
   const t = useTranslations("audits.anomaliesNew");
@@ -134,6 +137,30 @@ export function NewNCForm({
           v.criteriaId,
       ),
   });
+
+  // ---- Application d'un template ------------------------------------------
+  // Pré-remplit le formulaire à partir d'un template (titre, description,
+  // recommandation, sévérité). Si le template référence un critère et que
+  // ce critère est dans la liste disponible (= bonne référentiel + bonne
+  // thématique chargée), on auto-sélectionne aussi la cascade pour éviter
+  // à l'utilisateur de la refaire à la main.
+  function applyTemplate(tplId: string) {
+    const tpl = templates.find((tt) => tt.id === tplId);
+    if (!tpl) return;
+    setTitle(tpl.titleTemplate);
+    setDescription(tpl.descriptionTemplate ?? "");
+    setRecommendation(tpl.recommendationTemplate ?? "");
+    setSeverity(tpl.severity);
+    if (tpl.criterionId) {
+      const matched = criteria.find((c) => c.id === tpl.criterionId);
+      if (matched) {
+        setThematicId(matched.thematicId);
+        setCriteriaId(matched.id);
+        // Le test n'est pas dans le template — il est dépendant de la
+        // méthodologie chargée, l'auditeur le complète lui-même.
+      }
+    }
+  }
 
   function restoreDraft() {
     if (!draft.available) return;
@@ -364,6 +391,41 @@ export function NewNCForm({
                   {tDraft("restore")}
                 </Button>
               </div>
+            </div>
+          )}
+
+          {templates.length > 0 && (
+            <div className="mb-4 flex flex-col gap-2 rounded-md border border-border bg-muted/30 p-3 sm:flex-row sm:items-center">
+              <div className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+                <Sparkles
+                  className="h-3.5 w-3.5 text-primary"
+                  aria-hidden="true"
+                />
+                {t("templatesLabel")}
+              </div>
+              <Select
+                value=""
+                onValueChange={(v) => {
+                  if (v) applyTemplate(v);
+                }}
+              >
+                <SelectTrigger
+                  className="flex-1"
+                  aria-label={t("templatesAria")}
+                >
+                  <SelectValue placeholder={t("templatesPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="max-h-[60vh]">
+                  {templates.map((tpl) => (
+                    <SelectItem key={tpl.id} value={tpl.id}>
+                      <span>{tpl.label}</span>
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        ({tSeverity(tpl.severity)})
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
 
