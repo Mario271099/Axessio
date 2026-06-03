@@ -573,7 +573,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
       ────────────────────────────────────────────────────────────────── */}
       <div
         id={`team-${uuid}`}
-        className="grid gap-5 lg:grid-cols-2 scroll-mt-24"
+        className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 scroll-mt-24"
       >
         <Card>
           <CardHeader>
@@ -603,7 +603,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2">
+        <Card>
           <CardHeader>
             <CardTitle className="text-base">{t("contactsTitle")}</CardTitle>
             <p className="text-sm text-muted-foreground">

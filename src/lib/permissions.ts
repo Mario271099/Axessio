@@ -200,13 +200,15 @@ export const canImpersonate = (r: UserRole) => canImpersonateAs(r).length > 0;
 export const isStaff = (r: UserRole): boolean => r === "admin" || r === "auditor";
 
 /**
- * Peut désigner / retirer un relecteur sur un audit. Depuis la migration 35,
- * réservé à admin + client_admin (l'auditor a perdu ce pouvoir — confer la
- * spec rôles audit). Le verrou granulaire de scope (client_admin uniquement
- * sur les audits de son client) est appliqué côté RLS.
+ * Peut désigner / retirer un relecteur sur un audit.
+ * - admin : oui (super-admin)
+ * - auditor : oui (lead de ses audits dans le nouveau modèle
+ *   freelance/consultance — il invite son propre relecteur)
+ * - client_admin : oui sur les audits de son client (verrou de scope
+ *   appliqué côté RLS, mig. 35)
  */
 export const canAssignProofreader = (r: UserRole): boolean =>
-  r === "admin" || r === "client_admin";
+  r === "admin" || r === "auditor" || r === "client_admin";
 
 // ============================================================================
 // RBAC org-scopé (Phase 3 — migrations 47/48)
