@@ -1023,6 +1023,31 @@
     }
   },
   "dashboard": {
+    "welcome": {
+      "title": "Bienvenue {name} !",
+      "titleFallback": "à bord",
+      "subtitle": "Axessio centralise tes audits d'accessibilité numérique. Voilà comment lancer ton premier en trois étapes.",
+      "steps": {
+        "client": {
+          "title": "Ajoute ton premier client",
+          "description": "Le carnet d'adresses des organisations que tu audites."
+        },
+        "members": {
+          "title": "Invite ton équipe",
+          "description": "Ajoute tes co-auditeurs pour travailler à plusieurs."
+        },
+        "project": {
+          "title": "Crée un projet",
+          "description": "Un projet regroupe tous les audits d'un même site ou produit."
+        },
+        "audit": {
+          "title": "Lance ton premier audit",
+          "description": "Choisis un référentiel, le nom du site et lance l'évaluation."
+        }
+      },
+      "cta": "C'est parti",
+      "hint": "Tu peux revoir cette checklist à tout moment sur le dashboard."
+    },
     "onboarding": {
       "title": "Bien démarrer avec {name}",
       "subtitle": "{completed} sur {total} étapes complétées — finis l'installation pour profiter de tout Axessio.",

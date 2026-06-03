@@ -24,6 +24,8 @@ import {
   type ActivityEvent,
 } from "@/components/dashboard/activity-timeline";
 import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist";
+import { resolveCurrentOrg } from "@/lib/current-org";
+import { WelcomeModal } from "./welcome-modal";
 import { intlLocale } from "@/lib/intl";
 
 const STATUS_GROUPS = {
@@ -81,7 +83,7 @@ export default async function DashboardPage() {
       .limit(10),
     supabase
       .from("profiles")
-      .select("last_login_at")
+      .select("last_login_at, welcome_dismissed_at")
       .eq("id", profile.id)
       .maybeSingle(),
   ]);
@@ -89,6 +91,18 @@ export default async function DashboardPage() {
   const auditList = auditsRes.data ?? [];
   const totalAudits = totalAuditsRes.count ?? 0;
   const lastLoginAt = profileExtraRes.data?.last_login_at ?? null;
+  const welcomeDismissedAt =
+    profileExtraRes.data?.welcome_dismissed_at ?? null;
+
+  // Modale d'accueil first-run : visible si la colonne welcome_dismissed_at
+  // est NULL ET que l'utilisateur n'a pas encore d'audit. Pour récupérer le
+  // type d'org (qui contextualise les étapes), on appelle resolveCurrentOrg
+  // ici plutôt que de le faire côté composant — un seul round-trip côté
+  // serveur.
+  const showWelcome = welcomeDismissedAt === null && totalAudits === 0;
+  const { current: currentOrgForWelcome } = showWelcome
+    ? await resolveCurrentOrg()
+    : { current: null };
 
   // ---- Répartition pour le pie + KPIs (depuis le RPC) --------------------
   // Le RPC renvoie une seule ligne avec 4 colonnes (filtered counts).
@@ -189,6 +203,17 @@ export default async function DashboardPage() {
 
   return (
     <div className="container mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+      {/* ============================================================== */}
+      {/* Modale d'accueil première connexion                              */}
+      {/* ============================================================== */}
+      {showWelcome && (
+        <WelcomeModal
+          firstName={profile.firstName}
+          defaultOpen={true}
+          orgType={currentOrgForWelcome?.organizationType ?? "individual"}
+        />
+      )}
+
       {/* ============================================================== */}
       {/* Check-list onboarding (apparait jusqu'à 100% complete)          */}
       {/* ============================================================== */}

@@ -119,7 +119,11 @@ export async function OnboardingChecklist() {
   const percent = Math.round((completed / total) * 100);
 
   return (
-    <Card className="border-primary/20 bg-primary/5">
+    <Card
+      role="region"
+      aria-label={t("title", { name: current.organizationName })}
+      className="border-primary/20 bg-primary/5"
+    >
       <CardHeader className="flex flex-row items-start justify-between space-y-0 gap-4">
         <div className="space-y-1">
           <CardTitle className="flex items-center gap-2 text-base">

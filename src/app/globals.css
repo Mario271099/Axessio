@@ -285,11 +285,19 @@ body {
   left: 1rem;
   width: auto;
   height: auto;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.25rem;
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
   border-radius: var(--radius);
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.95rem;
+  /* Ombre prononcée pour ressortir au premier focus, indépendamment du
+     thème (light / dark) et même sur les fonds chargés. */
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 4px hsl(var(--ring)),
+    0 8px 24px -4px rgb(0 0 0 / 0.25);
+  outline: none;
 }
 
 /* Réduit les animations si l'utilisateur le préfère (WCAG 2.3.3) */
