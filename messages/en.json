@@ -376,6 +376,7 @@
     "clientNameRequired": "Client name is required.",
     "firstNameRequired": "First name is required.",
     "lastNameRequired": "Last name is required.",
+    "invalidEmail": "Invalid email.",
     "emailInvalid": "Invalid email.",
     "emailMissing": "Email missing for this user.",
     "emailExists": "A user with this email already exists.",
@@ -1775,7 +1776,25 @@
       "assigneesTitle": "Assigned auditors",
       "assigneesSubtitle": "Internal members with access to this audit.",
       "proofreadersTitle": "Proofreaders",
-      "proofreadersSubtitle": "Members assigned to review and validate the report."
+      "proofreadersSubtitle": "Members assigned to review and validate the report.",
+      "contactsTitle": "Client contacts",
+      "contactsDesc": "People on the client side invited to consult this audit. They can view the matrix, non-conformities and comment on the client thread, but never access the internal review thread."
+    },
+    "contacts": {
+      "empty": "No client contact invited yet.",
+      "badge": "Contact",
+      "invite": "Invite a contact",
+      "inviteCta": "Send invitation",
+      "inviteTitle": "Invite a client contact",
+      "inviteDesc": "The contact receives an invitation email. Once their account is activated they can access this audit only — not the rest of the organization, and never the internal review thread.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "emailHint": "If the person already has an account we attach them directly. Otherwise we send an invitation link.",
+      "removeAria": "Remove {name}",
+      "removeTitle": "Remove this contact?",
+      "removeDesc": "{name} will lose access to this audit. You can re-invite them later if needed.",
+      "removeCta": "Remove"
     },
     "assignees": {
       "empty": "No auditor assigned yet.",

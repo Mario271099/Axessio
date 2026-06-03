@@ -376,6 +376,7 @@
     "clientNameRequired": "Le nom du client est requis.",
     "firstNameRequired": "Le prénom est requis.",
     "lastNameRequired": "Le nom est requis.",
+    "invalidEmail": "Email invalide.",
     "emailInvalid": "Email invalide.",
     "emailMissing": "Email manquant pour cet utilisateur.",
     "emailExists": "Un utilisateur existe déjà avec cet email.",
@@ -1775,7 +1776,25 @@
       "assigneesTitle": "Auditeurs assignés",
       "assigneesSubtitle": "Membres internes ayant accès à cet audit.",
       "proofreadersTitle": "Relecteurs",
-      "proofreadersSubtitle": "Membres désignés pour relire et valider le rapport."
+      "proofreadersSubtitle": "Membres désignés pour relire et valider le rapport.",
+      "contactsTitle": "Contacts client",
+      "contactsDesc": "Personnes côté client invitées à consulter cet audit. Elles voient la matrice, les non-conformités et peuvent commenter le fil client, mais n'ont pas accès au fil de relecture interne."
+    },
+    "contacts": {
+      "empty": "Aucun contact client invité pour l'instant.",
+      "badge": "Contact",
+      "invite": "Inviter un contact",
+      "inviteCta": "Envoyer l'invitation",
+      "inviteTitle": "Inviter un contact client",
+      "inviteDesc": "Le contact reçoit un email d'invitation. Une fois son compte activé, il accède à cet audit uniquement — pas au reste de l'organisation, et jamais au fil de relecture interne.",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "emailHint": "Si la personne a déjà un compte, on la rattache directement. Sinon, on lui envoie un lien d'invitation.",
+      "removeAria": "Retirer {name}",
+      "removeTitle": "Retirer ce contact ?",
+      "removeDesc": "{name} perdra l'accès à cet audit. Tu peux le ré-inviter plus tard si besoin.",
+      "removeCta": "Retirer"
     },
     "assignees": {
       "empty": "Aucun auditeur assigné pour l'instant.",

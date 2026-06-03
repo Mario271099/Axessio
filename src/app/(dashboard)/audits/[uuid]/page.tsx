@@ -23,6 +23,7 @@ import {
   type ProofreaderEntry,
   type ProofreaderCandidate,
 } from "@/components/audit/audit-proofreaders";
+import { AuditContacts } from "@/components/audit/audit-contacts";
 import {
   AuditStatusActions,
   type AvailableStatusTransition,
@@ -244,6 +245,20 @@ export default async function AuditDetailPage({ params }: PageProps) {
         lastName: p?.last_name ?? null,
         email: p?.email ?? null,
         role: (p?.role ?? "auditor") as ProofreaderEntry["role"],
+      };
+    });
+
+  // Contacts client (Porte 2 — Phase 5). Visibilité scopée à cet audit
+  // uniquement, fil review automatiquement masqué (mig. 70).
+  const contacts = rawAssignees
+    .filter((row) => row.role === "contact")
+    .map((row) => {
+      const p = Array.isArray(row.profile) ? row.profile[0] : row.profile;
+      return {
+        profileId: row.profile_id,
+        firstName: p?.first_name ?? null,
+        lastName: p?.last_name ?? null,
+        email: p?.email ?? null,
       };
     });
 
@@ -584,6 +599,22 @@ export default async function AuditDetailPage({ params }: PageProps) {
               proofreaders={proofreaders}
               available={availableProofreaders}
               canManage={canManageProofreaders}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base">{t("contactsTitle")}</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {t("contactsDesc")}
+            </p>
+          </CardHeader>
+          <CardContent>
+            <AuditContacts
+              auditId={uuid}
+              contacts={contacts}
+              canManage={canManageAssignees}
             />
           </CardContent>
         </Card>
