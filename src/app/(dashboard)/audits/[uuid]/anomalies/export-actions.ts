@@ -65,7 +65,7 @@ export async function exportNonConformitiesCsv(
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, client_id, is_active")
+    .select("role, client_id, is_active, is_platform_admin")
     .eq("id", user.id)
     .maybeSingle();
   if (!profile || profile.is_active === false) {
@@ -88,8 +88,9 @@ export async function exportNonConformitiesCsv(
     | null;
   const client = project ? (one(project.client as never) as { id: string; name: string } | null) : null;
 
-  // 3) Autorisation : admin/auditor OU client_admin du client de l'audit.
+  // 3) Autorisation : super-admin/auditor OU client_admin du client de l'audit.
   const isAuthorized =
+    profile.is_platform_admin === true ||
     profile.role === "admin" ||
     profile.role === "auditor" ||
     (profile.role === "client_admin" && client?.id === profile.client_id);

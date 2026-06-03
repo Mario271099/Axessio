@@ -276,7 +276,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
               sortDir={sortDir}
               baseParamsStr={baseParams.toString()}
               canEditAudits={canEditAudits}
-              canDeleteAudits={profile.role === "admin"}
+              canDeleteAudits={profile.isPlatformAdmin}
             />
           )}
 

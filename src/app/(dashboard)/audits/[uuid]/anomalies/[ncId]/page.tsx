@@ -188,9 +188,9 @@ export default async function NCDetailPage({ params }: PageProps) {
 
   // 5) Rôle d'assignment de l'utilisateur sur l'audit (auditor / proofreader /
   // admin / none). Détermine les boutons d'action de relecture + l'accès au
-  // fil 'review' côté UI. Admin court-circuite.
+  // fil 'review' côté UI. Le super-admin court-circuite.
   let userAssignmentRole: "auditor" | "proofreader" | "admin" | "none" = "none";
-  if (profile.role === "admin") {
+  if (profile.isPlatformAdmin) {
     userAssignmentRole = "admin";
   } else {
     const { data: myAssignments } = await supabase

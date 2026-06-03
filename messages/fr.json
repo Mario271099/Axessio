@@ -1013,6 +1013,10 @@
           "label": "Inviter un coéquipier",
           "description": "Travaille à plusieurs sur tes audits."
         },
+        "client": {
+          "label": "Ajouter ton premier client",
+          "description": "Le carnet d'adresses des entités que tu audites (ministère, entreprise, organisme…)."
+        },
         "project": {
           "label": "Créer ton premier projet",
           "description": "Un projet regroupe les audits d'un même site ou produit."

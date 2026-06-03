@@ -125,6 +125,14 @@ export interface Profile {
   language: "fr" | "en";
   /** URL publique de l'avatar uploadé sur Supabase Storage. null = initiales. */
   avatarUrl: string | null;
+  /**
+   * Super-administrateur plateforme Axessio. Court-circuite TOUTES les
+   * restrictions (RLS SQL via `is_admin()` + checks UI/server actions).
+   * Source de vérité unique pour le « peut tout voir, peut tout faire »
+   * — backfillé depuis `role = 'admin'` par la migration 69. À utiliser
+   * à la place de `role === "admin"` dans tout nouveau code.
+   */
+  isPlatformAdmin: boolean;
 }
 
 // ============================================================================

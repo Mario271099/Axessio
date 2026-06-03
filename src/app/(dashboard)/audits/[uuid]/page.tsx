@@ -104,7 +104,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
   // Le check de feature `export.pdf` est ajouté en AND : sans Starter+,
   // le bouton ne s'affiche pas (l'API renvoie 402 si on bypass).
   const canExportRole =
-    profile.role === "admin" ||
+    profile.isPlatformAdmin ||
     profile.role === "auditor" ||
     (profile.role === "client_admin" &&
       client?.id != null &&

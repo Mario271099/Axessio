@@ -500,17 +500,19 @@ export async function deleteAccount(
     return { error: t("deleteAccountConfirmMismatch") };
   }
 
-  // Garde-fou : dernier super-admin.
+  // Garde-fou : dernier super-admin plateforme.
   const { data: profileRow } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, is_platform_admin")
     .eq("id", user.id)
     .maybeSingle();
-  if (profileRow?.role === "admin") {
+  const isSuperAdmin =
+    profileRow?.is_platform_admin === true || profileRow?.role === "admin";
+  if (isSuperAdmin) {
     const { count } = await supabase
       .from("profiles")
       .select("id", { count: "exact", head: true })
-      .eq("role", "admin")
+      .eq("is_platform_admin", true)
       .eq("is_active", true);
     if ((count ?? 0) <= 1) {
       return { error: t("deleteAccountLastAdmin") };

@@ -97,7 +97,7 @@ export default async function PlanningPage({ searchParams }: PageProps) {
   // - Admin avec ?auditor=<id> : on filtre via audit_assignees.profile_id.
   // ──────────────────────────────────────────────────────────────────────────
   const auditorFilter =
-    profile.role === "admin" && params.auditor ? params.auditor : null;
+    profile.isPlatformAdmin && params.auditor ? params.auditor : null;
 
   let query = supabase
     .from("audits")
@@ -224,7 +224,7 @@ export default async function PlanningPage({ searchParams }: PageProps) {
     id: string;
     label: string;
   }> = [];
-  if (profile.role === "admin") {
+  if (profile.isPlatformAdmin) {
     const { data: staff } = await supabase
       .from("profiles")
       .select("id, first_name, last_name, email")
@@ -265,7 +265,7 @@ export default async function PlanningPage({ searchParams }: PageProps) {
           </h1>
         </div>
 
-        {profile.role === "admin" && (
+        {profile.isPlatformAdmin && (
           <PlanningAuditorFilter
             auditors={availableAuditors}
             currentAuditor={auditorFilter}
@@ -300,7 +300,7 @@ export default async function PlanningPage({ searchParams }: PageProps) {
           <PlanningCalendar
             monthStart={monthStart.toISOString()}
             events={events}
-            showAssignees={profile.role === "admin" && !auditorFilter}
+            showAssignees={profile.isPlatformAdmin && !auditorFilter}
           />
         </CardContent>
       </Card>

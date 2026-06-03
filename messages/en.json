@@ -1013,6 +1013,10 @@
           "label": "Invite a teammate",
           "description": "Work on audits together with your team."
         },
+        "client": {
+          "label": "Add your first client",
+          "description": "Your address book of audited entities (ministry, company, agency…)."
+        },
         "project": {
           "label": "Create your first project",
           "description": "A project groups all audits for the same site or product."

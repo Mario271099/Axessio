@@ -3,14 +3,36 @@ import { Check, Circle, Sparkles } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { resolveCurrentOrg } from "@/lib/current-org";
-import { AXESSIO_INTERNAL_ORG_ID } from "@/types/domain";
+import { AXESSIO_INTERNAL_ORG_ID, type OrgType } from "@/types/domain";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
+type ChecklistKey = "logo" | "members" | "client" | "project" | "audit";
+
 interface ChecklistItem {
-  key: "logo" | "members" | "project" | "audit";
+  key: ChecklistKey;
   done: boolean;
   href: string;
+}
+
+/**
+ * Détermine les 4 étapes à afficher selon le type d'org choisi à la
+ * création. Persona 1 (freelance) commence par créer ses clients ;
+ * persona 2 (entreprise qui s'audite) commence par inviter son équipe et
+ * créer ses projets ; persona 3 (consultance) combine équipe et clients.
+ */
+function itemKeysForPersona(orgType: OrgType): ChecklistKey[] {
+  switch (orgType) {
+    case "individual":
+      return ["logo", "client", "project", "audit"];
+    case "agency":
+      return ["logo", "members", "client", "audit"];
+    case "company":
+    case "enterprise":
+      return ["logo", "members", "project", "audit"];
+    default:
+      return ["logo", "members", "project", "audit"];
+  }
 }
 
 /**
@@ -30,48 +52,61 @@ export async function OnboardingChecklist() {
   const supabase = await createClient();
   const orgSlug = current.organizationSlug;
 
-  // Les 4 lectures sont indépendantes — un seul aller-retour parallèle.
-  const [orgRow, membersRes, projectsRes, auditsRes] = await Promise.all([
-    supabase
-      .from("organizations")
-      .select("logo_url")
-      .eq("id", current.organizationId)
-      .maybeSingle(),
-    supabase
-      .from("organization_members")
-      .select("user_id", { count: "exact", head: true })
-      .eq("organization_id", current.organizationId),
-    supabase
-      .from("projects")
-      .select("id", { count: "exact", head: true })
-      .eq("organization_id", current.organizationId),
-    supabase
-      .from("audits")
-      .select("id", { count: "exact", head: true }),
-  ]);
+  // Les 5 lectures sont indépendantes — un seul aller-retour parallèle.
+  const [orgRow, membersRes, clientsRes, projectsRes, auditsRes] =
+    await Promise.all([
+      supabase
+        .from("organizations")
+        .select("logo_url")
+        .eq("id", current.organizationId)
+        .maybeSingle(),
+      supabase
+        .from("organization_members")
+        .select("user_id", { count: "exact", head: true })
+        .eq("organization_id", current.organizationId),
+      supabase
+        .from("clients")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", current.organizationId),
+      supabase
+        .from("projects")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", current.organizationId),
+      supabase
+        .from("audits")
+        .select("id", { count: "exact", head: true }),
+    ]);
 
-  const items: ChecklistItem[] = [
-    {
+  const ALL_ITEMS: Record<ChecklistKey, ChecklistItem> = {
+    logo: {
       key: "logo",
       done: !!orgRow.data?.logo_url,
       href: `/organizations/${orgSlug}/branding`,
     },
-    {
+    members: {
       key: "members",
       done: (membersRes.count ?? 0) >= 2,
       href: "/users",
     },
-    {
+    client: {
+      key: "client",
+      done: (clientsRes.count ?? 0) >= 1,
+      href: "/clients",
+    },
+    project: {
       key: "project",
       done: (projectsRes.count ?? 0) >= 1,
       href: "/projects",
     },
-    {
+    audit: {
       key: "audit",
       done: (auditsRes.count ?? 0) >= 1,
       href: "/audits/new",
     },
-  ];
+  };
+
+  const keys = itemKeysForPersona(current.organizationType);
+  const items: ChecklistItem[] = keys.map((k) => ALL_ITEMS[k]);
 
   const completed = items.filter((i) => i.done).length;
   const total = items.length;

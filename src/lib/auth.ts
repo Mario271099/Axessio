@@ -17,6 +17,7 @@ interface ProfileRow {
   language: string;
   avatar_url?: string | null;
   is_active?: boolean | null;
+  is_platform_admin?: boolean | null;
 }
 
 async function mapProfile(row: ProfileRow): Promise<Profile> {
@@ -26,6 +27,11 @@ async function mapProfile(row: ProfileRow): Promise<Profile> {
     realRole,
     cookieRole,
   );
+  // Fallback : si la colonne n'est pas encore peuplée (compte pré-mig. 69),
+  // on retombe sur le legacy `role === 'admin'` pour garantir l'accès du
+  // super-admin Axessio dans tous les cas.
+  const isPlatformAdmin =
+    row.is_platform_admin === true || realRole === "admin";
   return {
     id: row.id,
     email: row.email,
@@ -37,6 +43,7 @@ async function mapProfile(row: ProfileRow): Promise<Profile> {
     clientId: row.client_id,
     language: (row.language === "en" ? "en" : "fr") as Profile["language"],
     avatarUrl: row.avatar_url ?? null,
+    isPlatformAdmin,
   };
 }
 
@@ -52,7 +59,7 @@ export async function requireProfile(): Promise<Profile> {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, email, first_name, last_name, role, client_id, language, avatar_url, is_active",
+      "id, email, first_name, last_name, role, client_id, language, avatar_url, is_active, is_platform_admin",
     )
     .eq("id", user.id)
     .maybeSingle();
@@ -83,7 +90,7 @@ export async function requireProfile(): Promise<Profile> {
         language: "fr",
       })
       .select(
-        "id, email, first_name, last_name, role, client_id, language, avatar_url",
+        "id, email, first_name, last_name, role, client_id, language, avatar_url, is_platform_admin",
       )
       .single();
 

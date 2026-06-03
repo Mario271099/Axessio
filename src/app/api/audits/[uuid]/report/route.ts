@@ -56,7 +56,7 @@ export async function GET(req: Request, { params }: RouteParams) {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "id, role, client_id, is_active, first_name, last_name, email, language",
+      "id, role, client_id, is_active, is_platform_admin, first_name, last_name, email, language",
     )
     .eq("id", user.id)
     .maybeSingle();
@@ -131,6 +131,7 @@ export async function GET(req: Request, { params }: RouteParams) {
   // 3. Autorisation : admin/auditor OU client_admin du client de l'audit
   // ------------------------------------------------------------------
   const isAuthorized =
+    profile.is_platform_admin === true ||
     profile.role === "admin" ||
     profile.role === "auditor" ||
     (profile.role === "client_admin" && profile.client_id === client.id);
