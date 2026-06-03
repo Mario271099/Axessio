@@ -152,8 +152,30 @@ pour une consultance qui invite 50 PO chez ses clients sans payer
 | 4 | 8 | Nouvelles limites côté UI billing + Stripe | ✅ |
 | 5 | 6B | TS : `Profile.isPlatformAdmin` + bascule des ~10 checks super-admin | ✅ |
 | 5 | 7 | Onboarding multi-persona (freelance / company / consultancy) | ✅ (checklist adaptée par org type) |
-| 6 | 6C | Bascule des ~60 checks `profile.role` legacy vers org-scopés | ⏳ (gros chantier) |
-| 6 | 6D | Drop colonne `profiles.role` + `UserRole` TS | ⏳ |
+| 6 | **6C.1** | Fermer le trou d'escalade : data remap legacy `client` / `client_admin` vers contacts (mig. 72) | ✅ |
+| Backlog | 6C.2 | Bascule audits : server actions + RLS `audits`, `pages`, `page_conformities` vers `requireOrgPermission` | ⏳ (à déclencher au prochain refacto du domaine audit) |
+| Backlog | 6C.3 | Bascule NC : `non_conformities`, `nc_messages`, `nc_attachments`, server actions NC | ⏳ (idem au prochain refacto NC) |
+| Backlog | 6C.4 | Bascule users + billing + admin pages | ⏳ |
+| Backlog | 6D | Drop colonne `profiles.role` + `UserRole` TS + helpers legacy (`is_auditor`, `current_role`, `current_client_id`) | ⏳ (dépend de 6C.2/3/4 — quand zéro consommateur restant) |
+
+### Pourquoi 6C.2/3/4 sont en backlog
+
+La quick-fix Phase 0 (auditor peut créer un client), la 6A (DB ready) et la 6C.1
+(trou de sécurité fermé) garantissent que :
+- Le super-admin Mario reste tout-puissant
+- Les contacts client n'accèdent qu'à leurs audits assignés
+- Les rôles d'org sont la source de vérité pour tout NOUVEAU code
+
+Les ~180 callsites legacy restants continuent à fonctionner en parallèle —
+ils consomment `profile.role` qui reste peuplé. La bascule mécanique est
+**risquée et sans valeur produit immédiate** (cf. CLAUDE.md, piège du
+mapping). Elle se fera **par domaine, au prochain refacto de chaque
+zone** (audits, NC, users, billing), de sorte que :
+- Le contexte du domaine est frais au moment de la bascule
+- Les checks org-scopés peuvent profiter du refacto pour s'aligner sur
+  les vraies actions métier (`requireOrgPermission("audit.edit", auditId)`
+  au lieu d'un check global)
+- Les tests E2E couvrant ce domaine valident l'ensemble en une fois
 
 ## Personas servies
 
