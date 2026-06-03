@@ -115,6 +115,13 @@ export function BillingIntervalToggle({ yearlySavingsPercent }: Props) {
                   })}
                 />
                 <FeatureItem
+                  text={t("limits.clients", {
+                    count: plan.limits.max_clients ?? 0,
+                    unlimited:
+                      plan.limits.max_clients === null ? "true" : "false",
+                  })}
+                />
+                <FeatureItem
                   text={t("limits.audits", {
                     count: plan.limits.max_active_audits ?? 0,
                     unlimited:

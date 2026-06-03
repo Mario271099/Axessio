@@ -39,6 +39,7 @@ export async function generateMetadata({
 
 const LIMIT_CODES: ReadonlyArray<LimitCode> = [
   "max_members",
+  "max_clients",
   "max_active_audits",
   "max_audits_per_month",
 ];
@@ -85,6 +86,7 @@ export default async function BillingPage({
   const usage = await getOrgUsageSnapshot(org.id);
   const USAGE_BY_LIMIT: Record<LimitCode, number> = {
     max_members: usage.members,
+    max_clients: usage.clients,
     max_active_audits: usage.activeAudits,
     max_audits_per_month: usage.auditsThisMonth,
   };

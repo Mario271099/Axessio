@@ -441,6 +441,7 @@
     "invalidExpiration": "Invalid expiration duration.",
     "collaborationGated": "Adding multiple auditors to the same audit requires the Pro plan.",
     "limitMaxActiveAuditsReached": "You've reached the limit of {limit} active audits on the {plan} plan. Archive a completed audit or upgrade to a higher plan.",
+    "limitMaxClientsReached": "This organization has reached the limit of {limit} clients on the {plan} plan. Delete a client or upgrade to a higher plan to add more.",
     "limitMaxAuditsPerMonthReached": "You've reached the limit of {limit} audits created this month on the {plan} plan. The counter resets on the 1st of next month.",
     "limitMaxMembersReached": "This organization has reached the limit of {limit} members on the {plan} plan. Upgrade to invite more users."
   },
@@ -477,6 +478,7 @@
     "noExtraFeatures": "Core features only.",
     "limits": {
       "members": "{unlimited, select, true {Unlimited members} other {{count, plural, one {# member} other {# members}}}}",
+      "clients": "{unlimited, select, true {Unlimited clients} other {{count, plural, one {# client in directory} other {# clients in directory}}}}",
       "audits": "{unlimited, select, true {Unlimited active audits} other {{count, plural, one {# active audit} other {# active audits}}}}"
     },
     "cta": {
@@ -798,6 +800,7 @@
       "limitsTitle": "Your plan limits",
       "limits": {
         "max_members": "Max members",
+        "max_clients": "Clients in directory",
         "max_active_audits": "Concurrent active audits",
         "max_audits_per_month": "Audits created per month"
       },

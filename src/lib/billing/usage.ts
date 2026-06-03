@@ -58,21 +58,37 @@ export async function countMembersInOrg(
 }
 
 // ============================================================================
+// max_clients — clients distincts dans le carnet d'adresses de l'org.
+// ============================================================================
+export async function countClientsInOrg(
+  organizationId: string,
+): Promise<number> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("clients")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId);
+  return count ?? 0;
+}
+
+// ============================================================================
 // Snapshot d'usage pour la page billing
 // ============================================================================
 export interface OrgUsageSnapshot {
   activeAudits: number;
   auditsThisMonth: number;
   members: number;
+  clients: number;
 }
 
 export async function getOrgUsageSnapshot(
   organizationId: string,
 ): Promise<OrgUsageSnapshot> {
-  const [activeAudits, auditsThisMonth, members] = await Promise.all([
+  const [activeAudits, auditsThisMonth, members, clients] = await Promise.all([
     countActiveAuditsInOrg(organizationId),
     countAuditsCreatedThisMonthInOrg(organizationId),
     countMembersInOrg(organizationId),
+    countClientsInOrg(organizationId),
   ]);
-  return { activeAudits, auditsThisMonth, members };
+  return { activeAudits, auditsThisMonth, members, clients };
 }

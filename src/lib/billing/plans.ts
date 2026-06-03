@@ -24,6 +24,7 @@ export type FeatureCode =
 
 export type LimitCode =
   | "max_members"
+  | "max_clients"
   | "max_active_audits"
   | "max_audits_per_month";
 
@@ -48,6 +49,7 @@ const FREE: PlanDescriptor = {
   features: [],
   limits: {
     max_members: 2,
+    max_clients: 1,
     max_active_audits: 1,
     max_audits_per_month: 2,
   },
@@ -63,6 +65,7 @@ const STARTER: PlanDescriptor = {
   features: ["export.pdf", "remediation.simulator"],
   limits: {
     max_members: 5,
+    max_clients: 10,
     max_active_audits: 10,
     max_audits_per_month: 20,
   },
@@ -85,6 +88,7 @@ const PRO: PlanDescriptor = {
   ],
   limits: {
     max_members: 25,
+    max_clients: null,
     max_active_audits: null,
     max_audits_per_month: null,
   },
@@ -113,6 +117,7 @@ const ENTERPRISE: PlanDescriptor = {
   ],
   limits: {
     max_members: null,
+    max_clients: null,
     max_active_audits: null,
     max_audits_per_month: null,
   },

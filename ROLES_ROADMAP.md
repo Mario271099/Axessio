@@ -148,8 +148,8 @@ pour une consultance qui invite 50 PO chez ses clients sans payer
 | 3 | **6A** | Migration `profiles.is_platform_admin` + backfill + `is_admin()` SQL | ⏳ |
 | 3 | 5 | Porte 2 : contacts client via `audit_assignees` (role + RLS) | ⏳ |
 | 3 | 9 | RLS contacts : fil review masqué pour les contacts | ⏳ (couvert par 5) |
-| 4 | 3 | `org_limits` overridables + `max_clients` | ⏳ |
-| 4 | 8 | Nouvelles limites côté UI billing + Stripe | ⏳ |
+| 4 | 3 | `org_limits` overridables + `max_clients` (mig. 71) | ✅ |
+| 4 | 8 | Nouvelles limites côté UI billing + Stripe | ✅ |
 | 5 | 6B | TS : `Profile.isPlatformAdmin` + bascule des ~10 checks super-admin | ⏳ |
 | 5 | 7 | Onboarding multi-persona (freelance / company / consultancy) | ⏳ |
 | 6 | 6C | Bascule des ~60 checks `profile.role` legacy vers org-scopés | ⏳ (gros chantier) |

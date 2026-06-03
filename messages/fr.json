@@ -441,6 +441,7 @@
     "invalidExpiration": "Durée d'expiration invalide.",
     "collaborationGated": "Ajouter plusieurs auditeurs sur un même audit nécessite le plan Pro.",
     "limitMaxActiveAuditsReached": "Vous avez atteint la limite de {limit} audits actifs du plan {plan}. Archivez un audit terminé ou passez à un plan supérieur.",
+    "limitMaxClientsReached": "Cette organisation a atteint la limite de {limit} clients du plan {plan}. Supprimez un client ou passez à un plan supérieur pour en créer davantage.",
     "limitMaxAuditsPerMonthReached": "Vous avez atteint la limite de {limit} audits créés ce mois sur le plan {plan}. Le compteur se remet à zéro le 1er du mois prochain.",
     "limitMaxMembersReached": "Cette organisation a atteint la limite de {limit} membres du plan {plan}. Passez à un plan supérieur pour inviter plus d'utilisateurs."
   },
@@ -477,6 +478,7 @@
     "noExtraFeatures": "Fonctionnalités de base uniquement.",
     "limits": {
       "members": "{unlimited, select, true {Membres illimités} other {{count, plural, one {# membre} other {# membres}}}}",
+      "clients": "{unlimited, select, true {Clients illimités} other {{count, plural, one {# client dans le carnet} other {# clients dans le carnet}}}}",
       "audits": "{unlimited, select, true {Audits actifs illimités} other {{count, plural, one {# audit actif} other {# audits actifs}}}}"
     },
     "cta": {
@@ -798,6 +800,7 @@
       "limitsTitle": "Limites de votre plan",
       "limits": {
         "max_members": "Membres maximum",
+        "max_clients": "Clients dans le carnet",
         "max_active_audits": "Audits actifs simultanés",
         "max_audits_per_month": "Audits créés par mois"
       },

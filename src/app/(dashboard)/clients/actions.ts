@@ -4,6 +4,13 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient as createSupabaseClient } from "@/lib/supabase/server";
 import { canManageClients, canManageProjects } from "@/lib/permissions";
+import {
+  getCurrentOrgPlan,
+  getOrgLimit,
+  orgWithinLimit,
+} from "@/lib/billing/server";
+import { countClientsInOrg } from "@/lib/billing/usage";
+import { PLANS } from "@/lib/billing/plans";
 import type { UserRole } from "@/types/domain";
 
 export interface ClientActionState {
@@ -72,8 +79,25 @@ export async function createClient(
 
   if (!name) return { error: t("clientNameRequired") };
 
-  const { data: orgId } = await supabase.rpc("current_org");
+  const { data: orgIdRaw } = await supabase.rpc("current_org");
+  const orgId = orgIdRaw as string | null;
   if (!orgId) return { error: t("noOrganization") };
+
+  // Gate quota `max_clients` du plan (effective : override org + plan).
+  // 402 sémantique si la limite est atteinte — pas 403, car c'est une
+  // contrainte de plan, pas une absence de permission.
+  const currentClients = await countClientsInOrg(orgId);
+  const withinLimit = await orgWithinLimit("max_clients", currentClients);
+  if (!withinLimit) {
+    const limit = await getOrgLimit("max_clients");
+    const planCode = await getCurrentOrgPlan();
+    return {
+      error: t("limitMaxClientsReached", {
+        limit: limit ?? 0,
+        plan: PLANS[planCode].name,
+      }),
+    };
+  }
 
   const { data, error } = await supabase
     .from("clients")
