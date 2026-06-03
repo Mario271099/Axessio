@@ -10,10 +10,19 @@ export default async function ProjectsPage() {
   const supabase = await createClient();
   const t = await getTranslations("projects");
 
-  const { data: projects } = await supabase
+  // Scope strict à l'org active : la RLS legacy ouvre tout aux auditeurs,
+  // on filtre côté query pour ne montrer que les projets de l'org courante.
+  const { data: currentOrgIdRaw } = await supabase.rpc("current_org");
+  const currentOrgId = currentOrgIdRaw as string | null;
+
+  const projectsQuery = supabase
     .from("projects")
     .select("id, name, url, client:clients(name)")
     .order("name");
+  if (currentOrgId) {
+    projectsQuery.eq("organization_id", currentOrgId);
+  }
+  const { data: projects } = await projectsQuery;
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">

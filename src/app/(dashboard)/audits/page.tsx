@@ -119,6 +119,10 @@ export default async function AuditsPage({ searchParams }: PageProps) {
     mineAuditIds = (assignments ?? []).map((r) => r.audit_id as string);
   }
 
+  // Org active pour scoper la liste (la RLS legacy ouvre tout aux auditeurs).
+  const { data: currentOrgIdRaw } = await supabase.rpc("current_org");
+  const currentOrgId = currentOrgIdRaw as string | null;
+
   // ---------------------------------------------------------------------
   // Requête paginée — un seul aller-retour qui renvoie aussi le `count`
   // exact (utilisé par la pagination). Tout le filtrage est fait en SQL.
@@ -139,6 +143,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
     .order(sortColumn, { ascending: sortDir === "asc", nullsFirst: false })
     .range(offset, offset + PAGE_SIZE - 1);
 
+  if (currentOrgId) request = request.eq("organization_id", currentOrgId);
   if (statusFilter) request = request.eq("status", statusFilter);
   if (platformFilter) request = request.eq("platform", platformFilter);
   if (mineFilter) {
