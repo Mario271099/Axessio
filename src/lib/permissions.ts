@@ -218,8 +218,10 @@ export const canAssignProofreader = (r: UserRole): boolean =>
 const OWNER_ADMIN_ORG_PERMS: ReadonlyArray<Permission> = ALL_PERMISSIONS;
 
 // auditor (Phase 2) : absorbe les anciens `manager` et `member`. Contribue
-// pleinement aux audits — matrice, NC, projets, chat client + review —
-// mais ne gère pas les clients, membres, facturation.
+// pleinement aux audits — matrice, NC, projets, chat client + review.
+// Inclut aussi `client.manage` (mig. 73) pour qu'un freelance seul dans son
+// org puisse gérer son carnet de clients sans passer par owner/admin.
+// Ne gère ni les membres ni la facturation.
 const AUDITOR_ORG_PERMS: ReadonlyArray<Permission> = [
   "audit.view",
   "audit.edit",
@@ -236,6 +238,7 @@ const AUDITOR_ORG_PERMS: ReadonlyArray<Permission> = [
   "chat.review.read",
   "chat.review.write",
   "project.manage",
+  "client.manage",
 ];
 
 // viewer (Phase 2) : lecture totale (y compris fil review) + commentaires

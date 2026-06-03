@@ -171,8 +171,8 @@ describe("ORG_PERMISSIONS (rôles organisation)", () => {
     expect(canOrg("auditor", "matrix.edit")).toBe(true);
   });
 
-  it("auditor ne peut pas gérer clients, membres, facturation", () => {
-    expect(canOrg("auditor", "client.manage")).toBe(false);
+  it("auditor peut gérer les clients de son carnet (mig. 73) mais pas les membres ni la facturation", () => {
+    expect(canOrg("auditor", "client.manage")).toBe(true);
     expect(canOrg("auditor", "user.manage")).toBe(false);
   });
 
@@ -210,10 +210,14 @@ describe("ORG_PERMISSIONS (rôles organisation)", () => {
     );
   });
 
-  it("seuls owner/admin peuvent supprimer un audit, gérer les clients/users", () => {
-    const lower: OrgRole[] = ["auditor", "viewer"];
-    for (const role of lower) {
-      expect(canOrg(role, "client.manage")).toBe(false);
+  it("seuls owner/admin/auditor peuvent gérer les clients ; user.manage reste owner/admin", () => {
+    // L'auditor a gagné client.manage en mig. 73 pour matcher le besoin
+    // freelance « seul dans son org, gère son carnet ». Le viewer ne touche
+    // toujours pas aux clients ni aux membres.
+    expect(canOrg("auditor", "client.manage")).toBe(true);
+    expect(canOrg("viewer", "client.manage")).toBe(false);
+    const allLowerThanAdmin: OrgRole[] = ["auditor", "viewer"];
+    for (const role of allLowerThanAdmin) {
       expect(canOrg(role, "user.manage")).toBe(false);
     }
     // auditor garde audit.delete (cf. ROLES_ROADMAP.md), viewer non.
