@@ -88,6 +88,10 @@ describe("PERMISSIONS (rôles plateforme)", () => {
     expect(can("auditor", "user.manage")).toBe(false);
   });
 
+  it("auditor peut assigner d'autres auditeurs et inviter des contacts client", () => {
+    expect(can("auditor", "audit.assign_auditor")).toBe(true);
+  });
+
   it("tous les rôles peuvent lire le fil client d'une NC", () => {
     for (const role of ALL_USER_ROLES) {
       expect(can(role, "remediation.view")).toBe(true);

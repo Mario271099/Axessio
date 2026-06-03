@@ -117,6 +117,11 @@ const AUDITOR_PERMS: ReadonlyArray<Permission> = [
   // Phase 4 et complétera ce contrôle de permission.
   "client.manage",
   "project.manage",
+  // L'auditeur est lead sur ses audits : il peut assigner d'autres
+  // auditeurs (collaboration) et inviter des contacts client (Porte 2).
+  // Sans cette perm, le bouton « Inviter un contact » de la page audit
+  // restait caché — bug rapporté avant cette ligne.
+  "audit.assign_auditor",
   "impersonate", // limité à `client` côté UI (cf. canImpersonate ci-dessous)
 ];
 
