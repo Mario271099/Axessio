@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { ArrowRight, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +24,10 @@ import {
   type AuditStatusErrorCode,
   type TransitionReadiness,
 } from "@/lib/audit-status";
-import { transitionAuditStatus } from "@/app/(dashboard)/audits/[uuid]/status/actions";
+import {
+  revertAuditStatus,
+  transitionAuditStatus,
+} from "@/app/(dashboard)/audits/[uuid]/status/actions";
 import type { AuditStatus } from "@/types/domain";
 
 export interface AvailableStatusTransition {
@@ -47,6 +51,7 @@ export function AuditStatusActions({
 }: AuditStatusActionsProps) {
   const t = useTranslations("audits.statusTransitions");
   const tErr = useTranslations("audits.statusTransitions.errors");
+  const tStatus = useTranslations("constants.auditStatus");
   const router = useRouter();
   const [target, setTarget] = useState<AvailableStatusTransition | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -74,11 +79,15 @@ export function AuditStatusActions({
   function submit() {
     if (!target) return;
     setServerError(null);
+    // On capture le statut courant AVANT l'appel — c'est vers lui qu'on
+    // reviendra si l'utilisateur clique « Annuler ». La capture en variable
+    // locale évite que la closure du toast lise un currentStatus déjà mis
+    // à jour par router.refresh().
+    const fromStatus = currentStatus;
+    const toStatus = target.to;
     startTransition(async () => {
-      const result = await transitionAuditStatus(auditId, target.to);
+      const result = await transitionAuditStatus(auditId, toStatus);
       if (!result.ok) {
-        // Si on a un errorCode connu, on résout via i18n avec contexte ;
-        // sinon on retombe sur le message brut (erreur Supabase, etc.).
         const msg = result.errorCode
           ? tErr(result.errorCode, result.context ?? {})
           : (result.message ?? tErr("STATUS_INVALID_TARGET"));
@@ -87,6 +96,40 @@ export function AuditStatusActions({
       }
       setTarget(null);
       router.refresh();
+
+      // Toast Sonner avec action « Annuler ». 7 s d'affichage — laisse
+      // le temps de lire avant de réagir, tout en restant éphémère.
+      toast.success(t("undoToast.title", { status: tStatus(toStatus) }), {
+        description: t("undoToast.description"),
+        duration: 7_000,
+        action: {
+          label: t("undoToast.undo"),
+          onClick: () => {
+            startTransition(async () => {
+              const revertRes = await revertAuditStatus(
+                auditId,
+                toStatus,
+                fromStatus,
+              );
+              if (!revertRes.ok) {
+                toast.error(
+                  t("undoToast.failed", {
+                    message:
+                      revertRes.errorCode
+                        ? tErr(revertRes.errorCode, revertRes.context ?? {})
+                        : (revertRes.message ?? ""),
+                  }),
+                );
+                return;
+              }
+              toast.success(
+                t("undoToast.reverted", { status: tStatus(fromStatus) }),
+              );
+              router.refresh();
+            });
+          },
+        },
+      });
     });
   }
 

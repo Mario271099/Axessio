@@ -200,3 +200,88 @@ export async function transitionAuditStatus(
 
   return { ok: true, newStatus: target };
 }
+
+// ============================================================================
+// revertAuditStatus(auditId, expectedFrom, target)
+// ----------------------------------------------------------------------------
+// Annule la dernière transition manuelle. Utilisé par le toast « Annuler »
+// qui apparaît 5 secondes après une transition réussie dans
+// AuditStatusActions. Contrairement à `transitionAuditStatus`, on bypass
+// la matrice de transitions (qui est forward-only) et les conditions
+// métier — on veut juste remettre l'audit dans son état précédent.
+//
+// Garde-fou : on n'autorise l'annulation que si le statut courant est
+// bien `expectedFrom` (le statut juste après la transition à annuler).
+// Si l'audit a été modifié depuis (un cron a déclenché une auto-transition,
+// un autre user a bougé), on refuse — sinon on écraserait son travail.
+//
+// Side-effects nettoyés selon le statut d'origine :
+//   - DELIVERED → IN_PROGRESS : clear delivered_at
+//   - ONLINE → COMPLETED : clear online_at
+// ============================================================================
+export async function revertAuditStatus(
+  auditId: string,
+  expectedFrom: AuditStatus,
+  target: AuditStatus,
+): Promise<StatusTransitionResult> {
+  const guard = await requirePermission("audit.edit");
+  if (!guard.ok) {
+    return {
+      ok: false,
+      errorCode: "STATUS_ROLE_DENIED",
+      message: guard.error,
+    };
+  }
+
+  const supabase = await createClient();
+  const t = await getTranslations("audits.statusTransitions.errors");
+
+  const { data: audit } = await supabase
+    .from("audits")
+    .select("id, status")
+    .eq("id", auditId)
+    .maybeSingle();
+
+  if (!audit) {
+    return {
+      ok: false,
+      errorCode: "STATUS_INVALID_SOURCE",
+      message: t("STATUS_INVALID_SOURCE"),
+    };
+  }
+
+  // Statut courant a changé depuis la transition → refuser (course
+  // probablement avec un cron auto ou un autre acteur).
+  if ((audit.status as AuditStatus) !== expectedFrom) {
+    return {
+      ok: false,
+      errorCode: "STATUS_INVALID_SOURCE",
+      message: t("STATUS_INVALID_SOURCE"),
+    };
+  }
+
+  const updates: Record<string, unknown> = { status: target };
+  // Nettoyage des timestamps figés à la transition d'origine.
+  if (expectedFrom === "DELIVERED") updates.delivered_at = null;
+  if (expectedFrom === "ONLINE") updates.online_at = null;
+
+  const { error: updateError } = await supabase
+    .from("audits")
+    .update(updates)
+    .eq("id", auditId);
+  if (updateError) return { ok: false, message: updateError.message };
+
+  await supabase.from("audit_logs").insert({
+    audit_id: auditId,
+    actor_id: guard.userId,
+    actor_role: guard.role,
+    action: "status.reverted",
+    payload: { from: expectedFrom, to: target, manual: true },
+  });
+
+  revalidatePath(`/audits/${auditId}`);
+  revalidatePath("/audits");
+  revalidatePath("/dashboard");
+
+  return { ok: true, newStatus: target };
+}

@@ -1925,6 +1925,13 @@
       "ready": "Toutes les conditions sont réunies. Confirmez pour appliquer la transition.",
       "cancel": "Annuler",
       "confirm": "Confirmer la transition",
+      "undoToast": {
+        "title": "Statut mis à jour vers « {status} »",
+        "description": "Tu peux annuler ce changement pendant quelques secondes.",
+        "undo": "Annuler",
+        "reverted": "Statut restauré sur « {status} ».",
+        "failed": "Impossible d'annuler : {message}"
+      },
       "cta": {
         "plan": "Planifier l'audit",
         "start": "Démarrer l'audit",

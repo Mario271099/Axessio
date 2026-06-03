@@ -1925,6 +1925,13 @@
       "ready": "All conditions are met. Confirm to apply the transition.",
       "cancel": "Cancel",
       "confirm": "Confirm transition",
+      "undoToast": {
+        "title": "Status updated to \"{status}\"",
+        "description": "You can undo this change for a few seconds.",
+        "undo": "Undo",
+        "reverted": "Status restored to \"{status}\".",
+        "failed": "Could not undo: {message}"
+      },
       "cta": {
         "plan": "Plan audit",
         "start": "Start audit",
