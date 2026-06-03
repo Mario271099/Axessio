@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useRef, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   AlertCircle,
@@ -144,6 +144,16 @@ export function AuditForm({ projects, references }: AuditFormProps) {
     () => references.find((r) => r.id === referenceId) ?? null,
     [references, referenceId],
   );
+
+  // RAAM = référentiel d'apps mobiles. La plateforme est implicite et
+  // verrouillée sur MOBILE — sélectionner WEB n'aurait pas de sens.
+  // L'utilisateur saisira un bundle id à la place d'une URL.
+  const isMobileReference = selectedReference?.type === "RAAM";
+  useEffect(() => {
+    if (isMobileReference && platform !== "MOBILE") {
+      setPlatform("MOBILE");
+    }
+  }, [isMobileReference, platform]);
 
   const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -306,8 +316,14 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                   <Select
                     value={platform}
                     onValueChange={(v) => setPlatform(v as PlatformType)}
+                    disabled={isMobileReference}
                   >
-                    <SelectTrigger id="platform-select">
+                    <SelectTrigger
+                      id="platform-select"
+                      aria-describedby={
+                        isMobileReference ? "platform-locked" : undefined
+                      }
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -317,6 +333,14 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                       </SelectItem>
                     </SelectContent>
                   </Select>
+                  {isMobileReference && (
+                    <p
+                      id="platform-locked"
+                      className="text-xs text-muted-foreground"
+                    >
+                      {t("steps.reference.platformLockedRaam")}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">

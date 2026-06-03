@@ -1719,6 +1719,7 @@
             "raam": "Référentiel d'audit des applications mobiles, complément au RGAA pour iOS/Android."
           },
           "platform": "Plateforme",
+          "platformLockedRaam": "Le référentiel RAAM cible les applications mobiles : la plateforme est verrouillée sur Mobile.",
           "serviceType": "Type de prestation",
           "language": "Langue de l'audit",
           "siteName": "Nom du site / de l'application",

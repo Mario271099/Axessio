@@ -90,6 +90,22 @@ export async function createAudit(
     return { error: t("fieldErrors"), fieldErrors };
   }
 
+  // Garde-fou serveur : le référentiel RAAM est mobile-only. Si l'UI a
+  // été contournée et envoie WEB, on corrige silencieusement plutôt que
+  // de rejeter — l'utilisateur ne voit pas l'erreur, on évite une perte
+  // de saisie.
+  let effectivePlatform: PlatformType = platform;
+  if (referenceId) {
+    const { data: refRow } = await supabase
+      .from("references")
+      .select("type")
+      .eq("id", referenceId)
+      .maybeSingle();
+    if (refRow?.type === "RAAM") {
+      effectivePlatform = "MOBILE";
+    }
+  }
+
   // Validation chronologique : chaque date doit être strictement supérieure
   // à la précédente. Re-check côté serveur — l'UI peut être contournée.
   if (expectedStartAt) {
@@ -182,7 +198,7 @@ export async function createAudit(
       project_id: projectId,
       reference_id: referenceId,
       service_type: serviceType,
-      platform,
+      platform: effectivePlatform,
       status: "PENDING" as AuditStatus,
       language,
       site_name: siteName,

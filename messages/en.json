@@ -1719,6 +1719,7 @@
             "raam": "Mobile app audit framework, RGAA companion for iOS/Android."
           },
           "platform": "Platform",
+          "platformLockedRaam": "The RAAM framework targets mobile apps: platform is locked to Mobile.",
           "serviceType": "Service type",
           "language": "Audit language",
           "siteName": "Site / app name",
