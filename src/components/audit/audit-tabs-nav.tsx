@@ -18,12 +18,12 @@ interface AuditTabsNavProps {
 }
 
 /**
- * Barre d'onglets de navigation au niveau audit. Chaque onglet pointe vers
- * une page Next.js distincte (navigation classique, pas de state local).
- * L'onglet actif est mis en évidence par un soulignement coloré.
+ * Barre d'onglets de navigation au niveau audit. Onglets en pills
+ * (rounded-full, fond primary + texte blanc actif, hover doux sur les
+ * inactifs). Plus moderne et plus contrasté que l'ancien soulignement.
  *
- * Client component pour pouvoir être réutilisé aussi dans des layouts client
- * (matrice, etc.) sans contrainte de async/await.
+ * Client component pour pouvoir être réutilisé aussi dans des layouts
+ * client (matrice, etc.) sans contrainte de async/await.
  */
 export function AuditTabsNav({
   auditId,
@@ -49,11 +49,8 @@ export function AuditTabsNav({
   ];
 
   return (
-    <nav
-      aria-label={t("ariaLabel")}
-      className={cn("border-b border-border", className)}
-    >
-      <ul className="flex flex-wrap gap-1">
+    <nav aria-label={t("ariaLabel")} className={className}>
+      <ul className="flex flex-wrap items-center gap-1">
         {tabs.map((tab) => {
           const isActive = tab.key === active;
           return (
@@ -62,19 +59,14 @@ export function AuditTabsNav({
                 href={tab.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "relative inline-flex items-center px-4 py-3 text-sm font-medium transition-colors",
+                  "inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground",
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 )}
               >
                 {tab.label}
-                {isActive && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-primary"
-                  />
-                )}
               </Link>
             </li>
           );
