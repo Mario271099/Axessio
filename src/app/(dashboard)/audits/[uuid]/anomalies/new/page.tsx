@@ -56,7 +56,9 @@ export default async function NewNCPage({ params }: PageProps) {
   const { data: criteriaRows } = thematics.length
     ? await supabase
         .from("criteria")
-        .select("id, thematic_id, identifier, name, sort_order, methodology")
+        .select(
+          "id, thematic_id, identifier, name, sort_order, methodology, url",
+        )
         .in(
           "thematic_id",
           thematics.map((t) => t.id),
@@ -70,6 +72,7 @@ export default async function NewNCPage({ params }: PageProps) {
     identifier: c.identifier as string,
     name: c.name as string,
     methodology: (c.methodology as string | null) ?? null,
+    url: (c.url as string | null) ?? null,
   }));
 
   // Templates de NC pré-remplis pour cette org/référentiel. Le picker côté

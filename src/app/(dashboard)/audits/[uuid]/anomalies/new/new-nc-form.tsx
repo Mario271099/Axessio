@@ -4,9 +4,19 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations, useFormatter } from "next-intl";
-import { ChevronLeft, Loader2, RotateCcw, Save, Sparkles, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import {
+  ChevronLeft,
+  Eye,
+  Loader2,
+  RotateCcw,
+  Save,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDraftStorage } from "@/hooks/use-draft-storage";
+import { requestNCReview } from "@/app/(dashboard)/audits/[uuid]/anomalies/[ncId]/review-actions";
 import type { NCTemplate } from "@/types/domain";
 import {
   Card,
@@ -14,7 +24,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -53,6 +62,8 @@ export interface NCCriterion {
   identifier: string;
   name: string;
   methodology: string | null;
+  /** Lien vers la documentation officielle (RGAA / WCAG / etc.). */
+  url: string | null;
 }
 
 export interface NCPage {
@@ -87,15 +98,19 @@ export function NewNCForm({
   const [testReference, setTestReference] = useState<string>("");
 
   const [pageId, setPageId] = useState<string>("");
-  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [actualResult, setActualResult] = useState("");
   const [recommendation, setRecommendation] = useState("");
   const [severity, setSeverity] = useState<NCSeverity>("MEDIUM");
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
   const [submitting, startTransition] = useTransition();
+  // Mode de soumission : « create » = juste créer, « create_and_request »
+  // = créer puis enchaîner requestNCReview. Lu par handleSubmit pour
+  // décider quoi faire après createNC.
+  const [submitMode, setSubmitMode] = useState<"create" | "create_and_request">(
+    "create",
+  );
 
   // ---- Brouillon localStorage --------------------------------------------
   // Snapshot du formulaire sans les fichiers (non sérialisables) ni les
@@ -105,9 +120,7 @@ export function NewNCForm({
     criteriaId: string;
     testReference: string;
     pageId: string;
-    title: string;
     description: string;
-    actualResult: string;
     recommendation: string;
     severity: NCSeverity;
   };
@@ -116,9 +129,7 @@ export function NewNCForm({
     criteriaId,
     testReference,
     pageId,
-    title,
     description,
-    actualResult,
     recommendation,
     severity,
   };
@@ -129,9 +140,7 @@ export function NewNCForm({
     // banner inutilement au prochain montage.
     shouldPersist: (v) =>
       Boolean(
-        v.title.trim() ||
-          v.description.trim() ||
-          v.actualResult.trim() ||
+        v.description.trim() ||
           v.recommendation.trim() ||
           v.pageId ||
           v.criteriaId,
@@ -147,8 +156,11 @@ export function NewNCForm({
   function applyTemplate(tplId: string) {
     const tpl = templates.find((tt) => tt.id === tplId);
     if (!tpl) return;
-    setTitle(tpl.titleTemplate);
-    setDescription(tpl.descriptionTemplate ?? "");
+    // Le titre du template (titleTemplate) renseigne la description faute
+    // de mieux : on a supprimé le champ titre, et la description portait
+    // historiquement le détail de la NC. Si le template a aussi une
+    // description, on préfère elle (plus riche).
+    setDescription(tpl.descriptionTemplate ?? tpl.titleTemplate);
     setRecommendation(tpl.recommendationTemplate ?? "");
     setSeverity(tpl.severity);
     if (tpl.criterionId) {
@@ -156,8 +168,6 @@ export function NewNCForm({
       if (matched) {
         setThematicId(matched.thematicId);
         setCriteriaId(matched.id);
-        // Le test n'est pas dans le template — il est dépendant de la
-        // méthodologie chargée, l'auditeur le complète lui-même.
       }
     }
   }
@@ -165,18 +175,11 @@ export function NewNCForm({
   function restoreDraft() {
     if (!draft.available) return;
     const v = draft.available.value;
-    // Ordre important : thematic d'abord — les useEffect de cascade
-    // resetteraient criteriaId/testReference sinon. On positionne tout
-    // dans le même render tick côté React, puis on laisse les effets
-    // de cascade valider (ce qu'ils feront sans rien casser puisque
-    // criteriaId appartient bien à thematicId dans un brouillon valide).
     setThematicId(v.thematicId);
     setCriteriaId(v.criteriaId);
     setTestReference(v.testReference);
     setPageId(v.pageId);
-    setTitle(v.title);
     setDescription(v.description);
-    setActualResult(v.actualResult);
     setRecommendation(v.recommendation);
     setSeverity(v.severity);
     draft.dismissAvailable();
@@ -263,8 +266,9 @@ export function NewNCForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!title.trim()) {
-      setError(t("titleRequired"));
+    // Validation client — tous les champs sauf captures sont requis.
+    if (!pageId) {
+      setError(t("pageRequired"));
       return;
     }
     if (!thematicId) {
@@ -275,27 +279,31 @@ export function NewNCForm({
       setError(t("criterionRequired"));
       return;
     }
-    if (!pageId) {
-      setError(t("pageRequired"));
-      return;
-    }
-    // Le test n'est requis que s'il existe au moins un test parsé. Certains
-    // critères sans méthodologie chargée n'imposent rien.
     if (availableTests.length > 0 && !testReference) {
       setError(t("testRequired"));
       return;
     }
+    if (!description.trim()) {
+      setError(t("descriptionRequired"));
+      return;
+    }
+    if (!recommendation.trim()) {
+      setError(t("recommendationRequired"));
+      return;
+    }
     setError(null);
     setWarning(null);
+    // Capture la valeur de submitMode au moment du submit — handleSubmit est
+    // exécuté en réponse au click, après quoi setSubmitMode pourrait être
+    // ré-armé par un autre click avant la fin de la transition.
+    const mode = submitMode;
     startTransition(async () => {
       const result = await createNC({
         auditId,
         pageId,
         criteriaId,
-        title: title.trim(),
-        description: description.trim() || null,
-        actualResult: actualResult.trim() || null,
-        recommendation: recommendation.trim() || null,
+        description: description.trim(),
+        recommendation: recommendation.trim(),
         severity,
         testReference: testReference || null,
       });
@@ -315,12 +323,33 @@ export function NewNCForm({
         );
       }
 
-      // La NC est créée — on peut purger le brouillon. Si l'upload des
-      // captures a échoué, ce n'est pas grave pour le brouillon : la NC
-      // existe déjà côté serveur, ré-uploadable depuis sa page de détail.
+      // NC créée → purge du brouillon. L'éventuel échec d'upload des
+      // captures ne ramène pas le brouillon (la NC existe déjà côté
+      // serveur, ré-uploadable depuis sa page de détail).
       draft.clear();
 
-      router.push(`/audits/${auditId}/anomalies/${ncId}`);
+      // Si l'utilisateur a cliqué sur « Créer et demander une relecture »,
+      // on enchaîne avec requestNCReview. L'échec n'interrompt pas le flux :
+      // la NC reste créée, on prévient juste l'utilisateur via toast.
+      if (mode === "create_and_request") {
+        const reviewRes = await requestNCReview(ncId);
+        if (!reviewRes.ok) {
+          toast.warning(t("createdReviewFailed"), {
+            description: reviewRes.message ?? undefined,
+          });
+        } else {
+          toast.success(t("createdAndReviewSuccess"));
+        }
+      } else {
+        toast.success(t("createdSuccess"));
+      }
+
+      // Redirection vers un nouveau formulaire pour enchaîner la saisie
+      // des NC suivantes (workflow auditeur typique : on traite une page
+      // ou un critère et on enquille plusieurs NC d'affilée). router.refresh
+      // pour re-fetcher pages/critères en cas de changement entre-temps.
+      router.push(`/audits/${auditId}/anomalies/new`);
+      router.refresh();
     });
   };
 
@@ -514,89 +543,97 @@ export function NewNCForm({
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="nc-test">
-                {t("test")}
-                {availableTests.length > 0 ? " *" : ""}
-              </Label>
-              <Select
-                value={testReference}
-                onValueChange={setTestReference}
-                disabled={!criteriaId || availableTests.length === 0}
+            {/* --- Tests et méthodologie du critère --------------------- */}
+            {/* Panel à part : on liste TOUS les tests du critère sélectionné
+                avec leur question complète (radio-cards). L'auditeur voit la
+                méthodologie d'un coup d'œil au lieu de devoir dérouler une
+                liste tronquée. Lien vers la doc officielle si disponible. */}
+            <fieldset
+              className="space-y-3 rounded-md border border-border bg-muted/20 p-3"
+              aria-describedby="nc-tests-help"
+            >
+              <legend className="px-1 text-sm font-medium">
+                {t("test")} *
+              </legend>
+              <p
+                id="nc-tests-help"
+                className="px-1 text-xs text-muted-foreground"
               >
-                <SelectTrigger id="nc-test">
-                  <SelectValue
-                    placeholder={
-                      !criteriaId
-                        ? t("testPlaceholderDisabled")
-                        : availableTests.length === 0
-                          ? t("testPlaceholderNone")
-                          : t("testPlaceholder")
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent className="max-h-[60vh]">
-                  {availableTests.map((tst) => (
-                    <SelectItem key={tst.reference} value={tst.reference}>
-                      <span className="font-mono text-xs text-muted-foreground">
-                        {tst.reference}
-                      </span>
-                      <span className="ml-2 max-w-md truncate align-middle">
-                        {tst.question}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {criteriaId && availableTests.length === 0 && (
-                <p className="text-xs text-muted-foreground">
-                  {t("testNoneNote")}
-                </p>
+                {!criteriaId
+                  ? t("testPlaceholderDisabled")
+                  : availableTests.length === 0
+                    ? t("testNoneNote")
+                    : t("testPickerHint")}
+              </p>
+              {criteriaId && selectedCriterion?.url && (
+                <a
+                  href={selectedCriterion.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 px-1 text-xs text-primary hover:underline"
+                >
+                  {t("testRefDocLink")}
+                </a>
               )}
-            </div>
+              {criteriaId && availableTests.length > 0 && (
+                <div className="space-y-2">
+                  {availableTests.map((tst) => {
+                    const isSelected = testReference === tst.reference;
+                    return (
+                      <label
+                        key={tst.reference}
+                        className={
+                          "flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors " +
+                          (isSelected
+                            ? "border-primary bg-primary/5"
+                            : "border-border bg-card hover:bg-accent")
+                        }
+                      >
+                        <input
+                          type="radio"
+                          name="nc-test-radio"
+                          value={tst.reference}
+                          checked={isSelected}
+                          onChange={() => setTestReference(tst.reference)}
+                          className="mt-1 h-4 w-4 shrink-0 accent-primary"
+                        />
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <p className="font-mono text-xs text-muted-foreground">
+                            {tst.reference}
+                          </p>
+                          <p className="whitespace-pre-line text-sm leading-relaxed">
+                            {tst.question}
+                          </p>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </fieldset>
 
-            {/* --- Reste du formulaire ---------------------------------- */}
             <div className="space-y-2">
-              <Label htmlFor="nc-title">{t("ncTitle")} *</Label>
-              <Input
-                id="nc-title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder={t("ncTitlePlaceholder")}
-                required
-                maxLength={200}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="nc-description">{t("description")}</Label>
+              <Label htmlFor="nc-description">{t("description")} *</Label>
               <Textarea
                 id="nc-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
+                required
                 placeholder={t("descriptionPlaceholder")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nc-actual-result">{t("actualResult")}</Label>
-              <Textarea
-                id="nc-actual-result"
-                value={actualResult}
-                onChange={(e) => setActualResult(e.target.value)}
-                rows={4}
-                placeholder={t("actualResultPlaceholder")}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="nc-recommendation">{t("recommendation")}</Label>
+              <Label htmlFor="nc-recommendation">
+                {t("recommendation")} *
+              </Label>
               <Textarea
                 id="nc-recommendation"
                 value={recommendation}
                 onChange={(e) => setRecommendation(e.target.value)}
                 rows={4}
+                required
                 placeholder={t("recommendationPlaceholder")}
               />
             </div>
@@ -668,30 +705,50 @@ export function NewNCForm({
               ) : (
                 <span aria-hidden="true" />
               )}
-              <div className="flex items-center justify-end gap-2">
-              <Button
-                asChild
-                type="button"
-                variant="ghost"
-                size="sm"
-                disabled={submitting}
-              >
-                <Link href={`/audits/${auditId}/anomalies`}>{t("cancel")}</Link>
-              </Button>
-              <Button
-                type="submit"
-                size="sm"
-                disabled={submitting || noPages || noCriteria}
-                className="gap-1"
-              >
-                {submitting && (
-                  <Loader2
-                    className="h-3.5 w-3.5 animate-spin"
-                    aria-hidden="true"
-                  />
-                )}
-                {t("submit")}
-              </Button>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <Button
+                  asChild
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={submitting}
+                >
+                  <Link href={`/audits/${auditId}/anomalies`}>
+                    {t("cancel")}
+                  </Link>
+                </Button>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  size="sm"
+                  disabled={submitting || noPages || noCriteria}
+                  className="gap-1"
+                  onClick={() => setSubmitMode("create_and_request")}
+                >
+                  {submitting && submitMode === "create_and_request" && (
+                    <Loader2
+                      className="h-3.5 w-3.5 animate-spin"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                  {t("submitAndRequestReview")}
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={submitting || noPages || noCriteria}
+                  className="gap-1"
+                  onClick={() => setSubmitMode("create")}
+                >
+                  {submitting && submitMode === "create" && (
+                    <Loader2
+                      className="h-3.5 w-3.5 animate-spin"
+                      aria-hidden="true"
+                    />
+                  )}
+                  {t("submit")}
+                </Button>
               </div>
             </div>
           </form>

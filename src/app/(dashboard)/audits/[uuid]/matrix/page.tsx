@@ -72,7 +72,7 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
   const { data: criteriaRows } = await supabase
     .from("criteria")
     .select(
-      "id, thematic_id, identifier, name, url, disabilities, sort_order, name_en, level, principle, guideline",
+      "id, thematic_id, identifier, name, url, disabilities, sort_order, name_en, level, principle, guideline, methodology",
     )
     .in(
       "thematic_id",
@@ -91,6 +91,7 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
     level: (c.level ?? null) as Criterion["level"],
     principle: c.principle ?? null,
     guideline: c.guideline ?? null,
+    methodology: (c.methodology as string | null) ?? null,
   }));
 
   const { data: pageRows } = await supabase

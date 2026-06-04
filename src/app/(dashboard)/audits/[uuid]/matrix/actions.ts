@@ -181,12 +181,17 @@ export async function clearThematicConformity(
 
 // ============================================================================
 // 4) Créer une non-conformité + marquer la page comme NON_COMPLIANT
+// ----------------------------------------------------------------------------
+// Le titre n'est plus saisi : il est généré côté serveur depuis le critère
+// (identifier + name) et la référence du test sélectionné. La description et
+// la recommandation sont obligatoires. testReference est facultatif si le
+// critère n'a pas de méthodologie chargée.
 // ============================================================================
 export interface CreateNCInput {
-  title: string;
-  description: string | null;
-  recommendation: string | null;
+  description: string;
+  recommendation: string;
   severity: NCSeverity;
+  testReference: string | null;
 }
 
 export async function createNonConformity(
@@ -201,8 +206,27 @@ export async function createNonConformity(
   const supabase = await createClient();
   const t = await getTranslations("errors");
 
-  const title = input.title.trim();
-  if (!title) return { error: t("titleRequired") };
+  const description = input.description.trim();
+  const recommendation = input.recommendation.trim();
+  if (!description) {
+    return { error: t("requiredField", { field: "description" }) };
+  }
+  if (!recommendation) {
+    return { error: t("requiredField", { field: "recommendation" }) };
+  }
+
+  // Titre auto-généré depuis le critère + référence de test.
+  const { data: criterion } = await supabase
+    .from("criteria")
+    .select("identifier, name")
+    .eq("id", criteriaId)
+    .maybeSingle();
+  if (!criterion) return { error: t("criterionRequired") };
+  const testReference = input.testReference?.trim().slice(0, 50) || null;
+  const autoTitle = testReference
+    ? `${criterion.identifier} — ${testReference}`
+    : `${criterion.identifier} — ${criterion.name as string}`;
+  const title = autoTitle.slice(0, 200);
 
   // Insertion de la NC
   const { data: nc, error: ncError } = await supabase
@@ -212,11 +236,12 @@ export async function createNonConformity(
       page_id: pageId,
       criteria_id: criteriaId,
       title,
-      description: input.description?.trim() || null,
-      recommendation: input.recommendation?.trim() || null,
+      description,
+      recommendation,
       severity: input.severity,
       status: "OPEN",
       created_by: auth.userId,
+      test_reference: testReference,
     })
     .select("id")
     .single();

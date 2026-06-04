@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Loader2, Save } from "lucide-react";
+import { AlertCircle, Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,6 +81,55 @@ export function EditAuditForm({
   const [siteName, setSiteName] = useState(initial.siteName);
   const [siteUrl, setSiteUrl] = useState(initial.siteUrl);
 
+  // Dates contrôlées pour pouvoir appliquer la même validation chronologique
+  // que dans la création (audit-form.tsx). Le format `YYYY-MM-DD` est celui
+  // attendu par `<input type="date">`.
+  const formatForInputInit = (iso: string | null) =>
+    iso ? new Date(iso).toISOString().slice(0, 10) : "";
+  const [expectedStartAt, setExpectedStartAt] = useState(
+    formatForInputInit(initial.expectedStartAt),
+  );
+  const [expectedEndAt, setExpectedEndAt] = useState(
+    formatForInputInit(initial.expectedEndAt),
+  );
+  const [restitutionAt, setRestitutionAt] = useState(
+    formatForInputInit(initial.restitutionAt),
+  );
+  const [counterAuditAt, setCounterAuditAt] = useState(
+    formatForInputInit(initial.counterAuditAt),
+  );
+
+  // Pour le `min={today}` on a besoin d'une date fixe — mémoïsée pour ne pas
+  // se réévaluer à chaque render et provoquer un re-render des inputs.
+  const today = useMemo(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+      .toISOString()
+      .slice(0, 10);
+  }, []);
+
+  // Validation chronologique stricte (cohérence métier du planning),
+  // alignée sur audit-form.tsx (création). Sur l'édition, on tolère qu'une
+  // date de début soit dans le passé : l'audit a pu démarrer hier et on
+  // édite aujourd'hui — interdire serait absurde. Les autres contraintes
+  // (fin > début, restit > fin, contre-audit > restit) restent strictes.
+  const dateError = useMemo<string | null>(() => {
+    if (
+      expectedStartAt &&
+      expectedEndAt &&
+      expectedEndAt <= expectedStartAt
+    ) {
+      return tNew("steps.planning.errors.endBeforeStart");
+    }
+    if (expectedEndAt && restitutionAt && restitutionAt <= expectedEndAt) {
+      return tNew("steps.planning.errors.restitutionBeforeEnd");
+    }
+    if (restitutionAt && counterAuditAt && counterAuditAt <= restitutionAt) {
+      return tNew("steps.planning.errors.counterBeforeRestitution");
+    }
+    return null;
+  }, [tNew, expectedStartAt, expectedEndAt, restitutionAt, counterAuditAt]);
+
   // RAAM = référentiel mobile-only : la plateforme est verrouillée sur
   // MOBILE comme dans le formulaire de création (audit-form.tsx).
   const selectedRef = references.find((r) => r.id === referenceId) ?? null;
@@ -95,9 +144,6 @@ export function EditAuditForm({
     router.push(`/audits/${auditId}`);
     router.refresh();
   }
-
-  const formatForInput = (iso: string | null) =>
-    iso ? new Date(iso).toISOString().slice(0, 10) : "";
 
   return (
     <form action={formAction} className="space-y-6">
@@ -269,7 +315,8 @@ export function EditAuditForm({
                 id="start-edit"
                 name="expectedStartAt"
                 type="date"
-                defaultValue={formatForInput(initial.expectedStartAt)}
+                value={expectedStartAt}
+                onChange={(e) => setExpectedStartAt(e.target.value)}
               />
             </div>
 
@@ -279,7 +326,9 @@ export function EditAuditForm({
                 id="end-edit"
                 name="expectedEndAt"
                 type="date"
-                defaultValue={formatForInput(initial.expectedEndAt)}
+                value={expectedEndAt}
+                onChange={(e) => setExpectedEndAt(e.target.value)}
+                min={expectedStartAt || undefined}
               />
             </div>
 
@@ -289,7 +338,9 @@ export function EditAuditForm({
                 id="restitution-edit"
                 name="restitutionAt"
                 type="date"
-                defaultValue={formatForInput(initial.restitutionAt)}
+                value={restitutionAt}
+                onChange={(e) => setRestitutionAt(e.target.value)}
+                min={expectedEndAt || expectedStartAt || undefined}
               />
             </div>
 
@@ -301,10 +352,30 @@ export function EditAuditForm({
                 id="counter-audit-edit"
                 name="counterAuditAt"
                 type="date"
-                defaultValue={formatForInput(initial.counterAuditAt)}
+                value={counterAuditAt}
+                onChange={(e) => setCounterAuditAt(e.target.value)}
+                min={
+                  restitutionAt ||
+                  expectedEndAt ||
+                  expectedStartAt ||
+                  undefined
+                }
               />
             </div>
           </div>
+
+          {dateError && (
+            <p
+              role="alert"
+              className="inline-flex w-full items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+            >
+              <AlertCircle
+                className="mt-0.5 h-4 w-4 shrink-0"
+                aria-hidden="true"
+              />
+              <span>{dateError}</span>
+            </p>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="a11y-edit">{t("a11yLink")}</Label>
@@ -337,7 +408,7 @@ export function EditAuditForm({
         >
           {t("cancel")}
         </Button>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || dateError !== null}>
           {pending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />

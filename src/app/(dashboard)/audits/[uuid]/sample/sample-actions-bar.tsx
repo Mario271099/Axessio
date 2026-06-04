@@ -16,6 +16,16 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   addPage,
   deletePage,
   updatePage,
@@ -196,17 +206,18 @@ function PageRowItem({
   onEdit: () => void;
 }) {
   const t = useTranslations("audits.sample");
+  const tCommon = useTranslations("common");
   const tPageType = useTranslations("constants.pageType");
   const tComplexity = useTranslations("constants.complexity");
   const [pending, setPending] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const isTransversal = page.page_type === "TRANSVERSAL";
 
-  async function handleDelete() {
-    const ok = confirm(t("confirmDelete", { name: page.name }));
-    if (!ok) return;
+  async function performDelete() {
     setPending(true);
     const result = await deletePage(page.id, auditId);
     setPending(false);
+    setConfirmOpen(false);
     if (result.error) alert(t("errorPrefix", { message: result.error }));
   }
 
@@ -243,13 +254,40 @@ function PageRowItem({
             <Button
               size="icon"
               variant="ghost"
-              onClick={handleDelete}
+              onClick={() => setConfirmOpen(true)}
               disabled={pending}
               aria-label={t("deleteAria", { name: page.name })}
               className="text-destructive hover:text-destructive"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
+            <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("confirmDeleteTitle")}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t("confirmDelete", { name: page.name })}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={pending}>
+                    {tCommon("cancel")}
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    variant="destructive"
+                    disabled={pending}
+                    onClick={(e) => {
+                      // Empêche la fermeture auto du AlertDialog avant que
+                      // la requête de suppression ait fini.
+                      e.preventDefault();
+                      void performDelete();
+                    }}
+                  >
+                    {tCommon("delete")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         )}
       </div>

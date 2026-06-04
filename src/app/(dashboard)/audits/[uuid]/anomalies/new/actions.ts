@@ -10,10 +10,8 @@ export interface CreateNCInput {
   auditId: string;
   pageId: string;
   criteriaId: string;
-  title: string;
-  description: string | null;
-  actualResult: string | null;
-  recommendation: string | null;
+  description: string;
+  recommendation: string;
   severity: NCSeverity;
   /** Référence textuelle du test précis qui a déclenché la NC, ex. `Test 1.1.1`. */
   testReference: string | null;
@@ -45,14 +43,32 @@ export async function createNC(
     return { error: t("forbidden") };
   }
 
-  const title = input.title.trim();
-  if (!title) return { error: t("titleRequired") };
   if (!input.criteriaId) return { error: t("criterionRequired") };
   if (!input.pageId) return { error: t("pageRequired") };
+  const description = input.description.trim();
+  const recommendation = input.recommendation.trim();
+  if (!description) return { error: t("requiredField", { field: "description" }) };
+  if (!recommendation) return { error: t("requiredField", { field: "recommendation" }) };
 
   // Le test_reference est juste une chaîne libre, mais on borne la longueur
   // pour ne pas accepter d'input dégénéré (le format `Test X.Y.Z` fait <20 ch).
   const testReference = input.testReference?.trim().slice(0, 50) || null;
+
+  // Le titre est généré côté serveur depuis le critère + référence de test.
+  // L'utilisateur n'a plus à le saisir — la description porte le contenu
+  // descriptif réel. Format : "1.1 — Test 1.1.5" ou "1.1 — {nom critère}".
+  const { data: criterion } = await supabase
+    .from("criteria")
+    .select("identifier, name")
+    .eq("id", input.criteriaId)
+    .maybeSingle();
+  if (!criterion) return { error: t("criterionRequired") };
+  const autoTitle = testReference
+    ? `${criterion.identifier} — ${testReference}`
+    : `${criterion.identifier} — ${criterion.name as string}`;
+  // Borne dure pour ne pas dépasser la limite raisonnable d'un titre (la
+  // colonne est text, mais l'UI affiche tronqué au-delà de 200 ch).
+  const title = autoTitle.slice(0, 200);
 
   const { data: nc, error: ncError } = await supabase
     .from("non_conformities")
@@ -61,9 +77,8 @@ export async function createNC(
       page_id: input.pageId,
       criteria_id: input.criteriaId,
       title,
-      description: input.description?.trim() || null,
-      actual_result: input.actualResult?.trim() || null,
-      recommendation: input.recommendation?.trim() || null,
+      description,
+      recommendation,
       severity: input.severity,
       status: "OPEN",
       created_by: user.id,

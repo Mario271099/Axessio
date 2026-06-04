@@ -180,6 +180,13 @@ export interface Criterion {
   principle: string | null;
   /** Guideline WCAG (ex: "1.1 Text Alternatives"). */
   guideline: string | null;
+  /**
+   * Méthodologie de test concaténée au format `Test X.Y.Z\n[question]`.
+   * Optionnel — chargé seulement par les écrans qui en ont besoin (matrice,
+   * formulaire de NC). Voir `parseMethodology()` pour la décomposition en
+   * tests individuels.
+   */
+  methodology?: string | null;
 }
 
 // ============================================================================
