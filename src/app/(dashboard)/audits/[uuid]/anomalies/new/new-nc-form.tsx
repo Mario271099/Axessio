@@ -372,7 +372,7 @@ export function NewNCForm({
   const noCriteria = criteria.length === 0;
 
   return (
-    <div className="container mx-auto max-w-3xl space-y-6 p-6 md:p-8">
+    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
       <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
         <Link href={`/audits/${auditId}/anomalies`}>
           <ChevronLeft className="h-4 w-4" aria-hidden="true" />
@@ -471,7 +471,9 @@ export function NewNCForm({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Erreur/warning de soumission au-dessus du grid pour rester visibles
+            quel que soit le breakpoint. */}
         {error && (
           <p
             role="alert"
@@ -489,6 +491,12 @@ export function NewNCForm({
             {warning}
           </p>
         )}
+
+        {/* 3 cards en colonnes sur lg+ (>=1024 px), empilées sinon.
+            `items-start` évite que la card la plus courte soit étirée à la
+            hauteur de la plus longue (la card 1 méthodologie peut faire
+            8 tests, les autres seraient creuses). */}
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:items-start">
 
         {/* ============ Card 1 : Contexte du critère ====================== */}
         {/* Page de l'audit + cascade thématique / critère + méthodologie.
@@ -521,7 +529,10 @@ export function NewNCForm({
               </Select>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            {/* En colonne unique sur lg+ (chaque card ne fait que ~30 % de
+                la largeur). Sur mobile/tablette (col stack) on garde une
+                grid 2 cols pour densifier. */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               <div className="space-y-2">
                 <Label htmlFor="nc-thematic">{t("thematic")} *</Label>
                 <Select value={thematicId} onValueChange={setThematicId}>
@@ -652,7 +663,7 @@ export function NewNCForm({
             </p>
           </CardHeader>
           <CardContent className="space-y-5">
-            <div className="space-y-2 sm:max-w-xs">
+            <div className="space-y-2 sm:max-w-xs lg:max-w-none">
               <div className="flex items-center gap-1.5">
                 <Label htmlFor="nc-severity">{t("severity")}</Label>
                 <InfoTip label={t("severityHelpAria")}>
@@ -810,6 +821,7 @@ export function NewNCForm({
             </div>
           </CardContent>
         </Card>
+        </div>
       </form>
     </div>
   );
