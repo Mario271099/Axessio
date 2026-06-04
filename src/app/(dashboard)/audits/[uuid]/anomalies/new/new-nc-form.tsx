@@ -344,11 +344,26 @@ export function NewNCForm({
         toast.success(t("createdSuccess"));
       }
 
-      // Redirection vers un nouveau formulaire pour enchaîner la saisie
-      // des NC suivantes (workflow auditeur typique : on traite une page
-      // ou un critère et on enquille plusieurs NC d'affilée). router.refresh
-      // pour re-fetcher pages/critères en cas de changement entre-temps.
-      router.push(`/audits/${auditId}/anomalies/new`);
+      // Reset complet du formulaire pour proposer un « nouveau » form au
+      // même endroit. router.push vers la même URL ne suffit pas : le
+      // composant client n'est pas démonté, les useState gardent leurs
+      // valeurs. On remet donc explicitement chaque champ à son défaut.
+      // router.refresh() re-fetch les pages/critères côté serveur si jamais
+      // l'utilisateur a ajouté une page entre-temps depuis un autre onglet.
+      setThematicId("");
+      setCriteriaId("");
+      setTestReference("");
+      setPageId("");
+      setDescription("");
+      setRecommendation("");
+      setSeverity("MEDIUM");
+      setFiles([]);
+      setError(null);
+      setWarning(null);
+      setSubmitMode("create");
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
       router.refresh();
     });
   };
