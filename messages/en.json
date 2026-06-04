@@ -1849,6 +1849,28 @@
       "unknownReference": "Unknown reference",
       "edit": "Edit",
       "openSimulator": "Open simulator",
+      "activity": {
+        "title": "Recent activity",
+        "viewAll": "View all",
+        "empty": "No activity for this audit.",
+        "systemActor": "System",
+        "actions": {
+          "status_transition": "moved the status from \"{from}\" to \"{to}\".",
+          "status_auto_transition": "triggered an automatic transition from \"{from}\" to \"{to}\".",
+          "status_reverted": "undid the transition \"{from}\" and restored \"{to}\".",
+          "assignee_added": "added an auditor.",
+          "assignee_removed": "removed an auditor.",
+          "proofreader_assigned": "assigned a proofreader.",
+          "proofreader_removed": "removed a proofreader.",
+          "contact_invited": "invited a client contact.",
+          "contact_removed": "removed a client contact.",
+          "nc_review_opened": "opened a review cycle.",
+          "nc_review_requested": "requested a review.",
+          "nc_review_approved": "approved the review.",
+          "nc_review_changes_requested": "requested review changes.",
+          "nc_review_cancelled": "cancelled the review."
+        }
+      },
       "timelineTitle": "Schedule",
       "conformityRate": "Conformity rate",
       "conformityAria": "Conformity: {score}%",

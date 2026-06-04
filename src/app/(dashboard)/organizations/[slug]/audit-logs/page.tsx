@@ -56,6 +56,7 @@ export default async function AuditLogsPage({
   searchParams: Promise<{
     action?: string;
     actorId?: string;
+    auditId?: string;
     from?: string;
     to?: string;
     page?: string;
@@ -93,6 +94,7 @@ export default async function AuditLogsPage({
   const page = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
   const action = sp.action?.trim() || undefined;
   const actorId = sp.actorId?.trim() || undefined;
+  const auditId = sp.auditId?.trim() || undefined;
   const from = sp.from || undefined;
   const to = sp.to || undefined;
 
@@ -110,6 +112,7 @@ export default async function AuditLogsPage({
 
   if (action) query = query.eq("action", action);
   if (actorId) query = query.eq("actor_id", actorId);
+  if (auditId) query = query.eq("audit_id", auditId);
   if (from) query = query.gte("created_at", from);
   if (to) query = query.lte("created_at", to);
 
@@ -326,12 +329,19 @@ export default async function AuditLogsPage({
 
 function buildPageUrl(
   slug: string,
-  sp: { action?: string; actorId?: string; from?: string; to?: string },
+  sp: {
+    action?: string;
+    actorId?: string;
+    auditId?: string;
+    from?: string;
+    to?: string;
+  },
   page: number,
 ): string {
   const params = new URLSearchParams();
   if (sp.action) params.set("action", sp.action);
   if (sp.actorId) params.set("actorId", sp.actorId);
+  if (sp.auditId) params.set("auditId", sp.auditId);
   if (sp.from) params.set("from", sp.from);
   if (sp.to) params.set("to", sp.to);
   if (page > 1) params.set("page", String(page));

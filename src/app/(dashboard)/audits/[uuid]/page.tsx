@@ -32,6 +32,7 @@ import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
 import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
 import { AuditNextAction } from "@/components/audit/audit-next-action";
 import { AuditTimelineVertical } from "@/components/audit/audit-timeline-vertical";
+import { AuditActivityCard } from "@/components/audit/audit-activity-card";
 import { AuditKpiBar } from "@/components/audit/audit-kpi-bar";
 import {
   InterlocutorsCard,
@@ -77,7 +78,8 @@ export default async function AuditDetailPage({ params }: PageProps) {
       `
       *,
       reference:references(type, version),
-      project:projects(name, url, client:clients(id, name))
+      project:projects(name, url, client:clients(id, name)),
+      organization:organizations(slug)
     `,
     )
     .eq("id", uuid)
@@ -86,6 +88,13 @@ export default async function AuditDetailPage({ params }: PageProps) {
   if (error || !audit) {
     notFound();
   }
+
+  // L'org est join 1-1 mais Supabase peut renvoyer un tableau selon le
+  // résolveur. On aplatit ici pour avoir une shape stable.
+  const auditOrg = Array.isArray(audit.organization)
+    ? audit.organization[0]
+    : audit.organization;
+  const auditOrgSlug: string | null = (auditOrg?.slug as string | null) ?? null;
 
   const project = Array.isArray(audit.project)
     ? audit.project[0]
@@ -542,20 +551,24 @@ export default async function AuditDetailPage({ params }: PageProps) {
           Interlocuteurs (droite, sticky-ish)
       ────────────────────────────────────────────────────────────────── */}
       <div className="grid gap-5 lg:grid-cols-[2fr_1fr]">
-        {/* Colonne gauche : actions de cycle de vie */}
-        <Card id="lifecycle" className="scroll-mt-24">
-          <CardHeader>
-            <CardTitle className="text-base">{t("lifecycleTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <AuditStatusActions
-              auditId={uuid}
-              currentStatus={currentStatus}
-              snapshot={statusSnapshot}
-              available={availableStatusTransitions}
-            />
-          </CardContent>
-        </Card>
+        {/* Colonne gauche : actions de cycle de vie + activité récente */}
+        <div className="space-y-5">
+          <Card id="lifecycle" className="scroll-mt-24">
+            <CardHeader>
+              <CardTitle className="text-base">{t("lifecycleTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AuditStatusActions
+                auditId={uuid}
+                currentStatus={currentStatus}
+                snapshot={statusSnapshot}
+                available={availableStatusTransitions}
+              />
+            </CardContent>
+          </Card>
+
+          <AuditActivityCard auditId={uuid} orgSlug={auditOrgSlug} />
+        </div>
 
         {/* Colonne droite : timeline + interlocuteurs empilés */}
         <div className="space-y-5">

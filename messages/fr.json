@@ -1849,6 +1849,28 @@
       "unknownReference": "Référentiel inconnu",
       "edit": "Modifier",
       "openSimulator": "Ouvrir le simulateur",
+      "activity": {
+        "title": "Activité récente",
+        "viewAll": "Voir tout",
+        "empty": "Aucune activité pour cet audit.",
+        "systemActor": "Système",
+        "actions": {
+          "status_transition": "a fait passer le statut de « {from} » à « {to} ».",
+          "status_auto_transition": "a déclenché une transition automatique de « {from} » à « {to} ».",
+          "status_reverted": "a annulé la transition « {from} » et restauré « {to} ».",
+          "assignee_added": "a ajouté un auditeur.",
+          "assignee_removed": "a retiré un auditeur.",
+          "proofreader_assigned": "a assigné un relecteur.",
+          "proofreader_removed": "a retiré un relecteur.",
+          "contact_invited": "a invité un contact client.",
+          "contact_removed": "a retiré un contact client.",
+          "nc_review_opened": "a ouvert un cycle de relecture.",
+          "nc_review_requested": "a demandé une relecture.",
+          "nc_review_approved": "a approuvé la relecture.",
+          "nc_review_changes_requested": "a demandé des modifications de relecture.",
+          "nc_review_cancelled": "a annulé la relecture."
+        }
+      },
       "timelineTitle": "Échéances",
       "conformityRate": "Taux de conformité",
       "conformityAria": "Conformité : {score}%",
