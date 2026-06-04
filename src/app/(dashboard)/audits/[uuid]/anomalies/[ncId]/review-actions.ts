@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireFeature } from "@/lib/billing/server";
+import { canCreateNC, canEditNC } from "@/lib/permissions";
 import type { NCReviewStatus, UserRole } from "@/types/domain";
 
 export interface NCReviewActionResult {
@@ -110,8 +111,17 @@ export async function requestNCReview(
     };
   }
 
-  // Permission : admin OU auditeur assigné
-  if (ctx.assignmentRole !== "admin" && ctx.assignmentRole !== "auditor") {
+  // Permission : tout utilisateur qui peut créer/éditer une NC peut aussi
+  // demander une relecture, qu'il soit assigné nominativement à l'audit ou
+  // non. Auparavant on exigeait `audit_assignees.role = 'auditor'`, ce qui
+  // bloquait notamment les auditeurs qui venaient juste de créer la NC
+  // (post-create flow du formulaire) sans être listés dans assignees.
+  const allowedByRole =
+    ctx.assignmentRole === "admin" ||
+    ctx.assignmentRole === "auditor" ||
+    canCreateNC(ctx.userRole) ||
+    canEditNC(ctx.userRole);
+  if (!allowedByRole) {
     return { ok: false, errorCode: "NC_REVIEW_DENIED", message: t("NC_REVIEW_DENIED") };
   }
 
@@ -131,19 +141,15 @@ export async function requestNCReview(
 
   const supabase = await createClient();
 
-  // Un relecteur doit être désigné sur l'audit (sinon notif sans destinataire).
+  // L'absence de relecteur n'est plus bloquante — on ouvre quand même le
+  // cycle pour que l'auditeur puisse poser le drapeau « relecture demandée »
+  // côté NC. La notification est juste skippée (filter renverra vide), et un
+  // relecteur assigné plus tard verra la NC en `pending` dès son arrivée.
   const { data: proofreaders } = await supabase
     .from("audit_assignees")
     .select("profile_id")
     .eq("audit_id", ctx.auditId)
     .eq("role", "proofreader");
-  if ((proofreaders ?? []).length === 0) {
-    return {
-      ok: false,
-      errorCode: "NC_REVIEW_NO_PROOFREADER",
-      message: t("NC_REVIEW_NO_PROOFREADER"),
-    };
-  }
 
   const { error } = await supabase
     .from("non_conformities")
@@ -166,18 +172,22 @@ export async function requestNCReview(
     payload: { nc_id: ncId, from: ctx.reviewStatus, to: "pending" },
   });
 
-  // Notif aux relecteurs (sauf si c'est l'auteur — peu probable)
-  await supabase.from("notifications").insert(
-    (proofreaders ?? [])
-      .filter((p) => (p.profile_id as string) !== ctx.userId)
-      .map((p) => ({
-        user_id: p.profile_id as string,
-        sender_id: ctx.userId,
-        audit_id: ctx.auditId,
-        nc_id: ncId,
-        type: "nc.review_requested",
-      })),
-  );
+  // Notif aux relecteurs (sauf si c'est l'auteur — peu probable). Si
+  // aucun relecteur n'est assigné on saute l'insert : pas d'erreur, le
+  // cycle reste ouvert et la NC apparaît en `pending` pour le prochain
+  // relecteur ajouté.
+  const notifRows = (proofreaders ?? [])
+    .filter((p) => (p.profile_id as string) !== ctx.userId)
+    .map((p) => ({
+      user_id: p.profile_id as string,
+      sender_id: ctx.userId,
+      audit_id: ctx.auditId,
+      nc_id: ncId,
+      type: "nc.review_requested",
+    }));
+  if (notifRows.length > 0) {
+    await supabase.from("notifications").insert(notifRows);
+  }
 
   revalidatePath(`/audits/${ctx.auditId}/anomalies/${ncId}`);
   revalidatePath(`/audits/${ctx.auditId}/anomalies`);

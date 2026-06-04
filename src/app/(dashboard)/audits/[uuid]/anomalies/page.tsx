@@ -19,7 +19,7 @@ export default async function AnomaliesPage({
   const { data } = await supabase
     .from("non_conformities")
     .select(
-      `id, title, status, severity, created_at, display_number,
+      `id, title, status, severity, created_at, display_number, review_status,
        criterion:criteria!inner(identifier, name),
        page:pages(name),
        messages:nc_messages(id),
@@ -51,6 +51,9 @@ export default async function AnomaliesPage({
       messageCount: messages.length,
       attachmentCount: attachments.length,
       displayNumber: Number(nc.display_number ?? 0),
+      reviewStatus:
+        (nc.review_status as AnomalyListItem["reviewStatus"]) ??
+        "not_requested",
     };
   });
 

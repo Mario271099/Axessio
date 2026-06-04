@@ -58,10 +58,12 @@ import {
   canEditNC,
 } from "@/lib/permissions";
 import type {
+  NCReviewStatus,
   NCSeverity,
   NCStatus,
   UserRole,
 } from "@/types/domain";
+import { NCReviewBadge } from "@/components/audit/nc-review-badge";
 import {
   bulkDeleteNCs,
   bulkUpdateNCSeverity,
@@ -96,6 +98,8 @@ export interface AnomalyListItem {
   attachmentCount: number;
   /** Numéro séquentiel par audit (migration 41). */
   displayNumber: number;
+  /** Statut de relecture pour afficher l'indicateur sur la carte. */
+  reviewStatus: NCReviewStatus;
 }
 
 interface AnomaliesListProps {
@@ -692,6 +696,11 @@ function NCRow({
             <Badge variant={statusVariant} className="text-[10px]">
               {tNcStatus(nc.status)}
             </Badge>
+            <NCReviewBadge
+              status={nc.reviewStatus}
+              hideWhenNotRequested
+              className="text-[10px]"
+            />
             {nc.criterion && (
               <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
                 {nc.criterion.identifier}
