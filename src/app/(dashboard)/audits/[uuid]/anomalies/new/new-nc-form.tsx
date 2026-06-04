@@ -385,114 +385,126 @@ export function NewNCForm({
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("info")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {(noPages || noCriteria) && (
-            <p
-              role="alert"
-              className="mb-4 rounded-md bg-warning/10 p-3 text-sm text-warning"
+      {/* Bandeaux globaux (au-dessus des cards) :
+          - Avertissement pas de pages / critères
+          - Banner brouillon trouvé
+          - Picker template
+          - Erreur / warning de soumission
+          Ils restent en dehors des cards parce qu'ils s'appliquent à la
+          page entière, pas à une étape précise. */}
+
+      {(noPages || noCriteria) && (
+        <p
+          role="alert"
+          className="rounded-md bg-warning/10 p-3 text-sm text-warning"
+        >
+          {noPages ? t("noPages") : t("noCriteria")}
+        </p>
+      )}
+
+      {draft.available && (
+        <div
+          role="status"
+          className="flex flex-col gap-3 rounded-md border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p className="text-sm">
+            <span className="font-medium">{tDraft("bannerTitle")}</span>{" "}
+            <span className="text-muted-foreground">
+              {tDraft("bannerHint", {
+                when: format.relativeTime(draft.available.savedAt),
+              })}
+            </span>
+          </p>
+          <div className="flex shrink-0 gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => draft.clear()}
+              className="gap-1"
             >
-              {noPages ? t("noPages") : t("noCriteria")}
+              <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+              {tDraft("discard")}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={restoreDraft}
+              className="gap-1"
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              {tDraft("restore")}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {templates.length > 0 && (
+        <div className="flex flex-col gap-2 rounded-md border border-border bg-muted/30 p-3 sm:flex-row sm:items-center">
+          <div className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+            <Sparkles
+              className="h-3.5 w-3.5 text-primary"
+              aria-hidden="true"
+            />
+            {t("templatesLabel")}
+          </div>
+          <Select
+            value=""
+            onValueChange={(v) => {
+              if (v) applyTemplate(v);
+            }}
+          >
+            <SelectTrigger className="flex-1" aria-label={t("templatesAria")}>
+              <SelectValue placeholder={t("templatesPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent className="max-h-[60vh]">
+              {templates.map((tpl) => (
+                <SelectItem key={tpl.id} value={tpl.id}>
+                  <span>{tpl.label}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    ({tSeverity(tpl.severity)})
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <p
+            role="alert"
+            className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+          >
+            {error}
+          </p>
+        )}
+
+        {warning && (
+          <p
+            role="alert"
+            className="rounded-md bg-warning/10 p-3 text-sm text-warning"
+          >
+            {warning}
+          </p>
+        )}
+
+        {/* ============ Card 1 : Contexte du critère ====================== */}
+        {/* Page de l'audit + cascade thématique / critère + méthodologie.
+            Tous les inputs « quoi est concerné » sont regroupés ici pour
+            permettre à l'auditeur d'ancrer la NC avant d'en décrire le
+            détail. */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {t("sectionContextTitle")}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {t("sectionContextDesc")}
             </p>
-          )}
-
-          {draft.available && (
-            <div
-              role="status"
-              className="mb-4 flex flex-col gap-3 rounded-md border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <p className="text-sm">
-                <span className="font-medium">{tDraft("bannerTitle")}</span>{" "}
-                <span className="text-muted-foreground">
-                  {tDraft("bannerHint", {
-                    when: format.relativeTime(draft.available.savedAt),
-                  })}
-                </span>
-              </p>
-              <div className="flex shrink-0 gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => {
-                    draft.clear();
-                  }}
-                  className="gap-1"
-                >
-                  <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                  {tDraft("discard")}
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={restoreDraft}
-                  className="gap-1"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-                  {tDraft("restore")}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {templates.length > 0 && (
-            <div className="mb-4 flex flex-col gap-2 rounded-md border border-border bg-muted/30 p-3 sm:flex-row sm:items-center">
-              <div className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-                <Sparkles
-                  className="h-3.5 w-3.5 text-primary"
-                  aria-hidden="true"
-                />
-                {t("templatesLabel")}
-              </div>
-              <Select
-                value=""
-                onValueChange={(v) => {
-                  if (v) applyTemplate(v);
-                }}
-              >
-                <SelectTrigger
-                  className="flex-1"
-                  aria-label={t("templatesAria")}
-                >
-                  <SelectValue placeholder={t("templatesPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent className="max-h-[60vh]">
-                  {templates.map((tpl) => (
-                    <SelectItem key={tpl.id} value={tpl.id}>
-                      <span>{tpl.label}</span>
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        ({tSeverity(tpl.severity)})
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {error && (
-              <p
-                role="alert"
-                className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-              >
-                {error}
-              </p>
-            )}
-
-            {warning && (
-              <p
-                role="alert"
-                className="rounded-md bg-warning/10 p-3 text-sm text-warning"
-              >
-                {warning}
-              </p>
-            )}
-
-            {/* --- Page (toujours requis) ------------------------------- */}
+          </CardHeader>
+          <CardContent className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="nc-page">{t("page")} *</Label>
               <Select value={pageId} onValueChange={setPageId}>
@@ -509,60 +521,58 @@ export function NewNCForm({
               </Select>
             </div>
 
-            {/* --- Cascade Thématique → Critère → Test ------------------ */}
-            <div className="space-y-2">
-              <Label htmlFor="nc-thematic">{t("thematic")} *</Label>
-              <Select value={thematicId} onValueChange={setThematicId}>
-                <SelectTrigger id="nc-thematic">
-                  <SelectValue placeholder={t("thematicPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent className="max-h-[60vh]">
-                  {thematics.map((tm) => (
-                    <SelectItem key={tm.id} value={tm.id}>
-                      <span className="font-mono text-xs text-muted-foreground">
-                        {tm.identifier}
-                      </span>
-                      <span className="ml-2">{tm.name}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="nc-thematic">{t("thematic")} *</Label>
+                <Select value={thematicId} onValueChange={setThematicId}>
+                  <SelectTrigger id="nc-thematic">
+                    <SelectValue placeholder={t("thematicPlaceholder")} />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[60vh]">
+                    {thematics.map((tm) => (
+                      <SelectItem key={tm.id} value={tm.id}>
+                        <span className="font-mono text-xs text-muted-foreground">
+                          {tm.identifier}
+                        </span>
+                        <span className="ml-2">{tm.name}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="nc-criteria">{t("criterion")} *</Label>
+                <Select
+                  value={criteriaId}
+                  onValueChange={setCriteriaId}
+                  disabled={!thematicId}
+                >
+                  <SelectTrigger id="nc-criteria">
+                    <SelectValue
+                      placeholder={
+                        thematicId
+                          ? t("criterionPlaceholder")
+                          : t("criterionPlaceholderDisabled")
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[60vh]">
+                    {filteredCriteria.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        <span className="font-mono text-xs text-muted-foreground">
+                          {c.identifier}
+                        </span>
+                        <span className="ml-2">{c.name}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="nc-criteria">{t("criterion")} *</Label>
-              <Select
-                value={criteriaId}
-                onValueChange={setCriteriaId}
-                disabled={!thematicId}
-              >
-                <SelectTrigger id="nc-criteria">
-                  <SelectValue
-                    placeholder={
-                      thematicId
-                        ? t("criterionPlaceholder")
-                        : t("criterionPlaceholderDisabled")
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent className="max-h-[60vh]">
-                  {filteredCriteria.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      <span className="font-mono text-xs text-muted-foreground">
-                        {c.identifier}
-                      </span>
-                      <span className="ml-2">{c.name}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* --- Tests et méthodologie du critère --------------------- */}
-            {/* Panel à part : on liste TOUS les tests du critère sélectionné
-                avec leur question complète (radio-cards). L'auditeur voit la
-                méthodologie d'un coup d'œil au lieu de devoir dérouler une
-                liste tronquée. Lien vers la doc officielle si disponible. */}
+            {/* Méthodologie : panel radio-cards de tous les tests du
+                critère, avec leur question complète. */}
             <fieldset
               className="space-y-3 rounded-md border border-border bg-muted/20 p-3"
               aria-describedby="nc-tests-help"
@@ -626,39 +636,30 @@ export function NewNCForm({
                 </div>
               )}
             </fieldset>
+          </CardContent>
+        </Card>
 
-            <div className="space-y-2">
-              <Label htmlFor="nc-description">{t("description")} *</Label>
-              <Textarea
-                id="nc-description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={4}
-                required
-                placeholder={t("descriptionPlaceholder")}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="nc-recommendation">
-                {t("recommendation")} *
-              </Label>
-              <Textarea
-                id="nc-recommendation"
-                value={recommendation}
-                onChange={(e) => setRecommendation(e.target.value)}
-                rows={4}
-                required
-                placeholder={t("recommendationPlaceholder")}
-              />
-            </div>
-
+        {/* ============ Card 2 : Détail de la non-conformité ============== */}
+        {/* Sévérité + description + recommandation. C'est le contenu
+            « narratif » de la NC une fois le contexte ancré. */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {t("sectionDetailTitle")}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {t("sectionDetailDesc")}
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-5">
             <div className="space-y-2 sm:max-w-xs">
               <div className="flex items-center gap-1.5">
                 <Label htmlFor="nc-severity">{t("severity")}</Label>
                 <InfoTip label={t("severityHelpAria")}>
                   <div className="space-y-1.5">
-                    <p className="font-semibold">{t("severityHelp.title")}</p>
+                    <p className="font-semibold">
+                      {t("severityHelp.title")}
+                    </p>
                     <p>
                       <strong>{tSeverity("CRITICAL")} :</strong>{" "}
                       {t("severityHelp.critical")}
@@ -695,6 +696,47 @@ export function NewNCForm({
               </Select>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="nc-description">{t("description")} *</Label>
+              <Textarea
+                id="nc-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
+                required
+                placeholder={t("descriptionPlaceholder")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="nc-recommendation">
+                {t("recommendation")} *
+              </Label>
+              <Textarea
+                id="nc-recommendation"
+                value={recommendation}
+                onChange={(e) => setRecommendation(e.target.value)}
+                rows={4}
+                required
+                placeholder={t("recommendationPlaceholder")}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ============ Card 3 : Pièces jointes & validation ============== */}
+        {/* Drop-zone fichiers + barre d'actions (Annuler / Créer / Créer +
+            demander relecture) avec indicateur de sauvegarde brouillon. */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {t("sectionAttachmentsTitle")}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {t("sectionAttachmentsDesc")}
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-5">
             <div className="space-y-2">
               <Label>{t("screenshots")}</Label>
               <FileDropZone
@@ -766,9 +808,9 @@ export function NewNCForm({
                 </Button>
               </div>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </form>
     </div>
   );
 }
