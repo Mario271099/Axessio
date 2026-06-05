@@ -1,4 +1,4 @@
-// Logo Axessyo — signature complète : monogramme « A x » (carré navy + trait +
+// Logo Axessyo — signature complète : monogramme « A y » (carré navy + trait +
 // point teal A11Y) accolé au wordmark « Axessyo ».
 //
 // Conventions Axessyo :
@@ -77,10 +77,11 @@ export function Logo({
 
   // Paths tracés sur un viewBox 56×56, mis à l'échelle de la taille demandée.
   const iconPaths = {
-    a1: `M${12 * scale} ${40 * scale} L${17.8 * scale} ${14 * scale}c${0.4 * scale} ${-1.6 * scale} ${2.6 * scale} ${-1.6 * scale} ${3 * scale} 0L${24.5 * scale} ${28 * scale}`,
-    bar: `M${14.5 * scale} ${31.5 * scale}h${8.5 * scale}`,
-    x1: `M${28 * scale} ${24 * scale} L${36 * scale} ${40 * scale}`,
-    x2: `M${36 * scale} ${24 * scale} L${28 * scale} ${40 * scale}`,
+    a1: `M${10 * scale} ${40 * scale} L${15.8 * scale} ${14 * scale}c${0.4 * scale} ${-1.6 * scale} ${2.6 * scale} ${-1.6 * scale} ${3 * scale} 0L${22.5 * scale} ${28 * scale}`,
+    bar: `M${12.5 * scale} ${31.5 * scale}h${8 * scale}`,
+    y1: `M${26 * scale} ${20 * scale} L${33.5 * scale} ${34 * scale}`,
+    y2: `M${41 * scale} ${20 * scale} L${33.5 * scale} ${34 * scale}`,
+    y3: `M${33.5 * scale} ${34 * scale} L${30.5 * scale} ${44 * scale}`,
   };
 
   return (
@@ -105,8 +106,9 @@ export function Logo({
         />
         <path d={iconPaths.a1} stroke={c.stroke} strokeWidth={s.stroke} strokeLinecap="round" strokeLinejoin="round" />
         <path d={iconPaths.bar} stroke={c.stroke} strokeWidth={s.stroke} strokeLinecap="round" />
-        <path d={iconPaths.x1} stroke={c.stroke} strokeWidth={s.stroke} strokeLinecap="round" />
-        <path d={iconPaths.x2} stroke={c.stroke} strokeWidth={s.stroke} strokeLinecap="round" />
+        <path d={iconPaths.y1} stroke={c.stroke} strokeWidth={s.stroke} strokeLinecap="round" />
+        <path d={iconPaths.y2} stroke={c.stroke} strokeWidth={s.stroke} strokeLinecap="round" />
+        <path d={iconPaths.y3} stroke={c.stroke} strokeWidth={s.stroke} strokeLinecap="round" />
         <circle cx={s.cx} cy={s.cy} r={s.dot} fill={c.dot} />
       </svg>
 
