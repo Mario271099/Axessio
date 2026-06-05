@@ -57,7 +57,7 @@ import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { intlLocale } from "@/lib/intl";
-import { canChat, canEditNC } from "@/lib/permissions";
+import { canAny, canChat, type Permission } from "@/lib/permissions";
 import type {
   NCReviewStatus,
   NCSeverity,
@@ -192,6 +192,8 @@ export interface NCDetailProps {
   auditId: string;
   auditTitle: string;
   profile: { role: UserRole; id: string };
+  /** Permissions atomiques effectives sur l'org active (rendu conditionnel). */
+  orgPermissions?: Permission[];
   /**
    * Rôle d'assignment de l'utilisateur sur l'audit parent (auditor /
    * proofreader / admin / none). Utilisé pour afficher les bons boutons
@@ -212,11 +214,13 @@ export function NCDetail({
   auditId,
   auditTitle,
   profile,
+  orgPermissions,
   userAssignmentRole,
   prevNC,
   nextNC,
 }: NCDetailProps) {
   const router = useRouter();
+  const orgPerms = new Set(orgPermissions ?? []);
   const t = useTranslations("audits.ncDetail");
   const tNcStatus = useTranslations("constants.ncStatus");
   const tNcSeverity = useTranslations("constants.ncSeverity");
@@ -227,7 +231,7 @@ export function NCDetail({
   const locale = useLocale();
   const intl = intlLocale(locale);
   // « isAuditor » historique = peut modifier la NC (titre, sévérité, statut).
-  const isAuditor = canEditNC(profile.role);
+  const isAuditor = canAny(profile.role, orgPerms, "nc.edit");
 
   function formatMessageDate(iso: string): string {
     const d = new Date(iso);
@@ -828,11 +832,11 @@ export function NCDetail({
               {attachments.length > 0 && (
                 <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {attachments.map((att) => {
-                    // Auteur de l'upload OU staff plateforme avec droit d'éditer
-                    // les NC (admin/auditor). Couvre l'admin qui n'avait pas
-                    // accès dans l'ancien check `role === "auditor"`.
+                    // Auteur de l'upload OU droit d'éditer les NC (staff legacy
+                    // OU membre d'org avec `nc.edit`).
                     const canDelete =
-                      canEditNC(profile.role) || att.uploadedBy === profile.id;
+                      canAny(profile.role, orgPerms, "nc.edit") ||
+                      att.uploadedBy === profile.id;
                     const isImage = !!att.mimeType?.startsWith("image/");
                     const isDeleting = deletingId === att.id;
                     const displayName =

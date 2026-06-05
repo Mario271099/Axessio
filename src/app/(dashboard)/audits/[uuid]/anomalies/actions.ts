@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
-import { canEditNC } from "@/lib/permissions";
+import { requireAnyPermission } from "@/lib/server-permissions";
 import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
 
 export interface BulkResult {
@@ -25,23 +25,11 @@ const BULK_WINDOW_MS = 60 * 1000;
 async function requireAuditor(): Promise<
   { ok: true; userId: string; role: UserRole } | { ok: false; error: string }
 > {
-  const supabase = await createClient();
-  const t = await getTranslations("errors");
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: t("notAuthenticated") };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.role || !canEditNC(profile.role as UserRole)) {
-    return { ok: false, error: t("forbidden") };
-  }
-  return { ok: true, userId: user.id, role: profile.role as UserRole };
+  // Legacy (auditor/admin) OU permission d'org `nc.edit`. La RLS `nc_admin`
+  // (mig. 80) re-vérifie côté DB, scopée à l'org de l'audit.
+  const guard = await requireAnyPermission("nc.edit");
+  if (!guard.ok) return { ok: false, error: guard.error };
+  return { ok: true, userId: guard.userId, role: guard.role };
 }
 
 async function checkBulkRateLimit(

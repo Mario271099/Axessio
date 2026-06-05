@@ -45,8 +45,13 @@ export function PublicHeader() {
               </Link>
             </li>
             <li>
-              <Button asChild size="sm">
+              <Button asChild size="sm" variant="ghost">
                 <Link href="/login">{t("nav.login")}</Link>
+              </Button>
+            </li>
+            <li>
+              <Button asChild size="sm">
+                <Link href="/register">{t("nav.register")}</Link>
               </Button>
             </li>
           </ul>

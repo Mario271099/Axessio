@@ -1,6 +1,7 @@
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { orgHasFeature } from "@/lib/billing/server";
+import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
 import { AnomaliesList, type AnomalyListItem } from "./anomalies-list";
 import { ExportNcButton } from "./export-nc-button";
@@ -11,6 +12,7 @@ export default async function AnomaliesPage({
   params: Promise<{ uuid: string }>;
 }) {
   const profile = await requireProfile();
+  const orgPerms = await loadMyOrgPermissions();
   const { uuid } = await params;
   const supabase = await createClient();
 
@@ -69,7 +71,12 @@ export default async function AnomaliesPage({
           <ExportNcButton auditId={uuid} />
         </div>
       )}
-      <AnomaliesList ncs={ncs} auditId={uuid} role={profile.role} />
+      <AnomaliesList
+        ncs={ncs}
+        auditId={uuid}
+        role={profile.role}
+        orgPermissions={Array.from(orgPerms)}
+      />
     </div>
   );
 }

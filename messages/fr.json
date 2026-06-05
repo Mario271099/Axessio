@@ -7,7 +7,8 @@
       "features": "Fonctionnalités",
       "standards": "Référentiels",
       "pricing": "Tarifs",
-      "login": "Se connecter"
+      "login": "Se connecter",
+      "register": "S'inscrire"
     },
     "hero": {
       "kicker": "Plateforme d'audit d'accessibilité",
@@ -614,6 +615,23 @@
       "auditLogsCta": "Journal d'audit",
       "ncTemplatesCta": "Modèles de NC"
     },
+    "invite": {
+      "title": "Inviter un membre",
+      "subtitle": "Ajoutez un coéquipier à cette organisation. Il pourra travailler sur vos audits selon le rôle choisi.",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Adresse email",
+      "emailPlaceholder": "coequipier@entreprise.com",
+      "role": "Rôle dans l'organisation",
+      "roleHint": "Auditeur : crée et édite les audits. Administrateur : gère aussi l'équipe et la facturation. Lecteur : consultation seule.",
+      "submit": "Envoyer l'invitation",
+      "submitting": "Envoi en cours…",
+      "success": "Invitation créée. Un email a été envoyé (si la délivrabilité le permet). Vous pouvez aussi copier le lien ci-dessous.",
+      "inviteLinkLabel": "Lien d'invitation",
+      "copy": "Copier",
+      "copied": "Copié",
+      "membersCountLimit": "{count} / {limit} membres"
+    },
     "ncTemplates": {
       "metaTitle": "Modèles de NC — {slug}",
       "title": "Modèles de non-conformité",
@@ -974,7 +992,7 @@
       "submit": "Se connecter",
       "submitting": "Connexion en cours…",
       "footer": "Pas encore de compte ?",
-      "footerCta": "Contactez votre administrateur",
+      "footerCta": "Créer un compte",
       "contactAdminSubject": "Demande d'accès à la plateforme Axessio",
       "resetSuccess": "Mot de passe mis à jour. Connecte-toi avec ton nouveau mot de passe.",
       "dismissBanner": "Fermer ce message",
@@ -983,6 +1001,49 @@
         "sessionFailed": "La session n'a pas pu être créée. Vérifie tes paramètres Supabase.",
         "signIn": "Erreur : {message}",
         "rateLimited": "Trop de tentatives de connexion. Réessayez dans {seconds} s."
+      }
+    },
+    "register": {
+      "title": "Créer votre compte",
+      "subtitle": "Lancez votre espace Axessio en quelques secondes — sans carte bancaire.",
+      "firstName": "Prénom",
+      "firstNamePlaceholder": "Camille",
+      "lastName": "Nom",
+      "lastNamePlaceholder": "Durand",
+      "organization": "Nom de votre organisation",
+      "organizationPlaceholder": "Mon agence",
+      "organizationHint": "C'est l'espace de travail qui regroupera vos audits et votre équipe.",
+      "email": "Adresse email professionnelle",
+      "emailPlaceholder": "vous@entreprise.com",
+      "password": "Mot de passe",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
+      "strength": "Force du mot de passe : {label}",
+      "strengthLevels": {
+        "tooShort": "Trop court",
+        "weak": "Faible",
+        "medium": "Moyen",
+        "strong": "Fort"
+      },
+      "criteria": {
+        "minLength": "8 caractères minimum",
+        "uppercase": "Une majuscule",
+        "digit": "Un chiffre"
+      },
+      "terms": "En créant un compte, vous acceptez nos conditions d'utilisation et notre politique de confidentialité.",
+      "submit": "Créer mon compte",
+      "submitting": "Création en cours…",
+      "footer": "Vous avez déjà un compte ?",
+      "footerCta": "Se connecter",
+      "marketingSubtitle": "Créez votre espace, invitez votre équipe et démarrez votre premier audit aujourd'hui.",
+      "errors": {
+        "missing": "Tous les champs sont requis.",
+        "invalidEmail": "Adresse email invalide.",
+        "weakPassword": "Le mot de passe ne respecte pas les critères de sécurité.",
+        "emailTaken": "Un compte existe déjà pour cette adresse email. Connectez-vous plutôt.",
+        "rateLimited": "Trop de tentatives. Réessayez dans {seconds} s.",
+        "server": "La création du compte a échoué. Réessayez dans un instant.",
+        "signInFailed": "Votre compte a été créé mais la connexion automatique a échoué. Connectez-vous manuellement."
       }
     },
     "forgotPassword": {
@@ -1931,6 +1992,7 @@
     "assignees": {
       "empty": "Aucun auditeur assigné pour l'instant.",
       "addCta": "Assigner un auditeur",
+      "inviteCta": "Inviter un coéquipier",
       "dialogTitle": "Assigner un auditeur",
       "dialogDesc": "Le membre choisi aura accès à cet audit (lecture, édition, NC).",
       "selectLabel": "Auditeur ou administrateur",

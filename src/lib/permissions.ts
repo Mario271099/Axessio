@@ -158,6 +158,23 @@ export function can(role: UserRole, permission: Permission): boolean {
   return PERMISSIONS[role].has(permission);
 }
 
+/**
+ * Vérification combinée legacy + org pour le rendu UI : vrai si le rôle
+ * plateforme legacy accorde la permission OU si elle est présente dans les
+ * permissions d'org effectives (chargées via `loadMyOrgPermissions()`).
+ *
+ * Pendant la coexistence des deux modèles (cf. ROLES_ROADMAP.md), c'est le
+ * pendant côté UI de `requireAnyPermission()` côté serveur. `orgPerms` peut être
+ * `undefined` (page qui ne les charge pas) → on retombe sur le legacy seul.
+ */
+export function canAny(
+  role: UserRole,
+  orgPerms: ReadonlySet<Permission> | undefined,
+  permission: Permission,
+): boolean {
+  return can(role, permission) || (orgPerms?.has(permission) ?? false);
+}
+
 /** Liste lisible des permissions d'un rôle (debug, page admin). */
 export function listPermissions(role: UserRole): Permission[] {
   return Array.from(PERMISSIONS[role]);

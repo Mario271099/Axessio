@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
-import { canEditAudit } from "@/lib/permissions";
+import { canAny } from "@/lib/permissions";
+import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
@@ -32,7 +33,8 @@ export default async function SamplePage({
     complexity: p.complexity as ComplexityLevel | null,
   }));
 
-  const canEdit = canEditAudit(profile.role);
+  const orgPerms = await loadMyOrgPermissions();
+  const canEdit = canAny(profile.role, orgPerms, "audit.edit");
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">

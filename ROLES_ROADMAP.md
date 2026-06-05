@@ -153,8 +153,9 @@ pour une consultance qui invite 50 PO chez ses clients sans payer
 | 5 | 6B | TS : `Profile.isPlatformAdmin` + bascule des ~10 checks super-admin | ✅ |
 | 5 | 7 | Onboarding multi-persona (freelance / company / consultancy) | ✅ (checklist adaptée par org type) |
 | 6 | **6C.1** | Fermer le trou d'escalade : data remap legacy `client` / `client_admin` vers contacts (mig. 72) | ✅ |
-| Backlog | 6C.2 | Bascule audits : server actions + RLS `audits`, `pages`, `page_conformities` vers `requireOrgPermission` | ⏳ (à déclencher au prochain refacto du domaine audit) |
-| Backlog | 6C.3 | Bascule NC : `non_conformities`, `nc_messages`, `nc_attachments`, server actions NC | ⏳ (idem au prochain refacto NC) |
+| 7 | **6C.2a** | Self-serve : bascule WRITE `clients` (déjà mig. 66) + `projects` + `audits` + `pages` + `audit_assignees` sur les permissions d'org (mig. 78/79, helper `requireAnyPermission`/`canAny`, UI nav `orgScoped`) + invitation de coéquipier org (`inviteOrgMember`). Débloque un owner self-serve : créer client/projet/audit, inviter/assigner un auditeur | ✅ |
+| 7 | **6C.2b** | Matrice : bascule WRITE `page_conformities` sur `matrix.edit` d'org (mig. 80) + gardes actions/UI matrice | ✅ |
+| 7 | **6C.3** | NC : bascule WRITE `non_conformities` (`nc.edit`), `nc_attachments` (`nc.edit`), `nc_messages` fils client/review (helpers `nc_can_access`/`current_user_can_access_nc_review` étendus aux membres d'org — contacts toujours exclus du review) + gardes actions/UI NC (mig. 80) | ✅ |
 | Backlog | 6C.4 | Bascule users + billing + admin pages | ⏳ |
 | Backlog | 6D | Drop colonne `profiles.role` + `UserRole` TS + helpers legacy (`is_auditor`, `current_role`, `current_client_id`) | ⏳ (dépend de 6C.2/3/4 — quand zéro consommateur restant) |
 

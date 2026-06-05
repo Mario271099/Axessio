@@ -1,14 +1,19 @@
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
-import { canManageProjects } from "@/lib/permissions";
+import { canAny } from "@/lib/permissions";
+import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { createClient } from "@/lib/supabase/server";
 import { ClientsList, type ClientListItem } from "./clients-list";
 
 export default async function ClientsPage() {
   const profile = await requireProfile();
   const t = await getTranslations("clients");
+  const orgPerms = await loadMyOrgPermissions();
 
-  if (!canManageProjects(profile.role)) {
+  // Carnet clients : géré par qui a `client.manage` (legacy auditor/admin OU
+  // owner/admin d'org self-serve). `project.manage` ouvrait déjà l'accès ;
+  // on garde la sémantique « gestionnaire » via client.manage côté org.
+  if (!canAny(profile.role, orgPerms, "client.manage")) {
     return (
       <div className="container mx-auto max-w-3xl p-6 md:p-8">
         <div

@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { canEditMatrix } from "@/lib/permissions";
-import type { ConformityStatus, NCSeverity, UserRole } from "@/types/domain";
+import { requireAnyPermission } from "@/lib/server-permissions";
+import type { ConformityStatus, NCSeverity } from "@/types/domain";
 
 export interface ActionResult {
   error: string | null;
@@ -15,27 +15,14 @@ export interface CreateNCResult extends ActionResult {
   ncId?: string;
 }
 
-// Garde matrice : permission `matrix.edit`.
+// Garde matrice : permission `matrix.edit` (legacy auditor/admin OU rôle d'org
+// owner/admin/auditor self-serve). La RLS `pc_admin` (mig. 80) re-vérifie.
 async function requireAuditor(): Promise<
   { userId: string } | { error: string }
 > {
-  const supabase = await createClient();
-  const t = await getTranslations("errors");
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: t("notAuthenticated") };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.role || !canEditMatrix(profile.role as UserRole)) {
-    return { error: t("forbidden") };
-  }
-  return { userId: user.id };
+  const guard = await requireAnyPermission("matrix.edit");
+  if (!guard.ok) return { error: guard.error };
+  return { userId: guard.userId };
 }
 
 function revalidateMatrix(auditId: string) {

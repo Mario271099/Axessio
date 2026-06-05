@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
-import { canManageProjects } from "@/lib/permissions";
+import { canAny } from "@/lib/permissions";
+import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { createClient } from "@/lib/supabase/server";
 import {
   ClientDetail,
@@ -25,8 +26,9 @@ export default async function ClientDetailPage({ params }: PageProps) {
   const { clientId } = await params;
   const tClients = await getTranslations("clients");
   const tDetail = await getTranslations("clientDetail");
+  const orgPerms = await loadMyOrgPermissions();
 
-  if (!canManageProjects(profile.role)) {
+  if (!canAny(profile.role, orgPerms, "client.manage")) {
     return (
       <div className="container mx-auto max-w-3xl p-6 md:p-8">
         <div

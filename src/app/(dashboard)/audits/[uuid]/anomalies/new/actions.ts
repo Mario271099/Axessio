@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { canCreateNC } from "@/lib/permissions";
-import type { ConformityStatus, NCSeverity, UserRole } from "@/types/domain";
+import { requireAnyPermission } from "@/lib/server-permissions";
+import type { ConformityStatus, NCSeverity } from "@/types/domain";
 
 export interface CreateNCInput {
   auditId: string;
@@ -25,23 +25,12 @@ export interface CreateNCResult {
 export async function createNC(
   input: CreateNCInput,
 ): Promise<CreateNCResult> {
-  const supabase = await createClient();
   const t = await getTranslations("errors");
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: t("notAuthenticated") };
+  const guard = await requireAnyPermission("nc.create");
+  if (!guard.ok) return { error: guard.error };
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.role || !canCreateNC(profile.role as UserRole)) {
-    return { error: t("forbidden") };
-  }
+  const supabase = await createClient();
 
   if (!input.criteriaId) return { error: t("criterionRequired") };
   if (!input.pageId) return { error: t("pageRequired") };
@@ -81,7 +70,7 @@ export async function createNC(
       recommendation,
       severity: input.severity,
       status: "OPEN",
-      created_by: user.id,
+      created_by: guard.userId,
       test_reference: testReference,
     })
     .select("id")

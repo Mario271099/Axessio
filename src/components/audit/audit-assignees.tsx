@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Loader2, Plus, UserCircle2, X } from "lucide-react";
+import { Loader2, Plus, UserCircle2, UserPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -52,6 +53,8 @@ interface AuditAssigneesProps {
   available: AssignableAuditor[];
   /** Active les actions add/remove. False → vue lecture seule. */
   canManage: boolean;
+  /** Slug de l'org de l'audit — pour le lien « inviter un coéquipier ». */
+  orgSlug?: string | null;
 }
 
 function fullName(p: { firstName: string | null; lastName: string | null; email: string | null }): string {
@@ -67,6 +70,7 @@ export function AuditAssignees({
   assignees,
   available,
   canManage,
+  orgSlug,
 }: AuditAssigneesProps) {
   const t = useTranslations("audits.assignees");
   const router = useRouter();
@@ -164,19 +168,34 @@ export function AuditAssignees({
         </p>
       )}
 
+      {canManage && (
+        <div className="flex flex-wrap items-center gap-2">
+          {available.length > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => setOpen(true)}
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+              {t("addCta")}
+            </Button>
+          )}
+
+          {orgSlug && (
+            <Button asChild variant="ghost" size="sm" className="gap-2">
+              <Link href={`/organizations/${orgSlug}#invite`}>
+                <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
+                {t("inviteCta")}
+              </Link>
+            </Button>
+          )}
+        </div>
+      )}
+
       {canManage && available.length > 0 && (
         <>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={() => setOpen(true)}
-          >
-            <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-            {t("addCta")}
-          </Button>
-
           <Dialog open={open} onOpenChange={(v) => !pending && setOpen(v)}>
             <DialogContent>
               <DialogHeader>

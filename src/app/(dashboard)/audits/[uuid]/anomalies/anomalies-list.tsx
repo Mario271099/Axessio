@@ -52,11 +52,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { intlLocale } from "@/lib/intl";
-import {
-  canCreateNC,
-  canDeleteNC,
-  canEditNC,
-} from "@/lib/permissions";
+import { canAny, type Permission } from "@/lib/permissions";
 import type {
   NCReviewStatus,
   NCSeverity,
@@ -106,13 +102,16 @@ interface AnomaliesListProps {
   ncs: AnomalyListItem[];
   auditId: string;
   role: UserRole;
+  orgPermissions?: Permission[];
 }
 
 export function AnomaliesList({
   ncs,
   auditId,
   role,
+  orgPermissions,
 }: AnomaliesListProps) {
+  const orgPerms = new Set(orgPermissions ?? []);
   const t = useTranslations("audits.anomalies");
   const tBulk = useTranslations("audits.anomalies.bulk");
   const tNcStatus = useTranslations("constants.ncStatus");
@@ -134,9 +133,9 @@ export function AnomaliesList({
   const [isPending, startTransition] = useTransition();
 
   // Sélection groupée : seulement pour ceux qui peuvent éditer les NC.
-  const canBulk = canEditNC(role);
-  const canCreate = canCreateNC(role);
-  const allowBulkDelete = canDeleteNC(role);
+  const canBulk = canAny(role, orgPerms, "nc.edit");
+  const canCreate = canAny(role, orgPerms, "nc.create");
+  const allowBulkDelete = canAny(role, orgPerms, "nc.delete");
 
   const pageNames = useMemo(() => {
     const names = new Set<string>();

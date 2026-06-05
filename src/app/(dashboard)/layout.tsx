@@ -7,6 +7,7 @@ import { ImpersonationBanner } from "@/components/layout/impersonation-banner";
 import { BrandingStyles } from "@/components/layout/branding-styles";
 import { CommandPalette } from "@/components/layout/command-palette";
 import { getCurrentOrgBranding } from "@/lib/branding/server";
+import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { resolveCurrentOrg } from "@/lib/current-org";
 
 // Toutes les pages sous /(dashboard) sont des vues authentifiées : on coupe
@@ -38,14 +39,20 @@ export default async function DashboardLayout({
   // Compteur "audits en cours" — alimente le badge de l'entrée Audits.
   // Et résolution de l'org active pour le selector sidebar (Phase 1 tenancy).
   // Branding éventuel pour le logo de la sidebar (Phase 5).
-  const [{ count: inProgressCount }, org, branding] = await Promise.all([
-    supabase
-      .from("audits")
-      .select("id", { count: "exact", head: true })
-      .in("status", IN_PROGRESS_STATUSES),
-    resolveCurrentOrg(),
-    getCurrentOrgBranding(),
-  ]);
+  const [{ count: inProgressCount }, org, branding, orgPerms] =
+    await Promise.all([
+      supabase
+        .from("audits")
+        .select("id", { count: "exact", head: true })
+        .in("status", IN_PROGRESS_STATUSES),
+      resolveCurrentOrg(),
+      getCurrentOrgBranding(),
+      loadMyOrgPermissions(),
+    ]);
+
+  // Permissions d'org sérialisées (array) pour les composants client de nav :
+  // ils gatent les liens via `canAny(role, perms, permission)` — legacy OU org.
+  const orgPermissions = Array.from(orgPerms);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -56,6 +63,7 @@ export default async function DashboardLayout({
         counts={{ inProgressAudits: inProgressCount ?? 0 }}
         org={org}
         brandLogoUrl={branding?.logoUrl ?? null}
+        orgPermissions={orgPermissions}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
@@ -65,6 +73,7 @@ export default async function DashboardLayout({
           counts={{ inProgressAudits: inProgressCount ?? 0 }}
           org={org}
           brandLogoUrl={branding?.logoUrl ?? null}
+          orgPermissions={orgPermissions}
         />
 
         <main

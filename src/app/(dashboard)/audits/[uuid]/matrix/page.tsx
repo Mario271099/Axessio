@@ -1,7 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
-import { canEditMatrix } from "@/lib/permissions";
+import { canAny } from "@/lib/permissions";
+import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { createClient } from "@/lib/supabase/server";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import { ConformityMatrixLayout } from "./conformity-matrix-layout";
@@ -22,6 +23,7 @@ interface PageProps {
 
 export default async function MatrixPage({ params, searchParams }: PageProps) {
   const profile = await requireProfile();
+  const orgPerms = await loadMyOrgPermissions();
   const { uuid } = await params;
   const sp = await searchParams;
   const supabase = await createClient();
@@ -147,7 +149,7 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
       auditId={uuid}
       clientName={client?.name ?? null}
       referenceName={referenceName}
-      canEdit={canEditMatrix(profile.role)}
+      canEdit={canAny(profile.role, orgPerms, "matrix.edit")}
       thematics={thematics}
       criteria={criteria}
       pages={pages}

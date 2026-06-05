@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
-import { canCreateNC } from "@/lib/permissions";
+import { canAny } from "@/lib/permissions";
+import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { createClient } from "@/lib/supabase/server";
 import { listNCTemplatesForAudit } from "@/app/(dashboard)/organizations/[slug]/nc-templates/actions";
 import { NewNCForm, type NCThematic, type NCCriterion, type NCPage } from "./new-nc-form";
@@ -25,7 +26,8 @@ export default async function NewNCPage({ params }: PageProps) {
     notFound();
   }
 
-  if (!canCreateNC(profile.role)) {
+  const orgPerms = await loadMyOrgPermissions();
+  if (!canAny(profile.role, orgPerms, "nc.create")) {
     redirect(`/audits/${uuid}/anomalies`);
   }
 

@@ -53,6 +53,7 @@ export async function updateSession(request: NextRequest) {
   const PUBLIC_PATHS = new Set([
     "/",
     "/login",
+    "/register",
     "/forgot-password",
     "/reset-password",
     "/setup-password",
