@@ -1,12 +1,28 @@
 import type { MetadataRoute } from "next";
-import { siteUrl } from "@/lib/site";
+import { SITE, siteUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
+  // Hôte canonique nu (sans schéma ni slash) — la directive `host` attend un
+  // nom de domaine, pas une URL. Dérivé de SITE.url pour rester cohérent.
+  const host = new URL(SITE.url).host;
+
   return {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/login", "/legal", "/privacy", "/cookies", "/accessibility"],
+        // Toutes les pages publiques indexables (alignées sur PUBLIC_PATHS du
+        // middleware et sur le sitemap). Le `/` couvre déjà tout, mais on liste
+        // explicitement pour documenter l'intention.
+        allow: [
+          "/",
+          "/login",
+          "/register",
+          "/pricing",
+          "/legal",
+          "/privacy",
+          "/cookies",
+          "/accessibility",
+        ],
         // Tout ce qui est derrière auth est explicitement exclu pour ne pas
         // gaspiller le crawl-budget des moteurs et éviter d'indexer du
         // contenu utilisateur (qui de toute façon retournerait 401/redirect).
@@ -40,6 +56,6 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "Google-Extended", disallow: "/" },
     ],
     sitemap: siteUrl("/sitemap.xml"),
-    host: siteUrl("/"),
+    host,
   };
 }
