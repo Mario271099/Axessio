@@ -122,6 +122,14 @@ export default async function RootLayout({
     name: SITE.name,
     url: SITE.url,
     logo: siteUrl("/icon.svg"),
+    description: SITE.description.fr,
+    email: SITE.supportEmail,
+    contactPoint: {
+      "@type": "ContactPoint",
+      email: SITE.supportEmail,
+      contactType: "customer support",
+      availableLanguage: ["French", "English"],
+    },
     sameAs: [],
   };
 

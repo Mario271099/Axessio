@@ -70,7 +70,17 @@
       "Bash(mkdir -p \"src/app/\\(dashboard\\)/organizations/[slug]/nc-templates\")",
       "Bash(grep -rho \"action:\\\\s*['\\\\\"]\\\\\\([^'\\\\\"]*\\\\\\)['\\\\\"]\" \"src/app/\\(dashboard\\)/audits\" \"src/app/api\" \"src/lib\" 2>nul | sort -u | head -30)",
       "Bash(grep -rh \"action:\" \"src/app/\\(dashboard\\)/audits\" \"src/app/api\" \"src/lib\" 2>nul | grep -oE \"action:\\\\s*['\\\\\"][a-z_.]+['\\\\\"]\" | sort -u)",
-      "PowerShell(npm run build 2>&1)"
+      "PowerShell(npm run build 2>&1)",
+      "Bash(awk '/function public.accessible_project_ids/,/\\\\$\\\\$;/' supabase/migrations/46_*.sql)",
+      "Bash(awk 'NR>=80' ROLES_ROADMAP.md)",
+      "Bash(perl -0pi -e 's/requirePerm\\\\\\(canManageClients\\\\\\)/requirePerm\\(\"client.manage\"\\)/g; s/requirePerm\\\\\\(canManageProjects\\\\\\)/requirePerm\\(\"project.manage\"\\)/g' actions.ts)",
+      "PowerShell(npm test 2>&1)",
+      "Bash(node -e \"console.log\\(Object.entries\\(require\\('./package.json'\\).scripts||{}\\).map\\(\\([k,v]\\)=>k+': '+v\\).join\\('\\\\n'\\)\\)\")",
+      "Bash(ls supabase/)",
+      "Bash(git push *)",
+      "Bash(Select-Object -Last 3)",
+      "PowerShell(npm run build)",
+      "PowerShell(git -C \"c:\\\\Users\\\\mario\\\\Desktop\\\\Nouveau dossier\\\\axessio\\\\axessio-prototype\\\\axessio\" status --short)"
     ],
     "additionalDirectories": [
       "c:\\Users\\mario\\.claude\\projects\\c--Users-mario-Desktop-Nouveau-dossier-axessio-axessio-prototype-axessio\\memory",
