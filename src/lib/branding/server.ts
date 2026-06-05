@@ -37,7 +37,7 @@ function fromRow(row: BrandingRow | null | undefined): OrgBranding | null {
 /**
  * Lit le branding de l'org active si son plan inclut `branding.custom`.
  * Retourne null sinon — c'est ce qui sert de gate côté UI (si null →
- * fallback sur les valeurs par défaut Axessio).
+ * fallback sur les valeurs par défaut Axessyo).
  */
 export async function getCurrentOrgBranding(): Promise<OrgBranding | null> {
   const hasFeature = await orgHasFeature("branding.custom");
@@ -73,7 +73,7 @@ export async function getOrgBrandingById(
  * `subscriptions` (la feature `branding.custom` gate l'application).
  *
  * Renvoie TOUJOURS un objet valide : si l'org n'a pas la feature, ou si une
- * valeur manque, on retombe sur les défauts Axessio. Le caller n'a donc jamais
+ * valeur manque, on retombe sur les défauts Axessyo. Le caller n'a donc jamais
  * à gérer le cas null.
  */
 export async function resolveOutputBranding(
@@ -105,12 +105,12 @@ export async function resolveOutputBranding(
     .maybeSingle();
   if (!org) return AXESSIO_DEFAULT_OUTPUT_BRANDING;
 
-  const brandName = (org.name as string | null)?.trim() || "Axessio";
+  const brandName = (org.name as string | null)?.trim() || "Axessyo";
   return {
     brandName,
     logoUrl: sanitizeLogoUrl(org.logo_url as string | null),
     primaryColor: sanitizeHexColor(org.primary_color as string | null),
-    // Pas de tagline Axessio sur une marque cliente (white-label).
+    // Pas de tagline Axessyo sur une marque cliente (white-label).
     tagline: null,
     supportEmail: (org.support_email as string | null)?.trim() || null,
     isCustom: true,

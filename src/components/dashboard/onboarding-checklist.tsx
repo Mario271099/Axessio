@@ -38,14 +38,14 @@ function itemKeysForPersona(orgType: OrgType): ChecklistKey[] {
 /**
  * Widget « Compléter mon org » affiché en haut du dashboard. Disparaît
  * automatiquement quand les 4 étapes sont cochées (orgs établies),
- * ou pour l'org plateforme Axessio Internal (staff interne).
+ * ou pour l'org plateforme Axessyo Internal (staff interne).
  *
  * Server component : tout est calculé en SQL, aucune logique côté client.
  */
 export async function OnboardingChecklist() {
   const { current } = await resolveCurrentOrg();
   if (!current) return null;
-  // L'org plateforme « Axessio Internal » est un espace technique pour le
+  // L'org plateforme « Axessyo Internal » est un espace technique pour le
   // staff, pas une org client — pas d'onboarding à dérouler là-bas.
   if (current.organizationId === AXESSIO_INTERNAL_ORG_ID) return null;
 

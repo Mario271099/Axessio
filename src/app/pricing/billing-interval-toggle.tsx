@@ -248,7 +248,7 @@ function PlanCta({ code }: { code: PlanCode }) {
   if (code === "enterprise") {
     return (
       <a
-        href="mailto:contact@axessio.app?subject=Demande%20Enterprise"
+        href="mailto:contact@axessyo.com?subject=Demande%20Enterprise"
         className="inline-flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         {t("cta.contactSales")}

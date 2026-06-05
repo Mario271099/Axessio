@@ -165,7 +165,7 @@ export async function exportNonConformitiesCsv(
     .replace(/[^a-zA-Z0-9-]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .toLowerCase() || "audit";
-  const filename = `axessio-nc-${safeName}-${new Date().toISOString().slice(0, 10)}.csv`;
+  const filename = `axessyo-nc-${safeName}-${new Date().toISOString().slice(0, 10)}.csv`;
 
   return { error: null, csv, filename };
 }

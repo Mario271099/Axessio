@@ -1,4 +1,4 @@
-# Axessio — Roadmap des rôles & permissions
+# Axessyo — Roadmap des rôles & permissions
 
 > Document de référence pour la refonte du système d'autorisation.
 > Source de vérité pour le « qui peut faire quoi » côté UI et serveur.
@@ -13,7 +13,7 @@ plateforme » devient un simple boolean `profiles.is_platform_admin`.
 
 ```
 profiles
-  └── is_platform_admin: boolean   ← uniquement pour le staff Axessio
+  └── is_platform_admin: boolean   ← uniquement pour le staff Axessyo
        │
        └── peut tout faire, partout (court-circuit RLS)
 

@@ -33,7 +33,7 @@ interface SidebarProps {
     current: import("@/types/domain").OrganizationMembership | null;
     available: import("@/types/domain").OrganizationMembership[];
   };
-  /** Logo personnalisé de l'org active (Enterprise). Null = logo Axessio. */
+  /** Logo personnalisé de l'org active (Enterprise). Null = logo Axessyo. */
   brandLogoUrl?: string | null;
   /** Permissions atomiques effectives sur l'org active (rendu conditionnel). */
   orgPermissions?: Permission[];

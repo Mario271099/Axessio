@@ -94,10 +94,10 @@ export default async function PricingPage() {
             <p>
               {t("questionsLead")}{" "}
               <a
-                href="mailto:contact@axessio.app"
+                href="mailto:contact@axessyo.com"
                 className="text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded"
               >
-                contact@axessio.app
+                contact@axessyo.com
               </a>
             </p>
           </footer>

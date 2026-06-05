@@ -1,13 +1,13 @@
 // Branding "sortie" (output) — la forme du branding telle qu'elle est injectée
 // dans les emails et le PDF. Volontairement séparée de `OrgBranding` (qui est
 // la forme brute des colonnes DB) parce que la sortie est toujours résolue :
-// un champ manquant retombe sur la valeur Axessio par défaut, jamais null.
+// un champ manquant retombe sur la valeur Axessyo par défaut, jamais null.
 //
 // Ce module ne dépend ni de la DB ni de `server-only` : il ne contient que des
 // helpers purs (sanitization), ce qui les rend testables en isolation.
 
 export interface OutputBranding {
-  /** Nom de marque affiché (nom de l'org si custom, sinon "Axessio"). */
+  /** Nom de marque affiché (nom de l'org si custom, sinon "Axessyo"). */
   brandName: string;
   /** URL absolue https du logo, ou null → on rend un wordmark texte. */
   logoUrl: string | null;
@@ -22,7 +22,7 @@ export interface OutputBranding {
 }
 
 export const AXESSIO_DEFAULT_OUTPUT_BRANDING: OutputBranding = {
-  brandName: "Axessio",
+  brandName: "Axessyo",
   logoUrl: null,
   primaryColor: "#0f172a",
   tagline: "Plateforme d'audits d'accessibilité numérique",

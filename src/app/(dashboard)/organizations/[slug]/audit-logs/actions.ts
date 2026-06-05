@@ -105,6 +105,6 @@ export async function exportAuditLogsCsv(
   ];
 
   const csv = lines.join("\n");
-  const filename = `axessio-audit-logs-${new Date().toISOString().slice(0, 10)}.csv`;
+  const filename = `axessyo-audit-logs-${new Date().toISOString().slice(0, 10)}.csv`;
   return { error: null, csv, filename };
 }

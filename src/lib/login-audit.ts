@@ -2,7 +2,7 @@
 //
 // Objectif : tracer et freiner le brute-force sur le login. Le login lui-même
 // reste côté client (signInWithPassword) — ces endpoints ajoutent une couche
-// serveur Axessio : rate-limit par IP + journalisation dans audit_logs.
+// serveur Axessyo : rate-limit par IP + journalisation dans audit_logs.
 //
 // audit_logs est en RLS SELECT-only → l'insert DOIT passer par la service-role
 // (createAdminClient). Ces routes sont de toute façon non authentifiées

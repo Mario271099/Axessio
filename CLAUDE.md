@@ -1,4 +1,4 @@
-# Axessio — Instructions pour Claude Code
+# Axessyo — Instructions pour Claude Code
 
 ## Contexte
 
@@ -118,7 +118,7 @@ L'autorisation finale = AND des 4 axes via le pipeline `authorize()` (auth → t
 - [x] **Phase 1 — Tenancy** (migrations 42–44)
   - Tables `organizations`, `organization_members`
   - Helpers SQL `current_org()`, `is_member_of()`, `has_org_role()`, `my_organizations()`
-  - Org "Axessio Internal" (UUID `00000000-…-0001`) pour le staff plateforme
+  - Org "Axessyo Internal" (UUID `00000000-…-0001`) pour le staff plateforme
   - Backfill : 1 client legacy = 1 organization (id préservé)
   - OrgSwitcher dans la sidebar + page `/organizations`
 
@@ -159,7 +159,7 @@ L'autorisation finale = AND des 4 axes via le pipeline `authorize()` (auth → t
 - [x] **Phase 5 — Enterprise features** (livrée — sauf SSO/SCIM brancement IdP)
   - [x] **Custom branding** (migration 52) — colonnes `logo_url`, `primary_color`, `accent_color`, `support_email`, `custom_domain` sur `organizations` + helper SQL `current_org_branding()` gated par la feature `branding.custom`. Page `/organizations/[slug]/branding`, application des CSS vars + logo dans le layout via `<BrandingStyles />`. Conversion HEX → HSL côté serveur pour s'aligner sur Tailwind v4.
   - [x] **SSO/SCIM — schéma DB seul** (migration 53) — table `org_auth_methods` + enum `auth_provider` (password/saml/oidc/google/microsoft/scim) + RLS admin-only. **Pas d'intégration IdP** : à brancher plus tard sur WorkOS / Auth0 / Supabase SAML.
-  - [x] **Webhooks sortants** (migrations 56–57) — tables `webhook_endpoints` + `webhook_deliveries`, helper SQL `enqueue_webhook(org_id, event, payload)`, triggers automatiques sur `non_conformities` (insert/status) et `audits` (status, dont event spécial `audit.delivered`). Dispatcher cron `/api/cron/webhook-dispatch` (every minute) avec back-off exponentiel, HMAC SHA-256 inspiré Stripe (header `X-Axessio-Signature: t=...,v1=...`). UI `/organizations/[slug]/webhooks` : création + pause/reprise + rotation du secret + suppression. Gated par feature `webhooks.outgoing` (Pro/Enterprise).
+  - [x] **Webhooks sortants** (migrations 56–57) — tables `webhook_endpoints` + `webhook_deliveries`, helper SQL `enqueue_webhook(org_id, event, payload)`, triggers automatiques sur `non_conformities` (insert/status) et `audits` (status, dont event spécial `audit.delivered`). Dispatcher cron `/api/cron/webhook-dispatch` (every minute) avec back-off exponentiel, HMAC SHA-256 inspiré Stripe (header `X-Axessyo-Signature: t=...,v1=...`). UI `/organizations/[slug]/webhooks` : création + pause/reprise + rotation du secret + suppression. Gated par feature `webhooks.outgoing` (Pro/Enterprise).
   - [x] **API tokens scoped** (migration 58) — table `api_tokens` (token jamais stocké en clair, SHA-256 hex + préfixe public 12 chars + scopes[] + expires_at + revoked_at). Helpers SQL `validate_api_token(hash)` / `touch_api_token(id)`. Format `axe_live_<random>`. Middleware `authenticateApi()` + `requireScope()` dans `lib/api-tokens/auth.ts`. Endpoint exemple `GET /api/v1/audits` (scope `audits:read`, pagination cursor). UI `/organizations/[slug]/api-tokens` avec révélation unique du secret. Gated par feature `api.access` (Enterprise).
   - [x] **Audit log UI + export CSV** (migration 59) — colonne `audit_logs.organization_id` + backfill + trigger autofill, RLS étendue (admin/owner org voit tout). Page `/organizations/[slug]/audit-logs` : filtres (action via datalist, dates from/to), pagination 50/page, jointure avec `profiles` pour afficher le nom de l'acteur. Export CSV via server action (cap 10k lignes) gated par feature `audit_logs.export` (Pro+).
 

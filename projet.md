@@ -1,4 +1,4 @@
-# Axessio — Récapitulatif complet du projet
+# Axessyo — Récapitulatif complet du projet
 
 > Document de référence. Maintenu à jour quand la roadmap évolue.
 > Pour les conventions techniques précises, voir [CLAUDE.md](CLAUDE.md).
@@ -8,7 +8,7 @@
 
 ## 1. Vue d'ensemble
 
-**Axessio** est une plateforme SaaS multi-tenant de **gestion d'audits d'accessibilité numérique**.
+**Axessyo** est une plateforme SaaS multi-tenant de **gestion d'audits d'accessibilité numérique**.
 
 Elle adresse les normes officielles :
 
@@ -50,7 +50,7 @@ Versions verrouillées : Next 16.2, React 19, Node ≥ 20, TypeScript 5.7.
 
 ## 3. Architecture multi-tenant et RBAC
 
-Axessio applique un **modèle à 4 axes orthogonaux** pour l'autorisation :
+Axessyo applique un **modèle à 4 axes orthogonaux** pour l'autorisation :
 
 ```
 1. Identité          → qui est l'utilisateur ? (profiles + auth.users)
@@ -63,7 +63,7 @@ L'autorisation finale = **AND** des 4 axes via le pipeline `authorize()` (auth �
 
 ### 3.1 Tenancy
 
-- Une **organisation** est la racine du tenant. Trois sources : (a) le staff Axessio (org interne `00000000-…-0001`), (b) les anciens clients legacy backfillés en orgs (id préservé), (c) les nouvelles orgs créées par self-onboarding.
+- Une **organisation** est la racine du tenant. Trois sources : (a) le staff Axessyo (org interne `00000000-…-0001`), (b) les anciens clients legacy backfillés en orgs (id préservé), (c) les nouvelles orgs créées par self-onboarding.
 - Un **utilisateur** appartient à 1..N orgs via `organization_members`.
 - L'**org active** d'un utilisateur est persistée dans `profiles.current_org_id` (lue par la fonction SQL `current_org()` qui sert de source de vérité à la RLS). Mirror côté cookie HTTP-only pour minimiser les round-trips.
 - Un **workspace** est une sous-division d'une org (équipes, portefeuilles client). Tout audit/project porte un `workspace_id` (workspace `default` créé automatiquement à la création de l'org).
@@ -165,8 +165,8 @@ Deux niveaux **orthogonaux** (un user a UN rôle plateforme + UN rôle par org d
 
 | Rôle           | Rôle métier                                                                   |
 | -------------- | ----------------------------------------------------------------------------- |
-| `admin`        | Super-admin Axessio. Court-circuite toutes les restrictions via `is_admin()`. |
-| `auditor`      | Staff interne Axessio. Peut éditer les audits assignés.                       |
+| `admin`        | Super-admin Axessyo. Court-circuite toutes les restrictions via `is_admin()`. |
+| `auditor`      | Staff interne Axessyo. Peut éditer les audits assignés.                       |
 | `client_admin` | Admin côté client. Lecture audit + assignation auditeur.                      |
 | `client`       | Utilisateur côté client. Lecture + remédiation + chat.                        |
 
@@ -415,7 +415,7 @@ US-13 : "Je veux simuler le score si je corrige certaines NC."
         → /audits/[uuid]/simulator (gated Starter+)
 ```
 
-### 8.4 Super-admin Axessio (`admin`)
+### 8.4 Super-admin Axessyo (`admin`)
 
 ```
 US-14 : "Je veux pouvoir 'voir comme' un client pour reproduire un bug."
@@ -456,7 +456,7 @@ US-23 : "Je veux basculer entre mes orgs depuis la sidebar."
 ### 8.6 Visiteur public (non connecté)
 
 ```
-US-24 : "Je veux découvrir Axessio et ses fonctionnalités."
+US-24 : "Je veux découvrir Axessyo et ses fonctionnalités."
         → /  (landing page marketing)
 
 US-25 : "Je veux comparer les plans et leurs prix."
@@ -551,7 +551,7 @@ Catalogue des événements émis automatiquement par triggers DB :
 | `audit.status_changed` | UPDATE de `status` sur `audits`                            |
 | `audit.delivered`      | UPDATE de `status` sur `audits` (cas spécifique DELIVERED) |
 
-Payload signé via `X-Axessio-Signature: t=<unix>,v1=<hmac_sha256>` (format Stripe). Back-off exponentiel 60s → 6h, abandon après 5 tentatives.
+Payload signé via `X-Axessyo-Signature: t=<unix>,v1=<hmac_sha256>` (format Stripe). Back-off exponentiel 60s → 6h, abandon après 5 tentatives.
 
 ### 10.4 Intégration Stripe
 

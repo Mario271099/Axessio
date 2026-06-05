@@ -63,7 +63,7 @@
   --score-compliant: 142 76% 36%;
 
   /* ===========================================================
-     Tokens de marque Axessio (logo system, identité visuelle)
+     Tokens de marque Axessyo (logo system, identité visuelle)
      Indépendants du DS générique : les <Wordmark> / <AxIcon> y
      pointent directement.
      ========================================================= */
@@ -217,7 +217,7 @@
   --color-brand-navy-deep:    hsl(var(--brand-navy-deep));
 
   /* ===========================================================
-     Échelles de marque Axessio — navy / teal / slate.
+     Échelles de marque Axessyo — navy / teal / slate.
      Exposées en utilitaires (bg-navy-700, text-teal-500, …).
      Valeurs HEX, source de vérité de la palette de marque.
      ========================================================= */

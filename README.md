@@ -1,4 +1,4 @@
-# Axessio
+# Axessyo
 
 > Plateforme SaaS de gestion d'audits d'accessibilité numérique (RGAA, WCAG, RAWeb, RAAM) — successeur moderne de la plateforme legacy `ipedis-platform`.
 
@@ -167,7 +167,7 @@ La plateforme est conçue pour passer un audit RGAA AA :
 ## 📁 Structure du projet
 
 ```
-axessio/
+axessyo/
 ├── ANALYSIS.md                # Analyse du legacy
 ├── README.md                  # Ce fichier
 ├── supabase/migrations/       # Schéma SQL + RLS + seed

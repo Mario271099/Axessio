@@ -1,7 +1,7 @@
-// Logo Axessio — signature complète : monogramme « A x » (carré navy + trait +
-// point teal A11Y) accolé au wordmark « Axessio ».
+// Logo Axessyo — signature complète : monogramme « A x » (carré navy + trait +
+// point teal A11Y) accolé au wordmark « Axessyo ».
 //
-// Conventions Axessio :
+// Conventions Axessyo :
 //   - Pas de forwardRef (style React 19), props directes.
 //   - La variante « default » est câblée sur les tokens `--brand-*` de
 //     globals.css → s'adapte automatiquement au mode clair/sombre.

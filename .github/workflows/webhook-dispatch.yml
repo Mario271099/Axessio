@@ -11,7 +11,7 @@
 #
 # Setup unique (Settings > Secrets and variables > Actions) :
 #   - WEBHOOK_DISPATCH_URL : URL complète de l'endpoint en prod,
-#       ex. https://axessio.vercel.app/api/cron/webhook-dispatch
+#       ex. https://axessyo.com/api/cron/webhook-dispatch
 #   - CRON_SECRET          : même valeur que la variable d'env Vercel CRON_SECRET
 
 name: Webhook dispatch

@@ -1,4 +1,4 @@
-// Script de configuration Stripe — crée les produits + prix d'Axessio et
+// Script de configuration Stripe — crée les produits + prix d'Axessyo et
 // génère le SQL à coller dans Supabase.
 //
 // Usage (en local, jamais commit la clé) :
@@ -28,14 +28,14 @@ const stripe = new Stripe(KEY);
 const PLANS = [
   {
     code: "starter",
-    name: "Axessio Starter",
+    name: "Axessyo Starter",
     description: "Freelances et petites équipes",
     monthly: 2900, // 29 €
     yearly: 29000, // 290 €
   },
   {
     code: "pro",
-    name: "Axessio Pro",
+    name: "Axessyo Pro",
     description: "Agences et équipes growth",
     monthly: 9900, // 99 €
     yearly: 99000, // 990 €
@@ -89,7 +89,7 @@ async function findOrCreatePrice(productId, interval, amount) {
 }
 
 async function main() {
-  console.log(`\n=== Configuration Stripe Axessio — mode ${MODE} ===\n`);
+  console.log(`\n=== Configuration Stripe Axessyo — mode ${MODE} ===\n`);
   const results = [];
 
   for (const plan of PLANS) {

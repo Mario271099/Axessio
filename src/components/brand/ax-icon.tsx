@@ -55,7 +55,7 @@ const SCHEMES: Record<LogoScheme, IconColors> = {
 export interface AxIconProps {
   size?: number;
   scheme?: LogoScheme;
-  /** Texte vocalisé (par défaut « Axessio »). */
+  /** Texte vocalisé (par défaut « Axessyo »). */
   "aria-label"?: string;
   className?: string;
 }
@@ -63,7 +63,7 @@ export interface AxIconProps {
 export function AxIcon({
   size = 64,
   scheme = "light",
-  "aria-label": ariaLabel = "Axessio",
+  "aria-label": ariaLabel = "Axessyo",
   className,
 }: AxIconProps) {
   const colors = SCHEMES[scheme];

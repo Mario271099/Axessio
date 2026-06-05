@@ -1,4 +1,4 @@
-# Axessio — Liste d'améliorations
+# Axessyo — Liste d'améliorations
 
 > Audit produit du 2026-05-30. Inspection du code au commit `46bb2f0`, en
 > complément de [ROADMAP.md](ROADMAP.md) (qui couvre la roadmap technique

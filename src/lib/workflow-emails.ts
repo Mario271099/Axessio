@@ -15,7 +15,7 @@ import { resolveOutputBranding } from "@/lib/branding/server";
 // fonctionnerait pas hors plateforme).
 function buildAuditUrl(auditId: string): string {
   const base = (
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://axessio.app"
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://axessyo.com"
   ).replace(/\/+$/, "");
   return `${base}/audits/${auditId}`;
 }

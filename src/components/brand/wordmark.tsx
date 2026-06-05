@@ -1,12 +1,12 @@
-// Wordmark Axessio — signature typographique de marque.
-// Conventions Axessio :
+// Wordmark Axessyo — signature typographique de marque.
+// Conventions Axessyo :
 //   - Pas de forwardRef (style React 19).
 //   - Props directes, défaut « light ».
 //   - Couleurs câblées sur les tokens CSS `--brand-*` définis dans
 //     globals.css → respecte le mode clair/sombre du design system.
 //   - DM Sans (300/800) + DM Mono (500) chargées dans app/layout.tsx
 //     via next/font/google.
-// Cf. design_handoff_axessio_logo/README.md pour les spécifications
+// Cf. design_handoff_axessyo_logo/README.md pour les spécifications
 // typographiques exactes (-0.04em, 4× scale gap vertical, etc.).
 
 import { cn } from "@/lib/utils";
@@ -80,7 +80,7 @@ export interface WordmarkProps {
   showSub?: boolean;
   subtitle?: string;
   className?: string;
-  /** Texte vocalisé par les AT (par défaut « Axessio A11Y Desk »). */
+  /** Texte vocalisé par les AT (par défaut « Axessyo A11Y Desk »). */
   "aria-label"?: string;
 }
 
@@ -92,7 +92,7 @@ export function Wordmark({
   showSub = true,
   subtitle = "Accessibility Desk",
   className,
-  "aria-label": ariaLabel = "Axessio A11Y Desk",
+  "aria-label": ariaLabel = "Axessyo A11Y Desk",
 }: WordmarkProps) {
   const colors = SCHEMES[scheme];
 

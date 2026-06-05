@@ -1,4 +1,4 @@
-# API Axessio v1
+# API Axessyo v1
 
 API REST en lecture pour les audits d'accessibilité. Gated par la feature
 `api.access` (plan Enterprise).
