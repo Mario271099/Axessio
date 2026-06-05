@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ChevronUp, Eye, LogOut, Settings, Shield, UserCircle } from "lucide-react";
 import { cn, initials } from "@/lib/utils";
-import { AxIcon } from "@/components/brand";
+import { Logo } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -62,10 +62,7 @@ export function Sidebar({ profile, counts, org, brandLogoUrl }: SidebarProps) {
               className="h-7 w-auto max-w-[10rem] object-contain"
             />
           ) : (
-            <>
-              <AxIcon size={28} aria-label="" />
-              <span className="text-base font-bold tracking-tight">Axessio</span>
-            </>
+            <Logo size="md" />
           )}
         </Link>
       </div>

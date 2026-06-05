@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { AxIcon } from "@/components/brand";
+import { Logo } from "@/components/brand";
 import { cn } from "@/lib/utils";
 
 interface AuthLayoutProps {
@@ -51,8 +51,7 @@ export function AuthLayout({
             aria-label={tSidebar("brandHomeAria")}
             className="inline-flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <AxIcon size={36} aria-label="" />
-            <span className="text-lg font-bold tracking-tight">Axessio</span>
+            <Logo size="lg" />
           </Link>
 
           <header className="mt-10 space-y-2">
@@ -75,7 +74,7 @@ export function AuthLayout({
       {/* Panneau droit — présentation ------------------------------------ */}
       <aside
         aria-hidden="true"
-        className="relative hidden overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-violet-600 lg:flex lg:flex-col lg:justify-center lg:p-12 dark:from-primary/80 dark:to-violet-700"
+        className="relative hidden overflow-hidden bg-gradient-to-br from-navy-800 via-navy-700 to-teal-600 lg:flex lg:flex-col lg:justify-center lg:p-12 dark:from-navy-950 dark:via-navy-900 dark:to-teal-600"
       >
         {/* Pattern de points */}
         <div

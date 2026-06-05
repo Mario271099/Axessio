@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Menu, X } from "lucide-react";
-import { AxIcon } from "@/components/brand";
+import { Logo } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
 import { OrgSwitcher } from "@/components/layout/org-switcher";
 import { ICONS, SECTIONS, type NavCounts } from "@/components/layout/nav-config";
@@ -76,12 +76,7 @@ export function MobileNavSheet({ profile, counts, org, brandLogoUrl }: Props) {
                   className="h-7 w-auto max-w-[10rem] object-contain"
                 />
               ) : (
-                <>
-                  <AxIcon size={28} aria-label="" />
-                  <span className="text-base font-bold tracking-tight">
-                    Axessio
-                  </span>
-                </>
+                <Logo size="md" />
               )}
             </Link>
             <Dialog.Close

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { AxIcon } from "@/components/brand";
+import { Logo } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 
@@ -15,8 +15,7 @@ export function PublicHeader() {
           className="inline-flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label={SITE.name}
         >
-          <AxIcon size={32} scheme="accent" aria-label="" />
-          <span className="text-lg font-bold tracking-tight">{SITE.name}</span>
+          <Logo size="md" />
         </Link>
 
         <nav aria-label={locale === "en" ? "Primary" : "Principale"}>

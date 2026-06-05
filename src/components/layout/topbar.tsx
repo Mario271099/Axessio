@@ -6,7 +6,7 @@ import { NotificationsBell } from "@/components/layout/notifications-bell";
 import { TopbarUserMenu } from "@/components/layout/topbar-user-menu";
 import { MobileNavSheet } from "@/components/layout/mobile-nav-sheet";
 import { CommandPaletteTrigger } from "@/components/layout/command-palette-trigger";
-import { AxIcon } from "@/components/brand";
+import { Logo } from "@/components/brand";
 import { fetchNotifications } from "@/app/(dashboard)/notifications/actions";
 import { USER_ROLE_LABELS } from "@/lib/constants";
 import type { NavCounts } from "@/components/layout/nav-config";
@@ -42,8 +42,7 @@ export async function Topbar({ profile, counts, org, brandLogoUrl }: TopbarProps
           aria-label={tSidebar("brandHomeAria")}
           className="flex items-center gap-2 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          <AxIcon size={28} aria-label="" />
-          <span className="text-base font-bold tracking-tight">Axessio</span>
+          <Logo size="md" />
         </Link>
       </div>
 

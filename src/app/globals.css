@@ -8,8 +8,8 @@
    ========================================================================== */
 :root {
   /* Surfaces */
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;          /* slate-900 */
+  --background: 210 40% 98%;          /* slate-50 #f8fafc */
+  --foreground: 222 47% 11%;          /* slate-900 #0f172a */
 
   --card: 0 0% 100%;
   --card-foreground: 222 47% 11%;
@@ -17,15 +17,15 @@
   --popover: 0 0% 100%;
   --popover-foreground: 222 47% 11%;
 
-  /* Rôles */
-  --primary: 239 84% 67%;             /* indigo-600 #4F46E5 */
+  /* Rôles — primary = navy de marque */
+  --primary: 210 59% 25%;             /* navy-700 #1a4066 */
   --primary-foreground: 0 0% 100%;
 
   --secondary: 210 40% 96%;           /* slate-100 */
   --secondary-foreground: 222 47% 11%;
 
   --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;    /* slate-500 */
+  --muted-foreground: 215 19% 42%;    /* slate-600+ — ≥5:1 sur le fond #f8fafc */
 
   --accent: 210 40% 96%;
   --accent-foreground: 222 47% 11%;
@@ -41,9 +41,9 @@
   --warning: 31 80% 35%;              /* amber-700 — 5.6:1 sur blanc (l'amber-500 d'origine échouait à 2.4:1) */
   --warning-foreground: 0 0% 100%;
 
-  --border: 214 32% 91%;              /* slate-200 */
+  --border: 214 32% 91%;              /* slate-200 #e2e8f0 */
   --input: 214 32% 91%;
-  --ring: 239 84% 67%;                /* indigo-600 — focus */
+  --ring: 211 57% 38%;                /* navy-500 #2a6099 — focus */
 
   /* Rayons (10 px → un cran plus moderne que le legacy 8 px) */
   --radius: 0.625rem;
@@ -67,16 +67,18 @@
      Indépendants du DS générique : les <Wordmark> / <AxIcon> y
      pointent directement.
      ========================================================= */
-  --brand-accent:        244 76% 52%;
-  --brand-accent-mid:    239 84% 67%;
-  --brand-accent-light:  226 100% 96%;
-  --brand-indigo-200:    232 96% 82%;
-  --brand-teal:          175 77% 26%;
-  --brand-teal-mid:      173 80% 40%;
-  --brand-teal-light:    165 75% 89%;
-  --brand-mint-300:      167 75% 64%;
-  --brand-text:          240 26% 13%;
-  --brand-text-muted:    232 13% 60%;
+  --brand-navy:          210 59% 25%;   /* #1a4066 — fond du monogramme */
+  --brand-navy-deep:     216 49% 15%;   /* #132238 — hover / variantes sombres */
+  --brand-accent:        211 57% 38%;   /* #2a6099 — « sio » du wordmark */
+  --brand-accent-mid:    209 48% 52%;   /* #4a88c0 */
+  --brand-accent-light:  205 52% 91%;   /* #dceaf4 */
+  --brand-indigo-200:    205 51% 65%;   /* #7aaed4 — nom legacy, navy-300 */
+  --brand-teal:          189 94% 43%;   /* #06b6d4 — point d'accent A11Y */
+  --brand-teal-mid:      188 86% 53%;   /* #22d3ee */
+  --brand-teal-light:    186 96% 90%;   /* #cffafe */
+  --brand-mint-300:      188 86% 53%;   /* #22d3ee — nom legacy, teal-400 */
+  --brand-text:          222 47% 11%;   /* #0f172a — slate-900 */
+  --brand-text-muted:    215 16% 47%;   /* #64748b — slate-500 */
 
   /* ===========================================================
      Échelle typographique (15 px de corps = un cran plus lisible
@@ -104,34 +106,35 @@
 }
 
 .dark {
-  /* Surfaces — fond presque noir bleuté, card un cran plus clair */
-  --background: 222 47% 5%;
-  --foreground: 210 40% 98%;          /* slate-50 */
+  /* Surfaces — bleu nuit de marque (navy-900) plutôt que noir neutre */
+  --background: 216 60% 10%;          /* navy-900 #0a1628 */
+  --foreground: 207 57% 96%;          /* navy-50 #f0f6fb */
 
-  --card: 222 47% 8%;
-  --card-foreground: 210 40% 98%;
+  --card: 214 45% 19%;                /* #1a2d45 */
+  --card-foreground: 207 57% 96%;
 
-  --popover: 222 47% 8%;
-  --popover-foreground: 210 40% 98%;
+  --popover: 214 45% 19%;
+  --popover-foreground: 207 57% 96%;
 
-  /* Indigo plus clair en dark pour rester lisible */
-  --primary: 234 89% 74%;             /* indigo-400 */
-  --primary-foreground: 222 47% 11%;
+  /* Navy clair (navy-300 #7aaed4) en dark : lisible aussi bien comme fond de
+     bouton (texte foncé) que comme texte sur card (≥ 4.5:1). */
+  --primary: 205 51% 65%;             /* navy-300 #7aaed4 */
+  --primary-foreground: 216 60% 10%;  /* navy-900 #0a1628 */
 
-  --secondary: 217 33% 17%;           /* slate-800 */
-  --secondary-foreground: 210 40% 98%;
+  --secondary: 216 49% 15%;           /* navy-800 #132238 */
+  --secondary-foreground: 207 57% 96%;
 
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 20% 65%;    /* slate-400 */
+  --muted: 216 49% 15%;
+  --muted-foreground: 215 20% 65%;    /* slate-400 — neutre, distinct du primary */
 
-  --accent: 217 33% 17%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 216 49% 15%;
+  --accent-foreground: 207 57% 96%;
 
   /* En dark mode, ces couleurs servent à la fois comme bg solide
      (text-foreground blanc dessus) et comme text-* sur fond tinté
      (bg-*\/10). Valeurs relevées pour passer WCAG AA dans le second cas. */
-  --destructive: 0 78% 62%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive: 0 91% 71%;           /* rouge clair — text-destructive lisible sur card (≥4.5:1) */
+  --destructive-foreground: 222 47% 11%; /* texte foncé sur bouton destructif clair */
 
   --success: 142 71% 55%;
   --success-foreground: 222 47% 11%;
@@ -139,9 +142,15 @@
   --warning: 38 92% 60%;
   --warning-foreground: 222 47% 11%;
 
-  --border: 217 33% 20%;
-  --input: 217 33% 20%;
-  --ring: 234 89% 74%;
+  --border: 212 50% 24%;              /* #1e3a5a */
+  --input: 212 50% 24%;
+  --ring: 205 51% 65%;                /* navy-300 #7aaed4 — aligné sur primary */
+
+  /* Tokens de marque — relevés en dark pour rester visibles sur navy. */
+  --brand-navy:   209 62% 31%;        /* navy-600 #1e5080 */
+  --brand-accent: 209 48% 52%;        /* navy-400 #4a88c0 */
+  --brand-teal:   188 86% 53%;        /* teal-400 #22d3ee */
+  --brand-text:   207 57% 96%;        /* navy-50 — wordmark lisible en dark */
 
   /* Sévérités/Score (ajustées pour la lisibilité sur fond sombre).
      L'opacité 0.12 du badge mélange faiblement avec le fond presque noir,
@@ -150,9 +159,9 @@
   --severity-low: 234 89% 74%;
   --severity-medium: 38 92% 60%;
   --severity-high: 22 88% 62%;
-  --severity-critical: 0 78% 62%;
+  --severity-critical: 0 88% 70%;     /* relevé pour passer sur card en dark */
 
-  --score-non-compliant: 0 78% 62%;
+  --score-non-compliant: 0 88% 70%;
   --score-partial: 22 88% 62%;
   --score-compliant: 142 71% 55%;
 
@@ -204,6 +213,43 @@
   --color-brand-mint-300:     hsl(var(--brand-mint-300));
   --color-brand-text:         hsl(var(--brand-text));
   --color-brand-text-muted:   hsl(var(--brand-text-muted));
+  --color-brand-navy:         hsl(var(--brand-navy));
+  --color-brand-navy-deep:    hsl(var(--brand-navy-deep));
+
+  /* ===========================================================
+     Échelles de marque Axessio — navy / teal / slate.
+     Exposées en utilitaires (bg-navy-700, text-teal-500, …).
+     Valeurs HEX, source de vérité de la palette de marque.
+     ========================================================= */
+  --color-navy-950: #050d1a;
+  --color-navy-900: #0a1628;
+  --color-navy-800: #132238;
+  --color-navy-700: #1a4066;
+  --color-navy-600: #1e5080;
+  --color-navy-500: #2a6099;
+  --color-navy-400: #4a88c0;
+  --color-navy-300: #7aaed4;
+  --color-navy-200: #b8d4e8;
+  --color-navy-100: #dceaf4;
+  --color-navy-50:  #f0f6fb;
+
+  --color-teal-600: #0891b2;
+  --color-teal-500: #06b6d4;
+  --color-teal-400: #22d3ee;
+  --color-teal-100: #cffafe;
+  --color-teal-50:  #ecfeff;
+
+  --color-slate-950: #020617;
+  --color-slate-900: #0f172a;
+  --color-slate-800: #1e293b;
+  --color-slate-700: #334155;
+  --color-slate-600: #475569;
+  --color-slate-500: #64748b;
+  --color-slate-400: #94a3b8;
+  --color-slate-300: #cbd5e1;
+  --color-slate-200: #e2e8f0;
+  --color-slate-100: #f1f5f9;
+  --color-slate-50:  #f8fafc;
 
   /* Fontes */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,

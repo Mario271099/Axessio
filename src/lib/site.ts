@@ -35,8 +35,8 @@ export const SITE = {
     "SaaS",
     "Axessio",
   ],
-  // Couleurs Axessio (alignées sur --brand-accent / --brand-mint-300).
-  themeColor: "#3f3dd1",
+  // Couleurs Axessio (navy de marque #1a4066 / point teal #06b6d4).
+  themeColor: "#1a4066",
   backgroundColor: "#ffffff",
   twitter: "@axessio",
   locale: { fr: "fr_FR", en: "en_US" },

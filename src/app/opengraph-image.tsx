@@ -19,7 +19,7 @@ export default function OGImage() {
           flexDirection: "column",
           justifyContent: "space-between",
           background:
-            "linear-gradient(135deg, hsl(244, 76%, 52%) 0%, hsl(239, 84%, 67%) 100%)",
+            "linear-gradient(135deg, #1a4066 0%, #2a6099 100%)",
           padding: "72px 80px",
           color: "#FFFFFF",
           fontFamily: "system-ui, -apple-system, sans-serif",
@@ -61,7 +61,7 @@ export default function OGImage() {
           >
             <span
               style={{
-                color: "hsl(244, 76%, 52%)",
+                color: "#1a4066",
                 fontSize: 40,
                 fontWeight: 800,
                 letterSpacing: -2,
@@ -78,7 +78,7 @@ export default function OGImage() {
                 width: 8,
                 height: 8,
                 borderRadius: 4,
-                background: "hsl(167, 75%, 64%)",
+                background: "#06b6d4",
               }}
             />
           </div>
