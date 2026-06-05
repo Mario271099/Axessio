@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { InviteMemberForm } from "./members/invite-member-form";
 import type { OrgRole, OrgType } from "@/types/domain";
 
 export async function generateMetadata({
@@ -49,11 +50,12 @@ export default async function OrganizationDetailPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  await requireProfile();
+  const profile = await requireProfile();
   const { slug } = await params;
   const supabase = await createClient();
   const t = await getTranslations("organizations.detail");
   const tRole = await getTranslations("organizations.role");
+  const tInvite = await getTranslations("organizations.invite");
 
   const { data: org } = await supabase
     .from("organizations")
@@ -109,6 +111,13 @@ export default async function OrganizationDetailPage({
       isActive: p?.is_active !== false,
     };
   });
+
+  // Le formulaire d'invitation n'est visible que pour un owner/admin de CETTE
+  // org (ou le super-admin plateforme). Le rôle est lu depuis la liste des
+  // membres déjà chargée — pas de round-trip supplémentaire.
+  const myRole = members.find((m) => m.id === profile.id)?.role;
+  const canInvite =
+    profile.isPlatformAdmin || myRole === "owner" || myRole === "admin";
 
   return (
     <div className="container mx-auto max-w-4xl space-y-6 p-6 md:p-8">
@@ -238,6 +247,21 @@ export default async function OrganizationDetailPage({
           </CardContent>
         </Card>
       </section>
+
+      {/* Inviter un membre — owner/admin de l'org uniquement */}
+      {canInvite && (
+        <section id="invite" className="space-y-3 scroll-mt-24">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">{tInvite("title")}</CardTitle>
+              <CardDescription>{tInvite("subtitle")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <InviteMemberForm orgId={org.id} />
+            </CardContent>
+          </Card>
+        </section>
+      )}
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { requirePermission } from "@/lib/server-permissions";
+import { requireAnyPermission } from "@/lib/server-permissions";
 import { orgHasFeature } from "@/lib/billing/server";
 
 export interface AssigneeActionResult {
@@ -12,23 +12,25 @@ export interface AssigneeActionResult {
 }
 
 // ============================================================================
-// Assignation d'un auditeur à un audit (admin uniquement)
+// Assignation d'un auditeur à un audit
 // ----------------------------------------------------------------------------
-// Le profil cible doit avoir le rôle 'auditor' OU 'admin' (un admin peut être
-// désigné lecteur d'un audit même s'il y a déjà accès via is_admin()).
-// La policy `assignees_admin` (migration 25) autorise l'INSERT pour is_admin().
+// Autorisé via `audit.assign_auditor` (legacy auditor/admin OU permission d'org
+// owner/admin/auditor). Cible valide si :
+//   - staff plateforme legacy ('auditor'/'admin'), OU
+//   - membre de l'organisation de l'audit (modèle self-serve : on désigne un
+//     coéquipier de son org comme auditeur de l'audit).
+// La RLS `assignees_auditor_manage` (mig. 78) re-vérifie côté DB.
 // ============================================================================
 export async function assignAuditor(
   auditId: string,
   profileId: string,
 ): Promise<AssigneeActionResult> {
-  const guard = await requirePermission("audit.assign_auditor");
+  const guard = await requireAnyPermission("audit.assign_auditor");
   if (!guard.ok) return { error: guard.error };
 
   const supabase = await createClient();
   const t = await getTranslations("errors");
 
-  // Vérification douce que le profil ciblé est bien staff plateforme.
   const { data: target } = await supabase
     .from("profiles")
     .select("id, role, is_active")
@@ -37,8 +39,31 @@ export async function assignAuditor(
 
   if (!target) return { error: t("userNotFound") };
   if (target.is_active === false) return { error: t("userInactive") };
-  if (target.role !== "auditor" && target.role !== "admin") {
-    return { error: t("assigneeMustBeStaff") };
+
+  // Cible valide : staff legacy OU membre de l'org de l'audit.
+  const isLegacyStaff = target.role === "auditor" || target.role === "admin";
+  if (!isLegacyStaff) {
+    const { data: auditRow } = await supabase
+      .from("audits")
+      .select("organization_id")
+      .eq("id", auditId)
+      .maybeSingle();
+    const orgId = auditRow?.organization_id as string | undefined;
+
+    let isOrgMember = false;
+    if (orgId) {
+      const { data: membership } = await supabase
+        .from("organization_members")
+        .select("user_id")
+        .eq("organization_id", orgId)
+        .eq("user_id", profileId)
+        .maybeSingle();
+      isOrgMember = Boolean(membership);
+    }
+
+    if (!isOrgMember) {
+      return { error: t("assigneeMustBeStaff") };
+    }
   }
 
   // Feature gate `audit.collaboration` (Pro+) : un audit peut toujours
@@ -103,7 +128,7 @@ export async function unassignAuditor(
   auditId: string,
   profileId: string,
 ): Promise<AssigneeActionResult> {
-  const guard = await requirePermission("audit.assign_auditor");
+  const guard = await requireAnyPermission("audit.assign_auditor");
   if (!guard.ok) return { error: guard.error };
 
   const supabase = await createClient();

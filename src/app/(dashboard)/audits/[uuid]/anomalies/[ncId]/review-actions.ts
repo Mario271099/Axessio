@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireFeature } from "@/lib/billing/server";
 import { canCreateNC, canEditNC } from "@/lib/permissions";
+import { hasOrgPermission } from "@/lib/server-permissions";
 import type { NCReviewStatus, UserRole } from "@/types/domain";
 
 export interface NCReviewActionResult {
@@ -120,7 +121,8 @@ export async function requestNCReview(
     ctx.assignmentRole === "admin" ||
     ctx.assignmentRole === "auditor" ||
     canCreateNC(ctx.userRole) ||
-    canEditNC(ctx.userRole);
+    canEditNC(ctx.userRole) ||
+    (await hasOrgPermission("nc.edit"));
   if (!allowedByRole) {
     return { ok: false, errorCode: "NC_REVIEW_DENIED", message: t("NC_REVIEW_DENIED") };
   }

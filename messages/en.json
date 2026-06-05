@@ -7,7 +7,8 @@
       "features": "Features",
       "standards": "Standards",
       "pricing": "Pricing",
-      "login": "Sign in"
+      "login": "Sign in",
+      "register": "Sign up"
     },
     "hero": {
       "kicker": "Accessibility audit platform",
@@ -614,6 +615,23 @@
       "auditLogsCta": "Audit log",
       "ncTemplatesCta": "NC templates"
     },
+    "invite": {
+      "title": "Invite a member",
+      "subtitle": "Add a teammate to this organization. They will be able to work on your audits based on the role you pick.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email address",
+      "emailPlaceholder": "teammate@company.com",
+      "role": "Role in the organization",
+      "roleHint": "Auditor: creates and edits audits. Admin: also manages the team and billing. Viewer: read-only.",
+      "submit": "Send invitation",
+      "submitting": "Sending…",
+      "success": "Invitation created. An email was sent (deliverability permitting). You can also copy the link below.",
+      "inviteLinkLabel": "Invitation link",
+      "copy": "Copy",
+      "copied": "Copied",
+      "membersCountLimit": "{count} / {limit} members"
+    },
     "ncTemplates": {
       "metaTitle": "NC templates — {slug}",
       "title": "Non-conformity templates",
@@ -974,7 +992,7 @@
       "submit": "Sign in",
       "submitting": "Signing in…",
       "footer": "Don't have an account yet?",
-      "footerCta": "Contact your administrator",
+      "footerCta": "Create an account",
       "contactAdminSubject": "Access request for the Axessio platform",
       "resetSuccess": "Password updated. Sign in with your new password.",
       "dismissBanner": "Dismiss this message",
@@ -983,6 +1001,49 @@
         "sessionFailed": "Session could not be created. Check your Supabase configuration.",
         "signIn": "Error: {message}",
         "rateLimited": "Too many login attempts. Try again in {seconds}s."
+      }
+    },
+    "register": {
+      "title": "Create your account",
+      "subtitle": "Spin up your Axessio workspace in seconds — no credit card required.",
+      "firstName": "First name",
+      "firstNamePlaceholder": "Camille",
+      "lastName": "Last name",
+      "lastNamePlaceholder": "Durand",
+      "organization": "Your organization name",
+      "organizationPlaceholder": "My agency",
+      "organizationHint": "This is the workspace that will hold your audits and your team.",
+      "email": "Work email address",
+      "emailPlaceholder": "you@company.com",
+      "password": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "strength": "Password strength: {label}",
+      "strengthLevels": {
+        "tooShort": "Too short",
+        "weak": "Weak",
+        "medium": "Medium",
+        "strong": "Strong"
+      },
+      "criteria": {
+        "minLength": "At least 8 characters",
+        "uppercase": "One uppercase letter",
+        "digit": "One digit"
+      },
+      "terms": "By creating an account, you agree to our terms of service and privacy policy.",
+      "submit": "Create my account",
+      "submitting": "Creating account…",
+      "footer": "Already have an account?",
+      "footerCta": "Sign in",
+      "marketingSubtitle": "Create your workspace, invite your team and start your first audit today.",
+      "errors": {
+        "missing": "All fields are required.",
+        "invalidEmail": "Invalid email address.",
+        "weakPassword": "The password does not meet the security requirements.",
+        "emailTaken": "An account already exists for this email. Try signing in instead.",
+        "rateLimited": "Too many attempts. Try again in {seconds}s.",
+        "server": "Account creation failed. Please try again in a moment.",
+        "signInFailed": "Your account was created but automatic sign-in failed. Please sign in manually."
       }
     },
     "forgotPassword": {
@@ -1931,6 +1992,7 @@
     "assignees": {
       "empty": "No auditor assigned yet.",
       "addCta": "Assign an auditor",
+      "inviteCta": "Invite a teammate",
       "dialogTitle": "Assign an auditor",
       "dialogDesc": "The selected member will get access to this audit (read, edit, NCs).",
       "selectLabel": "Auditor or administrator",

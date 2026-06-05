@@ -3,7 +3,8 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
-import { canEditAudit } from "@/lib/permissions";
+import { canAny } from "@/lib/permissions";
+import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { createClient } from "@/lib/supabase/server";
 import { AuditForm } from "./audit-form";
 import type { ReferenceType } from "@/types/domain";
@@ -17,8 +18,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function NewAuditPage() {
   const profile = await requireProfile();
   const t = await getTranslations("audits.new");
+  const orgPerms = await loadMyOrgPermissions();
 
-  if (!canEditAudit(profile.role)) {
+  if (!canAny(profile.role, orgPerms, "audit.edit")) {
     redirect("/audits");
   }
 

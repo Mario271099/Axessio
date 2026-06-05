@@ -10,6 +10,7 @@ import { Logo } from "@/components/brand";
 import { fetchNotifications } from "@/app/(dashboard)/notifications/actions";
 import { USER_ROLE_LABELS } from "@/lib/constants";
 import type { NavCounts } from "@/components/layout/nav-config";
+import type { Permission } from "@/lib/permissions";
 import type { OrganizationMembership, Profile } from "@/types/domain";
 
 interface OrgContext {
@@ -22,9 +23,16 @@ interface TopbarProps {
   counts: NavCounts;
   org: OrgContext;
   brandLogoUrl: string | null;
+  orgPermissions?: Permission[];
 }
 
-export async function Topbar({ profile, counts, org, brandLogoUrl }: TopbarProps) {
+export async function Topbar({
+  profile,
+  counts,
+  org,
+  brandLogoUrl,
+  orgPermissions,
+}: TopbarProps) {
   const tSidebar = await getTranslations("sidebar");
   const initialNotifications = await fetchNotifications();
 
@@ -36,6 +44,7 @@ export async function Topbar({ profile, counts, org, brandLogoUrl }: TopbarProps
           counts={counts}
           org={org}
           brandLogoUrl={brandLogoUrl}
+          orgPermissions={orgPermissions}
         />
         <Link
           href="/dashboard"

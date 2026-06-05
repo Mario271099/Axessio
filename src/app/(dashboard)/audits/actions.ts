@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { canEditAudit } from "@/lib/permissions";
+import { requireAnyPermission } from "@/lib/server-permissions";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import { PLANS, planLimit, type PlanCode } from "@/lib/billing/plans";
 import {
@@ -48,20 +48,11 @@ export async function createAudit(
   const supabase = await createClient();
   const t = await getTranslations("errors");
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: t("notAuthenticated") };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
-    return { error: t("forbidden") };
-  }
+  // Legacy (auditor/admin) OU permission d'org `audit.edit` (owner/admin/
+  // auditor d'org self-serve). Les gates quota/feature de plan restent en aval.
+  // La RLS `audits_insert_auditor` (mig. 78) re-vérifie côté DB.
+  const guard = await requireAnyPermission("audit.edit");
+  if (!guard.ok) return { error: guard.error };
 
   const projectId = formData.get("projectId")?.toString();
   const referenceId = formData.get("referenceId")?.toString();
@@ -209,7 +200,7 @@ export async function createAudit(
       counter_audit_at: counterAuditAt,
       accessibility_link: accessibilityLink,
       notes,
-      created_by: user.id,
+      created_by: guard.userId,
     })
     .select("id")
     .single();
@@ -250,14 +241,16 @@ export async function createAudit(
     };
   }
 
-  // Auto-assignation : un auditeur qui crée un audit s'ajoute automatiquement
-  // comme assignee (la policy `assignees_self_insert` l'autorise), sinon il
-  // perdrait l'accès à son propre audit dès la migration 25 appliquée. Les
-  // admins n'en ont pas besoin (is_admin() court-circuite la restriction).
-  if (profile.role === "auditor") {
+  // Auto-assignation : un auditeur legacy qui crée un audit s'ajoute
+  // automatiquement comme assignee (la policy `assignees_self_insert`
+  // l'autorise), sinon il perdrait l'accès à son propre audit dès la migration
+  // 25 appliquée. Les admins n'en ont pas besoin (is_admin() court-circuite la
+  // restriction) ; un owner/auditor d'org self-serve voit déjà son audit via le
+  // scope org (accessible_project_ids = organization_id = current_org).
+  if (guard.role === "auditor") {
     await supabase.from("audit_assignees").insert({
       audit_id: audit.id,
-      profile_id: user.id,
+      profile_id: guard.userId,
       role: "auditor",
     });
   }
@@ -278,20 +271,8 @@ export async function updateAudit(
   const supabase = await createClient();
   const t = await getTranslations("errors");
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: t("notAuthenticated") };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
-    return { error: t("forbidden") };
-  }
+  const guard = await requireAnyPermission("audit.edit");
+  if (!guard.ok) return { error: guard.error };
 
   const referenceId = formData.get("referenceId")?.toString();
   const platform = formData.get("platform")?.toString() as PlatformType;
@@ -374,20 +355,8 @@ export async function addPage(
   const supabase = await createClient();
   const t = await getTranslations("errors");
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: t("notAuthenticated") };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
-    return { error: t("forbidden") };
-  }
+  const guard = await requireAnyPermission("audit.edit");
+  if (!guard.ok) return { error: guard.error };
   const name = formData.get("name")?.toString().trim();
   const url = formData.get("url")?.toString().trim() || null;
   const complexityValue = formData.get("complexity")?.toString();
@@ -435,20 +404,8 @@ export async function updatePage(
   const supabase = await createClient();
   const t = await getTranslations("errors");
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: t("notAuthenticated") };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
-    return { error: t("forbidden") };
-  }
+  const guard = await requireAnyPermission("audit.edit");
+  if (!guard.ok) return { error: guard.error };
   const name = formData.get("name")?.toString().trim();
   const url = formData.get("url")?.toString().trim() || null;
   const complexityValue = formData.get("complexity")?.toString();
@@ -480,20 +437,8 @@ export async function deletePage(
   const supabase = await createClient();
   const t = await getTranslations("errors");
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: t("notAuthenticated") };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
-    return { error: t("forbidden") };
-  }
+  const guard = await requireAnyPermission("audit.edit");
+  if (!guard.ok) return { error: guard.error };
   // On empêche uniquement la suppression de la page transversale (techniquement nécessaire)
   const { data: page } = await supabase
     .from("pages")
@@ -522,23 +467,11 @@ export async function deletePage(
 async function requireBulkEditor(): Promise<
   { ok: true; userId: string; role: UserRole } | { ok: false; error: string }
 > {
-  const supabase = await createClient();
-  const t = await getTranslations("errors");
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: t("notAuthenticated") };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.role || !canEditAudit(profile.role as UserRole)) {
-    return { ok: false, error: t("forbidden") };
-  }
-  return { ok: true, userId: user.id, role: profile.role as UserRole };
+  // Legacy (auditor/admin) OU permission d'org `audit.edit`. La RLS borne
+  // ensuite l'écriture aux audits effectivement accessibles à l'utilisateur.
+  const guard = await requireAnyPermission("audit.edit");
+  if (!guard.ok) return { ok: false, error: guard.error };
+  return { ok: true, userId: guard.userId, role: guard.role };
 }
 
 async function checkBulkAuditsRateLimit(

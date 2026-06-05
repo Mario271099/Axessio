@@ -3,7 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
-import { canEditAudit } from "@/lib/permissions";
+import { canAny } from "@/lib/permissions";
+import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import type { ReferenceType } from "@/types/domain";
@@ -42,7 +43,8 @@ export default async function EditAuditPage({
 
   if (!audit) notFound();
 
-  if (!canEditAudit(profile.role)) {
+  const orgPerms = await loadMyOrgPermissions();
+  if (!canAny(profile.role, orgPerms, "audit.edit")) {
     redirect(`/audits/${uuid}`);
   }
 

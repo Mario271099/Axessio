@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import { canChat, canEditNC } from "@/lib/permissions";
+import { requireAnyPermission, hasOrgPermission } from "@/lib/server-permissions";
 import type { NCSeverity, NCStatus, UserRole } from "@/types/domain";
 
 // 30 messages / minute par utilisateur : limite généreuse pour les
@@ -23,23 +24,11 @@ export interface ActionResult {
 async function requireAuditor(): Promise<
   { userId: string; role: UserRole } | { error: string }
 > {
-  const supabase = await createClient();
-  const t = await getTranslations("errors");
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: t("notAuthenticated") };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.role || !canEditNC(profile.role as UserRole)) {
-    return { error: t("forbidden") };
-  }
-  return { userId: user.id, role: profile.role as UserRole };
+  // Legacy (auditor/admin) OU permission d'org `nc.edit`. RLS `nc_admin`
+  // (mig. 80) en 2ᵉ ligne, scopée à l'org de l'audit.
+  const guard = await requireAnyPermission("nc.edit");
+  if (!guard.ok) return { error: guard.error };
+  return { userId: guard.userId, role: guard.role };
 }
 
 // Chat / pièces jointes : ouvert à tous les rôles ayant `chat.write`
@@ -290,11 +279,12 @@ export async function deleteAttachment(
     .eq("id", user.id)
     .maybeSingle();
 
-  // Suppression autorisée : staff plateforme avec droit d'éditer NC (admin/auditor)
-  // OU l'auteur de l'upload sur ses propres pièces.
-  const canDeleteAsStaff = profile?.role
-    ? canEditNC(profile.role as UserRole)
-    : false;
+  // Suppression autorisée : staff plateforme avec droit d'éditer NC (admin/
+  // auditor) OU membre d'org avec `nc.edit` OU l'auteur de l'upload sur ses
+  // propres pièces.
+  const canDeleteAsStaff =
+    (profile?.role ? canEditNC(profile.role as UserRole) : false) ||
+    (await hasOrgPermission("nc.edit"));
 
   const { data: attachment, error: fetchError } = await supabase
     .from("nc_attachments")

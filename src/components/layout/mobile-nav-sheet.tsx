@@ -13,7 +13,7 @@ import { Logo } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
 import { OrgSwitcher } from "@/components/layout/org-switcher";
 import { ICONS, SECTIONS, type NavCounts } from "@/components/layout/nav-config";
-import { can } from "@/lib/permissions";
+import { can, canAny, type Permission } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import type { OrganizationMembership, Profile } from "@/types/domain";
 
@@ -25,12 +25,20 @@ interface Props {
     available: OrganizationMembership[];
   };
   brandLogoUrl: string | null;
+  orgPermissions?: Permission[];
 }
 
-export function MobileNavSheet({ profile, counts, org, brandLogoUrl }: Props) {
+export function MobileNavSheet({
+  profile,
+  counts,
+  org,
+  brandLogoUrl,
+  orgPermissions,
+}: Props) {
   const t = useTranslations("sidebar");
   const pathname = usePathname();
   const userRole = profile.role;
+  const orgPerms = new Set(orgPermissions ?? []);
 
   return (
     <Dialog.Root>
@@ -98,8 +106,12 @@ export function MobileNavSheet({ profile, counts, org, brandLogoUrl }: Props) {
             className="flex-1 space-y-5 overflow-y-auto p-3"
           >
             {SECTIONS.map((section) => {
-              const visibleItems = section.items.filter(
-                (item) => item.permission === null || can(userRole, item.permission),
+              const visibleItems = section.items.filter((item) =>
+                item.permission === null
+                  ? true
+                  : item.orgScoped
+                    ? canAny(userRole, orgPerms, item.permission)
+                    : can(userRole, item.permission),
               );
               if (visibleItems.length === 0) return null;
               return (

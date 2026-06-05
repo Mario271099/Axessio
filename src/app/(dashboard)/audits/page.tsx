@@ -6,7 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { canEditAudit } from "@/lib/permissions";
+import { canAny } from "@/lib/permissions";
+import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import type { Metadata } from "next";
 import type {
   AuditStatus,
@@ -67,6 +68,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
   const profile = await requireProfile();
   const supabase = await createClient();
   const t = await getTranslations("audits.list");
+  const orgPerms = await loadMyOrgPermissions();
 
   const sp = await searchParams;
 
@@ -89,7 +91,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
   // « Mes audits » : ne s'applique qu'aux users qui peuvent éditer un audit
   // (staff). Pour les autres, ce filtre n'a pas de sens — leur scope d'accès
   // (RLS) est déjà étroit. On l'ignore silencieusement.
-  const canEditAudits = canEditAudit(profile.role);
+  const canEditAudits = canAny(profile.role, orgPerms, "audit.edit");
   const mineFilter = canEditAudits && sp.mine === "1";
 
   const sortColumn: SortColumn =
@@ -103,7 +105,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
     Number.isFinite(rawPage) && rawPage >= 1 ? rawPage : 1;
   const offset = (currentPage - 1) * PAGE_SIZE;
 
-  const canCreateAudit = canEditAudit(profile.role);
+  const canCreateAudit = canEditAudits;
 
   // ---------------------------------------------------------------------
   // Pré-fetch des audits assignés au user courant pour le filtre « Mes audits ».

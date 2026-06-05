@@ -2,26 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { AuthLayout } from "@/components/auth/auth-layout";
-import { LoginForm } from "./login-form";
-import { LoginResetBanner } from "./login-reset-banner";
+import { RegisterForm } from "./register-form";
 import { SITE } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("auth.login");
+  const t = await getTranslations("auth.register");
   const locale = await getLocale();
-  // Le h1 de la page (« Bon retour ») est un message d'accueil — pas idéal
-  // pour le <title>. On reprend un libellé SEO-friendly côté méta.
-  const metaTitle = locale === "en" ? "Sign in" : "Connexion";
+  const metaTitle = locale === "en" ? "Sign up" : "Inscription";
   return {
     title: metaTitle,
     description: t("subtitle"),
-    alternates: { canonical: "/login" },
+    alternates: { canonical: "/register" },
     openGraph: {
       type: "website",
       siteName: SITE.name,
       title: `${metaTitle} · ${SITE.name}`,
       description: t("subtitle"),
-      url: `${SITE.url}/login`,
+      url: `${SITE.url}/register`,
     },
     twitter: {
       card: "summary_large_image",
@@ -31,18 +28,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-interface LoginPageProps {
-  searchParams: Promise<{ reset?: string }>;
-}
-
-export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const t = await getTranslations("auth.login");
-  const sp = await searchParams;
-
-  // `?reset=1` est posé par `/reset-password` après un changement réussi.
-  // Affichage d'une bannière de succès pour confirmer à l'utilisateur que
-  // sa demande a abouti.
-  const showResetSuccess = sp.reset === "1";
+export default async function RegisterPage() {
+  const t = await getTranslations("auth.register");
 
   return (
     <AuthLayout
@@ -52,7 +39,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <>
           {t("footer")}{" "}
           <Link
-            href="/register"
+            href="/login"
             className="font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded"
           >
             {t("footerCta")}
@@ -60,8 +47,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </>
       }
     >
-      {showResetSuccess && <LoginResetBanner />}
-      <LoginForm />
+      <RegisterForm />
     </AuthLayout>
   );
 }

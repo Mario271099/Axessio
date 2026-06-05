@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient as createSupabaseClient } from "@/lib/supabase/server";
-import { canManageClients, canManageProjects } from "@/lib/permissions";
+import { requireAnyPermission } from "@/lib/server-permissions";
+import type { Permission } from "@/lib/permissions";
 import {
   getCurrentOrgPlan,
   getOrgLimit,
@@ -11,7 +12,6 @@ import {
 } from "@/lib/billing/server";
 import { countClientsInOrg } from "@/lib/billing/usage";
 import { PLANS } from "@/lib/billing/plans";
-import type { UserRole } from "@/types/domain";
 
 export interface ClientActionState {
   error: string | null;
@@ -20,31 +20,16 @@ export interface ClientActionState {
   projectId?: string;
 }
 
-type PermCheck = (role: UserRole) => boolean;
-
-async function requirePerm(check: PermCheck): Promise<{
+// Garde combinée legacy + org : un auditeur/admin legacy OU un membre d'org
+// disposant de la permission atomique passe. La RLS (mig. 66 pour clients,
+// mig. 78 pour projects) reste la 2ᵉ ligne de défense scopée à l'org.
+async function requirePerm(permission: Permission): Promise<{
   supabase: Awaited<ReturnType<typeof createSupabaseClient>>;
   error: string | null;
 }> {
+  const guard = await requireAnyPermission(permission);
   const supabase = await createSupabaseClient();
-  const t = await getTranslations("errors");
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { supabase, error: t("notAuthenticated") };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const role = profile?.role as UserRole | undefined;
-  if (!role || !check(role)) {
-    return { supabase, error: t("forbidden") };
-  }
-
+  if (!guard.ok) return { supabase, error: guard.error };
   return { supabase, error: null };
 }
 
@@ -67,7 +52,7 @@ async function requirePerm(check: PermCheck): Promise<{
 export async function createClient(
   formData: FormData,
 ): Promise<ClientActionState> {
-  const { supabase, error: authError } = await requirePerm(canManageClients);
+  const { supabase, error: authError } = await requirePerm("client.manage");
   if (authError) return { error: authError };
   const t = await getTranslations("errors");
 
@@ -126,7 +111,7 @@ export async function updateClient(
   clientId: string,
   formData: FormData,
 ): Promise<ClientActionState> {
-  const { supabase, error: authError } = await requirePerm(canManageClients);
+  const { supabase, error: authError } = await requirePerm("client.manage");
   if (authError) return { error: authError };
   const t = await getTranslations("errors");
 
@@ -162,7 +147,7 @@ export async function toggleClientActive(
   clientId: string,
   isActive: boolean,
 ): Promise<ClientActionState> {
-  const { supabase, error: authError } = await requirePerm(canManageClients);
+  const { supabase, error: authError } = await requirePerm("client.manage");
   if (authError) return { error: authError };
 
   const { error } = await supabase
@@ -184,7 +169,7 @@ export async function createProject(
   clientId: string,
   formData: FormData,
 ): Promise<ClientActionState> {
-  const { supabase, error: authError } = await requirePerm(canManageProjects);
+  const { supabase, error: authError } = await requirePerm("project.manage");
   if (authError) return { error: authError };
   const t = await getTranslations("errors");
 
@@ -245,7 +230,7 @@ export async function updateProject(
   clientId: string,
   formData: FormData,
 ): Promise<ClientActionState> {
-  const { supabase, error: authError } = await requirePerm(canManageProjects);
+  const { supabase, error: authError } = await requirePerm("project.manage");
   if (authError) return { error: authError };
   const t = await getTranslations("errors");
 
@@ -273,7 +258,7 @@ export async function deleteProject(
   projectId: string,
   clientId: string,
 ): Promise<ClientActionState> {
-  const { supabase, error: authError } = await requirePerm(canManageProjects);
+  const { supabase, error: authError } = await requirePerm("project.manage");
   if (authError) return { error: authError };
   const t = await getTranslations("errors");
 

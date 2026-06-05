@@ -44,10 +44,10 @@ import { MiniDonut } from "@/components/ui/mini-donut";
 import { cn } from "@/lib/utils";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import {
-  canAssignAuditor,
   canAssignProofreader,
-  canEditAudit,
+  canAny,
 } from "@/lib/permissions";
+import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import {
   getConformityLabel,
   getConformityLevel,
@@ -121,8 +121,9 @@ export default async function AuditDetailPage({ params }: PageProps) {
   const hasExportFeature = await orgHasFeature("export.pdf");
   const canExportReport = canExportRole && hasExportFeature;
 
-  // Édition des métadonnées audit : permission rôle uniquement.
-  const canEdit = canEditAudit(profile.role);
+  // Édition des métadonnées audit : legacy OU permission d'org `audit.edit`.
+  const orgPerms = await loadMyOrgPermissions();
+  const canEdit = canAny(profile.role, orgPerms, "audit.edit");
 
   const [
     { count: pageCount },
@@ -198,7 +199,11 @@ export default async function AuditDetailPage({ params }: PageProps) {
   // Gestion des assignees : admin ET client_admin (élargi par migration 35).
   // Pour client_admin, la RLS filtre déjà sur son client — pas besoin de
   // double check côté UI.
-  const canManageAssignees = canAssignAuditor(profile.role);
+  const canManageAssignees = canAny(
+    profile.role,
+    orgPerms,
+    "audit.assign_auditor",
+  );
   const canManageProofreaders = canAssignProofreader(profile.role);
 
   // Une requête couvre les deux rôles ; on partage ensuite côté JS.
@@ -286,7 +291,37 @@ export default async function AuditDetailPage({ params }: PageProps) {
       .select("id, first_name, last_name, email, role, is_active")
       .in("role", ["auditor", "admin"])
       .eq("is_active", true);
-    const staff = staffRows ?? [];
+
+    // Modèle self-serve : on ajoute les MEMBRES de l'org de l'audit au pool de
+    // candidats (un owner désigne un coéquipier de son org). Le staff legacy
+    // reste candidat pour la rétro-compatibilité. Dédoublonnage par id.
+    const auditOrgId = audit.organization_id as string | null;
+    type CandidateRow = {
+      id: string;
+      first_name: string | null;
+      last_name: string | null;
+      email: string | null;
+      role: string | null;
+      is_active: boolean | null;
+    };
+    let orgMemberRows: CandidateRow[] = [];
+    if (auditOrgId) {
+      const { data: memberRows } = await supabase
+        .from("organization_members")
+        .select(
+          `profile:profiles!inner(id, first_name, last_name, email, role, is_active)`,
+        )
+        .eq("organization_id", auditOrgId);
+      orgMemberRows = ((memberRows ?? []) as Array<{ profile: unknown }>)
+        .map((r) => (Array.isArray(r.profile) ? r.profile[0] : r.profile))
+        .filter((p): p is CandidateRow => Boolean(p) && p.is_active !== false);
+    }
+
+    const byId = new Map<string, CandidateRow>();
+    for (const p of [...(staffRows ?? []), ...orgMemberRows] as CandidateRow[]) {
+      if (p?.id) byId.set(p.id, p);
+    }
+    const staff = Array.from(byId.values());
 
     if (canManageAssignees) {
       available = staff
@@ -617,6 +652,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
               assignees={assignees}
               available={available}
               canManage={canManageAssignees}
+              orgSlug={auditOrgSlug}
             />
           </CardContent>
         </Card>

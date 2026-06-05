@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import type { NCReviewStatus, NCSeverity } from "@/types/domain";
 import { NCDetail, type NCData } from "./nc-detail";
 import { openNCReview } from "./review-actions";
@@ -11,6 +12,7 @@ interface PageProps {
 
 export default async function NCDetailPage({ params }: PageProps) {
   const profile = await requireProfile();
+  const orgPerms = await loadMyOrgPermissions();
   const { uuid, ncId } = await params;
   const supabase = await createClient();
 
@@ -225,6 +227,7 @@ export default async function NCDetailPage({ params }: PageProps) {
       auditId={uuid}
       auditTitle={auditTitle}
       profile={{ role: profile.role, id: profile.id }}
+      orgPermissions={Array.from(orgPerms)}
       userAssignmentRole={userAssignmentRole}
       prevNC={prevNC}
       nextNC={nextNC}

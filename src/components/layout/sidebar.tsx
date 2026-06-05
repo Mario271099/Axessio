@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { USER_ROLE_BADGE_VARIANT, USER_ROLE_LABELS } from "@/lib/constants";
-import { can, canImpersonateAs } from "@/lib/permissions";
+import { can, canAny, canImpersonateAs, type Permission } from "@/lib/permissions";
 import { signOut } from "@/app/(auth)/actions";
 import { exitImpersonationAndRedirect } from "@/app/(dashboard)/admin/impersonation/actions";
 import { ImpersonationLauncher } from "@/components/layout/impersonation-launcher";
@@ -35,13 +35,22 @@ interface SidebarProps {
   };
   /** Logo personnalisé de l'org active (Enterprise). Null = logo Axessio. */
   brandLogoUrl?: string | null;
+  /** Permissions atomiques effectives sur l'org active (rendu conditionnel). */
+  orgPermissions?: Permission[];
 }
 
-export function Sidebar({ profile, counts, org, brandLogoUrl }: SidebarProps) {
+export function Sidebar({
+  profile,
+  counts,
+  org,
+  brandLogoUrl,
+  orgPermissions,
+}: SidebarProps) {
   const pathname = usePathname();
   // Pour le filtrage sidebar on raisonne sur le rôle EFFECTIF (impersonation).
   // L'entrée "Voir comme" reste au contraire conditionnée par le rôle RÉEL.
   const userRole = profile.role;
+  const orgPerms = new Set(orgPermissions ?? []);
   const impersonationOptions = canImpersonateAs(profile.realRole);
   const t = useTranslations("sidebar");
 
@@ -78,8 +87,12 @@ export function Sidebar({ profile, counts, org, brandLogoUrl }: SidebarProps) {
         className="flex-1 space-y-5 overflow-y-auto p-3"
       >
         {SECTIONS.map((section) => {
-          const visibleItems = section.items.filter(
-            (item) => item.permission === null || can(userRole, item.permission),
+          const visibleItems = section.items.filter((item) =>
+            item.permission === null
+              ? true
+              : item.orgScoped
+                ? canAny(userRole, orgPerms, item.permission)
+                : can(userRole, item.permission),
           );
           if (visibleItems.length === 0) return null;
           return (

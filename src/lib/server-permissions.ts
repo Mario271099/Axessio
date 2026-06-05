@@ -53,6 +53,52 @@ export async function requirePermission(
   return { ok: true, userId: user.id, role };
 }
 
+/**
+ * Garde combinée legacy + org : autorise si l'utilisateur a la permission via
+ * son rôle plateforme legacy (`profiles.role`) OU via son rôle d'organisation
+ * sur l'org active (`has_org_permission`).
+ *
+ * C'est le helper à utiliser pour les actions du domaine audit pendant la
+ * coexistence des deux modèles (cf. ROLES_ROADMAP.md, bascule 6C.2) : le staff
+ * plateforme (auditor/admin legacy) continue de passer, et un owner/auditor
+ * d'org self-serve passe désormais aussi — chacun scopé à son périmètre par la
+ * RLS (la 2ᵉ ligne de défense reste `has_org_permission_on(..., org_id)`).
+ */
+export async function requireAnyPermission(
+  permission: Permission,
+): Promise<PermissionGuard> {
+  const supabase = await createClient();
+  const t = await getTranslations("errors");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: t("notAuthenticated") };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const role = (profile?.role as UserRole | undefined) ?? "client";
+
+  // 1. Branch legacy (rôle plateforme).
+  if (can(role, permission)) {
+    return { ok: true, userId: user.id, role };
+  }
+
+  // 2. Branch org : permission atomique sur l'org active.
+  const { data, error } = await supabase.rpc("has_org_permission", {
+    p_code: permission,
+  });
+  if (!error && data === true) {
+    return { ok: true, userId: user.id, role };
+  }
+
+  return { ok: false, error: t("forbidden") };
+}
+
 // ============================================================================
 // RBAC org-scopé (Phase 3 — alignée sur migrations 47/48)
 // ============================================================================
