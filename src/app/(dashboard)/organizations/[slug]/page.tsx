@@ -66,11 +66,14 @@ export default async function OrganizationDetailPage({
   if (!org) notFound();
 
   // Membres de l'org (jointure profiles).
+  // `organization_members` a DEUX FK vers profiles (`user_id` et `invited_by`) :
+  // on désambiguïse explicitement la jointure sur `user_id`, sinon PostgREST
+  // refuse l'embed (« more than one relationship found ») et renvoie une erreur.
   const { data: memberRows } = await supabase
     .from("organization_members")
     .select(
       `role, joined_at,
-       profile:profiles!inner(id, first_name, last_name, email, is_active)`,
+       profile:profiles!organization_members_user_id_fkey(id, first_name, last_name, email, is_active)`,
     )
     .eq("organization_id", org.id)
     .order("joined_at", { ascending: true });
@@ -113,9 +116,18 @@ export default async function OrganizationDetailPage({
   });
 
   // Le formulaire d'invitation n'est visible que pour un owner/admin de CETTE
-  // org (ou le super-admin plateforme). Le rôle est lu depuis la liste des
-  // membres déjà chargée — pas de round-trip supplémentaire.
-  const myRole = members.find((m) => m.id === profile.id)?.role;
+  // org (ou le super-admin plateforme). On lit l'appartenance par une requête
+  // DIRECTE (et non en cherchant l'utilisateur dans la liste des membres, qui
+  // dépend de la forme de la jointure et de la RLS) — la policy
+  // `org_members_select` garantit que `user_id = auth.uid()` voit sa propre
+  // ligne.
+  const { data: myMembership } = await supabase
+    .from("organization_members")
+    .select("role")
+    .eq("organization_id", org.id)
+    .eq("user_id", profile.id)
+    .maybeSingle();
+  const myRole = myMembership?.role as OrgRole | undefined;
   const canInvite =
     profile.isPlatformAdmin || myRole === "owner" || myRole === "admin";
 

@@ -306,10 +306,12 @@ export default async function AuditDetailPage({ params }: PageProps) {
     };
     let orgMemberRows: CandidateRow[] = [];
     if (auditOrgId) {
+      // Désambiguïsation FK obligatoire : `organization_members` a deux FK vers
+      // profiles (`user_id` et `invited_by`) — sans préciser, l'embed échoue.
       const { data: memberRows } = await supabase
         .from("organization_members")
         .select(
-          `profile:profiles!inner(id, first_name, last_name, email, role, is_active)`,
+          `profile:profiles!organization_members_user_id_fkey(id, first_name, last_name, email, role, is_active)`,
         )
         .eq("organization_id", auditOrgId);
       orgMemberRows = ((memberRows ?? []) as Array<{ profile: unknown }>)
