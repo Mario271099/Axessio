@@ -129,7 +129,7 @@ export function Wordmark({
             lineHeight: 1,
           }}
         >
-          essio
+          essyo
         </span>
         {showBadge && (
           <span

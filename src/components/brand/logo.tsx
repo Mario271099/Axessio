@@ -124,7 +124,7 @@ export function Logo({
           }}
         >
           <span style={{ color: c.ink }}>Axes</span>
-          <span style={{ color: c.accent }}>sio</span>
+          <span style={{ color: c.accent }}>syo</span>
         </span>
       )}
     </span>
