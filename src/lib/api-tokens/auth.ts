@@ -41,7 +41,7 @@ function unauthorized(message: string): ApiAuthFailure {
       { error: message },
       {
         status: 401,
-        headers: { "WWW-Authenticate": 'Bearer realm="axessio"' },
+        headers: { "WWW-Authenticate": 'Bearer realm="axessyo"' },
       },
     ),
   };

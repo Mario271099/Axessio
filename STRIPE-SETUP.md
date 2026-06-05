@@ -29,7 +29,7 @@ STRIPE_SECRET_KEY=sk_test_xxx npm run stripe:setup
 ```
 
 Le script (idempotent — relançable sans créer de doublons) :
-- crée les produits **Axessio Starter** / **Axessio Pro** + leurs prix mensuel/annuel ;
+- crée les produits **Axessyo Starter** / **Axessyo Pro** + leurs prix mensuel/annuel ;
 - affiche les `UPDATE subscription_plans ...` à coller dans Supabase (étape 7).
 
 Il te reste alors **uniquement** : la clé/secret webhook (sections 4-5-6), le SQL
@@ -57,8 +57,8 @@ Quand tu seras prêt à charger de vrais clients, tu refais l'opération en mode
 
 **Dashboard Stripe → Produits → "+ Créer un produit"**
 
-### Produit 1 — Axessio Starter
-- Nom : `Axessio Starter`
+### Produit 1 — Axessyo Starter
+- Nom : `Axessyo Starter`
 - Description (optionnelle) : `Freelances et petites équipes`
 - Modèle de tarification : **Récurrent**
 
@@ -66,8 +66,8 @@ Créer **2 prix** sur ce produit (bouton "+ Ajouter un autre prix"):
 - **Mensuel** : `29 €` / mois
 - **Annuel** : `290 €` / an
 
-### Produit 2 — Axessio Pro
-- Nom : `Axessio Pro`
+### Produit 2 — Axessyo Pro
+- Nom : `Axessyo Pro`
 - Modèle : **Récurrent**
 
 Créer **2 prix** :
@@ -75,7 +75,7 @@ Créer **2 prix** :
 - **Annuel** : `990 €` / an
 
 > **Free et Enterprise n'ont PAS besoin de produit Stripe.**
-> Free est gratuit (jamais de checkout). Enterprise passe par le `mailto:contact@axessio.app` du site marketing.
+> Free est gratuit (jamais de checkout). Enterprise passe par le `mailto:contact@axessyo.com` du site marketing.
 
 ---
 
@@ -111,7 +111,7 @@ Copie la **Clé secrète standard** (commence par `sk_test_…` en mode test, ou
 
 - **URL de l'endpoint** : `https://TON-DOMAINE.vercel.app/api/webhooks/stripe`
   (remplace par le domaine réel de ton déploiement Vercel)
-- **Description** : libre (ex. "Axessio prod" ou "Axessio test")
+- **Description** : libre (ex. "Axessyo prod" ou "Axessyo test")
 - **Événements à écouter** : clique "Sélectionner les événements" et coche EXACTEMENT ces 6 :
   - `checkout.session.completed`
   - `customer.subscription.created`
@@ -265,7 +265,7 @@ select code, stripe_price_id_monthly from subscription_plans;
 → Regarde les logs Vercel. Le handler peut avoir échoué silencieusement (table introuvable, colonne manquante, erreur RLS). Le webhook a un `try/catch` qui log et renvoie 500 — vérifie qu'il n'a pas absorbé une erreur.
 
 ### Le checkout redirige vers une URL `https://localhost:3000/...`
-→ `NEXT_PUBLIC_APP_URL` n'est pas posée (ou pose `http://localhost:3000` en prod). Pose-la dans Vercel sur le domaine réel : `NEXT_PUBLIC_APP_URL=https://axessio.app`.
+→ `NEXT_PUBLIC_APP_URL` n'est pas posée (ou pose `http://localhost:3000` en prod). Pose-la dans Vercel sur le domaine réel : `NEXT_PUBLIC_APP_URL=https://axessyo.com`.
 
 ### Le Customer Portal ne s'ouvre pas
 → Stripe demande qu'on **active le Customer Portal** une fois manuellement : Dashboard → Settings → Billing → **Customer portal** → activer les options qu'on autorise (annulation, mise à jour CB, etc.). Sinon `billingPortal.sessions.create` renvoie une erreur.
@@ -305,7 +305,7 @@ select code, stripe_price_id_monthly from subscription_plans;
 - [ ] `STRIPE_SECRET_KEY=sk_live_…` dans Vercel
 - [ ] Webhook créé sur l'URL prod avec les 6 événements
 - [ ] `STRIPE_WEBHOOK_SECRET=whsec_…` dans Vercel
-- [ ] `NEXT_PUBLIC_APP_URL=https://axessio.app` (ton vrai domaine)
+- [ ] `NEXT_PUBLIC_APP_URL=https://axessyo.com` (ton vrai domaine)
 - [ ] UPDATE SQL des `stripe_*_id` dans `subscription_plans`
 - [ ] Customer Portal activé côté Stripe (Settings → Billing → Customer portal)
 - [ ] Redéploiement Vercel effectué

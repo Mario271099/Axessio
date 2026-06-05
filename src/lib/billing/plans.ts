@@ -43,7 +43,7 @@ export interface PlanDescriptor {
 const FREE: PlanDescriptor = {
   code: "free",
   name: "Free",
-  description: "Pour découvrir Axessio (1 audit, 2 membres)",
+  description: "Pour découvrir Axessyo (1 audit, 2 membres)",
   monthlyPriceEur: 0,
   yearlyPriceEur: 0,
   features: [],

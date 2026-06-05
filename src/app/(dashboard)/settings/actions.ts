@@ -391,7 +391,7 @@ export async function enrollMfa(): Promise<MfaEnrollResult> {
 
   const { data, error } = await supabase.auth.mfa.enroll({
     factorType: "totp",
-    friendlyName: `Axessio (${user.email ?? user.id})`,
+    friendlyName: `Axessyo (${user.email ?? user.id})`,
   });
   if (error || !data) return { error: error?.message ?? tCommon("forbidden") };
 

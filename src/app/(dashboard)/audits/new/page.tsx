@@ -30,7 +30,7 @@ export default async function NewAuditPage() {
   // tous les projets à `is_auditor()`, ce qui montrerait ici les projets
   // de toutes les orgs. On force le filtre par organization_id pour ne
   // proposer que ceux de l'org courante. Le super-admin (platform admin)
-  // garde l'override car son `current_org()` retombe sur Axessio Internal
+  // garde l'override car son `current_org()` retombe sur Axessyo Internal
   // s'il n'a rien sélectionné, et il peut switcher via l'OrgSwitcher.
   const { data: currentOrgIdRaw } = await supabase.rpc("current_org");
   const currentOrgId = currentOrgIdRaw as string | null;

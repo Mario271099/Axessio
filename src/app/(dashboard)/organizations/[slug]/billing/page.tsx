@@ -393,7 +393,7 @@ async function PlanCard({
         {plan.isContactSales && !isCurrent && (
           <div className="mt-auto border-t pt-3">
             <Button asChild variant="outline" size="sm" className="w-full">
-              <a href="mailto:contact@axessio.app">{t("contactSales")}</a>
+              <a href="mailto:contact@axessyo.com">{t("contactSales")}</a>
             </Button>
           </div>
         )}

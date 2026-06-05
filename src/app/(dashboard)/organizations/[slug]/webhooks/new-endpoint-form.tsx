@@ -118,7 +118,7 @@ export function NewEndpointForm({ organizationId, events }: Props) {
               name="url"
               type="url"
               required
-              placeholder="https://example.com/axessio-webhook"
+              placeholder="https://example.com/axessyo-webhook"
               autoComplete="off"
             />
             <p className="text-xs text-muted-foreground">{t("urlHint")}</p>

@@ -3,7 +3,7 @@
 // au format HSL "H S% L%", donc on convertit les HEX fournis par l'org.
 //
 // Si l'org n'a pas de branding (plan inférieur à Enterprise, ou colonnes
-// vides), on ne rend rien — le design system Axessio par défaut s'applique.
+// vides), on ne rend rien — le design system Axessyo par défaut s'applique.
 
 import { getCurrentOrgBranding } from "@/lib/branding/server";
 

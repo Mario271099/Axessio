@@ -29,7 +29,7 @@ export type ReportLocale = "fr" | "en";
 
 export interface ReportData {
   generatedAt: string;
-  /** Branding de sortie (org white-label ou défauts Axessio). */
+  /** Branding de sortie (org white-label ou défauts Axessyo). */
   branding: OutputBranding;
   auditor: {
     name: string;

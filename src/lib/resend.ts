@@ -7,4 +7,4 @@ if (!process.env.RESEND_API_KEY) {
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL ?? "axessio@beirla.resend.app";
+  process.env.RESEND_FROM_EMAIL ?? "Axessyo <noreply@send.axessyo.com>";

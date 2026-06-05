@@ -29,7 +29,7 @@ async function mapProfile(row: ProfileRow): Promise<Profile> {
   );
   // Fallback : si la colonne n'est pas encore peuplée (compte pré-mig. 69),
   // on retombe sur le legacy `role === 'admin'` pour garantir l'accès du
-  // super-admin Axessio dans tous les cas.
+  // super-admin Axessyo dans tous les cas.
   const isPlatformAdmin =
     row.is_platform_admin === true || realRole === "admin";
   return {

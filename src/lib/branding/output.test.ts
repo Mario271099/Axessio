@@ -69,9 +69,9 @@ describe("sanitizeLogoUrl", () => {
 });
 
 describe("AXESSIO_DEFAULT_OUTPUT_BRANDING", () => {
-  it("n'est pas custom et porte les valeurs Axessio", () => {
+  it("n'est pas custom et porte les valeurs Axessyo", () => {
     expect(AXESSIO_DEFAULT_OUTPUT_BRANDING.isCustom).toBe(false);
-    expect(AXESSIO_DEFAULT_OUTPUT_BRANDING.brandName).toBe("Axessio");
+    expect(AXESSIO_DEFAULT_OUTPUT_BRANDING.brandName).toBe("Axessyo");
     expect(AXESSIO_DEFAULT_OUTPUT_BRANDING.logoUrl).toBeNull();
     expect(sanitizeHexColor(AXESSIO_DEFAULT_OUTPUT_BRANDING.primaryColor)).toBe(
       AXESSIO_DEFAULT_OUTPUT_BRANDING.primaryColor,

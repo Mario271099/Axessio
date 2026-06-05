@@ -86,7 +86,7 @@ export interface GeneratePDFOptions {
 }
 
 /**
- * Pied de page minimal Axessio : numérotation à droite, mention discrète à
+ * Pied de page minimal Axessyo : numérotation à droite, mention discrète à
  * gauche. Compatible Puppeteer (classes spéciales `pageNumber` et
  * `totalPages` interpolées au print).
  */
@@ -100,7 +100,7 @@ export const DEFAULT_FOOTER_TEMPLATE = `
   justify-content: space-between;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 ">
-  <span>Axessio</span>
+  <span>Axessyo</span>
   <span>Page <span class="pageNumber"></span> / <span class="totalPages"></span></span>
 </div>`;
 

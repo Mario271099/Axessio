@@ -166,7 +166,7 @@ export async function inviteUser(
   }
   const role = roleRaw as UserRole;
 
-  // Les rôles staff (admin/auditor) appartiennent à Axessio Internal, jamais à
+  // Les rôles staff (admin/auditor) appartiennent à Axessyo Internal, jamais à
   // un client. Les rôles client (client_admin/client) doivent toujours avoir
   // un client_id valide.
   const isStaffRole = role === "admin" || role === "auditor";
@@ -206,11 +206,11 @@ export async function inviteUser(
 
   // ============================================================================
   // Limite de plan : `max_members` sur l'organisation cible.
-  //   - role staff (admin/auditor) → org "Axessio Internal" (UUID fixe)
+  //   - role staff (admin/auditor) → org "Axessyo Internal" (UUID fixe)
   //   - role client_admin/client   → clientId == organization_id (backfill
   //                                  migration 43 : 1 client legacy = 1 org)
   // Le plan staff est toujours Pro+ historiquement, mais on garde la même
-  // logique pour la cohérence (et pour le jour où on basculera Axessio
+  // logique pour la cohérence (et pour le jour où on basculera Axessyo
   // Internal sur un plan Enterprise-only).
   // ============================================================================
   const targetOrgId = clientId ?? AXESSIO_INTERNAL_ORG_ID;

@@ -1,4 +1,4 @@
-# Roadmap technique Axessio
+# Roadmap technique Axessyo
 
 > Généré le 2026-05-27. Basé sur l'audit du code au commit 7354e74 (branche `improve_role`).
 
@@ -34,7 +34,7 @@ Statuts détaillés :
 - **Validation** : `curl -X POST` création endpoint avec `http://localhost` → 400. Endpoint avec hostname résolvant en 169.254.169.254 → delivery `failed` avec `error_message="private IP"`.
 
 ### S1.2 — Login brute-force sans rate-limit serveur (P0)
-- **Constat** : `src/app/(auth)/login/login-form.tsx:36` appelle `supabase.auth.signInWithPassword` directement depuis le navigateur (`"use client"`). Aucune limite côté serveur Axessio — seules les limites internes Supabase Auth s'appliquent. Aucune entrée dans `audit_logs` pour les échecs.
+- **Constat** : `src/app/(auth)/login/login-form.tsx:36` appelle `supabase.auth.signInWithPassword` directement depuis le navigateur (`"use client"`). Aucune limite côté serveur Axessyo — seules les limites internes Supabase Auth s'appliquent. Aucune entrée dans `audit_logs` pour les échecs.
 - **Risque** : attaquant lance 10k tentatives `email+password` depuis 100 IPs. Supabase finit par freiner mais le défenseur n'a aucune visibilité. Pas d'alerte sur un compte ciblé.
 - **Solution** :
   1. Garder le `signInWithPassword` client (CLAUDE.md indique que c'est volontaire pour Next 16 + Turbopack).
@@ -126,9 +126,9 @@ Statuts détaillés :
 
 ## Sprint 3 — Architecture & dette (2 semaines)
 
-### S3.1 — Branding "Axessio" hardcodé (P2)
-- **Constat** : grep `Axessio` retourne 44 occurrences dans 19 fichiers `src/` hors i18n : `lib/site.ts:6`, `lib/pdf.ts:2`, `emails/invitation-email.tsx:5`, `app/api/audits/[uuid]/report/report-template.tsx:4`, `components/brand/wordmark.tsx:4`, etc. Phase 5 a livré le branding custom (logo + couleurs) côté UI dashboard, mais les emails, le PDF et la page publique restent figés.
-- **Risque** : la promesse "custom branding" est partielle. Un client Enterprise qui a payé pour son logo le voit en haut de la sidebar — mais reçoit ses invitations Resend de "Axessio".
+### S3.1 — Branding "Axessyo" hardcodé (P2)
+- **Constat** : grep `Axessyo` retourne 44 occurrences dans 19 fichiers `src/` hors i18n : `lib/site.ts:6`, `lib/pdf.ts:2`, `emails/invitation-email.tsx:5`, `app/api/audits/[uuid]/report/report-template.tsx:4`, `components/brand/wordmark.tsx:4`, etc. Phase 5 a livré le branding custom (logo + couleurs) côté UI dashboard, mais les emails, le PDF et la page publique restent figés.
+- **Risque** : la promesse "custom branding" est partielle. Un client Enterprise qui a payé pour son logo le voit en haut de la sidebar — mais reçoit ses invitations Resend de "Axessyo".
 - **Solution** :
   1. Centraliser dans `lib/branding/server.ts` la lecture du branding actif (logo + nom).
   2. Passer les emails à `getOrgBranding()` au moment du `sendInvitation()`.
@@ -190,7 +190,7 @@ Statuts détaillés :
 ## Sprint 4 — Observabilité, qualité, a11y (1 semaine)
 
 ### S4.1 — Audit d'accessibilité automatisé (P1)
-- **Constat** : Axessio est un produit RGAA/WCAG mais aucune page `/accessibility` ni `/declaration-accessibilite` n'existe (`Glob src/app/accessibility/**/* → 0`). `axe-core` absent du `package.json`. Le produit qui audite l'accessibilité ne s'audite pas.
+- **Constat** : Axessyo est un produit RGAA/WCAG mais aucune page `/accessibility` ni `/declaration-accessibilite` n'existe (`Glob src/app/accessibility/**/* → 0`). `axe-core` absent du `package.json`. Le produit qui audite l'accessibilité ne s'audite pas.
 - **Risque** : crédibilité commerciale. Un prospect public (administration française obligée RGAA) regardera l'absence de déclaration et passera son chemin.
 - **Solution** :
   1. Créer `src/app/accessibility/page.tsx` avec la déclaration RGAA minimale (audit prévu, contact, etc.) — gabarit officiel sur design.numerique.gouv.fr.

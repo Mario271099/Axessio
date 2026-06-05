@@ -1,5 +1,5 @@
 /**
- * Types métier de Axessio.
+ * Types métier de Axessyo.
  *
  * Ces types miroitent les énumérations de la base Postgres
  * (cf. `supabase/migrations/00_init_schema.sql`).
@@ -54,7 +54,7 @@ export interface OrganizationMembership {
   role: OrgRole;
 }
 
-/** UUID stable de l'organisation interne Axessio (cf. migration 43). */
+/** UUID stable de l'organisation interne Axessyo (cf. migration 43). */
 export const AXESSIO_INTERNAL_ORG_ID =
   "00000000-0000-0000-0000-000000000001";
 
@@ -126,7 +126,7 @@ export interface Profile {
   /** URL publique de l'avatar uploadé sur Supabase Storage. null = initiales. */
   avatarUrl: string | null;
   /**
-   * Super-administrateur plateforme Axessio. Court-circuite TOUTES les
+   * Super-administrateur plateforme Axessyo. Court-circuite TOUTES les
    * restrictions (RLS SQL via `is_admin()` + checks UI/server actions).
    * Source de vérité unique pour le « peut tout voir, peut tout faire »
    * — backfillé depuis `role = 'admin'` par la migration 69. À utiliser

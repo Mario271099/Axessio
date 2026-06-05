@@ -16,10 +16,10 @@ export async function GET() {
   const spec = {
     openapi: "3.1.0",
     info: {
-      title: "Axessio API",
+      title: "Axessyo API",
       version: "1.0.0",
       description:
-        `API REST d'Axessio (lecture des audits d'accessibilité).\n\n` +
+        `API REST d'Axessyo (lecture des audits d'accessibilité).\n\n` +
         `**Authentification** : header \`Authorization: Bearer axe_live_...\` ` +
         `(token créé depuis Organisation → API tokens).\n\n` +
         `**Quota** : ${API_RATE_LIMIT} requêtes / minute par token. Les réponses ` +

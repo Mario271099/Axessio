@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { clientIp, sanitizeLoginEmail } from "./login-audit";
 
 function reqWith(headers: Record<string, string>): Request {
-  return new Request("https://axessio.app/api/auth/login-attempt", {
+  return new Request("https://axessyo.com/api/auth/login-attempt", {
     method: "POST",
     headers,
   });

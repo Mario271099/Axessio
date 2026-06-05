@@ -2,22 +2,22 @@
 // `Metadata`, `robots.ts`, `sitemap.ts`, `manifest.ts`, le JSON-LD et les
 // images OG doit pointer ici pour rester cohérent.
 
-const FALLBACK_URL = "https://axessio.app";
+const FALLBACK_URL = "https://axessyo.com";
 
 function normalize(url: string): string {
   return url.replace(/\/+$/, "");
 }
 
 export const SITE = {
-  name: "Axessio",
-  shortName: "Axessio",
+  name: "Axessyo",
+  shortName: "Axessyo",
   tagline: {
     fr: "Plateforme SaaS d'audits d'accessibilité numérique",
     en: "Digital accessibility audit SaaS platform",
   },
   description: {
-    fr: "Axessio centralise vos audits d'accessibilité numérique (RGAA, WCAG, RAWeb, RAAM). Saisie de conformité, gestion des non-conformités, rapports PDF — pour auditeurs et équipes clients.",
-    en: "Axessio centralizes your digital accessibility audits (RGAA, WCAG, RAWeb, RAAM). Conformity tracking, non-conformity management, PDF reports — for auditors and client teams.",
+    fr: "Axessyo centralise vos audits d'accessibilité numérique (RGAA, WCAG, RAWeb, RAAM). Saisie de conformité, gestion des non-conformités, rapports PDF — pour auditeurs et équipes clients.",
+    en: "Axessyo centralizes your digital accessibility audits (RGAA, WCAG, RAWeb, RAAM). Conformity tracking, non-conformity management, PDF reports — for auditors and client teams.",
   },
   keywords: [
     "accessibilité numérique",
@@ -33,17 +33,17 @@ export const SITE = {
     "conformité",
     "compliance",
     "SaaS",
-    "Axessio",
+    "Axessyo",
   ],
-  // Couleurs Axessio (navy de marque #1a4066 / point teal #06b6d4).
+  // Couleurs Axessyo (navy de marque #1a4066 / point teal #06b6d4).
   themeColor: "#1a4066",
   backgroundColor: "#ffffff",
-  twitter: "@axessio",
+  twitter: "@axessyo",
   locale: { fr: "fr_FR", en: "en_US" },
   url: normalize(process.env.NEXT_PUBLIC_APP_URL ?? FALLBACK_URL),
   // Adresse de support — utilisée par le lien « Contactez votre
   // administrateur » sur /login et les voies de retour a11y.
-  supportEmail: "contact@axessio.app",
+  supportEmail: "contact@axessyo.com",
 } as const;
 
 export function siteUrl(path = "/"): string {

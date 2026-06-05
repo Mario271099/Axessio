@@ -1,6 +1,6 @@
 {
   "home": {
-    "metaTitle": "Axessio — Plateforme SaaS d'audits d'accessibilité numérique",
+    "metaTitle": "Axessyo — Plateforme SaaS d'audits d'accessibilité numérique",
     "metaDescription": "Centralisez vos audits d'accessibilité numérique (RGAA, WCAG, RAWeb, RAAM). Saisie de conformité, gestion des non-conformités, rapports PDF — pour auditeurs et équipes clients.",
     "skipToContent": "Aller au contenu principal",
     "nav": {
@@ -13,7 +13,7 @@
     "hero": {
       "kicker": "Plateforme d'audit d'accessibilité",
       "title": "Pilotez vos audits RGAA & WCAG sans tableurs.",
-      "subtitle": "Axessio centralise vos audits d'accessibilité numérique : grille de conformité, non-conformités tracées, rapports PDF prêts à livrer — pour auditeurs et équipes clients.",
+      "subtitle": "Axessyo centralise vos audits d'accessibilité numérique : grille de conformité, non-conformités tracées, rapports PDF prêts à livrer — pour auditeurs et équipes clients.",
       "primaryCta": "Accéder à mon espace",
       "secondaryCta": "Voir les fonctionnalités"
     },
@@ -53,12 +53,12 @@
     },
     "cta": {
       "title": "Prêt à structurer vos audits ?",
-      "subtitle": "Connectez-vous à votre espace Axessio pour reprendre vos audits en cours, ou contactez-nous pour ouvrir un compte.",
-      "button": "Accéder à Axessio"
+      "subtitle": "Connectez-vous à votre espace Axessyo pour reprendre vos audits en cours, ou contactez-nous pour ouvrir un compte.",
+      "button": "Accéder à Axessyo"
     },
     "footer": {
       "tagline": "Plateforme d'audits d'accessibilité numérique.",
-      "copyright": "© {year} Axessio. Tous droits réservés.",
+      "copyright": "© {year} Axessyo. Tous droits réservés.",
       "links": {
         "login": "Connexion",
         "features": "Fonctionnalités",
@@ -74,7 +74,7 @@
       "items": [
         {
           "q": "Quels référentiels d'accessibilité sont pris en charge ?",
-          "a": "Axessio prend en charge RGAA 4.1.2, WCAG 2.2, RAWeb 1.0, RAAM 1.0 et EN 301 549, pour les plateformes web et mobile."
+          "a": "Axessyo prend en charge RGAA 4.1.2, WCAG 2.2, RAWeb 1.0, RAAM 1.0 et EN 301 549, pour les plateformes web et mobile."
         },
         {
           "q": "Comment est calculé le score de conformité ?",
@@ -89,15 +89,15 @@
   },
   "accessibility": {
     "metaTitle": "Déclaration d'accessibilité",
-    "metaDescription": "Déclaration d'accessibilité d'Axessio : état de conformité RGAA, contenus non accessibles, contact et voies de recours.",
+    "metaDescription": "Déclaration d'accessibilité d'Axessyo : état de conformité RGAA, contenus non accessibles, contact et voies de recours.",
     "title": "Déclaration d'accessibilité",
     "lastUpdated": "Établie le {date}",
-    "intro": "Axessio s'engage à rendre sa plateforme accessible conformément à l'article 47 de la loi n° 2005-102 du 11 février 2005. Cette déclaration d'accessibilité s'applique à la plateforme Axessio (application web).",
+    "intro": "Axessyo s'engage à rendre sa plateforme accessible conformément à l'article 47 de la loi n° 2005-102 du 11 février 2005. Cette déclaration d'accessibilité s'applique à la plateforme Axessyo (application web).",
     "sections": {
       "state": {
         "title": "État de conformité",
         "lines": [
-          "La plateforme Axessio est en conformité partielle avec le Référentiel général d'amélioration de l'accessibilité (RGAA), version 4.1.",
+          "La plateforme Axessyo est en conformité partielle avec le Référentiel général d'amélioration de l'accessibilité (RGAA), version 4.1.",
           "Un audit RGAA complet par un prestataire externe est planifié ; le taux de conformité précis sera publié à l'issue de cet audit. Cette déclaration sera alors mise à jour."
         ]
       },
@@ -120,14 +120,14 @@
         "title": "Établissement de cette déclaration",
         "lines": [
           "Cette déclaration a été établie le {date}.",
-          "Elle s'appuie sur l'auto-évaluation menée en interne par l'équipe Axessio. Une évaluation par un prestataire externe est prévue."
+          "Elle s'appuie sur l'auto-évaluation menée en interne par l'équipe Axessyo. Une évaluation par un prestataire externe est prévue."
         ]
       },
       "feedback": {
         "title": "Retour d'information et contact",
         "lines": [
           "Si vous n'arrivez pas à accéder à un contenu ou à un service de la plateforme, vous pouvez nous contacter pour être orienté·e vers une alternative accessible ou obtenir le contenu sous une autre forme.",
-          "Adresse email : accessibilite@axessio.app.",
+          "Adresse email : accessibilite@axessyo.com.",
           "Nous nous efforçons de répondre dans un délai de 5 jours ouvrés."
         ]
       },
@@ -142,25 +142,25 @@
   },
   "legal": {
     "metaTitle": "Mentions légales",
-    "metaDescription": "Mentions légales d'Axessio : éditeur, hébergeur, propriété intellectuelle, contact.",
+    "metaDescription": "Mentions légales d'Axessyo : éditeur, hébergeur, propriété intellectuelle, contact.",
     "title": "Mentions légales",
     "lastUpdated": "Dernière mise à jour : {date}",
     "sections": {
       "editor": {
         "title": "Éditeur du site",
         "lines": [
-          "Axessio SAS",
+          "Axessyo SAS",
           "Société par Actions Simplifiée au capital de 10 000 €",
           "10 rue de la République, 75011 Paris, France",
           "RCS Paris — SIRET 999 999 999 00000",
           "N° TVA intracommunautaire : FR 99 999999999",
-          "Adresse email : contact@axessio.app"
+          "Adresse email : contact@axessyo.com"
         ]
       },
       "director": {
         "title": "Directeur de la publication",
         "lines": [
-          "Mario Harimanitra, en sa qualité de Président d'Axessio SAS."
+          "Mario Harimanitra, en sa qualité de Président d'Axessyo SAS."
         ]
       },
       "host": {
@@ -175,7 +175,7 @@
       "ip": {
         "title": "Propriété intellectuelle",
         "lines": [
-          "L'ensemble des éléments accessibles sur le site (textes, graphismes, logo Axessio, code source, structure) est protégé par le droit français et international au titre de la propriété intellectuelle.",
+          "L'ensemble des éléments accessibles sur le site (textes, graphismes, logo Axessyo, code source, structure) est protégé par le droit français et international au titre de la propriété intellectuelle.",
           "Toute reproduction, représentation, modification, publication ou adaptation, par quelque procédé que ce soit, est interdite sans autorisation écrite préalable de l'éditeur.",
           "Les marques tierces citées (RGAA, WCAG, RAWeb, RAAM) sont la propriété de leurs détenteurs respectifs."
         ]
@@ -196,23 +196,23 @@
       "contact": {
         "title": "Contact",
         "lines": [
-          "Pour toute question relative aux présentes mentions légales : contact@axessio.app."
+          "Pour toute question relative aux présentes mentions légales : contact@axessyo.com."
         ]
       }
     }
   },
   "privacy": {
     "metaTitle": "Politique de confidentialité",
-    "metaDescription": "Politique de confidentialité d'Axessio : données collectées, finalités, base légale, durée de conservation, droits RGPD.",
+    "metaDescription": "Politique de confidentialité d'Axessyo : données collectées, finalités, base légale, durée de conservation, droits RGPD.",
     "title": "Politique de confidentialité",
     "lastUpdated": "Dernière mise à jour : {date}",
-    "intro": "Axessio attache une importance particulière à la protection des données personnelles. La présente politique décrit comment vos données sont collectées, utilisées et protégées dans le cadre du Règlement Général sur la Protection des Données (RGPD) et de la loi Informatique et Libertés.",
+    "intro": "Axessyo attache une importance particulière à la protection des données personnelles. La présente politique décrit comment vos données sont collectées, utilisées et protégées dans le cadre du Règlement Général sur la Protection des Données (RGPD) et de la loi Informatique et Libertés.",
     "sections": {
       "controller": {
         "title": "Responsable de traitement",
         "lines": [
-          "Le responsable de traitement est Axessio SAS, 10 rue de la République, 75011 Paris, France.",
-          "Contact RGPD / DPO : privacy@axessio.app."
+          "Le responsable de traitement est Axessyo SAS, 10 rue de la République, 75011 Paris, France.",
+          "Contact RGPD / DPO : privacy@axessyo.com."
         ]
       },
       "data": {
@@ -269,7 +269,7 @@
           "• Droit à la portabilité",
           "• Droit d'opposition",
           "• Droit de définir des directives post-mortem",
-          "Pour exercer ces droits : privacy@axessio.app. Une réponse vous sera apportée dans un délai d'un mois."
+          "Pour exercer ces droits : privacy@axessyo.com. Une réponse vous sera apportée dans un délai d'un mois."
         ]
       },
       "complaint": {
@@ -284,17 +284,17 @@
           "Vos données transitent en HTTPS / TLS 1.2+.",
           "L'isolation entre clients est garantie par les politiques Row Level Security de PostgreSQL.",
           "Les mots de passe sont stockés hachés et salés par Supabase Auth.",
-          "Aucun accès n'est possible aux données d'un autre client, même par les administrateurs Axessio (hors intervention support documentée)."
+          "Aucun accès n'est possible aux données d'un autre client, même par les administrateurs Axessyo (hors intervention support documentée)."
         ]
       }
     }
   },
   "cookies": {
     "metaTitle": "Politique de cookies",
-    "metaDescription": "Politique cookies d'Axessio : nous n'utilisons que des cookies fonctionnels strictement nécessaires. Aucun traceur, aucune publicité.",
+    "metaDescription": "Politique cookies d'Axessyo : nous n'utilisons que des cookies fonctionnels strictement nécessaires. Aucun traceur, aucune publicité.",
     "title": "Politique de cookies",
     "lastUpdated": "Dernière mise à jour : {date}",
-    "intro": "Axessio n'utilise que des cookies strictement nécessaires au fonctionnement du service. Aucun cookie publicitaire, aucun traceur tiers, aucun outil d'analyse comportementale n'est déployé. Conformément à la doctrine de la CNIL, ces cookies fonctionnels ne nécessitent pas de bandeau de consentement.",
+    "intro": "Axessyo n'utilise que des cookies strictement nécessaires au fonctionnement du service. Aucun cookie publicitaire, aucun traceur tiers, aucun outil d'analyse comportementale n'est déployé. Conformément à la doctrine de la CNIL, ces cookies fonctionnels ne nécessitent pas de bandeau de consentement.",
     "tableHeaders": {
       "name": "Nom",
       "purpose": "Finalité",
@@ -329,19 +329,19 @@
         "title": "Désactivation",
         "lines": [
           "Vous pouvez à tout moment effacer ou bloquer les cookies via les paramètres de votre navigateur.",
-          "Attention : la désactivation des cookies de session vous empêchera de vous connecter à Axessio."
+          "Attention : la désactivation des cookies de session vous empêchera de vous connecter à Axessyo."
         ]
       },
       "contact": {
         "title": "Contact",
         "lines": [
-          "Pour toute question relative aux cookies : privacy@axessio.app."
+          "Pour toute question relative aux cookies : privacy@axessyo.com."
         ]
       }
     }
   },
   "common": {
-    "appName": "Axessio",
+    "appName": "Axessyo",
     "loading": "Chargement…",
     "save": "Enregistrer",
     "cancel": "Annuler",
@@ -424,7 +424,7 @@
     "fieldErrors": "Veuillez corriger les erreurs ci-dessous.",
     "createAuditFailed": "Échec de la création : {message}",
     "updateAuditOnlyAuditor": "Seuls les auditeurs peuvent modifier un audit.",
-    "defaultInviterName": "Un auditeur Axessio",
+    "defaultInviterName": "Un auditeur Axessyo",
     "userCreatedEmailFailed": "Utilisateur créé mais l'email n'a pas pu être envoyé : {message}. Utilisez \"Renvoyer l'invitation\" pour réessayer.",
     "auditNotFound": "Audit introuvable.",
     "impersonationTargetDenied": "Vous ne pouvez pas emprunter ce rôle.",
@@ -454,7 +454,7 @@
     "limitMaxMembersReached": "Cette organisation a atteint la limite de {limit} membres du plan {plan}. Passez à un plan supérieur pour inviter plus d'utilisateurs."
   },
   "emails": {
-    "invitationSubject": "Vous êtes invité·e à rejoindre Axessio"
+    "invitationSubject": "Vous êtes invité·e à rejoindre Axessyo"
   },
   "billing": {
     "upsell": {
@@ -466,7 +466,7 @@
   },
   "pricing": {
     "metaTitle": "Tarifs",
-    "metaDescription": "Choisissez le plan Axessio adapté à votre équipe : Free, Starter, Pro ou Enterprise. Audits RGAA / WCAG, rapports PDF, SSO et plus.",
+    "metaDescription": "Choisissez le plan Axessyo adapté à votre équipe : Free, Starter, Pro ou Enterprise. Audits RGAA / WCAG, rapports PDF, SSO et plus.",
     "kicker": "Tarifs",
     "title": "Un plan adapté à chaque équipe",
     "subtitle": "Démarrez gratuitement, sans carte. Passez à un plan payant quand votre volume d'audits dépasse les limites.",
@@ -498,7 +498,7 @@
     "questionsLead": "Une question sur votre cas d'usage ?"
   },
   "planning": {
-    "metaTitle": "Planning — Axessio",
+    "metaTitle": "Planning — Axessyo",
     "title": "Planning",
     "subtitle": "Vue calendrier des dates clés de vos audits.",
     "calendarHint": "Cliquez sur un audit pour ouvrir sa fiche.",
@@ -743,7 +743,7 @@
     "webhooks": {
       "metaTitle": "Webhooks — {slug}",
       "title": "Webhooks sortants",
-      "subtitle": "Recevez les événements Axessio sur vos systèmes externes (Slack, Zapier, votre backend…).",
+      "subtitle": "Recevez les événements Axessyo sur vos systèmes externes (Slack, Zapier, votre backend…).",
       "back": "Retour à l'organisation",
       "newCta": "Nouveau webhook",
       "newTitle": "Configurer un endpoint",
@@ -764,7 +764,7 @@
       "deleteCta": "Supprimer",
       "confirmDelete": "Supprimer ce webhook ? Cette action est irréversible.",
       "secretRevealTitle": "Secret du webhook",
-      "secretRevealDesc": "Copiez ce secret maintenant — il ne sera plus jamais affiché. Il sert à vérifier la signature HMAC envoyée dans l'en-tête X-Axessio-Signature.",
+      "secretRevealDesc": "Copiez ce secret maintenant — il ne sera plus jamais affiché. Il sert à vérifier la signature HMAC envoyée dans l'en-tête X-Axessyo-Signature.",
       "newSecretLabel": "Nouveau secret",
       "copy": "Copier",
       "close": "Fermer",
@@ -827,7 +827,7 @@
       "primaryColor": "Couleur primaire",
       "accentColor": "Couleur d'accent",
       "domainSection": "Domaine personnalisé",
-      "domainDesc": "Domaine sur lequel votre instance Axessio est accessible.",
+      "domainDesc": "Domaine sur lequel votre instance Axessyo est accessible.",
       "customDomain": "Domaine personnalisé",
       "domainHint": "Champ informatif pour l'instant. La configuration DNS/reverse-proxy reste manuelle.",
       "save": "Enregistrer",
@@ -946,7 +946,7 @@
       "logout": "Déconnexion",
       "exitImpersonation": "Sortir du mode visualisation"
     },
-    "brandHomeAria": "Axessio — retour au tableau de bord",
+    "brandHomeAria": "Axessyo — retour au tableau de bord",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
     "mobileNavDesc": "Navigation principale de l'application",
@@ -982,7 +982,7 @@
     },
     "login": {
       "title": "Bon retour",
-      "subtitle": "Connectez-vous à votre espace Axessio",
+      "subtitle": "Connectez-vous à votre espace Axessyo",
       "email": "Adresse email",
       "emailPlaceholder": "vous@entreprise.com",
       "password": "Mot de passe",
@@ -993,7 +993,7 @@
       "submitting": "Connexion en cours…",
       "footer": "Pas encore de compte ?",
       "footerCta": "Créer un compte",
-      "contactAdminSubject": "Demande d'accès à la plateforme Axessio",
+      "contactAdminSubject": "Demande d'accès à la plateforme Axessyo",
       "resetSuccess": "Mot de passe mis à jour. Connecte-toi avec ton nouveau mot de passe.",
       "dismissBanner": "Fermer ce message",
       "errors": {
@@ -1005,7 +1005,7 @@
     },
     "register": {
       "title": "Créer votre compte",
-      "subtitle": "Lancez votre espace Axessio en quelques secondes — sans carte bancaire.",
+      "subtitle": "Lancez votre espace Axessyo en quelques secondes — sans carte bancaire.",
       "firstName": "Prénom",
       "firstNamePlaceholder": "Camille",
       "lastName": "Nom",
@@ -1125,7 +1125,7 @@
     "welcome": {
       "title": "Bienvenue {name} !",
       "titleFallback": "à bord",
-      "subtitle": "Axessio centralise tes audits d'accessibilité numérique. Voilà comment lancer ton premier en trois étapes.",
+      "subtitle": "Axessyo centralise tes audits d'accessibilité numérique. Voilà comment lancer ton premier en trois étapes.",
       "steps": {
         "client": {
           "title": "Ajoute ton premier client",
@@ -1149,7 +1149,7 @@
     },
     "onboarding": {
       "title": "Bien démarrer avec {name}",
-      "subtitle": "{completed} sur {total} étapes complétées — finis l'installation pour profiter de tout Axessio.",
+      "subtitle": "{completed} sur {total} étapes complétées — finis l'installation pour profiter de tout Axessyo.",
       "progressAria": "Progression : {percent}%",
       "itemCta": "Aller →",
       "items": {
@@ -1228,7 +1228,7 @@
     "overview": {
       "metaTitle": "Tableau de bord plateforme",
       "title": "Tableau de bord plateforme",
-      "subtitle": "Vue d'ensemble de l'activité Axessio : utilisateurs, organisations, audits et abonnements.",
+      "subtitle": "Vue d'ensemble de l'activité Axessyo : utilisateurs, organisations, audits et abonnements.",
       "kpi": {
         "users": "Utilisateurs",
         "usersNote": "{active} actifs",

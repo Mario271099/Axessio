@@ -89,7 +89,7 @@ export default function OGImage() {
               letterSpacing: -1,
             }}
           >
-            Axessio
+            Axessyo
           </span>
         </div>
 
