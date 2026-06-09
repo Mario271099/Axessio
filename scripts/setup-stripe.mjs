@@ -7,7 +7,7 @@
 //   STRIPE_SECRET_KEY=sk_test_xxx npm run stripe:setup
 //
 // Idempotent : relancer le script ne crée pas de doublons (il retrouve les
-// produits par leur metadata `axessio_plan` et les prix par montant/intervalle).
+// produits par leur metadata `axessyo_plan` et les prix par montant/intervalle).
 // Les montants sont alignés sur src/lib/billing/plans.ts — garder en sync.
 
 import Stripe from "stripe";
@@ -29,9 +29,9 @@ const PLANS = [
   {
     code: "starter",
     name: "Axessyo Starter",
-    description: "Freelances et petites équipes",
-    monthly: 2900, // 29 €
-    yearly: 29000, // 290 €
+    description: "Freelances et consultants indépendants",
+    monthly: 3900, // 39 €
+    yearly: 39000, // 390 €
   },
   {
     code: "pro",
@@ -47,7 +47,7 @@ async function findOrCreateProduct(plan) {
   // à products.search qui est indexé en différé).
   const existing = [];
   for await (const p of stripe.products.list({ limit: 100, active: true })) {
-    if (p.metadata?.axessio_plan === plan.code) existing.push(p);
+    if (p.metadata?.axessyo_plan === plan.code) existing.push(p);
   }
   if (existing.length > 0) {
     console.log(`  • produit réutilisé : ${existing[0].id} (${plan.name})`);
@@ -56,7 +56,7 @@ async function findOrCreateProduct(plan) {
   const created = await stripe.products.create({
     name: plan.name,
     description: plan.description,
-    metadata: { axessio_plan: plan.code },
+    metadata: { axessyo_plan: plan.code },
   });
   console.log(`  • produit créé : ${created.id} (${plan.name})`);
   return created;
@@ -82,7 +82,7 @@ async function findOrCreatePrice(productId, interval, amount) {
     currency: "eur",
     unit_amount: amount,
     recurring: { interval },
-    metadata: { axessio_interval: interval === "month" ? "monthly" : "yearly" },
+    metadata: { axessyo_interval: interval === "month" ? "monthly" : "yearly" },
   });
   console.log(`    - prix créé (${interval}) : ${created.id}`);
   return created;

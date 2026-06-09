@@ -59,9 +59,9 @@ const FREE: PlanDescriptor = {
 const STARTER: PlanDescriptor = {
   code: "starter",
   name: "Starter",
-  description: "Freelances et petites équipes",
-  monthlyPriceEur: 29,
-  yearlyPriceEur: 290,
+  description: "Freelances et consultants indépendants",
+  monthlyPriceEur: 39,
+  yearlyPriceEur: 390,
   features: ["export.pdf", "remediation.simulator"],
   limits: {
     max_members: 5,
