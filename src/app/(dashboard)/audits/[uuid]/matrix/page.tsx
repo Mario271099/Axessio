@@ -5,6 +5,7 @@ import { canAny } from "@/lib/permissions";
 import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { createClient } from "@/lib/supabase/server";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
+import type { TestProceduresMap } from "@/lib/methodology";
 import { ConformityMatrixLayout } from "./conformity-matrix-layout";
 import type {
   AuditPage,
@@ -74,7 +75,7 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
   const { data: criteriaRows } = await supabase
     .from("criteria")
     .select(
-      "id, thematic_id, identifier, name, url, disabilities, sort_order, name_en, level, principle, guideline, methodology",
+      "id, thematic_id, identifier, name, url, disabilities, sort_order, name_en, level, principle, guideline, methodology, test_procedures",
     )
     .in(
       "thematic_id",
@@ -94,6 +95,8 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
     principle: c.principle ?? null,
     guideline: c.guideline ?? null,
     methodology: (c.methodology as string | null) ?? null,
+    testProcedures:
+      (c.test_procedures as TestProceduresMap | null) ?? null,
   }));
 
   const { data: pageRows } = await supabase

@@ -7,6 +7,8 @@
  * depuis `./database.ts` pour avoir des types 100% synchronisés.
  */
 
+import type { TestProceduresMap } from "@/lib/methodology";
+
 // ============================================================================
 // Tenancy — organisations (Phase 1 du refactor RBAC)
 // ============================================================================
@@ -187,6 +189,13 @@ export interface Criterion {
    * tests individuels.
    */
   methodology?: string | null;
+  /**
+   * Procédures de test détaillées (méthodologie officielle), indexées par
+   * référence : numéro de test (`1.1.1`) pour RGAA/RAWeb, numéro de critère
+   * (`1.1`) pour RAAM, code de technique (`G94`) pour WCAG. Valeur = chaîne FR
+   * (référentiels francophones) ou objet bilingue `{ en, fr? }` (WCAG).
+   */
+  testProcedures?: TestProceduresMap | null;
 }
 
 // ============================================================================

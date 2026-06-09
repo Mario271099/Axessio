@@ -4,6 +4,7 @@ import { canAny } from "@/lib/permissions";
 import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { createClient } from "@/lib/supabase/server";
 import { listNCTemplatesForAudit } from "@/app/(dashboard)/organizations/[slug]/nc-templates/actions";
+import type { TestProceduresMap } from "@/lib/methodology";
 import { NewNCForm, type NCThematic, type NCCriterion, type NCPage } from "./new-nc-form";
 
 interface PageProps {
@@ -59,7 +60,7 @@ export default async function NewNCPage({ params }: PageProps) {
     ? await supabase
         .from("criteria")
         .select(
-          "id, thematic_id, identifier, name, sort_order, methodology, url",
+          "id, thematic_id, identifier, name, sort_order, level, methodology, test_procedures, url",
         )
         .in(
           "thematic_id",
@@ -73,7 +74,10 @@ export default async function NewNCPage({ params }: PageProps) {
     thematicId: c.thematic_id as string,
     identifier: c.identifier as string,
     name: c.name as string,
+    level: (c.level as string | null) ?? null,
     methodology: (c.methodology as string | null) ?? null,
+    testProcedures:
+      (c.test_procedures as TestProceduresMap | null) ?? null,
     url: (c.url as string | null) ?? null,
   }));
 

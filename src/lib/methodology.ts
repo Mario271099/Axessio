@@ -19,6 +19,24 @@ export interface MethodologyTest {
   question: string;
 }
 
+// Valeur d'une procédure détaillée (`criteria.test_procedures`). Pour les
+// référentiels francophones (RGAA/RAWeb/RAAM) c'est une simple chaîne FR ;
+// pour WCAG c'est un objet bilingue { en, fr? } (fr absent = non traduit).
+export type TestProcedureValue = string | { en: string; fr?: string };
+export type TestProceduresMap = Record<string, TestProcedureValue>;
+
+// Résout une procédure selon la langue active. Repli sur l'anglais si la
+// traduction française n'est pas encore disponible.
+export function localizeProcedure(
+  value: TestProcedureValue | null | undefined,
+  locale: string,
+): string | null {
+  if (value == null) return null;
+  if (typeof value === "string") return value;
+  if (locale.startsWith("fr")) return value.fr ?? value.en ?? null;
+  return value.en ?? value.fr ?? null;
+}
+
 // Une ligne `Test X.Y.Z` éventuellement suivie d'espaces / autres tokens
 // alphanumériques (certains référentiels utilisent `Test 1.1.1.1`).
 const TEST_HEADER = /^Test\s+([0-9]+(?:\.[0-9]+)*)\s*$/;

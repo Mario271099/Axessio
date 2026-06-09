@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations, useFormatter } from "next-intl";
+import { useTranslations, useFormatter, useLocale } from "next-intl";
 import { toast } from "sonner";
 import {
   ChevronLeft,
@@ -35,9 +35,15 @@ import {
 } from "@/components/ui/select";
 import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { InfoTip } from "@/components/ui/info-tip";
+import { MethodologyContent } from "@/components/ui/methodology-content";
+import { WcagLevelBadge } from "@/components/ui/wcag-level-badge";
 import { createClient } from "@/lib/supabase/client";
 import { addAttachment } from "@/app/(dashboard)/audits/[uuid]/anomalies/[ncId]/actions";
-import { parseMethodology } from "@/lib/methodology";
+import {
+  parseMethodology,
+  localizeProcedure,
+  type TestProceduresMap,
+} from "@/lib/methodology";
 import type { NCSeverity } from "@/types/domain";
 import { createNC } from "./actions";
 
@@ -61,7 +67,16 @@ export interface NCCriterion {
   thematicId: string;
   identifier: string;
   name: string;
+  /** Niveau WCAG (A / AA / AAA). NULL pour les référentiels sans niveau. */
+  level: string | null;
   methodology: string | null;
+  /**
+   * Procédures de test détaillées (méthodologie officielle), indexées par
+   * référence : numéro de test (`1.1.1`) pour RGAA/RAWeb, numéro de critère
+   * (`1.1`) pour RAAM, code de technique (`G94`) pour WCAG. Valeur = chaîne FR
+   * ou objet bilingue `{ en, fr? }` (WCAG).
+   */
+  testProcedures: TestProceduresMap | null;
   /** Lien vers la documentation officielle (RGAA / WCAG / etc.). */
   url: string | null;
 }
@@ -91,6 +106,7 @@ export function NewNCForm({
   const tDraft = useTranslations("audits.anomaliesNew.draft");
   const tSeverity = useTranslations("constants.ncSeverity");
   const format = useFormatter();
+  const locale = useLocale();
 
   // -- Cascade thématique → critère → test ---------------------------------
   const [thematicId, setThematicId] = useState<string>("");
@@ -196,9 +212,70 @@ export function NewNCForm({
     [criteria, criteriaId],
   );
 
-  const availableTests = useMemo(
-    () => parseMethodology(selectedCriterion?.methodology ?? null),
-    [selectedCriterion],
+  // Liste de tests sélectionnables, normalisée selon le référentiel :
+  //  - RGAA/RAWeb : tests numérotés parsés depuis `methodology` (label = la
+  //    question officielle, détail = la procédure dans `test_procedures`) ;
+  //  - WCAG : techniques (G94, ARIA6…) issues des clés de `test_procedures`
+  //    (label = titre de la technique, détail = procédure bilingue) ;
+  //  - RAAM/WCAG-sans-technique : aucun test → affichage au niveau critère.
+  const { availableTests, criterionLevelDetail } = useMemo(() => {
+    const parsed = parseMethodology(selectedCriterion?.methodology ?? null);
+    const tp = selectedCriterion?.testProcedures ?? null;
+
+    if (parsed.length > 0) {
+      // RGAA / RAWeb
+      return {
+        availableTests: parsed.map((p) => ({
+          reference: p.reference,
+          label: p.question,
+        })),
+        criterionLevelDetail: null as string | null,
+      };
+    }
+
+    if (tp && selectedCriterion) {
+      const keys = Object.keys(tp);
+      const isCriterionLevel =
+        keys.length === 0 ||
+        (keys.length === 1 && keys[0] === selectedCriterion.identifier);
+      if (!isCriterionLevel) {
+        // WCAG : une entrée par technique. Le titre = 1re ligne de la procédure.
+        return {
+          availableTests: keys.map((code) => {
+            const text = localizeProcedure(tp[code], locale) ?? "";
+            const title = text.split("\n")[0]?.trim() || code;
+            return { reference: code, label: title };
+          }),
+          criterionLevelDetail: null as string | null,
+        };
+      }
+    }
+
+    // RAAM (clé = identifiant du critère) ou WCAG « Intent » en repli.
+    const level =
+      (selectedCriterion &&
+        localizeProcedure(
+          tp?.[selectedCriterion.identifier],
+          locale,
+        )) ||
+      selectedCriterion?.methodology ||
+      null;
+    return { availableTests: [], criterionLevelDetail: level };
+  }, [selectedCriterion, locale]);
+
+  // Procédure détaillée du test/technique sélectionné, dans la langue active.
+  // Référence RGAA/RAWeb = « Test 1.1.1 » → clé nue « 1.1.1 » ; WCAG = code tel
+  // quel (« G94 »).
+  const selectedTestDetail = useMemo(() => {
+    const tp = selectedCriterion?.testProcedures;
+    if (!tp || !testReference) return null;
+    const bare = testReference.replace(/^Test\s+/i, "").trim();
+    return localizeProcedure(tp[bare] ?? tp[testReference], locale);
+  }, [selectedCriterion, testReference, locale]);
+
+  const selectedTest = useMemo(
+    () => availableTests.find((tst) => tst.reference === testReference) ?? null,
+    [availableTests, testReference],
   );
 
   // Cascade : quand on change de thématique, on reset le critère + test.
@@ -571,10 +648,13 @@ export function NewNCForm({
                   <SelectContent className="max-h-[60vh]">
                     {filteredCriteria.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
-                        <span className="font-mono text-xs text-muted-foreground">
-                          {c.identifier}
+                        <span className="inline-flex items-center gap-2">
+                          <span className="font-mono text-xs text-muted-foreground">
+                            {c.identifier}
+                          </span>
+                          <WcagLevelBadge level={c.level} />
+                          <span>{c.name}</span>
                         </span>
-                        <span className="ml-2">{c.name}</span>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -582,8 +662,11 @@ export function NewNCForm({
               </div>
             </div>
 
-            {/* Méthodologie : panel radio-cards de tous les tests du
-                critère, avec leur question complète. */}
+            {/* Test et références du critère : dropdown des tests du critère
+                + panneau affichant la procédure détaillée officielle du test
+                sélectionné (RGAA/RAWeb). Pour les référentiels sans tests
+                numérotés (RAAM/WCAG), on affiche directement la méthodologie
+                du critère. */}
             <fieldset
               className="space-y-3 rounded-md border border-border bg-muted/20 p-3"
               aria-describedby="nc-tests-help"
@@ -611,41 +694,59 @@ export function NewNCForm({
                   {t("testRefDocLink")}
                 </a>
               )}
+
+              {/* Référentiels à tests (RGAA / RAWeb) */}
               {criteriaId && availableTests.length > 0 && (
-                <div className="space-y-2">
-                  {availableTests.map((tst) => {
-                    const isSelected = testReference === tst.reference;
-                    return (
-                      <label
-                        key={tst.reference}
-                        className={
-                          "flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors " +
-                          (isSelected
-                            ? "border-primary bg-primary/5"
-                            : "border-border bg-card hover:bg-accent")
-                        }
-                      >
-                        <input
-                          type="radio"
-                          name="nc-test-radio"
-                          value={tst.reference}
-                          checked={isSelected}
-                          onChange={() => setTestReference(tst.reference)}
-                          className="mt-1 h-4 w-4 shrink-0 accent-primary"
-                        />
-                        <div className="min-w-0 flex-1 space-y-1">
-                          <p className="font-mono text-xs text-muted-foreground">
-                            {tst.reference}
-                          </p>
-                          <p className="whitespace-pre-line text-sm leading-relaxed">
-                            {tst.question}
-                          </p>
-                        </div>
-                      </label>
-                    );
-                  })}
+                <div className="space-y-3">
+                  <Select
+                    value={testReference}
+                    onValueChange={setTestReference}
+                  >
+                    <SelectTrigger
+                      id="nc-test"
+                      aria-label={t("test")}
+                      className="h-auto min-h-10 py-2 [&>span]:line-clamp-2 [&>span]:text-left [&>span]:whitespace-normal"
+                    >
+                      <SelectValue placeholder={t("testPlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[60vh]">
+                      {availableTests.map((tst) => (
+                        <SelectItem key={tst.reference} value={tst.reference}>
+                          <span className="flex flex-col items-start gap-0.5">
+                            <span className="font-mono text-xs text-muted-foreground">
+                              {tst.reference}
+                            </span>
+                            <span className="whitespace-normal">
+                              {tst.label}
+                            </span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {testReference && (
+                    <div className="rounded-md border border-border bg-card p-3">
+                      {selectedTestDetail ? (
+                        <MethodologyContent content={selectedTestDetail} />
+                      ) : (
+                        <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                          {selectedTest?.label}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
+
+              {/* Référentiels sans tests numérotés (RAAM / WCAG) */}
+              {criteriaId &&
+                availableTests.length === 0 &&
+                criterionLevelDetail && (
+                  <div className="rounded-md border border-border bg-card p-3">
+                    <MethodologyContent content={criterionLevelDetail} />
+                  </div>
+                )}
             </fieldset>
           </CardContent>
         </Card>
