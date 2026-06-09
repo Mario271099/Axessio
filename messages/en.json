@@ -2367,7 +2367,7 @@
       "criterion": "Criterion",
       "criterionPlaceholder": "Select a criterion",
       "criterionPlaceholderDisabled": "Choose a topic first",
-      "test": "Criterion test and methodology",
+      "test": "Criterion test and references",
       "testPlaceholder": "Select a test",
       "testPlaceholderDisabled": "Choose a criterion first.",
       "testPlaceholderNone": "No test available for this criterion",

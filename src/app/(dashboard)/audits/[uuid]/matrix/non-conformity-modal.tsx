@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { Eye, Loader2 } from "lucide-react";
 import {
@@ -23,8 +23,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FileDropZone } from "@/components/ui/file-drop-zone";
+import { MethodologyContent } from "@/components/ui/methodology-content";
+import { WcagLevelBadge } from "@/components/ui/wcag-level-badge";
 import { createClient } from "@/lib/supabase/client";
-import { parseMethodology } from "@/lib/methodology";
+import { parseMethodology, localizeProcedure } from "@/lib/methodology";
 import { addAttachment } from "@/app/(dashboard)/audits/[uuid]/anomalies/[ncId]/actions";
 import { requestNCReview } from "@/app/(dashboard)/audits/[uuid]/anomalies/[ncId]/review-actions";
 import { createNonConformity } from "./actions";
@@ -56,6 +58,7 @@ export function NonConformityModal({
 }: Props) {
   const t = useTranslations("audits.matrix.ncModal");
   const tNew = useTranslations("audits.anomaliesNew");
+  const locale = useLocale();
   const tSeverity = useTranslations("constants.ncSeverity");
   const tCommon = useTranslations("common");
   const [description, setDescription] = useState("");
@@ -71,11 +74,64 @@ export function NonConformityModal({
   const [submitMode, setSubmitMode] =
     useState<"create" | "create_and_request">("create");
 
-  // Méthodologie du critère parsée en tests individuels. Si le critère n'en
-  // a pas (référentiels minoritaires non seedés), le panel reste vide.
-  const availableTests = useMemo(
-    () => parseMethodology(criterion.methodology ?? null),
-    [criterion.methodology],
+  // Liste de tests normalisée par référentiel (cf. new-nc-form) :
+  //  - RGAA/RAWeb : tests numérotés parsés (label = question) ;
+  //  - WCAG : techniques issues des clés de test_procedures (label = titre) ;
+  //  - RAAM/WCAG-sans-technique : aucun test → détail au niveau critère.
+  const { availableTests, criterionLevelDetail } = useMemo(() => {
+    const parsed = parseMethodology(criterion.methodology ?? null);
+    const tp = criterion.testProcedures ?? null;
+
+    if (parsed.length > 0) {
+      return {
+        availableTests: parsed.map((p) => ({
+          reference: p.reference,
+          label: p.question,
+        })),
+        criterionLevelDetail: null as string | null,
+      };
+    }
+
+    if (tp) {
+      const keys = Object.keys(tp);
+      const isCriterionLevel =
+        keys.length === 0 ||
+        (keys.length === 1 && keys[0] === criterion.identifier);
+      if (!isCriterionLevel) {
+        return {
+          availableTests: keys.map((code) => {
+            const text = localizeProcedure(tp[code], locale) ?? "";
+            const title = text.split("\n")[0]?.trim() || code;
+            return { reference: code, label: title };
+          }),
+          criterionLevelDetail: null as string | null,
+        };
+      }
+    }
+
+    const level =
+      localizeProcedure(tp?.[criterion.identifier], locale) ||
+      criterion.methodology ||
+      null;
+    return { availableTests: [], criterionLevelDetail: level };
+  }, [
+    criterion.methodology,
+    criterion.testProcedures,
+    criterion.identifier,
+    locale,
+  ]);
+
+  // Procédure détaillée du test/technique sélectionné, langue active.
+  const selectedTestDetail = useMemo(() => {
+    const tp = criterion.testProcedures;
+    if (!tp || !testReference) return null;
+    const bare = testReference.replace(/^Test\s+/i, "").trim();
+    return localizeProcedure(tp[bare] ?? tp[testReference], locale);
+  }, [criterion.testProcedures, testReference, locale]);
+
+  const selectedTest = useMemo(
+    () => availableTests.find((tst) => tst.reference === testReference) ?? null,
+    [availableTests, testReference],
   );
 
   const reset = () => {
@@ -201,6 +257,7 @@ export function NonConformityModal({
               <span className="font-mono text-xs">
                 {t("criterion", { identifier: criterion.identifier })}
               </span>
+              <WcagLevelBadge level={criterion.level} className="ml-2" />
               <span className="ml-2">{criterion.name}</span>
             </span>
             <span className="block text-xs">
@@ -228,7 +285,7 @@ export function NonConformityModal({
             </p>
           )}
 
-          {/* --- Tests et méthodologie du critère ----------------------- */}
+          {/* --- Test et références du critère --------------------------- */}
           {availableTests.length > 0 ? (
             <fieldset
               className="space-y-3 rounded-md border border-border bg-muted/20 p-3"
@@ -253,38 +310,62 @@ export function NonConformityModal({
                   {tNew("testRefDocLink")}
                 </a>
               )}
-              <div className="space-y-2">
-                {availableTests.map((tst) => {
-                  const isSelected = testReference === tst.reference;
-                  return (
-                    <label
-                      key={tst.reference}
-                      className={
-                        "flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors " +
-                        (isSelected
-                          ? "border-primary bg-primary/5"
-                          : "border-border bg-card hover:bg-accent")
-                      }
-                    >
-                      <input
-                        type="radio"
-                        name="matrix-nc-test-radio"
-                        value={tst.reference}
-                        checked={isSelected}
-                        onChange={() => setTestReference(tst.reference)}
-                        className="mt-1 h-4 w-4 shrink-0 accent-primary"
-                      />
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <p className="font-mono text-xs text-muted-foreground">
+              <Select value={testReference} onValueChange={setTestReference}>
+                <SelectTrigger
+                  id="matrix-nc-test"
+                  aria-label={tNew("test")}
+                  className="h-auto min-h-10 py-2 [&>span]:line-clamp-2 [&>span]:text-left [&>span]:whitespace-normal"
+                >
+                  <SelectValue placeholder={tNew("testPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent className="max-h-[60vh]">
+                  {availableTests.map((tst) => (
+                    <SelectItem key={tst.reference} value={tst.reference}>
+                      <span className="flex flex-col items-start gap-0.5">
+                        <span className="font-mono text-xs text-muted-foreground">
                           {tst.reference}
-                        </p>
-                        <p className="whitespace-pre-line text-sm leading-relaxed">
-                          {tst.question}
-                        </p>
-                      </div>
-                    </label>
-                  );
-                })}
+                        </span>
+                        <span className="whitespace-normal">
+                          {tst.label}
+                        </span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {testReference && (
+                <div className="rounded-md border border-border bg-card p-3">
+                  {selectedTestDetail ? (
+                    <MethodologyContent content={selectedTestDetail} />
+                  ) : (
+                    <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                      {selectedTest?.label}
+                    </p>
+                  )}
+                </div>
+              )}
+            </fieldset>
+          ) : criterionLevelDetail ? (
+            <fieldset
+              className="space-y-3 rounded-md border border-border bg-muted/20 p-3"
+              aria-describedby="matrix-nc-tests-help"
+            >
+              <legend className="px-1 text-sm font-medium">
+                {tNew("test")}
+              </legend>
+              {criterion.url && (
+                <a
+                  href={criterion.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 px-1 text-xs text-primary hover:underline"
+                >
+                  {tNew("testRefDocLink")}
+                </a>
+              )}
+              <div className="rounded-md border border-border bg-card p-3">
+                <MethodologyContent content={criterionLevelDetail} />
               </div>
             </fieldset>
           ) : (

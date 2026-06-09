@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { WcagLevelBadge } from "@/components/ui/wcag-level-badge";
 import { cn } from "@/lib/utils";
 import { ConformityCell } from "./conformity-cell";
 import type { ConformityStatus, Criterion, Thematic } from "@/types/domain";
@@ -157,14 +158,14 @@ export function ThematicSection({
                   <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm font-semibold text-muted-foreground">
                     {criterion.identifier}
                   </span>
-                  {criterion.level && (
-                    <span
-                      className="rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-primary"
-                      aria-label={t("wcagLevelAria", { level: criterion.level })}
-                    >
-                      {criterion.level}
-                    </span>
-                  )}
+                  <WcagLevelBadge
+                    level={criterion.level}
+                    aria-label={
+                      criterion.level
+                        ? t("wcagLevelAria", { level: criterion.level })
+                        : undefined
+                    }
+                  />
                 </div>
 
                 <div className="min-w-0 flex-1">

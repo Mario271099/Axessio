@@ -2367,7 +2367,7 @@
       "criterion": "Critère",
       "criterionPlaceholder": "Sélectionner un critère",
       "criterionPlaceholderDisabled": "Choisissez d'abord une thématique",
-      "test": "Test et méthodologie du critère",
+      "test": "Test et références du critère",
       "testPlaceholder": "Sélectionner un test",
       "testPlaceholderDisabled": "Choisissez d'abord un critère.",
       "testPlaceholderNone": "Aucun test disponible pour ce critère",
