@@ -705,20 +705,22 @@ export function NewNCForm({
                     <SelectTrigger
                       id="nc-test"
                       aria-label={t("test")}
-                      className="h-auto min-h-10 py-2 [&>span]:line-clamp-2 [&>span]:text-left [&>span]:whitespace-normal"
+                      className="h-auto min-h-10 py-2 [&>span]:line-clamp-2 [&>span]:text-left"
                     >
                       <SelectValue placeholder={t("testPlaceholder")} />
                     </SelectTrigger>
-                    <SelectContent className="max-h-[60vh]">
+                    <SelectContent className="max-h-[60vh] w-[var(--radix-select-trigger-width)]">
                       {availableTests.map((tst) => (
-                        <SelectItem key={tst.reference} value={tst.reference}>
-                          <span className="flex flex-col items-start gap-0.5">
+                        <SelectItem
+                          key={tst.reference}
+                          value={tst.reference}
+                          className="whitespace-normal"
+                        >
+                          <span className="block leading-snug">
                             <span className="font-mono text-xs text-muted-foreground">
                               {tst.reference}
                             </span>
-                            <span className="whitespace-normal">
-                              {tst.label}
-                            </span>
+                            <span className="mt-0.5 block">{tst.label}</span>
                           </span>
                         </SelectItem>
                       ))}

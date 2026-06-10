@@ -249,7 +249,7 @@ export function NonConformityModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription className="space-y-1">
@@ -314,20 +314,22 @@ export function NonConformityModal({
                 <SelectTrigger
                   id="matrix-nc-test"
                   aria-label={tNew("test")}
-                  className="h-auto min-h-10 py-2 [&>span]:line-clamp-2 [&>span]:text-left [&>span]:whitespace-normal"
+                  className="h-auto min-h-10 py-2 [&>span]:line-clamp-2 [&>span]:text-left"
                 >
                   <SelectValue placeholder={tNew("testPlaceholder")} />
                 </SelectTrigger>
-                <SelectContent className="max-h-[60vh]">
+                <SelectContent className="max-h-[60vh] w-[var(--radix-select-trigger-width)]">
                   {availableTests.map((tst) => (
-                    <SelectItem key={tst.reference} value={tst.reference}>
-                      <span className="flex flex-col items-start gap-0.5">
+                    <SelectItem
+                      key={tst.reference}
+                      value={tst.reference}
+                      className="whitespace-normal"
+                    >
+                      <span className="block leading-snug">
                         <span className="font-mono text-xs text-muted-foreground">
                           {tst.reference}
                         </span>
-                        <span className="whitespace-normal">
-                          {tst.label}
-                        </span>
+                        <span className="mt-0.5 block">{tst.label}</span>
                       </span>
                     </SelectItem>
                   ))}
