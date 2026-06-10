@@ -82,14 +82,6 @@ export default async function SimulatorPage({ params }: PageProps) {
       : project.client
     : null;
 
-  const { count: totalCriteria } = await supabase
-    .from("criteria")
-    .select("id, thematic:thematics!inner(reference_id)", {
-      count: "exact",
-      head: true,
-    })
-    .eq("thematic.reference_id", audit.reference_id);
-
   const [
     { data: conformities },
     { data: ncs },
@@ -98,7 +90,7 @@ export default async function SimulatorPage({ params }: PageProps) {
   ] = await Promise.all([
     supabase
       .from("page_conformities")
-      .select("status, criteria_id")
+      .select("status, criteria_id, page_id")
       .eq("audit_id", uuid),
     supabase
       .from("non_conformities")
@@ -126,11 +118,22 @@ export default async function SimulatorPage({ params }: PageProps) {
       .order("sort_order"),
   ]);
 
-  const distinctCompliant = new Set<string>();
-  const distinctNotApplicable = new Set<string>();
+  // Score canonique = celui de la matrice (RPC audit_current_score) : on
+  // compte des CELLULES (page × critère) de page_conformities, pas des
+  // critères distincts. denominator = COMPLIANT + NON_COMPLIANT (les
+  // NOT_APPLICABLE et cellules vierges sont exclues). Chaque cellule
+  // NON_COMPLIANT correspond à une (ou plusieurs) non-conformité(s) : c'est
+  // la maille sur laquelle le simulateur fait basculer le score.
+  let compliantCount = 0;
+  let nonCompliantCount = 0;
+  const nonCompliantCells = new Set<string>();
   for (const c of conformities ?? []) {
-    if (c.status === "COMPLIANT") distinctCompliant.add(c.criteria_id);
-    if (c.status === "NOT_APPLICABLE") distinctNotApplicable.add(c.criteria_id);
+    if (c.status === "COMPLIANT") {
+      compliantCount += 1;
+    } else if (c.status === "NON_COMPLIANT") {
+      nonCompliantCount += 1;
+      nonCompliantCells.add(`${c.page_id}::${c.criteria_id}`);
+    }
   }
 
   type RawCriterionThematic = {
@@ -202,9 +205,6 @@ export default async function SimulatorPage({ params }: PageProps) {
     }),
   );
 
-  const fixableCriteriaPerNC: Record<string, string> = {};
-  for (const nc of allNCs) fixableCriteriaPerNC[nc.id] = nc.criterion.id;
-
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
       <AuditTabsNav auditId={uuid} active="remediation" />
@@ -221,10 +221,9 @@ export default async function SimulatorPage({ params }: PageProps) {
         allNCs={allNCs}
         auditPages={auditPages}
         referenceThematics={referenceThematics}
-        totalCriteria={totalCriteria ?? 0}
-        initialCompliant={distinctCompliant.size}
-        notApplicable={distinctNotApplicable.size}
-        fixableCriteriaPerNC={fixableCriteriaPerNC}
+        compliantCount={compliantCount}
+        nonCompliantCount={nonCompliantCount}
+        nonCompliantCells={[...nonCompliantCells]}
       />
     </div>
   );
