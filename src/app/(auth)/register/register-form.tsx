@@ -141,7 +141,9 @@ export function RegisterForm() {
     }
 
     // Navigation brute : force l'envoi du cookie dès la première requête.
-    window.location.href = "/dashboard";
+    // On passe par l'étape de choix du plan (Free pré-sélectionné, skippable)
+    // avant le dashboard — incitation sans friction (cf. flux en deux temps).
+    window.location.href = "/onboarding/plan";
   }
 
   return (

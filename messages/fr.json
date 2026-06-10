@@ -497,6 +497,19 @@
     "vatNote": "Tarifs hors taxes. La TVA est ajoutée à la facturation selon votre pays.",
     "questionsLead": "Une question sur votre cas d'usage ?"
   },
+  "onboarding": {
+    "metaTitle": "Choisissez votre formule",
+    "kicker": "Dernière étape",
+    "title": "Choisissez votre formule",
+    "subtitle": "Votre espace est prêt en plan Free. Vous pouvez le faire évoluer dès maintenant ou plus tard depuis vos réglages de facturation.",
+    "stripeUnavailable": "Le paiement n'est pas encore activé. Continuez en Free pour le moment — vous pourrez passer à un plan payant plus tard.",
+    "continueFree": "Continuer en Free",
+    "choose": "Choisir ce plan",
+    "currentPlan": "Plan actuel",
+    "contactSales": "Nous contacter",
+    "redirecting": "Redirection…",
+    "skip": "Passer cette étape, je déciderai plus tard"
+  },
   "planning": {
     "metaTitle": "Planning — Axessyo",
     "title": "Planning",

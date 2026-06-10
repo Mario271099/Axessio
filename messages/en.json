@@ -497,6 +497,19 @@
     "vatNote": "Prices excluding tax. VAT is added at billing based on your country.",
     "questionsLead": "Have a question about your use case?"
   },
+  "onboarding": {
+    "metaTitle": "Choose your plan",
+    "kicker": "Last step",
+    "title": "Choose your plan",
+    "subtitle": "Your workspace is ready on the Free plan. You can upgrade right now or later from your billing settings.",
+    "stripeUnavailable": "Payments are not enabled yet. Continue on Free for now — you can upgrade to a paid plan later.",
+    "continueFree": "Continue on Free",
+    "choose": "Choose this plan",
+    "currentPlan": "Current plan",
+    "contactSales": "Contact us",
+    "redirecting": "Redirecting…",
+    "skip": "Skip this step, I'll decide later"
+  },
   "planning": {
     "metaTitle": "Planning — Axessyo",
     "title": "Planning",

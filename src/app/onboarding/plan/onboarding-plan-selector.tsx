@@ -1,36 +1,94 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Sparkles } from "lucide-react";
+import { AlertCircle, Check, Loader2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   PLAN_ORDER,
   PLANS,
   type FeatureCode,
   type PlanCode,
 } from "@/lib/billing/plans";
+import { startCheckout } from "@/app/(dashboard)/organizations/[slug]/billing/actions";
 
 interface Props {
-  /**
-   * Pourcentage d'économie sur l'annuel par rapport au mensuel × 12.
-   * Calculé côté serveur et passé en prop pour rester en sync avec les prix.
-   */
+  organizationId: string;
+  currentPlan: PlanCode;
+  stripeReady: boolean;
   yearlySavingsPercent: number | null;
 }
 
-export function BillingIntervalToggle({ yearlySavingsPercent }: Props) {
-  const t = useTranslations("pricing");
+type BillingInterval = "monthly" | "yearly";
+
+export function OnboardingPlanSelector({
+  organizationId,
+  currentPlan,
+  stripeReady,
+  yearlySavingsPercent,
+}: Props) {
+  const t = useTranslations("onboarding");
+  const tPricing = useTranslations("pricing");
   const tFeatures = useTranslations("organizations.billing.features");
-  const [interval, setInterval] = useState<"monthly" | "yearly">("yearly");
+  const router = useRouter();
+
+  const [interval, setInterval] = useState<BillingInterval>("yearly");
+  const [pendingPlan, setPendingPlan] = useState<PlanCode | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [, startCheckoutTransition] = useTransition();
+
+  function handleChoosePaid(code: Exclude<PlanCode, "free" | "enterprise">) {
+    setError(null);
+    setPendingPlan(code);
+    startCheckoutTransition(async () => {
+      // startCheckout redirige vers Stripe en cas de succès (le router suit le
+      // redirect). En cas d'échec, il renvoie un objet { error }.
+      const result = await startCheckout(organizationId, code, interval);
+      if (result?.error) {
+        setError(result.error);
+        setPendingPlan(null);
+      }
+    });
+  }
 
   return (
-    <div className="space-y-8">
+    <div className="container mx-auto max-w-6xl px-6 py-12 sm:py-16">
+      <header className="mx-auto max-w-2xl space-y-3 text-center">
+        <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+          {t("kicker")}
+        </p>
+        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+          {t("title")}
+        </h1>
+        <p className="text-base text-muted-foreground">{t("subtitle")}</p>
+      </header>
+
+      {error && (
+        <p
+          role="alert"
+          className="mx-auto mt-8 inline-flex max-w-xl items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+        >
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>{error}</span>
+        </p>
+      )}
+
+      {!stripeReady && (
+        <p
+          role="status"
+          className="mx-auto mt-8 max-w-xl rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200"
+        >
+          {t("stripeUnavailable")}
+        </p>
+      )}
+
       {/* Toggle mensuel/annuel */}
-      <div className="flex justify-center">
+      <div className="mt-10 flex justify-center">
         <div
           role="tablist"
-          aria-label={t("toggleAria")}
+          aria-label={tPricing("toggleAria")}
           className="inline-flex items-center gap-1 rounded-full border bg-card p-1 shadow-sm"
         >
           {(["monthly", "yearly"] as const).map((value) => (
@@ -47,7 +105,7 @@ export function BillingIntervalToggle({ yearlySavingsPercent }: Props) {
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {t(`interval.${value}`)}
+              {tPricing(`interval.${value}`)}
               {value === "yearly" && yearlySavingsPercent !== null && (
                 <span
                   className={cn(
@@ -58,7 +116,7 @@ export function BillingIntervalToggle({ yearlySavingsPercent }: Props) {
                   )}
                 >
                   <Sparkles className="h-3 w-3" aria-hidden="true" />
-                  {t("savingsBadge", { percent: yearlySavingsPercent })}
+                  {tPricing("savingsBadge", { percent: yearlySavingsPercent })}
                 </span>
               )}
             </button>
@@ -67,10 +125,11 @@ export function BillingIntervalToggle({ yearlySavingsPercent }: Props) {
       </div>
 
       {/* Grille des plans */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {PLAN_ORDER.map((code) => {
           const plan = PLANS[code];
-          const isHighlighted = code === "pro"; // plan "recommandé"
+          const isHighlighted = code === "pro";
+          const isCurrent = code === currentPlan;
           return (
             <article
               key={code}
@@ -82,7 +141,7 @@ export function BillingIntervalToggle({ yearlySavingsPercent }: Props) {
             >
               {isHighlighted && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
-                  {t("recommendedBadge")}
+                  {tPricing("recommendedBadge")}
                 </span>
               )}
 
@@ -105,32 +164,43 @@ export function BillingIntervalToggle({ yearlySavingsPercent }: Props) {
                 />
               </div>
 
-              <PlanCta code={code} />
+              <PlanCta
+                code={code}
+                isCurrent={isCurrent}
+                stripeReady={stripeReady}
+                pending={pendingPlan === code}
+                anyPending={pendingPlan !== null}
+                onChoose={handleChoosePaid}
+                onContinueFree={() => router.push("/dashboard")}
+              />
 
               <ul className="mt-6 space-y-2.5 border-t pt-4 text-sm">
                 <FeatureItem
-                  text={t("limits.members", {
+                  text={tPricing("limits.members", {
                     count: plan.limits.max_members ?? 0,
-                    unlimited: plan.limits.max_members === null ? "true" : "false",
+                    unlimited:
+                      plan.limits.max_members === null ? "true" : "false",
                   })}
                 />
                 <FeatureItem
-                  text={t("limits.clients", {
+                  text={tPricing("limits.clients", {
                     count: plan.limits.max_clients ?? 0,
                     unlimited:
                       plan.limits.max_clients === null ? "true" : "false",
                   })}
                 />
                 <FeatureItem
-                  text={t("limits.audits", {
+                  text={tPricing("limits.audits", {
                     count: plan.limits.max_active_audits ?? 0,
                     unlimited:
-                      plan.limits.max_active_audits === null ? "true" : "false",
+                      plan.limits.max_active_audits === null
+                        ? "true"
+                        : "false",
                   })}
                 />
                 {plan.features.length === 0 ? (
                   <li className="text-xs text-muted-foreground">
-                    {t("noExtraFeatures")}
+                    {tPricing("noExtraFeatures")}
                   </li>
                 ) : (
                   plan.features.map((feature) => (
@@ -145,6 +215,17 @@ export function BillingIntervalToggle({ yearlySavingsPercent }: Props) {
           );
         })}
       </div>
+
+      {/* Skip — l'étape ne doit jamais bloquer l'accès au produit */}
+      <div className="mt-10 text-center">
+        <Button
+          variant="ghost"
+          onClick={() => router.push("/dashboard")}
+          disabled={pendingPlan !== null}
+        >
+          {t("skip")}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -156,18 +237,10 @@ function featureKey(f: FeatureCode): string {
 function FeatureItem({ text }: { text: string }) {
   return (
     <li className="flex items-start gap-2">
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 20 20"
+      <Check
         className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500"
-        fill="currentColor"
-      >
-        <path
-          fillRule="evenodd"
-          d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 1 1 1.4-1.4l3.8 3.8 6.8-6.8a1 1 0 0 1 1.4 0z"
-          clipRule="evenodd"
-        />
-      </svg>
+        aria-hidden="true"
+      />
       <span>{text}</span>
     </li>
   );
@@ -181,7 +254,7 @@ function PriceDisplay({
   isContactSales,
 }: {
   code: PlanCode;
-  interval: "monthly" | "yearly";
+  interval: BillingInterval;
   monthlyPrice: number | null;
   yearlyPrice: number | null;
   isContactSales: boolean;
@@ -203,14 +276,14 @@ function PriceDisplay({
     return (
       <div>
         <p className="text-4xl font-bold tracking-tight tabular-nums">
-          0 <span className="text-base font-normal text-muted-foreground">€</span>
+          0{" "}
+          <span className="text-base font-normal text-muted-foreground">€</span>
         </p>
         <p className="text-xs text-muted-foreground">{t("forever")}</p>
       </div>
     );
   }
 
-  // Plans payants : affichage selon l'interval
   const monthly = monthlyPrice ?? 0;
   const yearly = yearlyPrice ?? 0;
   const displayed =
@@ -233,42 +306,67 @@ function PriceDisplay({
   );
 }
 
-function PlanCta({ code }: { code: PlanCode }) {
-  const t = useTranslations("pricing");
+function PlanCta({
+  code,
+  isCurrent,
+  stripeReady,
+  pending,
+  anyPending,
+  onChoose,
+  onContinueFree,
+}: {
+  code: PlanCode;
+  isCurrent: boolean;
+  stripeReady: boolean;
+  pending: boolean;
+  anyPending: boolean;
+  onChoose: (code: Exclude<PlanCode, "free" | "enterprise">) => void;
+  onContinueFree: () => void;
+}) {
+  const t = useTranslations("onboarding");
+
   if (code === "free") {
     return (
-      <a
-        href="/register"
-        className="inline-flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      <Button
+        variant="outline"
+        className="w-full"
+        onClick={onContinueFree}
+        disabled={anyPending}
       >
-        {t("cta.startFree")}
-      </a>
+        {t("continueFree")}
+      </Button>
     );
   }
+
   if (code === "enterprise") {
     return (
-      <a
-        href="mailto:contact@axessyo.com?subject=Demande%20Enterprise"
-        className="inline-flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        {t("cta.contactSales")}
-      </a>
+      <Button asChild variant="outline" className="w-full">
+        <a href="mailto:contact@axessyo.com?subject=Demande%20Enterprise">
+          {t("contactSales")}
+        </a>
+      </Button>
     );
   }
-  // Plan payant : on redirige vers la connexion en conservant l'intention
-  // (le plan choisi) pour ramener l'utilisateur vers la sélection d'org
-  // où finaliser l'abonnement après connexion.
+
+  // Plan payant (Starter / Pro). Désactivé tant que Stripe n'est pas configuré.
+  const paidCode = code as Exclude<PlanCode, "free" | "enterprise">;
   return (
-    <a
-      href={`/login?next=${encodeURIComponent(`/organizations?plan=${code}`)}`}
-      className={cn(
-        "inline-flex h-10 w-full items-center justify-center rounded-md px-4 text-sm font-medium shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        code === "pro"
-          ? "bg-primary text-primary-foreground hover:bg-primary/90"
-          : "border border-input bg-background hover:bg-accent hover:text-foreground",
-      )}
+    <Button
+      variant={code === "pro" ? "default" : "outline"}
+      className="w-full"
+      onClick={() => onChoose(paidCode)}
+      disabled={isCurrent || !stripeReady || anyPending}
     >
-      {t("cta.choosePlan")}
-    </a>
+      {pending ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          {t("redirecting")}
+        </>
+      ) : isCurrent ? (
+        t("currentPlan")
+      ) : (
+        t("choose")
+      )}
+    </Button>
   );
 }
