@@ -95,7 +95,7 @@ export default async function PricingPage() {
               {t("questionsLead")}{" "}
               <a
                 href="mailto:contact@axessyo.com"
-                className="text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded"
+                className="text-primary underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded"
               >
                 contact@axessyo.com
               </a>

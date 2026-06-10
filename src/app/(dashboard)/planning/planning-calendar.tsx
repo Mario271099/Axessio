@@ -221,7 +221,7 @@ export async function PlanningCalendar({
                             </span>
                           </span>
                           {assigneeLabel && (
-                            <span className="block truncate text-[9px] opacity-75">
+                            <span className="block truncate text-[9px]">
                               {assigneeLabel}
                             </span>
                           )}

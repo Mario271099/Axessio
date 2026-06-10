@@ -55,7 +55,12 @@ const SCHEMES: Record<LogoScheme, IconColors> = {
 export interface AxIconProps {
   size?: number;
   scheme?: LogoScheme;
-  /** Texte vocalisé (par défaut « Axessyo »). */
+  /**
+   * Texte vocalisé (par défaut « Axessyo »). Passer une chaîne vide
+   * (`aria-label=""`) pour une icône purement décorative : elle est alors
+   * masquée des technologies d'assistance (`aria-hidden`, sans `role="img"`),
+   * typiquement lorsqu'un libellé textuel l'accompagne déjà.
+   */
   "aria-label"?: string;
   className?: string;
 }
@@ -67,10 +72,15 @@ export function AxIcon({
   className,
 }: AxIconProps) {
   const colors = SCHEMES[scheme];
+  // aria-label="" => icône décorative. Un SVG `role="img"` avec un nom
+  // accessible vide est une violation axe (svg-img-alt) ; on le masque plutôt.
+  const decorative = ariaLabel === "";
+  const a11yProps = decorative
+    ? { "aria-hidden": true as const }
+    : { role: "img" as const, "aria-label": ariaLabel };
   return (
     <svg
-      role="img"
-      aria-label={ariaLabel}
+      {...a11yProps}
       width={size}
       height={size}
       viewBox="0 0 56 56"
