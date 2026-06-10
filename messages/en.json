@@ -12,7 +12,7 @@
     },
     "hero": {
       "kicker": "Accessibility audit platform",
-      "title": "Run RGAA & WCAG audits without spreadsheets.",
+      "title": "Run your accessibility audits without spreadsheets.",
       "subtitle": "Axessyo centralizes your digital accessibility audits: conformity grid, traceable non-conformities, ready-to-deliver PDF reports — for auditors and client teams.",
       "primaryCta": "Go to my workspace",
       "secondaryCta": "See features"
@@ -74,7 +74,7 @@
       "items": [
         {
           "q": "Which accessibility standards are supported?",
-          "a": "Axessyo supports RGAA 4.1.2, WCAG 2.2, RAWeb 1.0, RAAM 1.0 and EN 301 549, on both web and mobile platforms."
+          "a": "Axessyo supports RGAA 4.1.2, WCAG 2.2, RAWeb 1.1, RAAM 1.1 and EN 301 549, on both web and mobile platforms."
         },
         {
           "q": "How is the conformity score computed?",
@@ -160,7 +160,7 @@
       "director": {
         "title": "Publication director",
         "lines": [
-          "Mario Harimanitra, acting as President of Axessyo SAS."
+          "The President of Axessyo SAS."
         ]
       },
       "host": {

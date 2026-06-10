@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 
-export function LoginForm() {
+export function LoginForm({ next }: { next?: string }) {
   const t = useTranslations("auth.login");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -77,7 +77,9 @@ export function LoginForm() {
 
     // Navigation BRUTE qui force le navigateur à envoyer le cookie
     // dès la première requête. Pas de race possible avec le middleware.
-    window.location.href = "/dashboard";
+    // `next` (chemin interne validé côté serveur) prime sur le dashboard
+    // pour ramener l'utilisateur là où il voulait aller (ex. choix d'un plan).
+    window.location.href = next ?? "/dashboard";
   }
 
   return (

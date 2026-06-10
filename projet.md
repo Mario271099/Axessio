@@ -14,8 +14,8 @@ Elle adresse les normes officielles :
 
 - **RGAA 4.1.2** (référentiel français)
 - **WCAG 2.2** (international)
-- **RAWeb 1.0** (référentiel public français)
-- **RAAM 1.0** (mobile)
+- **RAWeb 1.1** (référentiel public français)
+- **RAAM 1.1** (mobile)
 - **EN 301 549** (européen)
 - **PDF/UA** (documents PDF)
 

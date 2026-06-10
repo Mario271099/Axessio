@@ -129,7 +129,7 @@ export default function OGImage() {
             flexWrap: "wrap",
           }}
         >
-          {["RGAA 4.1.2", "WCAG 2.2", "RAWeb 1.0", "RAAM 1.0", "EN 301 549"].map(
+          {["RGAA 4.1.2", "WCAG 2.2", "RAWeb 1.1", "RAAM 1.1", "EN 301 549"].map(
             (badge) => (
               <span
                 key={badge}
