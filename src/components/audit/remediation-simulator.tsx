@@ -107,20 +107,21 @@ interface RemediationSimulatorProps {
   allNCs: SimulatorNC[];
   auditPages: SimulatorPage[];
   referenceThematics: SimulatorThematic[];
-  totalCriteria: number;
-  initialCompliant: number;
-  notApplicable: number;
-  fixableCriteriaPerNC: Record<string, string>;
+  /** Cellules COMPLIANT de page_conformities (numérateur du score). */
+  compliantCount: number;
+  /** Cellules NON_COMPLIANT (le reste du dénominateur). */
+  nonCompliantCount: number;
+  /** Clés `${pageId}::${criteriaId}` des cellules actuellement NON_COMPLIANT. */
+  nonCompliantCells: string[];
 }
 
 export function RemediationSimulator({
   allNCs,
   auditPages,
   referenceThematics,
-  totalCriteria,
-  initialCompliant,
-  notApplicable,
-  fixableCriteriaPerNC,
+  compliantCount,
+  nonCompliantCount,
+  nonCompliantCells,
 }: RemediationSimulatorProps) {
   const t = useTranslations("audits.simulator");
   const tSort = useTranslations("audits.simulator.sort");
@@ -138,37 +139,52 @@ export function RemediationSimulator({
   const [thematicFilter, setThematicFilter] = useState<ThematicFilter>("ALL");
   const [sort, setSort] = useState<SortMode>("SEVERITY_DESC");
 
-  const fullyFixedCriteria = useMemo(() => {
-    const ncsPerCriterion: Record<string, string[]> = {};
+  const nonCompliantCellSet = useMemo(
+    () => new Set(nonCompliantCells),
+    [nonCompliantCells],
+  );
+
+  // Une non-conformité correspond à une cellule (page × critère) de la
+  // matrice. La même cellule peut porter plusieurs NC : elle ne (re)devient
+  // conforme que lorsque TOUTES ses NC sont corrigées. On ne fait basculer
+  // que des cellules réellement NON_COMPLIANT (les transversales sans cellule
+  // ou les cellules déjà conformes n'influent pas sur le score, comme dans la
+  // RPC audit_current_score).
+  const fixedCells = useMemo(() => {
+    const ncsPerCell: Record<string, string[]> = {};
     for (const nc of allNCs) {
       if (nc.isFixed) continue;
-      const critId = fixableCriteriaPerNC[nc.id] ?? nc.criterion.id;
-      if (!ncsPerCriterion[critId]) ncsPerCriterion[critId] = [];
-      ncsPerCriterion[critId].push(nc.id);
+      const cellKey = `${nc.page?.id ?? "transversal"}::${nc.criteriaId}`;
+      if (!nonCompliantCellSet.has(cellKey)) continue;
+      (ncsPerCell[cellKey] ??= []).push(nc.id);
     }
-    return Object.entries(ncsPerCriterion).filter(([, ncs]) =>
+    return Object.values(ncsPerCell).filter((ncs) =>
       ncs.every((id) => checked.has(id)),
     ).length;
-  }, [allNCs, checked, fixableCriteriaPerNC]);
+  }, [allNCs, checked, nonCompliantCellSet]);
+
+  // Dénominateur constant (COMPLIANT + NON_COMPLIANT) : corriger une NC
+  // déplace une cellule de non_compliant vers compliant sans changer le total.
+  const denominator = compliantCount + nonCompliantCount;
 
   const initialScore = useMemo(
     () =>
       calculateScore({
-        compliant: initialCompliant,
-        notApplicable,
-        totalCriteria,
+        compliant: compliantCount,
+        notApplicable: 0,
+        totalCriteria: denominator,
       }),
-    [initialCompliant, notApplicable, totalCriteria],
+    [compliantCount, denominator],
   );
 
   const simulatedScore = useMemo(
     () =>
       calculateScore({
-        compliant: initialCompliant + fullyFixedCriteria,
-        notApplicable,
-        totalCriteria,
+        compliant: compliantCount + fixedCells,
+        notApplicable: 0,
+        totalCriteria: denominator,
       }),
-    [initialCompliant, fullyFixedCriteria, notApplicable, totalCriteria],
+    [compliantCount, fixedCells, denominator],
   );
 
   const delta = +(simulatedScore - initialScore).toFixed(2);
@@ -327,8 +343,8 @@ export function RemediationSimulator({
           <CardContent>
             <p className="text-xs text-muted-foreground">
               {t("criteriaCompliant", {
-                compliant: initialCompliant,
-                total: totalCriteria - notApplicable,
+                compliant: compliantCount,
+                total: denominator,
               })}
             </p>
           </CardContent>
@@ -379,7 +395,7 @@ export function RemediationSimulator({
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-              <span>{t("extraCompliant", { count: fullyFixedCriteria })}</span>
+              <span>{t("extraCompliant", { count: fixedCells })}</span>
             </div>
           </CardContent>
         </Card>
