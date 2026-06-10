@@ -35,10 +35,10 @@
   --destructive: 0 72% 45%;           /* red-700 — 5.4:1 sur blanc */
   --destructive-foreground: 0 0% 100%;
 
-  --success: 142 76% 36%;             /* emerald-600 — 5.1:1 sur blanc */
+  --success: 142 72% 27%;             /* emerald-800 — 5.4:1 sur la tuile bg-success/10 en text-on-tint (l'emerald-600 d'origine échouait à 3.0:1) */
   --success-foreground: 0 0% 100%;
 
-  --warning: 31 80% 35%;              /* amber-700 — 5.6:1 sur blanc (l'amber-500 d'origine échouait à 2.4:1) */
+  --warning: 31 80% 30%;              /* amber-800 — >= 4.5:1 en text-on-tint (l'amber-700 d'origine tombait à 4.4:1 sur bg-warning/10) */
   --warning-foreground: 0 0% 100%;
 
   --border: 214 32% 91%;              /* slate-200 #e2e8f0 */
@@ -54,13 +54,13 @@
      (text-[hsl(var(--severity-X))] sur bg-[hsl(var(--severity-X)/0.12)]).
      ========================================================= */
   --severity-low: 239 65% 50%;        /* indigo plus profond, 5.4:1 sur blanc */
-  --severity-medium: 31 80% 35%;      /* amber-700 (aligné --warning) */
-  --severity-high: 22 90% 38%;        /* orange-700, 5.1:1 sur blanc */
+  --severity-medium: 31 80% 30%;      /* amber-800 (aligné --warning) */
+  --severity-high: 22 90% 33%;        /* orange-800, >= 4.5:1 en text-on-tint (l'orange-700 d'origine tombait à 4.4:1) */
   --severity-critical: 0 72% 45%;     /* red-700 (aligné --destructive) */
 
   --score-non-compliant: 0 72% 45%;   /* aligné destructive */
-  --score-partial: 22 90% 38%;
-  --score-compliant: 142 76% 36%;
+  --score-partial: 22 90% 33%;
+  --score-compliant: 142 72% 27%;
 
   /* ===========================================================
      Tokens de marque Axessyo (logo system, identité visuelle)

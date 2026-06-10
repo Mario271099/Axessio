@@ -126,7 +126,14 @@ export default async function PermissionsDebugPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
+            {/* tabIndex/role : la zone défile horizontalement sur petits
+                écrans ; sans accès clavier, axe lève scrollable-region-focusable. */}
+            <div
+              className="overflow-x-auto"
+              tabIndex={0}
+              role="region"
+              aria-label={t(`groups.${group.key}`)}
+            >
               <table className="w-full text-sm">
                 <caption className="sr-only">
                   {t("title")} — {t(`groups.${group.key}`)}
