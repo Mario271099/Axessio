@@ -11,6 +11,10 @@ export default defineConfig({
     // 'config') » en exécution parallèle. `forks` (processus enfants) est
     // plus stable au prix d'un démarrage légèrement plus lent.
     pool: "forks",
+    // …mais `forks` seul ne suffit pas : la parallélisation entre fichiers
+    // reste instable sous Windows (même erreur 'config' undefined au démarrage
+    // du runner). On sérialise donc l'exécution des fichiers. Lent mais fiable.
+    fileParallelism: false,
   },
   resolve: {
     alias: {
