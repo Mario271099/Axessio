@@ -12,7 +12,7 @@
     },
     "hero": {
       "kicker": "Plateforme d'audit d'accessibilité",
-      "title": "Pilotez vos audits RGAA & WCAG sans tableurs.",
+      "title": "Pilotez vos audits d'accessibilité sans tableurs.",
       "subtitle": "Axessyo centralise vos audits d'accessibilité numérique : grille de conformité, non-conformités tracées, rapports PDF prêts à livrer — pour auditeurs et équipes clients.",
       "primaryCta": "Accéder à mon espace",
       "secondaryCta": "Voir les fonctionnalités"
@@ -74,7 +74,7 @@
       "items": [
         {
           "q": "Quels référentiels d'accessibilité sont pris en charge ?",
-          "a": "Axessyo prend en charge RGAA 4.1.2, WCAG 2.2, RAWeb 1.0, RAAM 1.0 et EN 301 549, pour les plateformes web et mobile."
+          "a": "Axessyo prend en charge RGAA 4.1.2, WCAG 2.2, RAWeb 1.1, RAAM 1.1 et EN 301 549, pour les plateformes web et mobile."
         },
         {
           "q": "Comment est calculé le score de conformité ?",
@@ -160,7 +160,7 @@
       "director": {
         "title": "Directeur de la publication",
         "lines": [
-          "Mario Harimanitra, en sa qualité de Président d'Axessyo SAS."
+          "Le Président d'Axessyo SAS."
         ]
       },
       "host": {

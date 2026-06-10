@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 interface LoginPageProps {
-  searchParams: Promise<{ reset?: string }>;
+  searchParams: Promise<{ reset?: string; next?: string }>;
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -43,6 +43,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   // Affichage d'une bannière de succès pour confirmer à l'utilisateur que
   // sa demande a abouti.
   const showResetSuccess = sp.reset === "1";
+
+  // `?next=/chemin` permet de revenir là où l'utilisateur voulait aller
+  // (ex. depuis la page Tarifs après avoir choisi un plan). On n'accepte
+  // que des chemins internes ("/...") pour éviter une redirection ouverte.
+  const next =
+    typeof sp.next === "string" && sp.next.startsWith("/") && !sp.next.startsWith("//")
+      ? sp.next
+      : undefined;
 
   return (
     <AuthLayout
@@ -61,7 +69,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       }
     >
       {showResetSuccess && <LoginResetBanner />}
-      <LoginForm />
+      <LoginForm next={next} />
     </AuthLayout>
   );
 }

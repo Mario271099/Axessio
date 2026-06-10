@@ -24,8 +24,8 @@ const BENEFIT_KEYS = [
 const VERSION_BADGES = [
   "RGAA 4.1.2",
   "WCAG 2.2",
-  "RAWeb 1.0",
-  "RAAM 1.0",
+  "RAWeb 1.1",
+  "RAAM 1.1",
 ];
 
 export function AuthLayout({

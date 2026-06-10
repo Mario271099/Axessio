@@ -255,9 +255,12 @@ function PlanCta({ code }: { code: PlanCode }) {
       </a>
     );
   }
+  // Plan payant : on redirige vers la connexion en conservant l'intention
+  // (le plan choisi) pour ramener l'utilisateur vers la sélection d'org
+  // où finaliser l'abonnement après connexion.
   return (
     <a
-      href="/login"
+      href={`/login?next=${encodeURIComponent(`/organizations?plan=${code}`)}`}
       className={cn(
         "inline-flex h-10 w-full items-center justify-center rounded-md px-4 text-sm font-medium shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         code === "pro"

@@ -39,10 +39,8 @@ const FEATURE_ICONS = {
 const STANDARDS = [
   "RGAA 4.1.2",
   "WCAG 2.2",
-  "RAWeb 1.0",
-  "RAAM 1.0",
-  "EN 301 549",
-  "PDF/UA",
+  "RAWeb 1.1",
+  "RAAM 1.1",
 ];
 
 // La home reste indexable (override de l'override dashboard) avec sa propre
