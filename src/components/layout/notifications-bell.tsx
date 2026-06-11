@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import * as Popover from "@radix-ui/react-popover";
@@ -10,6 +10,7 @@ import {
   Check,
   CheckCircle2,
   Eye,
+  Mail,
   MessageSquare,
   Send,
   UserPlus,
@@ -19,7 +20,8 @@ import { cn } from "@/lib/utils";
 import {
   fetchNotifications,
   markAllNotificationsRead,
-  markNotificationRead,
+  markNotificationsRead,
+  markNotificationsUnread,
   type NotificationItem,
   type NotificationsResult,
 } from "@/app/(dashboard)/notifications/actions";
@@ -84,6 +86,45 @@ const TONE_BUBBLE: Record<string, string> = {
   success: "bg-success/15 text-success",
 };
 
+// ------------------------------------------------------------------
+// Groupement : les notifications de même type sur la même cible (audit, NC)
+// sont agrégées en une seule ligne — « 5 réponses sur la même NC » ne doit
+// pas occuper 5 lignes de la cloche. L'entrée la plus récente représente le
+// groupe ; un clic marque tout le groupe comme lu.
+// ------------------------------------------------------------------
+interface NotificationGroup {
+  key: string;
+  latest: NotificationItem;
+  ids: string[];
+  unreadIds: string[];
+  count: number;
+}
+
+function groupNotifications(items: NotificationItem[]): NotificationGroup[] {
+  const groups = new Map<string, NotificationGroup>();
+  // items est trié du plus récent au plus ancien : la première occurrence
+  // d'une clé est donc la plus récente, et l'ordre d'insertion de la Map
+  // préserve l'ordre d'affichage.
+  for (const item of items) {
+    const key = `${item.type}:${item.auditId ?? ""}:${item.ncId ?? ""}`;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.ids.push(item.id);
+      if (item.readAt === null) existing.unreadIds.push(item.id);
+      existing.count += 1;
+    } else {
+      groups.set(key, {
+        key,
+        latest: item,
+        ids: [item.id],
+        unreadIds: item.readAt === null ? [item.id] : [],
+        count: 1,
+      });
+    }
+  }
+  return Array.from(groups.values());
+}
+
 export function NotificationsBell({ initial }: Props) {
   const router = useRouter();
   const t = useTranslations("notifications");
@@ -130,28 +171,43 @@ export function NotificationsBell({ initial }: Props) {
   }, []);
 
   const hasUnread = unreadCount > 0;
+  const groups = useMemo(() => groupNotifications(items), [items]);
 
-  const handleItemClick = (notif: NotificationItem) => {
-    // Marque comme lu (optimiste) + navigue vers la cible appropriée :
+  const handleGroupClick = (group: NotificationGroup) => {
+    // Marque tout le groupe comme lu (optimiste) + navigue vers la cible :
     //   - notif sur NC (ex. nc_message)        → /audits/{a}/anomalies/{nc}
     //   - notif workflow ou audit générique    → /audits/{a}
-    if (!notif.readAt) {
+    if (group.unreadIds.length > 0) {
+      const unread = new Set(group.unreadIds);
       setItems((prev) =>
         prev.map((n) =>
-          n.id === notif.id ? { ...n, readAt: new Date().toISOString() } : n,
+          unread.has(n.id) ? { ...n, readAt: new Date().toISOString() } : n,
         ),
       );
-      setUnreadCount((c) => Math.max(0, c - 1));
+      setUnreadCount((c) => Math.max(0, c - group.unreadIds.length));
       startTransition(async () => {
-        await markNotificationRead(notif.id);
+        await markNotificationsRead(group.unreadIds);
       });
     }
     setOpen(false);
+    const notif = group.latest;
     if (notif.auditId && notif.ncId) {
       router.push(`/audits/${notif.auditId}/anomalies/${notif.ncId}`);
     } else if (notif.auditId) {
       router.push(`/audits/${notif.auditId}`);
     }
+  };
+
+  const handleMarkUnread = (group: NotificationGroup) => {
+    // Repasse tout le groupe en non lu (optimiste) — sans naviguer.
+    const ids = new Set(group.ids);
+    setItems((prev) =>
+      prev.map((n) => (ids.has(n.id) ? { ...n, readAt: null } : n)),
+    );
+    setUnreadCount((c) => c + group.ids.length - group.unreadIds.length);
+    startTransition(async () => {
+      await markNotificationsUnread(group.ids);
+    });
   };
 
   const handleMarkAllRead = () => {
@@ -236,8 +292,9 @@ export function NotificationsBell({ initial }: Props) {
             </div>
           ) : (
             <ul className="max-h-[60vh] divide-y divide-border overflow-y-auto">
-              {items.map((notif) => {
-                const isUnread = notif.readAt === null;
+              {groups.map((group) => {
+                const notif = group.latest;
+                const isUnread = group.unreadIds.length > 0;
                 const Icon = TYPE_ICON[notif.type] ?? Bell;
                 const tone = TYPE_TONE[notif.type] ?? "primary";
                 const subtitle =
@@ -245,12 +302,12 @@ export function NotificationsBell({ initial }: Props) {
                     ? notif.ncTitle
                     : notif.auditProjectName;
                 return (
-                  <li key={notif.id}>
+                  <li key={group.key} className="relative">
                     <button
                       type="button"
-                      onClick={() => handleItemClick(notif)}
+                      onClick={() => handleGroupClick(group)}
                       className={cn(
-                        "flex w-full items-start gap-3 px-4 py-3 text-left transition-colors",
+                        "flex w-full items-start gap-3 px-4 py-3 pr-10 text-left transition-colors",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
                         isUnread ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-accent",
                       )}
@@ -274,6 +331,15 @@ export function NotificationsBell({ initial }: Props) {
                           <span className="text-muted-foreground">
                             <NotifActionLabel type={notif.type} />
                           </span>
+                          {group.count > 1 && (
+                            <span className="ml-1.5 inline-flex items-center rounded-full bg-muted px-1.5 text-[11px] font-semibold tabular-nums text-muted-foreground">
+                              ×{group.count}
+                              <span className="sr-only">
+                                {" "}
+                                {t("groupCount", { count: group.count })}
+                              </span>
+                            </span>
+                          )}
                         </p>
                         {subtitle && (
                           <p className="truncate text-xs text-muted-foreground">
@@ -291,6 +357,19 @@ export function NotificationsBell({ initial }: Props) {
                         />
                       )}
                     </button>
+                    {/* Bouton frère (pas imbriqué : un <button> dans un      */}
+                    {/* <button> est invalide) — repasse le groupe en non lu. */}
+                    {!isUnread && (
+                      <button
+                        type="button"
+                        onClick={() => handleMarkUnread(group)}
+                        aria-label={t("markUnread")}
+                        title={t("markUnread")}
+                        className="absolute right-2 top-3 inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                    )}
                   </li>
                 );
               })}

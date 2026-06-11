@@ -561,6 +561,8 @@
     "empty": "Aucune notification",
     "emptyDesc": "Tu seras prévenu·e dès qu'une nouvelle activité te concerne.",
     "markAllRead": "Tout marquer comme lu",
+    "markUnread": "Marquer comme non lu",
+    "groupCount": "{count, plural, one {# notification} other {# notifications}}",
     "replied": "a posté un message",
     "unknownSender": "Quelqu'un",
     "genericAction": "a déclenché une action",

@@ -107,8 +107,16 @@ export async function fetchNotifications(): Promise<NotificationsResult> {
   return { items, unreadCount: unreadCount ?? 0 };
 }
 
-export async function markNotificationRead(
-  notificationId: string,
+// Borne anti-abus pour les opérations par lot (une notif groupée n'agrège
+// jamais plus que la fenêtre RECENT_LIMIT de toute façon).
+const MAX_BATCH = 50;
+
+/**
+ * Marque un lot de notifications comme lues (cas des notifications groupées
+ * dans la cloche : un clic = tout le groupe).
+ */
+export async function markNotificationsRead(
+  notificationIds: string[],
 ): Promise<{ error: string | null }> {
   const supabase = await createClient();
   const t = await getTranslations("errors");
@@ -117,12 +125,44 @@ export async function markNotificationRead(
   } = await supabase.auth.getUser();
   if (!user) return { error: t("notAuthenticated") };
 
+  const ids = notificationIds.slice(0, MAX_BATCH);
+  if (ids.length === 0) return { error: null };
+
   const { error } = await supabase
     .from("notifications")
     .update({ read_at: new Date().toISOString() })
-    .eq("id", notificationId)
+    .in("id", ids)
     .eq("user_id", user.id)
     .is("read_at", null);
+
+  if (error) return { error: error.message };
+  revalidatePath("/", "layout");
+  return { error: null };
+}
+
+/**
+ * Repasse un lot de notifications en non lu — pour « reporter » une notif
+ * qu'on veut retrouver plus tard dans le compteur.
+ */
+export async function markNotificationsUnread(
+  notificationIds: string[],
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const t = await getTranslations("errors");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: t("notAuthenticated") };
+
+  const ids = notificationIds.slice(0, MAX_BATCH);
+  if (ids.length === 0) return { error: null };
+
+  const { error } = await supabase
+    .from("notifications")
+    .update({ read_at: null })
+    .in("id", ids)
+    .eq("user_id", user.id)
+    .not("read_at", "is", null);
 
   if (error) return { error: error.message };
   revalidatePath("/", "layout");
