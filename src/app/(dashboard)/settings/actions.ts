@@ -544,3 +544,76 @@ export async function deleteAccount(
 
   redirect("/login?reason=account-deleted");
 }
+
+// ============================================================================
+// Connexions récentes (carte sécurité des Settings)
+// ============================================================================
+
+export interface LoginActivityEntry {
+  id: string;
+  kind: "success" | "failed";
+  createdAt: string;
+  ip: string | null;
+  userAgent: string | null;
+}
+
+/**
+ * Dernières activités de connexion de l'utilisateur courant :
+ *   - `login.success` (actor_id = user, posé par /api/auth/login-success)
+ *   - `login.failed`  (anonyme — rapproché par l'email du compte)
+ *
+ * audit_logs est en RLS restrictive : la lecture passe par la service-role,
+ * strictement bornée à l'identité authentifiée (jamais d'événement d'un autre
+ * compte). Best-effort : toute erreur retourne une liste vide plutôt que de
+ * casser la page Settings.
+ */
+export async function getRecentLoginActivity(): Promise<LoginActivityEntry[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user || !user.email) return [];
+
+  try {
+    const admin = createAdminClient();
+    const [successes, failures] = await Promise.all([
+      admin
+        .from("audit_logs")
+        .select("id, created_at, payload")
+        .eq("action", "login.success")
+        .eq("actor_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10),
+      admin
+        .from("audit_logs")
+        .select("id, created_at, payload")
+        .eq("action", "login.failed")
+        .eq("payload->>email", user.email.toLowerCase())
+        .order("created_at", { ascending: false })
+        .limit(10),
+    ]);
+
+    type Row = {
+      id: string;
+      created_at: string;
+      payload: { ip?: string; user_agent?: string } | null;
+    };
+    const mapRows = (rows: unknown[] | null, kind: "success" | "failed") =>
+      ((rows ?? []) as Row[]).map((r) => ({
+        id: r.id,
+        kind,
+        createdAt: r.created_at,
+        ip: r.payload?.ip ?? null,
+        userAgent: r.payload?.user_agent ?? null,
+      }));
+
+    return [
+      ...mapRows(successes.data, "success"),
+      ...mapRows(failures.data, "failed"),
+    ]
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 10);
+  } catch {
+    return [];
+  }
+}

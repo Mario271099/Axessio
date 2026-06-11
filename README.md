@@ -197,18 +197,16 @@ axessyo/
 
 ---
 
-## 🛣️ Prochaines étapes proposées
+## 🛣️ Roadmap
 
-Dans l'ordre suggéré :
+Les étapes historiques (audits, matrice, NC, workflow, exports PDF/CSV/Excel,
+notifications, imports de référentiels, tests) sont toutes livrées. L'état des
+chantiers en cours vit dans :
 
-1. **Création/édition d'audits** : formulaire multi-étapes (service → planning → équipe → pages). Server Actions + validation Zod.
-2. **Matrice de conformité** : grille criteria × pages avec saisie en masse (CONFORME / NON CONFORME / NON APPLICABLE).
-3. **Création de NC** : formulaire riche avec éditeur de texte (Tiptap), upload de captures vers Supabase Storage.
-4. **Workflow** : transitions de statut audit avec règles (ex: passer à `DELIVERED` requiert ≥ 1 NC par page).
-5. **Rapports** : export CSV / PDF (avec `@react-pdf/renderer`).
-6. **Notifications** : Resend + React Email pour les changements de statut, assignations, rappels.
-7. **Import des référentiels complets** : script de seed RGAA 4.1.2 / WCAG 2.2 / RAWeb / RAAM.
-8. **Tests** : Vitest + Testing Library + Playwright.
+- [ROADMAP.md](ROADMAP.md) — roadmap technique (sécurité, perf, dette)
+- [amelioration.md](amelioration.md) — améliorations UX/produit (avec état au 2026-06-11)
+- [ROLES_ROADMAP.md](ROLES_ROADMAP.md) — refonte rôles & permissions
+- [CLAUDE.md](CLAUDE.md) — vue d'ensemble des phases (RBAC, billing, enterprise)
 
 ---
 

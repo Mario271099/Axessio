@@ -561,6 +561,8 @@
     "empty": "No notification",
     "emptyDesc": "You'll be notified as soon as new activity concerns you.",
     "markAllRead": "Mark all as read",
+    "markUnread": "Mark as unread",
+    "groupCount": "{count, plural, one {# notification} other {# notifications}}",
     "replied": "posted a message",
     "unknownSender": "Someone",
     "genericAction": "triggered an action",
@@ -1569,6 +1571,13 @@
       "disableDialogTitle": "Disable two-factor authentication?",
       "disableDialogDescription": "To confirm, enter the 6-digit code displayed in your authenticator app.",
       "disableConfirm": "Disable"
+    },
+    "loginActivity": {
+      "title": "Recent sign-ins",
+      "description": "The latest sign-ins and failed attempts on your account. If you don't recognize an activity, change your password.",
+      "success": "Successful sign-in",
+      "failed": "Failed attempt",
+      "empty": "No sign-in activity recorded yet."
     },
     "notificationsSection": {
       "title": "Notifications",
