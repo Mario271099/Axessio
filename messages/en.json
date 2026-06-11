@@ -2162,6 +2162,8 @@
       "exportPdf": "Export PDF report",
       "exportPdfFr": "Export in French",
       "exportPdfEn": "Export in English",
+      "exportCsv": "Export matrix (CSV)",
+      "exportingCsv": "Exporting CSV…",
       "chooseLanguage": "Choose report language",
       "generating": "Generating…",
       "unknownError": "Unknown error during export.",
