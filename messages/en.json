@@ -1570,6 +1570,13 @@
       "disableDialogDescription": "To confirm, enter the 6-digit code displayed in your authenticator app.",
       "disableConfirm": "Disable"
     },
+    "loginActivity": {
+      "title": "Recent sign-ins",
+      "description": "The latest sign-ins and failed attempts on your account. If you don't recognize an activity, change your password.",
+      "success": "Successful sign-in",
+      "failed": "Failed attempt",
+      "empty": "No sign-in activity recorded yet."
+    },
     "notificationsSection": {
       "title": "Notifications",
       "description": "Choose which notifications you want to receive in the top-bar bell.",

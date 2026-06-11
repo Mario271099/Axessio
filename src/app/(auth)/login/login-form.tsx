@@ -75,6 +75,13 @@ export function LoginForm({ next }: { next?: string }) {
       return;
     }
 
+    // Trace la connexion réussie (fire-and-forget ; keepalive pour survivre
+    // à la navigation). La route vérifie la session — pas de spoof possible.
+    void fetch("/api/auth/login-success", {
+      method: "POST",
+      keepalive: true,
+    }).catch(() => {});
+
     // Navigation BRUTE qui force le navigateur à envoyer le cookie
     // dès la première requête. Pas de race possible avec le middleware.
     // `next` (chemin interne validé côté serveur) prime sur le dashboard

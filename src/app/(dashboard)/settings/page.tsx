@@ -8,7 +8,12 @@ import { AvatarUpload } from "./avatar-upload";
 import { DeleteAccountForm } from "./delete-account-form";
 import { NotificationPreferencesForm } from "./notification-preferences-form";
 import { MfaSection } from "./mfa-section";
-import { getMfaStatus, getNotificationPreferences } from "./actions";
+import { LoginActivity } from "./login-activity";
+import {
+  getMfaStatus,
+  getNotificationPreferences,
+  getRecentLoginActivity,
+} from "./actions";
 
 function buildInitials(firstName: string, lastName: string, email: string) {
   const first = firstName?.trim()[0] ?? "";
@@ -28,10 +33,12 @@ export default async function SettingsPage() {
     profile.email,
   );
 
-  const [notificationPreferences, mfaStatus] = await Promise.all([
-    getNotificationPreferences(),
-    getMfaStatus(),
-  ]);
+  const [notificationPreferences, mfaStatus, loginActivity] =
+    await Promise.all([
+      getNotificationPreferences(),
+      getMfaStatus(),
+      getRecentLoginActivity(),
+    ]);
 
   return (
     <div className="container mx-auto max-w-3xl space-y-6 p-6 md:p-8">
@@ -112,6 +119,21 @@ export default async function SettingsPage() {
             initialEnabled={mfaStatus.enabled}
             initialFactorId={mfaStatus.factorId}
           />
+        </CardContent>
+      </Card>
+
+      {/* Section Connexions récentes ------------------------------------ */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            {t("loginActivity.title")}
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {t("loginActivity.description")}
+          </p>
+        </CardHeader>
+        <CardContent>
+          <LoginActivity entries={loginActivity} />
         </CardContent>
       </Card>
 

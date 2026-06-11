@@ -1570,6 +1570,13 @@
       "disableDialogDescription": "Pour confirmer, saisis le code à 6 chiffres affiché dans ton app authenticator.",
       "disableConfirm": "Désactiver"
     },
+    "loginActivity": {
+      "title": "Connexions récentes",
+      "description": "Les dernières connexions et tentatives échouées sur ton compte. Si tu ne reconnais pas une activité, change ton mot de passe.",
+      "success": "Connexion réussie",
+      "failed": "Tentative échouée",
+      "empty": "Aucune activité de connexion enregistrée pour l'instant."
+    },
     "notificationsSection": {
       "title": "Notifications",
       "description": "Choisis les notifications que tu veux recevoir dans la cloche du bandeau supérieur.",
