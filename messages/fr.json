@@ -2162,6 +2162,8 @@
       "exportPdf": "Exporter le rapport PDF",
       "exportPdfFr": "Exporter en français",
       "exportPdfEn": "Exporter en anglais",
+      "exportCsv": "Exporter la matrice (CSV)",
+      "exportingCsv": "Export CSV…",
       "chooseLanguage": "Choisir la langue du rapport",
       "generating": "Génération en cours…",
       "unknownError": "Erreur inconnue lors de l'export.",

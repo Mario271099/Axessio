@@ -59,6 +59,7 @@ import type {
   ServiceType,
 } from "@/types/domain";
 import { ExportReportButton } from "./export-report-button";
+import { ExportMatrixButton } from "./export-matrix-button";
 
 interface PageProps {
   params: Promise<{ uuid: string }>;
@@ -526,6 +527,9 @@ export default async function AuditDetailPage({ params }: PageProps) {
                     projectName={project?.name ?? "audit"}
                     variant="outline"
                   />
+                )}
+                {canExportReport && (
+                  <ExportMatrixButton auditId={uuid} variant="outline" />
                 )}
                 {canEdit && (
                   <Button asChild variant="outline" className="gap-2 rounded-full">
