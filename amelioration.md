@@ -8,38 +8,53 @@
 > Classé par priorité (P0 critique → P3 idée), puis catégorisé. Chaque ligne
 > cite un fichier/ligne quand pertinent pour rendre l'action concrète.
 
-## TL;DR
+## ⚠️ État au 2026-06-11 — document largement rattrapé
 
-Trois constats forts qui méritent une attention immédiate :
+La majorité des P0/P1 et tous les quick wins ont été livrés depuis l'audit :
 
-1. **L'app est inutilisable sur mobile/tablet (< 1024 px)** — la sidebar est
-   `lg:hidden` et il n'y a aucun menu hamburger en topbar. Aucune navigation
-   possible passé la home et le dashboard.
-2. **Le graphe d'évolution du dashboard affiche des données mock** ([evolution-chart.tsx:24](src/components/dashboard/evolution-chart.tsx#L24)).
-   Une courbe inventée ("légère croissance, bruit modéré") est servie au user.
-   C'est trompeur — à brancher sur une vraie agrégation ou retirer.
-3. **La page Settings est entièrement read-only** ([settings/page.tsx](src/app/(dashboard)/settings/page.tsx)).
-   Aucun moyen d'éditer son nom, sa langue, son mot de passe, son avatar —
-   alors qu'on est une plateforme SaaS payante.
+- ✅ **Mobile** : `MobileNavSheet` en topbar (hamburger), `TopbarUserMenu` (avatar cliquable)
+- ✅ **Settings complet** : profil, langue, avatar, mot de passe, **MFA/2FA (TOTP)**, préférences notifications, suppression de compte, **connexions récentes**
+- ✅ **Graphe mock retiré** du dashboard (composant supprimé)
+- ✅ **AlertDialog Radix** : plus aucun `window.confirm` dans `src/app`
+- ✅ **36 `loading.tsx`** posés
+- ✅ **Recherche globale Cmd+K** (`command-palette.tsx`)
+- ✅ **Liste audits** : tri par colonne, filtre « Mes audits », **bulk actions** (archivage/suppression en masse)
+- ✅ **Undo après transition de statut** (toast Sonner + `revertAuditStatus`)
+- ✅ **Templates de NC** (`/organizations/[slug]/nc-templates`)
+- ✅ **Empty states** : composant partagé `<EmptyState>`
+- ✅ **Onboarding** : checklist (`onboarding-checklist.tsx`)
+- ✅ **Détection Accept-Language** au premier chargement (proxy + i18n request)
+- ✅ **Notifications** : groupement par cible (× N), marquer comme non lu
+- ✅ **Export matrice CSV + Excel**, a11y : zéro violation axe-core (commit 7a31487)
+
+**Reste réellement ouvert** (voir sections ci-dessous pour le détail) :
+- Changement de statut **en masse** sur la liste audits — volontairement non fait : contraire à la matrice de transitions (conditions par audit)
+- Captcha login (Turnstile/hCaptcha — service externe à provisionner)
+- Canal **email** pour les notifications (bloqué : Resend en sandbox)
+- Marketing : FAQ pricing, preuve sociale home, changelog/blog, **mentions légales à personnaliser** (vraies infos société)
+- P2 perf : découpage des gros composants client (nc-detail 1206 l., users-list 1009 l., etc.)
+- P3 : idées long terme (IA, scanner d'URL, intégrations, white-label…)
+
+## TL;DR — ✅ les 3 constats sont résolus
+
+1. ~~**L'app est inutilisable sur mobile/tablet (< 1024 px)**~~ → résolu (MobileNavSheet).
+2. ~~**Le graphe d'évolution du dashboard affiche des données mock**~~ → résolu (retiré).
+3. ~~**La page Settings est entièrement read-only**~~ → résolu (Settings complet, voir ci-dessus).
 
 Le reste est globalement de bonne facture (architecture solide, i18n
 complète, RLS bien gérée, billing branché). Les améliorations ci-dessous sont
 du polish et de l'extension de scope produit, pas de la dette technique
 profonde.
 
-## Quick wins (gros impact, faible effort)
+## Quick wins (gros impact, faible effort) — ✅ tous livrés
 
 À attaquer en priorité même hors d'une planification produit :
 
-- **Retirer ou brancher le mock du graphe évolution** — soit ajouter une
-  vraie agrégation (`audits_score_history` view), soit cacher la carte
-  jusqu'au branchement réel ([evolution-chart.tsx:24-49](src/components/dashboard/evolution-chart.tsx#L24-L49)).
-- **Dashboard : fetch limit 10, affiche 5** ([dashboard/page.tsx:66](src/app/(dashboard)/dashboard/page.tsx#L66) puis L187).
-  Aligner — soit afficher 10, soit fetch 5.
-- **Topbar : avatar non cliquable** ([topbar.tsx:50-55](src/components/layout/topbar.tsx#L50-L55)) — c'est un `<div aria-hidden>`. Le transformer en `<DropdownMenu>` avec Mon profil / Paramètres / Déconnexion. Aujourd'hui la déco vit cachée dans la sidebar (invisible mobile).
-- **Remplacer les `window.confirm()` par un AlertDialog Radix** — 6 endroits :
-  [anomalies-list.tsx:279](src/app/(dashboard)/audits/[uuid]/anomalies/anomalies-list.tsx#L279), [nc-detail.tsx:312, 379](src/app/(dashboard)/audits/[uuid]/anomalies/[ncId]/nc-detail.tsx#L312), [client-detail.tsx:115, 137](src/app/(dashboard)/clients/[clientId]/client-detail.tsx#L115), [users-list.tsx:164](src/app/(dashboard)/users/users-list.tsx#L164).
-- **Ajouter `loading.tsx` aux pages qui n'en ont pas** — 22 pages sans loading state, dont `/admin/overview`, `/organizations/[slug]/*` (toutes les sous-pages org), `/audits/new`, `/pricing`. Flash blanc à chaque navigation.
+- ✅ **Retirer ou brancher le mock du graphe évolution** — retiré.
+- ✅ **Dashboard : fetch limit 10, affiche 5** — aligné.
+- ✅ **Topbar : avatar non cliquable** — `TopbarUserMenu` (dropdown profil/paramètres/déconnexion).
+- ✅ **Remplacer les `window.confirm()` par un AlertDialog Radix** — fait partout.
+- ✅ **Ajouter `loading.tsx` aux pages qui n'en ont pas** — 36 posés.
 
 ## P0 — Critique
 
