@@ -3,6 +3,7 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { orgHasFeature } from "@/lib/billing/server";
+import { escapeCsvCell } from "@/lib/csv";
 
 export interface ExportResult {
   error: string | null;
@@ -22,15 +23,6 @@ interface LogRow {
   actor_role: string | null;
   action: string;
   payload: unknown;
-}
-
-function escapeCsv(value: unknown): string {
-  if (value === null || value === undefined) return "";
-  const str = typeof value === "string" ? value : JSON.stringify(value);
-  if (str.includes('"') || str.includes(",") || str.includes("\n")) {
-    return `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
 }
 
 export async function exportAuditLogsCsv(
@@ -93,13 +85,13 @@ export async function exportAuditLogsCsv(
     header.join(","),
     ...rows.map((row) =>
       [
-        escapeCsv(row.id),
-        escapeCsv(row.created_at),
-        escapeCsv(row.audit_id),
-        escapeCsv(row.actor_id),
-        escapeCsv(row.actor_role),
-        escapeCsv(row.action),
-        escapeCsv(row.payload),
+        escapeCsvCell(row.id),
+        escapeCsvCell(row.created_at),
+        escapeCsvCell(row.audit_id),
+        escapeCsvCell(row.actor_id),
+        escapeCsvCell(row.actor_role),
+        escapeCsvCell(row.action),
+        escapeCsvCell(row.payload),
       ].join(","),
     ),
   ];
