@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
 import { orgHasFeature } from "@/lib/billing/server";
 import { resolveOutputBranding } from "@/lib/branding/server";
@@ -392,6 +393,12 @@ export async function GET(req: Request, { params }: RouteParams) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erreur PDF inconnue.";
+    // Un échec Puppeteer (Chromium qui ne démarre pas, OOM, timeout) est
+    // invisible côté logs Vercel une fois la lambda recyclée — on le capture.
+    Sentry.captureException(err, {
+      tags: { source: "pdf-report" },
+      extra: { audit_id: auditId },
+    });
     return NextResponse.json(
       { error: `Échec du rendu PDF : ${message}` },
       { status: 500 },

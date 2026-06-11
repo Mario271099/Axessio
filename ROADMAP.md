@@ -72,7 +72,8 @@ Statuts détaillés :
 - **Effort** : 0.5j (après S1.3).
 - **Validation** : `for i in {1..10}; do curl /api/audits/.../report & done; wait` → 5 succès, 5 × 429.
 
-### S1.5 — Aucune observabilité (Sentry/Axiom absents) (P1)
+### S1.5 — Aucune observabilité (Sentry/Axiom absents) (P1) — ✅ FAIT (2026-06-11)
+- **Livré** : `@sentry/nextjs` en mode tolérant (sans `NEXT_PUBLIC_SENTRY_DSN`, SDK désactivé — même pattern que Stripe). Configs `sentry.{server,edge}.config.ts` + `src/instrumentation.ts` (hook `onRequestError`) + `src/instrumentation-client.ts` + `src/app/global-error.tsx`. Tag `user.id` + `organization_id` dans `requireProfile`. Captures explicites : webhook Stripe, route PDF, dispatcher webhooks, auto-création de profil. **À configurer côté infra** : créer un projet Sentry (free tier) et poser `NEXT_PUBLIC_SENTRY_DSN` dans Vercel (+ `SENTRY_ORG`/`SENTRY_PROJECT`/`SENTRY_AUTH_TOKEN` pour les source maps).
 - **Constat** : `package.json` ne contient ni `@sentry/nextjs`, ni `axiom`, ni `@logtail`, ni équivalent. `console.error` est la seule trace en prod. `requireProfile` (`src/lib/auth.ts:71`) crée silencieusement un profil avec `role: 'client'` sans logger l'incident.
 - **Risque** : un bug RLS, une 500 Stripe webhook ou une erreur Puppeteer passe inaperçu jusqu'à ce qu'un user râle. Aucune métrique sur les 401/403 (qui pourraient signaler une attaque).
 - **Solution** :
@@ -113,7 +114,8 @@ Statuts détaillés :
 - **Effort** : 1j si déclenché.
 - **Validation** : Lighthouse TBT < 200ms sur un audit de 20 pages.
 
-### S2.3 — `/pricing` non statique (P3)
+### S2.3 — `/pricing` non statique (P3) — ❌ ABANDONNÉ (2026-06-11)
+- **Verdict** : le constat initial ("dépend uniquement de `PLANS`") était faux. La page lit la locale via `getTranslations()` → `src/i18n/request.ts` → cookie `cookies()`, ce qui rend la route intrinsèquement dynamique. `force-static` servirait la version FR à tous les visiteurs (y compris ceux ayant choisi EN), et `revalidate` serait sans effet tant que la route lit un cookie. Une vraie statisation exigerait des routes localisées par segment (`/en/pricing`) — chantier i18n disproportionné pour un gain compute marginal.
 - **Constat** : `src/app/pricing/page.tsx` est server-rendered à chaque requête. Aucun `export const dynamic = "force-static"` ni `revalidate`. Contenu marketing 100 % statique mais re-render à chaque visite SEO.
 - **Risque** : perf SEO marginale, coût compute minime. Quick win.
 - **Solution** : ajouter `export const revalidate = 3600;` (ou `dynamic = "force-static"`). Le fichier dépend uniquement de `PLANS` (catalogue TS).

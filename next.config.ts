@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 import createNextIntlPlugin from "next-intl/plugin";
 import { SECURITY_HEADERS } from "./src/lib/security-headers";
 
@@ -35,4 +36,14 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// withSentryConfig est tolérant : sans SENTRY_AUTH_TOKEN, l'upload des source
+// maps est simplement sauté (silent: true évite le warning à chaque build).
+export default withSentryConfig(withNextIntl(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: true,
+  // Les routes de tunnel contournent les adblockers, mais ajoutent un rewrite
+  // sur chaque requête — inutile tant qu'on n'a pas de trafic significatif.
+});
+

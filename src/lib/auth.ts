@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -18,6 +19,7 @@ interface ProfileRow {
   avatar_url?: string | null;
   is_active?: boolean | null;
   is_platform_admin?: boolean | null;
+  current_org_id?: string | null;
 }
 
 async function mapProfile(row: ProfileRow): Promise<Profile> {
@@ -32,6 +34,13 @@ async function mapProfile(row: ProfileRow): Promise<Profile> {
   // super-admin Axessyo dans tous les cas.
   const isPlatformAdmin =
     row.is_platform_admin === true || realRole === "admin";
+
+  // Observabilité : chaque event Sentry de la requête porte l'utilisateur et
+  // l'org active — indispensable pour trier un bug multi-tenant. No-op sans
+  // DSN. Pas d'email ni de nom : l'id suffit pour croiser avec la DB.
+  Sentry.setUser({ id: row.id });
+  Sentry.setTag("organization_id", row.current_org_id ?? "none");
+
   return {
     id: row.id,
     email: row.email,
@@ -59,7 +68,7 @@ export async function requireProfile(): Promise<Profile> {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, email, first_name, last_name, role, client_id, language, avatar_url, is_active, is_platform_admin",
+      "id, email, first_name, last_name, role, client_id, language, avatar_url, is_active, is_platform_admin, current_org_id",
     )
     .eq("id", user.id)
     .maybeSingle();
@@ -90,7 +99,7 @@ export async function requireProfile(): Promise<Profile> {
         language: "fr",
       })
       .select(
-        "id, email, first_name, last_name, role, client_id, language, avatar_url, is_platform_admin",
+        "id, email, first_name, last_name, role, client_id, language, avatar_url, is_platform_admin, current_org_id",
       )
       .single();
 
@@ -101,11 +110,15 @@ export async function requireProfile(): Promise<Profile> {
     // Observabilité : un profil créé à la volée = un user qui a obtenu une
     // session Supabase Auth sans passer par le flow d'invitation (signup
     // public, magic link). On le trace pour détecter les états incohérents
-    // (role=client sans client_id). Le console.warn sera capté par Sentry une
-    // fois branché (cf. roadmap S1.5).
+    // (role=client sans client_id).
     console.warn(
       `[requireProfile] profil auto-créé id=${user.id} email=${user.email ?? "?"} (role=client, client_id=null)`,
     );
+    Sentry.captureMessage("profile.auto_created", {
+      level: "warning",
+      tags: { source: "requireProfile" },
+      extra: { user_id: user.id },
+    });
     try {
       // audit_logs a RLS (SELECT only) : l'insert doit passer par la
       // service-role pour ne pas être refusé. Best-effort — on ne bloque
