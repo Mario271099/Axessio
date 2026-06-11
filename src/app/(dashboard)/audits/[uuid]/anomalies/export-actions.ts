@@ -7,23 +7,13 @@ import {
   NC_SEVERITY_LABELS,
   NC_STATUS_LABELS,
 } from "@/lib/constants";
+import { escapeCsv } from "@/lib/csv";
 import type { NCSeverity, NCStatus } from "@/types/domain";
 
 export interface ExportResult {
   error: string | null;
   csv?: string;
   filename?: string;
-}
-
-// Échappement CSV (RFC 4180) : on guillemet dès qu'un séparateur, un guillemet
-// ou un saut de ligne apparaît, et on double les guillemets internes.
-function escapeCsv(value: unknown): string {
-  if (value === null || value === undefined) return "";
-  const str = String(value);
-  if (/[",\n\r]/.test(str)) {
-    return `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
 }
 
 interface NcRow {

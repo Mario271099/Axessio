@@ -7,18 +7,12 @@ import {
   CONFORMITY_STATUS_LABELS,
   PAGE_TYPE_LABELS,
 } from "@/lib/constants";
+import { escapeCsv } from "@/lib/csv";
 import type { ConformityStatus, PageType, WCAGLevel } from "@/types/domain";
 
-// Échappement CSV (RFC 4180) : on guillemet dès qu'un séparateur, un guillemet
-// ou un saut de ligne apparaît, et on double les guillemets internes.
-export function escapeCsv(value: unknown): string {
-  if (value === null || value === undefined) return "";
-  const str = String(value);
-  if (/[",\n\r]/.test(str)) {
-    return `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
-}
+// Échappement CSV mutualisé (RFC 4180 + anti-injection de formule). Ré-exporté
+// pour ne pas casser les imports/tests existants de ce module.
+export { escapeCsv };
 
 export function slugify(value: string): string {
   return (

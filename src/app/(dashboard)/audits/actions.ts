@@ -333,6 +333,13 @@ export async function updateAudit(
 // ============================================================================
 export async function archiveAudit(auditId: string): Promise<ActionState> {
   const supabase = await createClient();
+
+  // Garde applicative explicite (cohérent avec les autres actions du fichier).
+  // La RLS `audits_update_auditor` (mig. 78) reste la 2ᵉ ligne de défense, mais
+  // on ne s'appuie pas dessus seule : on refuse tôt et avec un message propre.
+  const guard = await requireAnyPermission("audit.edit");
+  if (!guard.ok) return { error: guard.error };
+
   const { error } = await supabase
     .from("audits")
     .update({ status: "ARCHIVED" })
