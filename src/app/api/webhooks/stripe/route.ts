@@ -12,6 +12,7 @@
 // Aucun rendering — c'est une route API.
 
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import Stripe from "stripe";
 import { getStripe, getWebhookSecret } from "@/lib/billing/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -51,6 +52,11 @@ export async function POST(req: Request) {
     await dispatch(event);
   } catch (err) {
     console.error("[stripe-webhook] handler error", err);
+    // Un handler Stripe qui plante = désynchronisation facturation/DB
+    // silencieuse. C'est exactement le genre d'erreur qu'on veut voir passer.
+    Sentry.captureException(err, {
+      tags: { source: "stripe-webhook", event_type: event.type },
+    });
     // On renvoie 500 pour que Stripe retry — mais seulement après avoir
     // validé la signature : on ne veut pas être DoS-friendly côté CPU.
     return NextResponse.json({ error: "handler failed" }, { status: 500 });

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   MAX_ATTEMPTS,
@@ -78,6 +79,11 @@ export async function GET(req: Request) {
     .limit(BATCH_SIZE);
 
   if (queueError) {
+    // Une erreur DB sur la lecture de la queue bloque TOUTES les deliveries —
+    // pas seulement une. Sans capture, le cron échoue en boucle sans bruit.
+    Sentry.captureException(new Error(queueError.message), {
+      tags: { source: "webhook-dispatch" },
+    });
     return NextResponse.json({ error: queueError.message }, { status: 500 });
   }
 
