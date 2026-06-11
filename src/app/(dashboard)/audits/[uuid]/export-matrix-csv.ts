@@ -51,6 +51,25 @@ export interface MatrixCsvConformity {
 
 export const NOT_EVALUATED_LABEL = "Non évalué";
 
+// Tris partagés entre les exports CSV et Excel : pages dans l'ordre de
+// l'échantillon, critères par thématique puis identifiant (ordre numérique).
+export function sortMatrixPages(pages: MatrixCsvPage[]): MatrixCsvPage[] {
+  return [...pages].sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
+export function sortMatrixCriteria(
+  criteria: MatrixCsvCriterion[],
+): MatrixCsvCriterion[] {
+  return [...criteria].sort(
+    (a, b) =>
+      a.thematicSort - b.thematicSort ||
+      a.thematicIdentifier.localeCompare(b.thematicIdentifier, undefined, {
+        numeric: true,
+      }) ||
+      a.identifier.localeCompare(b.identifier, undefined, { numeric: true }),
+  );
+}
+
 export const MATRIX_CSV_HEADER = [
   "Thématique",
   "Critère",
@@ -80,15 +99,8 @@ export function buildMatrixCsv(input: {
     statusByCell.set(`${c.pageId}:${c.criteriaId}`, c.status);
   }
 
-  const sortedPages = [...pages].sort((a, b) => a.sortOrder - b.sortOrder);
-  const sortedCriteria = [...criteria].sort(
-    (a, b) =>
-      a.thematicSort - b.thematicSort ||
-      a.thematicIdentifier.localeCompare(b.thematicIdentifier, undefined, {
-        numeric: true,
-      }) ||
-      a.identifier.localeCompare(b.identifier, undefined, { numeric: true }),
-  );
+  const sortedPages = sortMatrixPages(pages);
+  const sortedCriteria = sortMatrixCriteria(criteria);
 
   const lines = [MATRIX_CSV_HEADER.join(",")];
 

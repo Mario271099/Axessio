@@ -2164,6 +2164,8 @@
       "exportPdfEn": "Export in English",
       "exportCsv": "Export matrix (CSV)",
       "exportingCsv": "Exporting CSV…",
+      "exportXlsx": "Export matrix (Excel)",
+      "exportingXlsx": "Exporting Excel…",
       "chooseLanguage": "Choose report language",
       "generating": "Generating…",
       "unknownError": "Unknown error during export.",

@@ -3,7 +3,13 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { orgHasFeature } from "@/lib/billing/server";
-import type { ConformityStatus, PageType, WCAGLevel } from "@/types/domain";
+import type {
+  ConformityStatus,
+  NCSeverity,
+  NCStatus,
+  PageType,
+  WCAGLevel,
+} from "@/types/domain";
 import {
   buildMatrixCsv,
   slugify,
@@ -11,6 +17,7 @@ import {
   type MatrixCsvCriterion,
   type MatrixCsvPage,
 } from "./export-matrix-csv";
+import { buildMatrixXlsx, type MatrixXlsxNc } from "./export-matrix-xlsx";
 
 export interface ExportResult {
   error: string | null;
@@ -18,15 +25,25 @@ export interface ExportResult {
   filename?: string;
 }
 
-/**
- * Exporte la matrice de conformité (grille critères × pages) d'un audit en CSV.
- * Mêmes garde-fous que l'export NC / PDF : autorisation par rôle + feature gate
- * `export.pdf` (capacité d'export, Starter+), re-vérifiés ici car une server
- * action peut être appelée hors UI.
- */
-export async function exportConformityMatrixCsv(
-  auditId: string,
-): Promise<ExportResult> {
+export interface ExportXlsxResult {
+  error: string | null;
+  /** Classeur .xlsx encodé en base64 (les server actions ne passent pas de Buffer). */
+  base64?: string;
+  filename?: string;
+}
+
+// Auth + autorisation + feature gate + chargement de la matrice : partagés par
+// les exports CSV et Excel. Retourne soit { error }, soit les données prêtes.
+async function loadMatrixData(auditId: string): Promise<
+  | { error: string }
+  | {
+      error: null;
+      clientName: string | null;
+      pages: MatrixCsvPage[];
+      criteria: MatrixCsvCriterion[];
+      conformities: MatrixCsvConformity[];
+    }
+> {
   const supabase = await createClient();
   const t = await getTranslations("errors");
 
@@ -142,10 +159,86 @@ export async function exportConformityMatrixCsv(
     }),
   );
 
-  const csv = buildMatrixCsv({ pages, criteria, conformities });
+  return {
+    error: null,
+    clientName: client?.name ?? null,
+    pages,
+    criteria,
+    conformities,
+  };
+}
+
+/**
+ * Exporte la matrice de conformité (grille critères × pages) d'un audit en CSV.
+ * Mêmes garde-fous que l'export NC / PDF : autorisation par rôle + feature gate
+ * `export.pdf` (capacité d'export, Starter+), re-vérifiés ici car une server
+ * action peut être appelée hors UI.
+ */
+export async function exportConformityMatrixCsv(
+  auditId: string,
+): Promise<ExportResult> {
+  const data = await loadMatrixData(auditId);
+  if (data.error !== null) return { error: data.error };
+
+  const csv = buildMatrixCsv(data);
   const filename = `axessyo-matrice-${slugify(
-    client?.name ?? "audit",
+    data.clientName ?? "audit",
   )}-${new Date().toISOString().slice(0, 10)}.csv`;
 
   return { error: null, csv, filename };
+}
+
+/**
+ * Exporte la matrice de conformité en Excel (.xlsx) : grille critères × pages
+ * colorée par statut + ligne de score par page + feuille « Non-conformités ».
+ * Mêmes gardes que le CSV (via loadMatrixData).
+ */
+export async function exportConformityMatrixXlsx(
+  auditId: string,
+): Promise<ExportXlsxResult> {
+  const data = await loadMatrixData(auditId);
+  if (data.error !== null) return { error: data.error };
+
+  // Chargement des NC pour la seconde feuille (l'autorisation sur l'audit a
+  // déjà été vérifiée ; la RLS borne de toute façon la lecture).
+  const supabase = await createClient();
+  const { data: ncRows, error: ncError } = await supabase
+    .from("non_conformities")
+    .select(
+      `display_number, title, description, recommendation, severity, status,
+       criterion:criteria!inner(identifier, name),
+       page:pages(name)`,
+    )
+    .eq("audit_id", auditId)
+    .order("display_number", { ascending: true });
+  if (ncError) return { error: ncError.message };
+
+  type Joined<T> = T | T[] | null;
+  const one = <T,>(v: Joined<T>): T | null =>
+    Array.isArray(v) ? (v[0] ?? null) : v;
+
+  const nonConformities: MatrixXlsxNc[] = (ncRows ?? []).map((nc) => {
+    const criterion = one(
+      nc.criterion as Joined<{ identifier: string; name: string }>,
+    );
+    const page = one(nc.page as Joined<{ name: string }>);
+    return {
+      displayNumber: (nc.display_number as number | null) ?? null,
+      pageName: page?.name ?? null,
+      criterionIdentifier: criterion?.identifier ?? null,
+      criterionName: criterion?.name ?? null,
+      severity: nc.severity as NCSeverity,
+      status: nc.status as NCStatus,
+      title: (nc.title as string | null) ?? null,
+      description: (nc.description as string | null) ?? null,
+      recommendation: (nc.recommendation as string | null) ?? null,
+    };
+  });
+
+  const buffer = await buildMatrixXlsx({ ...data, nonConformities });
+  const filename = `axessyo-matrice-${slugify(
+    data.clientName ?? "audit",
+  )}-${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+  return { error: null, base64: buffer.toString("base64"), filename };
 }

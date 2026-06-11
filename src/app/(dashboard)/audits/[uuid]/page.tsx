@@ -60,6 +60,7 @@ import type {
 } from "@/types/domain";
 import { ExportReportButton } from "./export-report-button";
 import { ExportMatrixButton } from "./export-matrix-button";
+import { ExportMatrixXlsxButton } from "./export-matrix-xlsx-button";
 
 interface PageProps {
   params: Promise<{ uuid: string }>;
@@ -530,6 +531,9 @@ export default async function AuditDetailPage({ params }: PageProps) {
                 )}
                 {canExportReport && (
                   <ExportMatrixButton auditId={uuid} variant="outline" />
+                )}
+                {canExportReport && (
+                  <ExportMatrixXlsxButton auditId={uuid} variant="outline" />
                 )}
                 {canEdit && (
                   <Button asChild variant="outline" className="gap-2 rounded-full">
