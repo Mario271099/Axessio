@@ -2164,6 +2164,8 @@
       "exportPdfEn": "Exporter en anglais",
       "exportCsv": "Exporter la matrice (CSV)",
       "exportingCsv": "Export CSV…",
+      "exportXlsx": "Exporter la matrice (Excel)",
+      "exportingXlsx": "Export Excel…",
       "chooseLanguage": "Choisir la langue du rapport",
       "generating": "Génération en cours…",
       "unknownError": "Erreur inconnue lors de l'export.",

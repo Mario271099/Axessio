@@ -212,7 +212,7 @@ Deux systèmes coexistent. **Pour toute nouvelle logique, la permission d'organi
 - [x] Gestion des clients/projets/utilisateurs (CRUD)
 - [x] Notifications (Resend + React Email)
 - [x] Export PDF
-- [ ] Export CSV / Excel
+- [x] Export CSV / Excel (CSV : matrice + NC + audit logs ; Excel : classeur matrice colorée + feuille NC via exceljs)
 - [ ] Tests automatisés (Vitest + Playwright) — partiel
 
 ## Workflow avec l'utilisateur

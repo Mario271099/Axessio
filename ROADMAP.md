@@ -232,4 +232,4 @@ Statuts détaillés :
 - **Uptime monitoring externe** : UptimeRobot ou Better Stack ; complète Sentry (qui ne détecte pas une app "tout vert qui répond 200").
 - **SCIM / SAML branchement IdP** : phase 5 a livré le schéma DB (`org_auth_methods`) ; brancher WorkOS / Auth0 quand un client Enterprise le demande.
 - **Workspace-level RLS** : phase 6 a livré le schéma mais aucun filtre par workspace n'est appliqué. Activer si un client demande à cloisonner des projets dans une même org.
-- **Export CSV / Excel** : déjà dans la roadmap produit (CLAUDE.md), non couvert ici.
+- **Export CSV / Excel** : ✅ livré (2026-06-11) — CSV matrice/NC/audit-logs + classeur Excel (.xlsx) matrice colorée + feuille NC.
