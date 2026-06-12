@@ -495,7 +495,45 @@
       "contactSales": "Nous contacter"
     },
     "vatNote": "Tarifs hors taxes. La TVA est ajoutée à la facturation selon votre pays.",
-    "questionsLead": "Une question sur votre cas d'usage ?"
+    "questionsLead": "Une question sur votre cas d'usage ?",
+    "faq": {
+      "title": "Questions fréquentes",
+      "subtitle": "Tout ce qu'il faut savoir avant de choisir un plan.",
+      "items": {
+        "free": {
+          "question": "Puis-je utiliser Axessyo gratuitement ?",
+          "answer": "Oui. Le plan Free permet de créer un audit actif et de découvrir la matrice de conformité, sans carte bancaire et sans limite de durée. Vous passez à un plan payant uniquement quand vos besoins grandissent (exports PDF, plusieurs audits, équipe)."
+        },
+        "commitment": {
+          "question": "Y a-t-il un engagement de durée ?",
+          "answer": "Non. L'abonnement mensuel est sans engagement : vous pouvez le résilier à tout moment depuis votre espace de facturation, et il reste actif jusqu'à la fin de la période en cours. L'abonnement annuel est payé d'avance pour douze mois et n'est pas reconduit si vous le résiliez avant l'échéance."
+        },
+        "changePlan": {
+          "question": "Puis-je changer de plan à tout moment ?",
+          "answer": "Oui. Un passage à un plan supérieur prend effet immédiatement, avec une facturation au prorata gérée par Stripe. Un passage à un plan inférieur prend effet à la fin de la période de facturation en cours — vous conservez vos fonctionnalités jusque-là."
+        },
+        "limits": {
+          "question": "Que se passe-t-il si j'atteins les limites de mon plan ?",
+          "answer": "La création de nouveaux audits ou l'invitation de nouveaux membres est bloquée tant que la limite est atteinte, avec un message vous invitant à passer au plan supérieur. Vos données existantes restent intactes et accessibles : rien n'est supprimé, jamais."
+        },
+        "payment": {
+          "question": "Quels moyens de paiement acceptez-vous ?",
+          "answer": "Le paiement s'effectue par carte bancaire via Stripe, notre prestataire de paiement sécurisé. Une facture est émise automatiquement à chaque échéance et reste téléchargeable depuis votre portail de facturation."
+        },
+        "vat": {
+          "question": "Les prix affichés incluent-ils la TVA ?",
+          "answer": "Les tarifs sont affichés hors taxes. La TVA applicable est calculée au moment de la facturation selon votre pays et votre statut (entreprise avec numéro de TVA intracommunautaire ou particulier)."
+        },
+        "data": {
+          "question": "Où sont hébergées mes données et qui y a accès ?",
+          "answer": "Vos audits sont cloisonnés par organisation : seuls les membres que vous invitez y ont accès. Les données sont hébergées chez nos sous-traitants cloud et traitées conformément au RGPD — le détail (sous-traitants, durées de conservation, vos droits) figure dans notre politique de confidentialité."
+        },
+        "references": {
+          "question": "Quels référentiels d'accessibilité sont pris en charge ?",
+          "answer": "Axessyo prend en charge le RGAA (4.1.2), les WCAG 2.2, le RAWeb et le RAAM. Les référentiels sont préchargés avec leurs critères et méthodologies de test : vous créez un audit et la grille est prête."
+        }
+      }
+    }
   },
   "onboarding": {
     "metaTitle": "Choisissez votre formule",

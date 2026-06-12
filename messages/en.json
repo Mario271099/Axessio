@@ -495,7 +495,45 @@
       "contactSales": "Contact us"
     },
     "vatNote": "Prices excluding tax. VAT is added at billing based on your country.",
-    "questionsLead": "Have a question about your use case?"
+    "questionsLead": "Have a question about your use case?",
+    "faq": {
+      "title": "Frequently asked questions",
+      "subtitle": "Everything you need to know before choosing a plan.",
+      "items": {
+        "free": {
+          "question": "Can I use Axessyo for free?",
+          "answer": "Yes. The Free plan lets you create one active audit and explore the conformity matrix, with no credit card and no time limit. You only upgrade when your needs grow (PDF exports, multiple audits, a team)."
+        },
+        "commitment": {
+          "question": "Is there a minimum commitment?",
+          "answer": "No. The monthly subscription is commitment-free: you can cancel at any time from your billing area, and it stays active until the end of the current period. The yearly subscription is paid upfront for twelve months and simply doesn't renew if you cancel before the renewal date."
+        },
+        "changePlan": {
+          "question": "Can I change plans at any time?",
+          "answer": "Yes. Upgrades take effect immediately, with prorated billing handled by Stripe. Downgrades take effect at the end of the current billing period — you keep your features until then."
+        },
+        "limits": {
+          "question": "What happens when I reach my plan limits?",
+          "answer": "Creating new audits or inviting new members is blocked while the limit is reached, with a message inviting you to upgrade. Your existing data remains intact and accessible: nothing is ever deleted."
+        },
+        "payment": {
+          "question": "Which payment methods do you accept?",
+          "answer": "Payment is made by card via Stripe, our secure payment provider. An invoice is issued automatically at each billing date and remains downloadable from your billing portal."
+        },
+        "vat": {
+          "question": "Do the displayed prices include VAT?",
+          "answer": "Prices are shown excluding tax. Applicable VAT is calculated at billing time based on your country and status (business with an intra-community VAT number or individual)."
+        },
+        "data": {
+          "question": "Where is my data hosted and who can access it?",
+          "answer": "Your audits are isolated per organization: only the members you invite can access them. Data is hosted with our cloud processors and handled in accordance with the GDPR — details (processors, retention periods, your rights) are in our privacy policy."
+        },
+        "references": {
+          "question": "Which accessibility standards are supported?",
+          "answer": "Axessyo supports RGAA (4.1.2), WCAG 2.2, RAWeb and RAAM. Standards come preloaded with their criteria and test methodologies: create an audit and the grid is ready."
+        }
+      }
+    }
   },
   "onboarding": {
     "metaTitle": "Choose your plan",
