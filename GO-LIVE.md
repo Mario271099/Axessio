@@ -157,9 +157,9 @@ Copie la chaîne affichée (48 caractères). C'est ton `CRON_SECRET`.
 
 ### 3.4 (Optionnel mais recommandé) Activer Sentry
 
-Si tu crées un compte gratuit sur [sentry.io](https://sentry.io) (projet type
-« Next.js »), ajoute aussi `NEXT_PUBLIC_SENTRY_DSN` avec le DSN affiché à la
-création du projet. Tout est déjà branché côté code.
+Guide pas à pas dédié : [SENTRY-SETUP.md](SENTRY-SETUP.md) (~15 min,
+gratuit). En résumé : créer le projet sur sentry.io, poser
+`NEXT_PUBLIC_SENTRY_DSN` dans Vercel, redéployer.
 
 ### 3.5 Stripe
 
