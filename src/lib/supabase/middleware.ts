@@ -68,6 +68,8 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/webhooks") ||
     pathname.startsWith("/api/v1") ||
+    pathname === "/api/sentry-test" || // TEMPORAIRE : test Sentry, à retirer avec la route
+
     pathname.startsWith("/_next") ||
     pathname.includes(".");
 
