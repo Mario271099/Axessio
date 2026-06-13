@@ -31,6 +31,10 @@ export function ForgotPasswordForm() {
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(
       email,
       {
+        // Le lien réel du mail est piloté par le template Supabase
+        // (`{{ .SiteURL }}/api/auth/confirm?...&next=/reset-password`), ce
+        // qui garantit le bon domaine (Site URL) et le passage par notre
+        // route de confirmation SSR. `redirectTo` ne sert ici que de repli.
         redirectTo: `${window.location.origin}/reset-password`,
       },
     );
