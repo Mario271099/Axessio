@@ -2,6 +2,8 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Logo } from "@/components/brand";
 import { Button } from "@/components/ui/button";
+import { PublicLocaleSwitcher } from "@/components/public/public-locale-switcher";
+import { PublicMobileNav } from "@/components/public/public-mobile-nav";
 import { SITE } from "@/lib/site";
 
 export function PublicHeader() {
@@ -44,15 +46,21 @@ export function PublicHeader() {
                 {t("nav.pricing")}
               </Link>
             </li>
-            <li>
+            <li className="hidden sm:block">
               <Button asChild size="sm" variant="ghost">
                 <Link href="/login">{t("nav.login")}</Link>
               </Button>
             </li>
-            <li>
+            <li className="hidden sm:block">
               <Button asChild size="sm">
                 <Link href="/register">{t("nav.register")}</Link>
               </Button>
+            </li>
+            <li>
+              <PublicLocaleSwitcher />
+            </li>
+            <li>
+              <PublicMobileNav />
             </li>
           </ul>
         </nav>

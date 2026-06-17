@@ -61,6 +61,7 @@
       "copyright": "© {year} Axessyo. All rights reserved.",
       "links": {
         "login": "Sign in",
+        "register": "Sign up",
         "features": "Features",
         "standards": "Standards",
         "pricing": "Pricing",
@@ -71,6 +72,8 @@
       }
     },
     "faq": {
+      "title": "Frequently asked questions",
+      "subtitle": "Answers to the most common questions about Axessyo.",
       "items": [
         {
           "q": "Which accessibility standards are supported?",
@@ -86,6 +89,13 @@
         }
       ]
     }
+  },
+  "cookieBanner": {
+    "label": "Cookie consent",
+    "message": "We use cookies that are essential to the site, and — with your consent — analytics cookies to improve Axessyo.",
+    "accept": "Accept",
+    "refuse": "Decline",
+    "learnMore": "Learn more"
   },
   "accessibility": {
     "metaTitle": "Accessibility statement",
@@ -1083,7 +1093,7 @@
         "uppercase": "One uppercase letter",
         "digit": "One digit"
       },
-      "terms": "By creating an account, you agree to our terms of service and privacy policy.",
+      "terms": "By creating an account, you agree to our <terms>terms of service</terms> and <privacy>privacy policy</privacy>.",
       "submit": "Create my account",
       "submitting": "Creating account…",
       "footer": "Already have an account?",

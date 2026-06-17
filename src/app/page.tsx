@@ -13,6 +13,12 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { PublicHeader } from "@/components/public/public-header";
 import { PublicFooter } from "@/components/public/public-footer";
 import { createClient } from "@/lib/supabase/server";
@@ -146,7 +152,7 @@ export default async function HomePage() {
               </p>
               <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
                 <Button asChild size="lg">
-                  <Link href="/login">
+                  <Link href="/register">
                     {t("hero.primaryCta")}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
@@ -245,6 +251,43 @@ export default async function HomePage() {
         </section>
 
         {/* =================================================================
+            FAQ
+            ================================================================= */}
+        <section
+          aria-labelledby="faq-title"
+          className="border-b border-border py-20 md:py-24"
+        >
+          <div className="container mx-auto max-w-3xl px-6">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2
+                id="faq-title"
+                className="text-3xl font-bold tracking-tight md:text-4xl"
+              >
+                {t("faq.title")}
+              </h2>
+              <p className="mt-4 text-base text-muted-foreground md:text-lg">
+                {t("faq.subtitle")}
+              </p>
+            </div>
+
+            <Accordion type="single" collapsible className="mt-10 space-y-3">
+              {faqItems.map((item, index) => (
+                <AccordionItem key={index} value={`faq-${index}`}>
+                  <AccordionTrigger className="text-left text-base">
+                    {item.q}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {item.a}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </section>
+
+        {/* =================================================================
             CTA
             ================================================================= */}
         <section
@@ -263,7 +306,7 @@ export default async function HomePage() {
             </p>
             <div className="mt-10">
               <Button asChild size="lg">
-                <Link href="/login">
+                <Link href="/register">
                   {t("cta.button")}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>

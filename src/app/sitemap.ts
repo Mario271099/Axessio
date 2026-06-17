@@ -2,7 +2,12 @@ import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  // Pages vivantes : date du build (contenu marketing susceptible de bouger).
   const now = new Date();
+  // Pages legales : date de derniere revision reelle, figee pour eviter de
+  // signaler une fausse modification a chaque deploiement.
+  const legalLastModified = new Date("2026-05-30");
+  // /login et /register sont en noindex : exclues du sitemap (coherence robots).
   return [
     {
       url: siteUrl("/"),
@@ -17,38 +22,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: siteUrl("/register"),
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.7,
-    },
-    {
-      url: siteUrl("/login"),
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
-    {
       url: siteUrl("/legal"),
-      lastModified: now,
+      lastModified: legalLastModified,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: siteUrl("/privacy"),
-      lastModified: now,
+      lastModified: legalLastModified,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: siteUrl("/cookies"),
-      lastModified: now,
+      lastModified: legalLastModified,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: siteUrl("/accessibility"),
-      lastModified: now,
+      lastModified: legalLastModified,
       changeFrequency: "yearly",
       priority: 0.3,
     },

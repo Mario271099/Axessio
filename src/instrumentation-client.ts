@@ -5,6 +5,9 @@
 
 import * as Sentry from "@sentry/nextjs";
 
+// TODO(consent): conditionner l'init au consentement cookies stocke par
+// <CookieConsentBanner /> (localStorage `axessyo_cookie_consent`). Tant que ce
+// branchement n'est pas fait, Sentry reste pilote uniquement par le DSN.
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 
 Sentry.init({

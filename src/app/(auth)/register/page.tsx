@@ -12,6 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: metaTitle,
     description: t("subtitle"),
+    // Page utilitaire : pas d'interet a l'indexer (formulaire de creation).
+    robots: { index: false, follow: false },
     alternates: { canonical: "/register" },
     openGraph: {
       type: "website",
