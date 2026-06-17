@@ -61,6 +61,7 @@
       "copyright": "© {year} Axessyo. Tous droits réservés.",
       "links": {
         "login": "Connexion",
+        "register": "S'inscrire",
         "features": "Fonctionnalités",
         "standards": "Référentiels",
         "pricing": "Tarifs",
@@ -71,6 +72,8 @@
       }
     },
     "faq": {
+      "title": "Questions fréquentes",
+      "subtitle": "Les réponses aux questions les plus courantes sur Axessyo.",
       "items": [
         {
           "q": "Quels référentiels d'accessibilité sont pris en charge ?",
@@ -86,6 +89,13 @@
         }
       ]
     }
+  },
+  "cookieBanner": {
+    "label": "Consentement aux cookies",
+    "message": "Nous utilisons des cookies essentiels au fonctionnement du site et, avec votre accord, des cookies de mesure d'audience pour améliorer Axessyo.",
+    "accept": "Accepter",
+    "refuse": "Refuser",
+    "learnMore": "En savoir plus"
   },
   "accessibility": {
     "metaTitle": "Déclaration d'accessibilité",
@@ -1083,7 +1093,7 @@
         "uppercase": "Une majuscule",
         "digit": "Un chiffre"
       },
-      "terms": "En créant un compte, vous acceptez nos conditions d'utilisation et notre politique de confidentialité.",
+      "terms": "En créant un compte, vous acceptez nos <terms>conditions d'utilisation</terms> et notre <privacy>politique de confidentialité</privacy>.",
       "submit": "Créer mon compte",
       "submitting": "Création en cours…",
       "footer": "Vous avez déjà un compte ?",

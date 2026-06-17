@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { CookieConsentBanner } from "@/components/public/cookie-consent-banner";
 import { SITE, siteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -161,6 +162,9 @@ export default async function RootLayout({
               closeButton
               theme="system"
             />
+            {/* Banniere de consentement RGPD — le composant decide lui-meme
+                de s'afficher (pages publiques uniquement, premier passage). */}
+            <CookieConsentBanner />
           </ThemeProvider>
         </NextIntlClientProvider>
         {/* Données structurées Organization (Schema.org) — apparaissent

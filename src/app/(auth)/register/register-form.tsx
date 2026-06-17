@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   AlertCircle,
@@ -276,7 +277,6 @@ export function RegisterForm() {
             className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={showPassword ? t("hidePassword") : t("showPassword")}
             aria-pressed={showPassword}
-            tabIndex={-1}
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" aria-hidden="true" />
@@ -328,7 +328,7 @@ export function RegisterForm() {
         type="submit"
         size="lg"
         className="w-full"
-        disabled={pending || !allCriteriaMet}
+        disabled={pending}
       >
         {pending ? (
           <>
@@ -340,7 +340,26 @@ export function RegisterForm() {
         )}
       </Button>
 
-      <p className="text-center text-xs text-muted-foreground">{t("terms")}</p>
+      <p className="text-center text-xs text-muted-foreground">
+        {t.rich("terms", {
+          terms: (chunks) => (
+            <Link
+              href="/legal"
+              className="font-medium text-foreground underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded"
+            >
+              {chunks}
+            </Link>
+          ),
+          privacy: (chunks) => (
+            <Link
+              href="/privacy"
+              className="font-medium text-foreground underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded"
+            >
+              {chunks}
+            </Link>
+          ),
+        })}
+      </p>
     </form>
   );
 }

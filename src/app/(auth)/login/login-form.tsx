@@ -150,7 +150,6 @@ export function LoginForm({ next }: { next?: string }) {
             autoComplete="current-password"
             required
             aria-required="true"
-            aria-invalid={error ? "true" : undefined}
             aria-describedby={error ? "form-error" : undefined}
             placeholder="••••••••"
             className="pl-9 pr-10"
@@ -162,7 +161,6 @@ export function LoginForm({ next }: { next?: string }) {
             className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={showPassword ? t("hidePassword") : t("showPassword")}
             aria-pressed={showPassword}
-            tabIndex={-1}
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" aria-hidden="true" />
