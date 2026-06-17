@@ -45,5 +45,18 @@ export default withSentryConfig(withNextIntl(nextConfig), {
   silent: true,
   // Les routes de tunnel contournent les adblockers, mais ajoutent un rewrite
   // sur chaque requête — inutile tant qu'on n'a pas de trafic significatif.
+
+  // Stack traces lisibles (source maps). N'a d'effet qu'avec SENTRY_AUTH_TOKEN
+  // posé ; sinon ces options sont ignorées (mode tolérant inchangé).
+  //
+  // widenClientFileUpload : remonte aussi les source maps des chunks partagés
+  // du bundle client, sinon certaines frames navigateur restent minifiées.
+  widenClientFileUpload: true,
+  sourcemaps: {
+    // SÉCURITÉ : on génère les maps pour l'upload, puis on les supprime du
+    // build. Elles ne sont JAMAIS servies au navigateur (sinon le code source
+    // complet fuiterait publiquement). Sentry garde sa copie pour dé-minifier.
+    deleteSourcemapsAfterUpload: true,
+  },
 });
 
