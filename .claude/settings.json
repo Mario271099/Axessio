@@ -80,13 +80,35 @@
       "Bash(git push *)",
       "Bash(Select-Object -Last 3)",
       "PowerShell(npm run build)",
-      "PowerShell(git -C \"c:\\\\Users\\\\mario\\\\Desktop\\\\Nouveau dossier\\\\axessio\\\\axessio-prototype\\\\axessio\" status --short)"
+      "PowerShell(git -C \"c:\\\\Users\\\\mario\\\\Desktop\\\\Nouveau dossier\\\\axessio\\\\axessio-prototype\\\\axessio\" status --short)",
+      "Bash(gh api *)",
+      "PowerShell(gh api repos/Mario271099/Axessio/commits/913e928/status --jq '.state, \\(.statuses[] | \"\\\\\\(.context\\): \\\\\\(.state\\) -> \\\\\\(.target_url\\)\"\\)')",
+      "Bash(mkdir -p .tmp-ref)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/DISIC/accessibilite.numerique.gouv.fr/main/RGAA/methodologies.json\" -o .tmp-ref/rgaa_methodologies.json)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/DISIC/accessibilite.numerique.gouv.fr/main/RGAA/criteres.json\" -o .tmp-ref/rgaa_criteres.json)",
+      "Bash(sort -t_ -k1 -n)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/accessibility-luxembourg/ReferentielAccessibiliteWeb/main/fr/json/methodologies.json\" -o raweb_methodologies.json)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/accessibility-luxembourg/ReferentielAccessibiliteMobile/main/fr/json/methodologies.json\" -o raam_methodologies.json)",
+      "Bash(ls -la *.xlsx *.xls)",
+      "Bash(find . -maxdepth 2 -iname \"*.xls*\" -not -path './node_modules/*')",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(ls -d test-results/a11y-Accessibilité-axe-cor-c9692-*)",
+      "Bash(grep -oE 'class=\\\\\\\\\"[^\"]*\\\\\\\\\"' __TRACKED_VAR__/error-context.md)",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Where-Object { $_.CommandLine -match 'next dev|turbopack' } | ForEach-Object { Write-Output \"Killing PID $\\($_.ProcessId\\)\"; Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; if \\(Test-Path \".next\\\\dev\"\\) { Remove-Item -Recurse -Force \".next\\\\dev\" }; Write-Output \"cleaned\")",
+      "Bash(echo \"BUILD_EXIT=$?\")",
+      "Bash(grep -aA 30 \"playwright.config.ts:34\" /tmp/build3.log)",
+      "Bash(cd \"c:\\\\Users\\\\mario\\\\Desktop\\\\Nouveau dossier\\\\axessio\\\\axessio-prototype\\\\axessio\" && git commit -F .git/COMMIT_A11Y.txt && rm -f .git/COMMIT_A11Y.txt && echo \"---\" && git log --oneline -1)",
+      "Bash(cd \"c:\\\\Users\\\\mario\\\\Desktop\\\\Nouveau dossier\\\\axessio\\\\axessio-prototype\\\\axessio\" && git add \"src/app/\\(dashboard\\)/audits/[uuid]/simulator/page.tsx\" src/components/audit/remediation-simulator.tsx && git commit -F .git/COMMIT_SIM.txt && rm -f .git/COMMIT_SIM.txt && echo \"---\" && git log --oneline -1)",
+      "Bash(git branch *)",
+      "PowerShell(git add \"messages/en.json\" \"messages/fr.json\" \"src/app/\\(auth\\)/register/register-form.tsx\" \"src/app/pricing/billing-interval-toggle.tsx\" \"src/app/onboarding\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\mario\\.claude\\projects\\c--Users-mario-Desktop-Nouveau-dossier-axessio-axessio-prototype-axessio\\memory",
       "C:\\Users\\mario\\Desktop\\Nouveau dossier\\axessio\\axessio-prototype\\axessio",
       "c:\\Users\\mario\\Desktop\\Nouveau dossier\\axessio\\axessio-prototype\\axessio",
-      "C:\\Users\\mario\\Desktop\\Nouveau dossier\\axessio\\axessio-prototype\\axessio\\src\\app\\(dashboard)\\organizations\\[slug]"
+      "C:\\Users\\mario\\Desktop\\Nouveau dossier\\axessio\\axessio-prototype\\axessio\\src\\app\\(dashboard)\\organizations\\[slug]",
+      "c:\\Users\\mario\\Desktop\\Nouveau dossier\\axessio\\axessio-prototype\\axessio\\.git",
+      "C:\\Users\\mario\\Desktop\\Nouveau dossier\\axessio\\axessio-prototype\\axessio\\.git"
     ]
   }
 }
