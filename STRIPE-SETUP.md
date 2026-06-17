@@ -247,6 +247,36 @@ stripe trigger invoice.payment_failed
 
 ---
 
+## 11. (Optionnel) Activer PayPal comme moyen de paiement
+
+PayPal passe **par Stripe** — pas besoin d'un SDK PayPal séparé ni d'un second webhook. Stripe gère PayPal comme un moyen de paiement parmi d'autres, y compris pour les abonnements récurrents.
+
+Le code de checkout ([actions.ts](src/app/(dashboard)/organizations/[slug]/billing/actions.ts)) ne fige **aucune** liste de moyens de paiement : il utilise les **« moyens de paiement automatiques »** pilotés depuis le Dashboard Stripe. Conséquence : PayPal apparaît tout seul sur la page de paiement dès qu'il est activé **et** éligible, et reste invisible sinon — la carte continue de fonctionner dans tous les cas.
+
+### Activation
+
+1. **Dashboard Stripe → Settings → Payment methods**
+2. Cherche **PayPal** dans la liste → **Activer**.
+3. C'est tout. Le bouton PayPal apparaît automatiquement sur Stripe Checkout, à côté de la carte.
+
+Aucun changement de code, aucun nouvel événement webhook : Stripe envoie les **mêmes** événements (`checkout.session.completed`, `customer.subscription.*`, `invoice.*`) quel que soit le moyen de paiement. Toute la synchro DB existante continue de marcher.
+
+### Éligibilité — à vérifier d'abord
+
+PayPal **récurrent** via Stripe n'est pas disponible partout :
+
+- Compte Stripe rattaché à l'**EEA / UK / Suisse**.
+- Devise compatible (**EUR** ✅, GBP, etc.).
+- Si PayPal n'apparaît pas dans *Settings → Payment methods*, ou est grisé, c'est que ton compte n'y est pas (encore) éligible — vérifie le pays du compte et la devise des prix.
+
+> Tant que l'éligibilité n'est pas confirmée, **ne pas** coder en dur `payment_method_types: ["card", "paypal"]` dans `startCheckout()` : si PayPal n'est pas un moyen autorisé sur le compte, Stripe rejette la création de la session et **casse aussi le paiement par carte**. Le mode automatique (config Dashboard) est volontairement choisi pour éviter ça.
+
+### Tester
+
+Même flow qu'en section 8, mais sur la page Stripe Checkout tu choisis **PayPal** au lieu de la carte. En mode test, Stripe ouvre un sandbox PayPal simulé (pas de vrai compte requis).
+
+---
+
 ## Dépannage
 
 ### "Le paiement n'est pas encore configuré sur cette instance"

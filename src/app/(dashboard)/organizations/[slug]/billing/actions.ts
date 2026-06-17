@@ -88,6 +88,12 @@ export async function startCheckout(
     .maybeSingle();
   const returnPath = org ? `/organizations/${org.slug}/billing` : "/";
 
+  // NB: on ne renseigne PAS `payment_method_types`. Stripe utilise alors les
+  // « moyens de paiement automatiques » configurés dans le Dashboard. C'est ce
+  // qui permet d'activer PayPal (ou un autre moyen) sans toucher au code : il
+  // suffit de l'activer côté Dashboard (cf. STRIPE-SETUP.md §11). Ne PAS coder
+  // en dur ["card", "paypal"] : si le compte n'est pas éligible à PayPal, Stripe
+  // rejette la session et casse aussi le paiement par carte.
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
