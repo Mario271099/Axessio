@@ -5,13 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { CONSENT_KEY, type Consent } from "@/lib/consent";
+import { initSentryClient } from "@/lib/sentry-client";
 
 // Selecteur du bouton "Accepter" (focus a l'ouverture). Pose en data-attr
 // car le composant Button ne type pas `ref`.
 const ACCEPT_SELECTOR = "[data-cookie-accept]";
-
-const CONSENT_KEY = "axessyo_cookie_consent";
-type Consent = "accepted" | "refused";
 
 // Prefixes des routes publiques (non authentifiees). La banniere ne s'affiche
 // que la-dessus : les pages applicatives (dashboard, onboarding, organisations)
@@ -74,9 +73,12 @@ export function CookieConsentBanner() {
     } catch {
       // ignore : on ferme quand meme la banniere pour ne pas bloquer l'UI.
     }
-    // TODO(consent): brancher l'init Sentry (instrumentation-client.ts) sur ce
-    // choix - ne charger le SDK que si `consent === "accepted"`. Pour l'instant
-    // Sentry reste pilote par NEXT_PUBLIC_SENTRY_DSN cote build.
+    // RGPD : on n'initialise Sentry qu'apres un consentement explicite. L'init
+    // est idempotente, donc sans risque de double appel au prochain chargement.
+    // En cas de refus, on ne charge rien (et le SDK ne sera pas init au reload).
+    if (consent === "accepted") {
+      initSentryClient();
+    }
     setVisible(false);
   }
 
