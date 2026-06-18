@@ -24,7 +24,7 @@ const ALL_PLAN_CODES: readonly PlanCode[] = [
 ];
 
 // ============================================================================
-// PLANS — structure générale
+// PLANS - structure générale
 // ============================================================================
 describe("PLANS catalogue", () => {
   it("expose les 4 plans free / starter / pro / enterprise", () => {

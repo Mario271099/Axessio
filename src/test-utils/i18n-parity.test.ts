@@ -7,7 +7,7 @@ import en from "../../messages/en.json";
 // prod soit un fallback silencieux soit la clé brute affichée à l'écran. Ce
 // test casse le CI avant que ça parte en prod.
 //
-// On compare les chemins de clés "feuilles" (leaf) — c.-à-d. les clés qui
+// On compare les chemins de clés "feuilles" (leaf) - c.-à-d. les clés qui
 // portent une string, pas les objets de namespace intermédiaires.
 
 type Json = string | number | boolean | null | { [k: string]: Json } | Json[];

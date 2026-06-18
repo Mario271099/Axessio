@@ -42,7 +42,7 @@ export type FeatureGuard = FeatureGuardSuccess | FeatureGuardFailure;
 
 /**
  * À appeler en tête d'une server action pour bloquer une fonctionnalité
- * payante. Retour explicite plutôt que throw — on attend du caller qu'il
+ * payante. Retour explicite plutôt que throw - on attend du caller qu'il
  * formate l'erreur côté UI (upsell, modale, etc.).
  */
 export async function requireFeature(code: FeatureCode): Promise<FeatureGuard> {

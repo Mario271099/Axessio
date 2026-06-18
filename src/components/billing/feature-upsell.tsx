@@ -18,9 +18,9 @@ import { resolveCurrentOrg } from "@/lib/current-org";
 
 interface FeatureUpsellProps {
   feature: FeatureCode;
-  /** Titre custom — sinon une formulation générique est utilisée. */
+  /** Titre custom - sinon une formulation générique est utilisée. */
   title?: string;
-  /** Description custom — sinon mention du plan minimum. */
+  /** Description custom - sinon mention du plan minimum. */
   description?: string;
 }
 

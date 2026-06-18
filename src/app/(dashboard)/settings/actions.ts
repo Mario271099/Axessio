@@ -21,7 +21,7 @@ export interface SettingsActionResult {
 
 const MAX_NAME_LENGTH = 80;
 const MIN_PASSWORD_LENGTH = 8;
-const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2 Mo — aligné sur le bucket SQL.
+const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2 Mo - aligné sur le bucket SQL.
 const ALLOWED_AVATAR_MIMES: ReadonlySet<string> = new Set([
   "image/png",
   "image/jpeg",
@@ -109,7 +109,7 @@ export async function changePassword(
 
   // Vérifie l'actuel : on tente une connexion. Si elle échoue, le mot de
   // passe actuel saisi n'est pas le bon. Si elle réussit, la session est
-  // simplement rafraîchie côté Supabase — aucune redirection requise.
+  // simplement rafraîchie côté Supabase - aucune redirection requise.
   const { error: verifyError } = await supabase.auth.signInWithPassword({
     email: user.email,
     password: currentPassword,
@@ -258,8 +258,8 @@ export async function deleteAvatar(): Promise<SettingsActionResult> {
 // Étapes :
 //  1. Vérifie que la chaîne de confirmation matche (anti-clic accidentel).
 //  2. Empêche le dernier super-admin de se supprimer (laisserait la plateforme
-//     sans admin) — sécurité de cohérence, indépendante du RBAC org.
-//  3. Vérifie qu'aucune org n'a ce user comme `owner` unique — un owner doit
+//     sans admin) - sécurité de cohérence, indépendante du RBAC org.
+//  3. Vérifie qu'aucune org n'a ce user comme `owner` unique - un owner doit
 //     transférer avant de partir, sinon l'org devient orpheline.
 //  4. Supprime via service-role : `auth.users` cascade sur `profiles` (FK
 //     `on delete cascade` posée en migration 02). Les audit_logs avec
@@ -347,7 +347,7 @@ export async function setNotificationPreference(
 //
 // Annulation pendant l'enrollement :
 //  - cancelMfaEnrollment(factorId) supprime simplement un facteur encore
-//    unverified — pas besoin d'aal2 puisqu'il n'a jamais été activé.
+//    unverified - pas besoin d'aal2 puisqu'il n'a jamais été activé.
 // ============================================================================
 export interface MfaStatus {
   enabled: boolean;
@@ -450,7 +450,7 @@ export async function unenrollMfa(
   }
   if (!factorId) return { error: tCommon("forbidden") };
 
-  // challengeAndVerify bump l'AAL de la session à aal2 — requis pour pouvoir
+  // challengeAndVerify bump l'AAL de la session à aal2 - requis pour pouvoir
   // dénregistrer un facteur vérifié.
   const { error: verifyError } = await supabase.auth.mfa.challengeAndVerify({
     factorId,
@@ -494,7 +494,7 @@ export async function deleteAccount(
   if (!user) return { error: tCommon("notAuthenticated") };
 
   const expected = (formData.get("confirm") as string | null)?.trim() ?? "";
-  // La chaîne attendue est l'email — preuve que l'utilisateur lit ce qu'il
+  // La chaîne attendue est l'email - preuve que l'utilisateur lit ce qu'il
   // tape, et qu'il connaît son propre identifiant.
   if (!user.email || expected.toLowerCase() !== user.email.toLowerCase()) {
     return { error: t("deleteAccountConfirmMismatch") };
@@ -560,7 +560,7 @@ export interface LoginActivityEntry {
 /**
  * Dernières activités de connexion de l'utilisateur courant :
  *   - `login.success` (actor_id = user, posé par /api/auth/login-success)
- *   - `login.failed`  (anonyme — rapproché par l'email du compte)
+ *   - `login.failed`  (anonyme - rapproché par l'email du compte)
  *
  * audit_logs est en RLS restrictive : la lecture passe par la service-role,
  * strictement bornée à l'identité authentifiée (jamais d'événement d'un autre

@@ -136,7 +136,7 @@ export default async function PermissionsDebugPage() {
             >
               <table className="w-full text-sm">
                 <caption className="sr-only">
-                  {t("title")} — {t(`groups.${group.key}`)}
+                  {t("title")} - {t(`groups.${group.key}`)}
                 </caption>
                 <thead className="border-b border-border bg-muted/40">
                   <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">

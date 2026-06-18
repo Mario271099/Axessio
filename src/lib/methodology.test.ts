@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { localizeProcedure, parseMethodology } from "./methodology";
 
 // ============================================================================
-// parseMethodology — découpage des blocs "Test X.Y.Z" + question
+// parseMethodology - découpage des blocs "Test X.Y.Z" + question
 // ============================================================================
 describe("parseMethodology", () => {
   it("retourne un tableau vide pour null / undefined / vide", () => {
@@ -69,7 +69,7 @@ describe("parseMethodology", () => {
 });
 
 // ============================================================================
-// localizeProcedure — résolution string | { en, fr? } selon la locale
+// localizeProcedure - résolution string | { en, fr? } selon la locale
 // ============================================================================
 describe("localizeProcedure", () => {
   it("retourne null pour null / undefined", () => {

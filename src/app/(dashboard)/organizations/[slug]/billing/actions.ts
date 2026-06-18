@@ -14,7 +14,7 @@ export interface BillingActionResult {
 }
 
 // ----------------------------------------------------------------------------
-// Checkout — démarre une session Stripe Checkout pour upgrade
+// Checkout - démarre une session Stripe Checkout pour upgrade
 // ----------------------------------------------------------------------------
 export async function startCheckout(
   organizationId: string,
@@ -112,7 +112,7 @@ export async function startCheckout(
 }
 
 // ----------------------------------------------------------------------------
-// Customer Portal — l'utilisateur gère lui-même son abonnement
+// Customer Portal - l'utilisateur gère lui-même son abonnement
 // ----------------------------------------------------------------------------
 export async function openCustomerPortal(
   organizationId: string,

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { cn, formatDate, formatScore, initials } from "./utils";
 
 // ============================================================================
-// cn() — wrapper clsx + tailwind-merge
+// cn() - wrapper clsx + tailwind-merge
 // ============================================================================
 describe("cn", () => {
   it("concatène deux chaînes simples", () => {
@@ -60,17 +60,17 @@ describe("cn", () => {
 // formatDate()
 // ============================================================================
 describe("formatDate", () => {
-  it("retourne — pour null", () => {
+  it("retourne - pour null", () => {
     expect(formatDate(null)).toBe("—");
   });
 
-  it("retourne — pour undefined", () => {
+  it("retourne - pour undefined", () => {
     expect(formatDate(undefined)).toBe("—");
   });
 
   it("formate une chaîne ISO en français (jour court, mois abrégé, année)", () => {
     const formatted = formatDate("2026-05-12T10:00:00Z");
-    // Le format est "12 mai 2026" — locale fr-FR, mois court.
+    // Le format est "12 mai 2026" - locale fr-FR, mois court.
     // On vérifie la présence des trois parties pour être robuste aux variations
     // d'environnement (espace insécable, point après le mois, etc.).
     expect(formatted).toMatch(/12/);
@@ -88,11 +88,11 @@ describe("formatDate", () => {
 // formatScore()
 // ============================================================================
 describe("formatScore", () => {
-  it("retourne — pour null", () => {
+  it("retourne - pour null", () => {
     expect(formatScore(null)).toBe("—");
   });
 
-  it("retourne — pour undefined", () => {
+  it("retourne - pour undefined", () => {
     expect(formatScore(undefined)).toBe("—");
   });
 

@@ -76,7 +76,7 @@ export const NC_STATUS_LABELS: Record<NCStatus, string> = {
   FIXED: "Corrigée",
 };
 
-/** Statuts considérés comme "fermés" — utilisés par le simulateur de remédiation. */
+/** Statuts considérés comme "fermés" - utilisés par le simulateur de remédiation. */
 export const NC_CLOSED_STATUSES: NCStatus[] = [
   "CORRECTED",
   "RESOLVED",
@@ -84,7 +84,7 @@ export const NC_CLOSED_STATUSES: NCStatus[] = [
 ];
 
 // ============================================================================
-// Cycle de relecture NC — libellés + couleurs
+// Cycle de relecture NC - libellés + couleurs
 // ============================================================================
 export const NC_REVIEW_STATUS_LABELS: Record<NCReviewStatus, string> = {
   not_requested: "Non demandée",

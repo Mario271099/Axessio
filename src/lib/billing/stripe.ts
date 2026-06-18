@@ -1,4 +1,4 @@
-// Client Stripe — strictement serveur. Ne JAMAIS importer côté client.
+// Client Stripe - strictement serveur. Ne JAMAIS importer côté client.
 //
 // Le module est tolérant à l'absence des clés Stripe : si `STRIPE_SECRET_KEY`
 // est manquante, `getStripe()` lève une erreur explicite et `isStripeReady()`
@@ -17,7 +17,7 @@ export function isStripeReady(): boolean {
 export function getStripe(): Stripe {
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error(
-      "STRIPE_SECRET_KEY manquant — configurer la variable d'environnement avant d'appeler getStripe().",
+      "STRIPE_SECRET_KEY manquant - configurer la variable d'environnement avant d'appeler getStripe().",
     );
   }
   if (!_client) {
@@ -35,7 +35,7 @@ export function getWebhookSecret(): string {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secret) {
     throw new Error(
-      "STRIPE_WEBHOOK_SECRET manquant — impossible de vérifier les webhooks.",
+      "STRIPE_WEBHOOK_SECRET manquant - impossible de vérifier les webhooks.",
     );
   }
   return secret;

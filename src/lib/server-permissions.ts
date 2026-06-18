@@ -61,7 +61,7 @@ export async function requirePermission(
  * C'est le helper à utiliser pour les actions du domaine audit pendant la
  * coexistence des deux modèles (cf. ROLES_ROADMAP.md, bascule 6C.2) : le staff
  * plateforme (auditor/admin legacy) continue de passer, et un owner/auditor
- * d'org self-serve passe désormais aussi — chacun scopé à son périmètre par la
+ * d'org self-serve passe désormais aussi - chacun scopé à son périmètre par la
  * RLS (la 2ᵉ ligne de défense reste `has_org_permission_on(..., org_id)`).
  */
 export async function requireAnyPermission(
@@ -100,7 +100,7 @@ export async function requireAnyPermission(
 }
 
 // ============================================================================
-// RBAC org-scopé (Phase 3 — alignée sur migrations 47/48)
+// RBAC org-scopé (Phase 3 - alignée sur migrations 47/48)
 // ============================================================================
 
 /**

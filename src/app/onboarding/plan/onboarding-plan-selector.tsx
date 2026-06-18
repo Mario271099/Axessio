@@ -216,7 +216,7 @@ export function OnboardingPlanSelector({
         })}
       </div>
 
-      {/* Skip — l'étape ne doit jamais bloquer l'accès au produit */}
+      {/* Skip - l'étape ne doit jamais bloquer l'accès au produit */}
       <div className="mt-10 text-center">
         <Button
           variant="ghost"

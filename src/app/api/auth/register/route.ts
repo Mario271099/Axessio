@@ -5,14 +5,14 @@
 //   - la création de l'utilisateur Auth est une opération admin ;
 //   - l'insertion du membership `owner` ne peut PAS passer par la RLS
 //     (`org_members_manage` exige déjà un admin d'org, or l'org vient de
-//     naître sans aucun membre — cf. commentaire migration 42).
+//     naître sans aucun membre - cf. commentaire migration 42).
 //
 // Le login lui-même reste côté client (signInWithPassword) après le 200 : on
 // suit la convention d'auth du projet (cookie posé par le navigateur).
 //
 // Choix du rôle legacy `client_admin` : un inscrit self-serve administre SA
 // propre org. `client_admin` est tenant-scopé (`accessible_project_ids` le
-// borne à son `client_id`) — contrairement à `auditor`, qui via `is_auditor()`
+// borne à son `client_id`) - contrairement à `auditor`, qui via `is_auditor()`
 // verrait TOUS les tenants. On ne donne donc jamais `auditor` à un signup
 // public (fuite cross-tenant). cf. CLAUDE.md (précédence des autorisations).
 
@@ -106,7 +106,7 @@ export async function POST(req: Request) {
   const admin = createAdminClient();
 
   // 1. Création de l'utilisateur Auth. `email_confirm: true` : on confirme
-  //    d'emblée (Resend est en sandbox — pas d'email de confirmation fiable).
+  //    d'emblée (Resend est en sandbox - pas d'email de confirmation fiable).
   //    Les métadonnées alimentent le trigger `handle_new_user` qui crée le
   //    profil (prénom/nom/role).
   const { data: created, error: createError } =

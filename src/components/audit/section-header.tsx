@@ -5,7 +5,7 @@ interface SectionHeaderProps {
   title: string;
   description?: string;
   className?: string;
-  /** Ton de l'icône — détermine la couleur de la pastille. */
+  /** Ton de l'icône - détermine la couleur de la pastille. */
   tone?: "primary" | "warning" | "success" | "muted";
 }
 

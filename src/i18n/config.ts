@@ -27,7 +27,7 @@ export function isLocale(value: unknown): value is Locale {
  * Détecte la locale préférée depuis le header `Accept-Language` du navigateur.
  * Parcourt les langues par ordre de qualité (q) décroissant et retourne la
  * première supportée. Fallback : DEFAULT_LOCALE (fr). Utilisée par le proxy
- * pour poser le cookie au premier chargement — un choix explicite de
+ * pour poser le cookie au premier chargement - un choix explicite de
  * l'utilisateur (LanguageToggle) prime ensuite via le cookie.
  */
 export function detectLocaleFromHeader(header: string | null): Locale {

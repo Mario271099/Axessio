@@ -31,7 +31,7 @@ export async function assignProofreader(
   // Feature gate : la relecture interne est incluse à partir du plan Pro.
   // On garde la levée du verrou côté assignation (création du membership)
   // pour ne pas casser les audits déjà en cours de relecture si une org
-  // rétrograde — le cycle review_status restera consultable mais on ne
+  // rétrograde - le cycle review_status restera consultable mais on ne
   // pourra plus en démarrer un nouveau.
   const feature = await requireFeature("audit.proofreading");
   if (!feature.ok) return { error: feature.error };

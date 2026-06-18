@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  // Bordure 1 px colorée de la même teinte que le fond — donne le rendu
+  // Bordure 1 px colorée de la même teinte que le fond - donne le rendu
   // « pastille » caractéristique du DS Linear/Stripe.
   "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium " +
     "transition-colors duration-150 " +

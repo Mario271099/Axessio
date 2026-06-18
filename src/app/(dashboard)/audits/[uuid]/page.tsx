@@ -143,7 +143,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
       .select("id", { count: "exact", head: true })
       .eq("audit_id", uuid)
       .neq("status", "RESOLVED"),
-    // NC critiques ouvertes — KPI "risque" du bandeau.
+    // NC critiques ouvertes - KPI "risque" du bandeau.
     supabase
       .from("non_conformities")
       .select("id", { count: "exact", head: true })
@@ -199,7 +199,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
   // admins actifs, on filtre côté JS les déjà-assignés.
   // ──────────────────────────────────────────────────────────────────────────
   // Gestion des assignees : admin ET client_admin (élargi par migration 35).
-  // Pour client_admin, la RLS filtre déjà sur son client — pas besoin de
+  // Pour client_admin, la RLS filtre déjà sur son client - pas besoin de
   // double check côté UI.
   const canManageAssignees = canAny(
     profile.role,
@@ -264,7 +264,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
       };
     });
 
-  // Contacts client (Porte 2 — Phase 5). Visibilité scopée à cet audit
+  // Contacts client (Porte 2 - Phase 5). Visibilité scopée à cet audit
   // uniquement, fil review automatiquement masqué (mig. 70).
   const contacts = rawAssignees
     .filter((row) => row.role === "contact")
@@ -309,7 +309,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
     let orgMemberRows: CandidateRow[] = [];
     if (auditOrgId) {
       // Désambiguïsation FK obligatoire : `organization_members` a deux FK vers
-      // profiles (`user_id` et `invited_by`) — sans préciser, l'embed échoue.
+      // profiles (`user_id` et `invited_by`) - sans préciser, l'embed échoue.
       const { data: memberRows } = await supabase
         .from("organization_members")
         .select(
@@ -520,7 +520,7 @@ export default async function AuditDetailPage({ params }: PageProps) {
                 <span>{tServiceType(audit.service_type as ServiceType)}</span>
               </div>
 
-              {/* Actions header — boutons compacts, rangés en pills */}
+              {/* Actions header - boutons compacts, rangés en pills */}
               <div className="flex flex-wrap items-center gap-2 pt-2">
                 {canExportReport && (
                   <ExportReportButton

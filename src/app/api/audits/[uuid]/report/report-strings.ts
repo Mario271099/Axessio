@@ -1,4 +1,4 @@
-// Dictionnaires bilingues du rapport PDF — encapsulés ici pour ne pas polluer
+// Dictionnaires bilingues du rapport PDF - encapsulés ici pour ne pas polluer
 // `lib/constants.ts` (la majorité de l'app reste en FR). Tout libellé visible
 // dans le PDF DOIT passer par ces tables.
 // Extrait de report-template.tsx (découpage des gros fichiers).
@@ -177,7 +177,7 @@ const STRINGS_FR: Dict = {
   ncSeverityAria: "Sévérité {label}",
   ncStatusAria: "Statut {label}",
   ncReferenceAria: "Référence {nc}",
-  docTitle: "Rapport d'audit — {project}",
+  docTitle: "Rapport d'audit - {project}",
   docSubject: "Rapport d'audit d'accessibilité numérique",
   docDescription:
     "Rapport d'audit d'accessibilité numérique pour {project} ({client}). Référentiel {reference} {version}, plateforme {platform}.",
@@ -294,7 +294,7 @@ const STRINGS_EN: Dict = {
   ncSeverityAria: "Severity {label}",
   ncStatusAria: "Status {label}",
   ncReferenceAria: "Reference {nc}",
-  docTitle: "Audit report — {project}",
+  docTitle: "Audit report - {project}",
   docSubject: "Digital accessibility audit report",
   docDescription:
     "Digital accessibility audit report for {project} ({client}). Reference {reference} {version}, platform {platform}.",
@@ -340,7 +340,7 @@ export function getDict(locale: ReportLocale): Dict {
   return locale === "en" ? STRINGS_EN : STRINGS_FR;
 }
 
-// Substitution simpliste — couvre nos placeholders {name}, {count}, etc.
+// Substitution simpliste - couvre nos placeholders {name}, {count}, etc.
 // Le plural ICU est géré séparément (nous n'en avons qu'une seule chaîne).
 export function fmt(
   template: string,
@@ -351,7 +351,7 @@ export function fmt(
   );
 }
 
-// Mini-ICU plural inliner — gère uniquement la forme `{count, plural, one {…} other {…}}`
+// Mini-ICU plural inliner - gère uniquement la forme `{count, plural, one {…} other {…}}`
 // utilisée par `ncIntro` (le `#` est remplacé par le nombre).
 export function plural(template: string, count: number): string {
   return template.replace(

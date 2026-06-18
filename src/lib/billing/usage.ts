@@ -6,11 +6,11 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 
 // ============================================================================
-// max_active_audits — audits "actifs" = pas dans un statut terminal.
+// max_active_audits - audits "actifs" = pas dans un statut terminal.
 // ============================================================================
 // Terminaux (ne comptent pas pour la limite) : ARCHIVED, ONLINE, COMPLETED.
 // Tous les autres (PENDING, PLANNED, IN_PROGRESS, DELIVERED, REMEDIATION,
-// COUNTER_AUDIT) comptent comme "actifs" — c'est ce que l'utilisateur
+// COUNTER_AUDIT) comptent comme "actifs" - c'est ce que l'utilisateur
 // suit en cours dans son tableau de bord.
 const TERMINAL_STATUSES = ["ARCHIVED", "ONLINE", "COMPLETED"];
 
@@ -27,7 +27,7 @@ export async function countActiveAuditsInOrg(
 }
 
 // ============================================================================
-// max_audits_per_month — audits créés dans le mois calendaire courant.
+// max_audits_per_month - audits créés dans le mois calendaire courant.
 // ============================================================================
 export async function countAuditsCreatedThisMonthInOrg(
   organizationId: string,
@@ -44,7 +44,7 @@ export async function countAuditsCreatedThisMonthInOrg(
 }
 
 // ============================================================================
-// max_members — membres de l'organisation.
+// max_members - membres de l'organisation.
 // ============================================================================
 export async function countMembersInOrg(
   organizationId: string,
@@ -58,7 +58,7 @@ export async function countMembersInOrg(
 }
 
 // ============================================================================
-// max_clients — clients distincts dans le carnet d'adresses de l'org.
+// max_clients - clients distincts dans le carnet d'adresses de l'org.
 // ============================================================================
 export async function countClientsInOrg(
   organizationId: string,

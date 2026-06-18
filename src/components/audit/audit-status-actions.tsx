@@ -79,7 +79,7 @@ export function AuditStatusActions({
   function submit() {
     if (!target) return;
     setServerError(null);
-    // On capture le statut courant AVANT l'appel — c'est vers lui qu'on
+    // On capture le statut courant AVANT l'appel - c'est vers lui qu'on
     // reviendra si l'utilisateur clique « Annuler ». La capture en variable
     // locale évite que la closure du toast lise un currentStatus déjà mis
     // à jour par router.refresh().
@@ -97,7 +97,7 @@ export function AuditStatusActions({
       setTarget(null);
       router.refresh();
 
-      // Toast Sonner avec action « Annuler ». 7 s d'affichage — laisse
+      // Toast Sonner avec action « Annuler ». 7 s d'affichage - laisse
       // le temps de lire avant de réagir, tout en restant éphémère.
       toast.success(t("undoToast.title", { status: tStatus(toStatus) }), {
         description: t("undoToast.description"),

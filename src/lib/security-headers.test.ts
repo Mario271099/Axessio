@@ -6,7 +6,7 @@ function header(key: string): string | undefined {
   return SECURITY_HEADERS.find((h) => h.key === key)?.value;
 }
 
-describe("SECURITY_HEADERS — en-têtes statiques", () => {
+describe("SECURITY_HEADERS - en-têtes statiques", () => {
   it("bloque le rendu en iframe (anti-clickjacking)", () => {
     expect(header("X-Frame-Options")).toBe("DENY");
   });
@@ -33,7 +33,7 @@ describe("SECURITY_HEADERS — en-têtes statiques", () => {
   });
 });
 
-describe("SECURITY_HEADERS — Content-Security-Policy", () => {
+describe("SECURITY_HEADERS - Content-Security-Policy", () => {
   const csp = header("Content-Security-Policy") ?? "";
 
   it("est présente", () => {

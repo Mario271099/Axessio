@@ -59,7 +59,7 @@ export default async function PlanningPage({ searchParams }: PageProps) {
   const profile = await requireProfile();
 
   // Page réservée au staff plateforme (admin + auditor). Les clients ne
-  // voient pas le planning interne — ils n'auraient de toute façon pas accès
+  // voient pas le planning interne - ils n'auraient de toute façon pas accès
   // aux dates des autres audits via la RLS.
   if (!canEditAudit(profile.role)) {
     redirect("/dashboard");
@@ -148,7 +148,7 @@ export default async function PlanningPage({ searchParams }: PageProps) {
 
   // Cast via `unknown` : le typage inféré par Supabase a `client` en tableau,
   // alors qu'on le sait single via `!inner`. Le cast strict est refusé en
-  // build (mais accepté en incremental check) — passer par `unknown` est
+  // build (mais accepté en incremental check) - passer par `unknown` est
   // la conversion recommandée par TS pour ce cas précis.
   const auditRows = ((rows ?? []) as unknown as RawRow[]).filter((row) => {
     if (!auditorFilter) return true;

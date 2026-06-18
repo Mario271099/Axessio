@@ -83,7 +83,7 @@ export async function createAudit(
 
   // Garde-fou serveur : le référentiel RAAM est mobile-only. Si l'UI a
   // été contournée et envoie WEB, on corrige silencieusement plutôt que
-  // de rejeter — l'utilisateur ne voit pas l'erreur, on évite une perte
+  // de rejeter - l'utilisateur ne voit pas l'erreur, on évite une perte
   // de saisie.
   let effectivePlatform: PlatformType = platform;
   if (referenceId) {
@@ -98,7 +98,7 @@ export async function createAudit(
   }
 
   // Validation chronologique : chaque date doit être strictement supérieure
-  // à la précédente. Re-check côté serveur — l'UI peut être contournée.
+  // à la précédente. Re-check côté serveur - l'UI peut être contournée.
   if (expectedStartAt) {
     const today = new Date();
     const startDate = new Date(expectedStartAt);
@@ -134,7 +134,7 @@ export async function createAudit(
   // ============================================================================
   // Limites de plan : `max_active_audits` (concurrents) + `max_audits_per_month`.
   // Le projet détermine l'organisation, et l'organisation détermine le plan.
-  // On lit la limite depuis le catalogue TS (`PLANS[plan_code]`) — strictement
+  // On lit la limite depuis le catalogue TS (`PLANS[plan_code]`) - strictement
   // aligné avec le seed SQL, donc fiable et sans round-trip supplémentaire.
   // ============================================================================
   const { data: projectRow } = await supabase
@@ -157,7 +157,7 @@ export async function createAudit(
     const maxActive = planLimit(planCode, "max_active_audits");
     const maxPerMonth = planLimit(planCode, "max_audits_per_month");
 
-    // On parallélise les deux comptages — chacun fait un COUNT(*) léger.
+    // On parallélise les deux comptages - chacun fait un COUNT(*) léger.
     const [activeCount, monthCount] = await Promise.all([
       maxActive !== null ? countActiveAuditsInOrg(orgId) : Promise.resolve(0),
       maxPerMonth !== null
@@ -539,7 +539,7 @@ export async function bulkDeleteAudits(
   if (!auth.ok) return { error: auth.error };
 
   // Suppression hard réservée au super-admin. canEditAudit() suffit pour
-  // l'archivage mais pas pour wiper la donnée — on garde un garde-fou
+  // l'archivage mais pas pour wiper la donnée - on garde un garde-fou
   // supplémentaire ici.
   if (auth.role !== "admin") {
     const t = await getTranslations("errors");

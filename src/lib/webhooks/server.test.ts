@@ -25,7 +25,7 @@ describe("WEBHOOK_EVENTS catalogue", () => {
 });
 
 // ============================================================================
-// nextAttemptDelaySec — back-off exponentiel borné
+// nextAttemptDelaySec - back-off exponentiel borné
 // ============================================================================
 describe("nextAttemptDelaySec", () => {
   it("démarre à 60s après la première tentative", () => {
@@ -50,7 +50,7 @@ describe("nextAttemptDelaySec", () => {
 });
 
 // ============================================================================
-// signWebhookPayload — HMAC SHA-256 format Stripe
+// signWebhookPayload - HMAC SHA-256 format Stripe
 // ============================================================================
 describe("signWebhookPayload", () => {
   const SECRET = "whsec_test_secret_for_unit_tests";

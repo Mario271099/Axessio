@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title") };
 }
 
-// Pagination — 50 lignes par page. À 150k audits ça fait 3000 pages, ce qui
+// Pagination - 50 lignes par page. À 150k audits ça fait 3000 pages, ce qui
 // n'est pas un usage attendu : la combinaison filtre + recherche doit
 // permettre de descendre à des sous-ensembles raisonnables avant de paginer.
 const PAGE_SIZE = 50;
@@ -89,7 +89,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
       : null;
 
   // « Mes audits » : ne s'applique qu'aux users qui peuvent éditer un audit
-  // (staff). Pour les autres, ce filtre n'a pas de sens — leur scope d'accès
+  // (staff). Pour les autres, ce filtre n'a pas de sens - leur scope d'accès
   // (RLS) est déjà étroit. On l'ignore silencieusement.
   const canEditAudits = canAny(profile.role, orgPerms, "audit.edit");
   const mineFilter = canEditAudits && sp.mine === "1";
@@ -126,7 +126,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
   const currentOrgId = currentOrgIdRaw as string | null;
 
   // ---------------------------------------------------------------------
-  // Requête paginée — un seul aller-retour qui renvoie aussi le `count`
+  // Requête paginée - un seul aller-retour qui renvoie aussi le `count`
   // exact (utilisé par la pagination). Tout le filtrage est fait en SQL.
   // `projects!inner` rend la jointure obligatoire et permet de filtrer
   // par nom de projet.
@@ -149,7 +149,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
   if (statusFilter) request = request.eq("status", statusFilter);
   if (platformFilter) request = request.eq("platform", platformFilter);
   if (mineFilter) {
-    // Si aucune assignation, la liste sera vide — comportement attendu.
+    // Si aucune assignation, la liste sera vide - comportement attendu.
     request = request.in("id", mineAuditIds ?? []);
   }
   if (query) {

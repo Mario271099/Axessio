@@ -1,4 +1,4 @@
-// EmptyState — composant partagé pour les états vides (listes sans résultats,
+// EmptyState - composant partagé pour les états vides (listes sans résultats,
 // premières connexions, etc.). Volontairement sans interactivité interne :
 // le caller fournit son propre CTA via `children` (lien, bouton, dialog…).
 
@@ -9,7 +9,7 @@ interface Props {
   icon?: LucideIcon;
   title: string;
   description?: string;
-  /** CTA(s) — bouton, lien, etc. Rendu sous le texte. */
+  /** CTA(s) - bouton, lien, etc. Rendu sous le texte. */
   children?: React.ReactNode;
   className?: string;
 }

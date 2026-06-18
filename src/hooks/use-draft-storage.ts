@@ -18,7 +18,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// 7 jours — au-delà, le brouillon est considéré obsolète et silencieusement
+// 7 jours - au-delà, le brouillon est considéré obsolète et silencieusement
 // purgé. Évite d'accumuler des brouillons orphelins après abandon.
 const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -86,7 +86,7 @@ export function useDraftStorage<T>(
       setSavedAt(new Date(parsed.savedAt));
     } catch {
       // localStorage peut throw (mode privé strict, quota). On échoue
-      // silencieusement — le brouillon est une amélioration, pas un must.
+      // silencieusement - le brouillon est une amélioration, pas un must.
     }
     initializedRef.current = true;
     // key est le seul vrai input ; le ré-exécuter au changement de key
@@ -113,7 +113,7 @@ export function useDraftStorage<T>(
         window.localStorage.setItem(key, JSON.stringify(payload));
         setSavedAt(new Date(now));
       } catch {
-        // Ignore — voir commentaire d'hydratation.
+        // Ignore - voir commentaire d'hydratation.
       }
     }, SAVE_DEBOUNCE_MS);
 

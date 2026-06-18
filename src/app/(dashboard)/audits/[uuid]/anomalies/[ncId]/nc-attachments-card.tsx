@@ -2,7 +2,7 @@
 
 // Carte « Captures d'écran » de la page NC : upload, grille de vignettes,
 // aperçu plein écran et suppression. Extrait de nc-detail.tsx (découpage des
-// gros composants) — markup et comportement inchangés.
+// gros composants) - markup et comportement inchangés.
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";

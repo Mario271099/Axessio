@@ -35,7 +35,7 @@ function criterion(over: Partial<MatrixCsvCriterion> = {}): MatrixCsvCriterion {
   };
 }
 
-// Découpe le CSV (sans BOM) en lignes puis en cellules — suffisant ici car nos
+// Découpe le CSV (sans BOM) en lignes puis en cellules - suffisant ici car nos
 // fixtures n'embarquent pas de séparateur dans les valeurs sauf test dédié.
 function rows(csv: string): string[][] {
   return csv
@@ -45,7 +45,7 @@ function rows(csv: string): string[][] {
 }
 
 // ============================================================================
-// escapeCsv — RFC 4180
+// escapeCsv - RFC 4180
 // ============================================================================
 describe("escapeCsv", () => {
   it("retourne une chaîne vide pour null / undefined", () => {
@@ -71,7 +71,7 @@ describe("escapeCsv", () => {
 });
 
 // ============================================================================
-// slugify — nom de fichier
+// slugify - nom de fichier
 // ============================================================================
 describe("slugify", () => {
   it("translittère les accents et abaisse la casse", () => {

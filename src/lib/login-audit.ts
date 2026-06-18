@@ -1,7 +1,7 @@
 // Helpers partagés par les routes /api/auth/login-attempt et login-failed.
 //
 // Objectif : tracer et freiner le brute-force sur le login. Le login lui-même
-// reste côté client (signInWithPassword) — ces endpoints ajoutent une couche
+// reste côté client (signInWithPassword) - ces endpoints ajoutent une couche
 // serveur Axessyo : rate-limit par IP + journalisation dans audit_logs.
 //
 // audit_logs est en RLS SELECT-only → l'insert DOIT passer par la service-role
@@ -41,7 +41,7 @@ export type LoginAuditAction = "login.attempt" | "login.failed";
 
 /**
  * Journalise un évènement de login dans audit_logs (best-effort : ne jette
- * jamais). `actor_id` reste null — au moment du login on ne connaît que
+ * jamais). `actor_id` reste null - au moment du login on ne connaît que
  * l'email saisi, pas l'identité authentifiée.
  */
 export async function logLoginEvent(

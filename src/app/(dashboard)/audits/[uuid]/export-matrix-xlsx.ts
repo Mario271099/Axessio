@@ -4,11 +4,11 @@
 // être testable sans Supabase.
 //
 // Format « grille » (différent du CSV « long ») : une ligne par critère, une
-// colonne par page, cellules colorées par statut — directement lisible par un
+// colonne par page, cellules colorées par statut - directement lisible par un
 // client. Deuxième feuille : la liste des non-conformités.
 //
 // Pas de risque d'injection de formule ici : exceljs ne traite une valeur
-// comme formule que si on passe explicitement `{ formula: ... }` — les chaînes
+// comme formule que si on passe explicitement `{ formula: ... }` - les chaînes
 // restent des chaînes.
 
 import ExcelJS from "exceljs";
@@ -60,7 +60,7 @@ export const NC_SHEET_HEADER = [
   "Recommandation",
 ] as const;
 
-// Remplissages par statut (ARGB) — mêmes teintes que les badges de la matrice
+// Remplissages par statut (ARGB) - mêmes teintes que les badges de la matrice
 // web : vert conforme, rouge non conforme, gris non applicable.
 const STATUS_FILLS: Record<ConformityStatus, string> = {
   COMPLIANT: "FFD9EAD3",
@@ -99,7 +99,7 @@ export async function buildMatrixXlsx(input: {
   workbook.created = new Date();
 
   // --------------------------------------------------------------------
-  // Feuille 1 — grille critères × pages
+  // Feuille 1 - grille critères × pages
   // --------------------------------------------------------------------
   const matrix = workbook.addWorksheet(MATRIX_SHEET_NAME, {
     // 4 colonnes de description + 2 lignes (en-tête + scores) figées.
@@ -176,7 +176,7 @@ export async function buildMatrixXlsx(input: {
   }
 
   // --------------------------------------------------------------------
-  // Feuille 2 — non-conformités
+  // Feuille 2 - non-conformités
   // --------------------------------------------------------------------
   const ncSheet = workbook.addWorksheet(NC_SHEET_NAME, {
     views: [{ state: "frozen", ySplit: 1 }],

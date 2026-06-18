@@ -87,7 +87,7 @@ export async function assignAuditor(
   }
 
   // ON CONFLICT DO NOTHING équivalent via try/insert + onConflict ne sont
-  // pas exposés en JS — on tente l'INSERT et on tolère l'erreur de duplicate.
+  // pas exposés en JS - on tente l'INSERT et on tolère l'erreur de duplicate.
   const { error } = await supabase.from("audit_assignees").insert({
     audit_id: auditId,
     profile_id: profileId,
@@ -99,7 +99,7 @@ export async function assignAuditor(
     if (error.code !== "23505") return { error: error.message };
   }
 
-  // Trace dans audit_logs — la policy `audit_logs_insert` autorise admin/
+  // Trace dans audit_logs - la policy `audit_logs_insert` autorise admin/
   // accessible. L'INSERT côté server action force `actor_id = auth.uid()`.
   await supabase.from("audit_logs").insert({
     audit_id: auditId,

@@ -128,7 +128,7 @@ export function RegisterForm() {
 
     // Compte + org provisionnés côté serveur. On ouvre la session DANS le
     // navigateur (le cookie n'est posé de façon fiable que par signInWithPassword
-    // côté client — convention d'auth du projet).
+    // côté client - convention d'auth du projet).
     const supabase = createClient();
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
@@ -143,7 +143,7 @@ export function RegisterForm() {
 
     // Navigation brute : force l'envoi du cookie dès la première requête.
     // On passe par l'étape de choix du plan (Free pré-sélectionné, skippable)
-    // avant le dashboard — incitation sans friction (cf. flux en deux temps).
+    // avant le dashboard - incitation sans friction (cf. flux en deux temps).
     window.location.href = "/onboarding/plan";
   }
 

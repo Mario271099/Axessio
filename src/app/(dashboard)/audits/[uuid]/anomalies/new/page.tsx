@@ -82,7 +82,7 @@ export default async function NewNCPage({ params }: PageProps) {
   }));
 
   // Templates de NC pré-remplis pour cette org/référentiel. Le picker côté
-  // client n'affiche rien si la liste est vide — pas besoin de feature gate.
+  // client n'affiche rien si la liste est vide - pas besoin de feature gate.
   const templates = await listNCTemplatesForAudit(uuid);
 
   return (

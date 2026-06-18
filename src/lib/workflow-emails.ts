@@ -3,7 +3,7 @@
 // bascule vers une autre infra (Postmark, etc.).
 //
 // Tous les helpers sont best-effort : ils renvoient `null` en cas de succès
-// et le message d'erreur sinon. Aucun throw — l'appelant est libre de logger.
+// et le message d'erreur sinon. Aucun throw - l'appelant est libre de logger.
 
 import { render } from "@react-email/components";
 import { resend, FROM_EMAIL } from "@/lib/resend";
@@ -21,7 +21,7 @@ function buildAuditUrl(auditId: string): string {
 }
 
 // ============================================================================
-// Email "Rapport d'audit livré" — envoyé aux client_admin du client
+// Email "Rapport d'audit livré" - envoyé aux client_admin du client
 // ----------------------------------------------------------------------------
 // Déclenché par la transition métier T3 (IN_PROGRESS → DELIVERED) sur
 // `audits.status`.
@@ -50,7 +50,7 @@ export async function sendAuditDeliveredEmail(params: {
   const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: params.to,
-    subject: `Rapport d'audit livré — ${params.projectName}`,
+    subject: `Rapport d'audit livré - ${params.projectName}`,
     html,
     ...(branding.supportEmail ? { replyTo: branding.supportEmail } : {}),
   });

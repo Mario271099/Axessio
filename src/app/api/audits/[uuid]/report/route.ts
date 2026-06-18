@@ -28,7 +28,7 @@ export const runtime = "nodejs";
 // Le lancement de Chromium serverless peut prendre 5-15 s, puis le rendu HTML
 // 1-10 s selon le volume. On laisse de la marge.
 export const maxDuration = 60;
-// Pas de cache — le contenu dépend de la session et des données mutables.
+// Pas de cache - le contenu dépend de la session et des données mutables.
 export const dynamic = "force-dynamic";
 
 interface RouteParams {
@@ -69,7 +69,7 @@ export async function GET(req: Request, { params }: RouteParams) {
   // ------------------------------------------------------------------
   // 1.bis Feature gate : `export.pdf` (Starter+).
   // Le check est server-side parce que l'URL `/api/audits/[uuid]/report`
-  // peut être appelée directement (curl, automatisation) — il ne suffit
+  // peut être appelée directement (curl, automatisation) - il ne suffit
   // pas de masquer le bouton côté UI.
   // ------------------------------------------------------------------
   const hasExportFeature = await orgHasFeature("export.pdf");
@@ -394,7 +394,7 @@ export async function GET(req: Request, { params }: RouteParams) {
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erreur PDF inconnue.";
     // Un échec Puppeteer (Chromium qui ne démarre pas, OOM, timeout) est
-    // invisible côté logs Vercel une fois la lambda recyclée — on le capture.
+    // invisible côté logs Vercel une fois la lambda recyclée - on le capture.
     Sentry.captureException(err, {
       tags: { source: "pdf-report" },
       extra: { audit_id: auditId },

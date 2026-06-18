@@ -1,6 +1,6 @@
 "use client";
 
-// Page de détail d'une NC — composant d'orchestration. Les trois blocs
+// Page de détail d'une NC - composant d'orchestration. Les trois blocs
 // autonomes vivent dans leurs propres fichiers :
 //   - nc-details-card.tsx     (lecture + édition des champs)
 //   - nc-attachments-card.tsx (captures d'écran)
@@ -75,7 +75,7 @@ type NewStatus = (typeof NEW_STATUSES)[number];
 export interface NCDetailProps {
   nc: NCData;
   pages: PageData[];
-  /** Messages tous fils confondus — séparés côté composant via `thread`. */
+  /** Messages tous fils confondus - séparés côté composant via `thread`. */
   messages: MessageData[];
   attachments: AttachmentData[];
   auditId: string;
@@ -370,7 +370,7 @@ export function NCDetail({
           />
         </div>
 
-        {/* Colonne droite (1/3) — Discussion ------------------------------ */}
+        {/* Colonne droite (1/3) - Discussion ------------------------------ */}
         <aside className="lg:col-span-1">
           <NCDiscussion
             ncId={nc.id}

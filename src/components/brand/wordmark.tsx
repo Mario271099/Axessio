@@ -1,4 +1,4 @@
-// Wordmark Axessyo — signature typographique de marque.
+// Wordmark Axessyo - signature typographique de marque.
 // Conventions Axessyo :
 //   - Pas de forwardRef (style React 19).
 //   - Props directes, défaut « light ».

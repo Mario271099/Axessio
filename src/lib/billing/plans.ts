@@ -1,4 +1,4 @@
-// Catalogue de plans côté code — strictement aligné sur le seed SQL de la
+// Catalogue de plans côté code - strictement aligné sur le seed SQL de la
 // migration 49. Sert de source de vérité pour le rendu UI (labels, prix
 // affichés, ordre des cards) et pour les helpers de feature/limit côté
 // client. Côté serveur, préférer `org_has_feature()` SQL.

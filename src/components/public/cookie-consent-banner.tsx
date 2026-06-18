@@ -75,7 +75,7 @@ export function CookieConsentBanner() {
       // ignore : on ferme quand meme la banniere pour ne pas bloquer l'UI.
     }
     // TODO(consent): brancher l'init Sentry (instrumentation-client.ts) sur ce
-    // choix — ne charger le SDK que si `consent === "accepted"`. Pour l'instant
+    // choix - ne charger le SDK que si `consent === "accepted"`. Pour l'instant
     // Sentry reste pilote par NEXT_PUBLIC_SENTRY_DSN cote build.
     setVisible(false);
   }

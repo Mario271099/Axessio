@@ -4,7 +4,7 @@ import { LegalSection, LegalShell } from "@/components/public/legal-shell";
 import { intlLocale } from "@/lib/intl";
 import { SITE } from "@/lib/site";
 
-// Date de la dernière révision — à mettre à jour à chaque modification du
+// Date de la dernière révision - à mettre à jour à chaque modification du
 // contenu pour informer les utilisateurs.
 const LAST_UPDATED_ISO = "2026-05-18";
 

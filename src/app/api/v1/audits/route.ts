@@ -1,4 +1,4 @@
-// Endpoint API v1 — exemple d'utilisation des tokens scoped.
+// Endpoint API v1 - exemple d'utilisation des tokens scoped.
 //
 // GET /api/v1/audits?limit=50
 //   Headers : Authorization: Bearer axe_live_...

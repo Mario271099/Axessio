@@ -211,8 +211,8 @@ export async function createNonConformity(
   if (!criterion) return { error: t("criterionRequired") };
   const testReference = input.testReference?.trim().slice(0, 50) || null;
   const autoTitle = testReference
-    ? `${criterion.identifier} — ${testReference}`
-    : `${criterion.identifier} — ${criterion.name as string}`;
+    ? `${criterion.identifier} - ${testReference}`
+    : `${criterion.identifier} - ${criterion.name as string}`;
   const title = autoTitle.slice(0, 200);
 
   // Insertion de la NC

@@ -3,8 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 // Cron quotidien des transitions automatiques d'audit_status :
 //
-//   T2 PLANNED → IN_PROGRESS — si expected_start_at ≤ today
-//   T4 DELIVERED → REMEDIATION — si delivered_at ≤ now() - 7 jours
+//   T2 PLANNED → IN_PROGRESS - si expected_start_at ≤ today
+//   T4 DELIVERED → REMEDIATION - si delivered_at ≤ now() - 7 jours
 //
 // Idempotent : déjà transitionné ⇒ skip (WHERE status = source).
 // Auth : Authorization: Bearer <CRON_SECRET> (injecté par Vercel Cron).

@@ -1,4 +1,4 @@
-// Template HTML du rapport PDF — point d'entrée `renderReportHTML`.
+// Template HTML du rapport PDF - point d'entrée `renderReportHTML`.
 // Découpé en modules (gros fichiers) :
 //   - report-types.ts      (ReportData, ReportLocale)
 //   - report-strings.ts    (dictionnaires FR/EN, fmt, plural)
@@ -104,7 +104,7 @@ function renderSynthesis(data: ReportData, d: Dict): string {
       const score = rate(counts);
       return `
         <tr>
-          <td>${esc(t.identifier)} — ${esc(t.name)}</td>
+          <td>${esc(t.identifier)} - ${esc(t.name)}</td>
           <td class="num">${counts.total}</td>
           <td class="num">${counts.compliant}</td>
           <td class="num">${counts.nonCompliant}</td>

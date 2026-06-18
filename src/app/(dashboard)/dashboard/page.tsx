@@ -58,7 +58,7 @@ export default async function DashboardPage() {
     recentNcRes,
     profileExtraRes,
   ] = await Promise.all([
-    // Liste des 5 audits les plus récents — couverte par idx_audits_updated_at_desc.
+    // Liste des 5 audits les plus récents - couverte par idx_audits_updated_at_desc.
     supabase
       .from("audits")
       .select(
@@ -67,7 +67,7 @@ export default async function DashboardPage() {
       )
       .order("updated_at", { ascending: false })
       .limit(5),
-    // Répartition par statut via RPC — un aller-retour Postgres (filtered count).
+    // Répartition par statut via RPC - un aller-retour Postgres (filtered count).
     supabase.rpc("audits_status_breakdown"),
     // Total audits accessibles à l'utilisateur (RLS appliquée).
     supabase.from("audits").select("id", { count: "exact", head: true }),
@@ -97,7 +97,7 @@ export default async function DashboardPage() {
   // Modale d'accueil first-run : visible si la colonne welcome_dismissed_at
   // est NULL ET que l'utilisateur n'a pas encore d'audit. Pour récupérer le
   // type d'org (qui contextualise les étapes), on appelle resolveCurrentOrg
-  // ici plutôt que de le faire côté composant — un seul round-trip côté
+  // ici plutôt que de le faire côté composant - un seul round-trip côté
   // serveur.
   const showWelcome = welcomeDismissedAt === null && totalAudits === 0;
   const { current: currentOrgForWelcome } = showWelcome
@@ -404,7 +404,7 @@ function ScoreText({ score }: { score: number | null | undefined }) {
   if (score === null || score === undefined) {
     return (
       <span className="text-lg font-bold tabular-nums text-muted-foreground">
-        —
+        -
       </span>
     );
   }

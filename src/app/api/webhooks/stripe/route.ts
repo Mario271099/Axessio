@@ -1,4 +1,4 @@
-// Webhook Stripe — point d'entrée unique pour synchroniser la table
+// Webhook Stripe - point d'entrée unique pour synchroniser la table
 // `subscriptions` avec l'état Stripe. Chaque événement est verifié via la
 // signature HMAC, puis dispatch sur un handler typé.
 //
@@ -9,7 +9,7 @@
 //   - invoice.paid                     → marquer 'active'
 //   - invoice.payment_failed           → marquer 'past_due'
 //
-// Aucun rendering — c'est une route API.
+// Aucun rendering - c'est une route API.
 
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     Sentry.captureException(err, {
       tags: { source: "stripe-webhook", event_type: event.type },
     });
-    // On renvoie 500 pour que Stripe retry — mais seulement après avoir
+    // On renvoie 500 pour que Stripe retry - mais seulement après avoir
     // validé la signature : on ne veut pas être DoS-friendly côté CPU.
     return NextResponse.json({ error: "handler failed" }, { status: 500 });
   }
@@ -147,7 +147,7 @@ async function handleSubscriptionChanged(
   const admin = createAdminClient();
   // On préfère retrouver l'org via stripe_customer_id pour ne pas dépendre
   // de la metadata côté Stripe (qui peut manquer si la sub a été créée hors
-  // checkout — ex. portal upgrade).
+  // checkout - ex. portal upgrade).
   const { data: row } = await admin
     .from("subscriptions")
     .select("organization_id, plan_code")

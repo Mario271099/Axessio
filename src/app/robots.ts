@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { SITE, siteUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
-  // Hôte canonique nu (sans schéma ni slash) — la directive `host` attend un
+  // Hôte canonique nu (sans schéma ni slash) - la directive `host` attend un
   // nom de domaine, pas une URL. Dérivé de SITE.url pour rester cohérent.
   const host = new URL(SITE.url).host;
 
@@ -46,7 +46,7 @@ export default function robots(): MetadataRoute.Robots {
           "/setup-password",
         ],
       },
-      // AI crawlers — on autorise les crawlers de marketing recherche,
+      // AI crawlers - on autorise les crawlers de marketing recherche,
       // pas ceux qui aspirent pour entraîner des modèles.
       { userAgent: "GPTBot", disallow: "/" },
       { userAgent: "ChatGPT-User", disallow: "/" },

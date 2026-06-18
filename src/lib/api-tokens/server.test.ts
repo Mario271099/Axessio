@@ -8,7 +8,7 @@ import {
 } from "./server";
 
 // ============================================================================
-// API_SCOPES — catalogue
+// API_SCOPES - catalogue
 // ============================================================================
 describe("API_SCOPES catalogue", () => {
   it("inclut les scopes attendus", () => {
@@ -94,7 +94,7 @@ describe("hashApiToken", () => {
 });
 
 // ============================================================================
-// extractBearerToken — parsing du header Authorization
+// extractBearerToken - parsing du header Authorization
 // ============================================================================
 describe("extractBearerToken", () => {
   it("extrait correctement un Bearer simple", () => {

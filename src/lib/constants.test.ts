@@ -214,7 +214,7 @@ describe("COMPLEXITY_LABELS", () => {
 });
 
 // ============================================================================
-// REFERENCE_TYPE_LABELS — acronymes : identiques à la clé pour la plupart.
+// REFERENCE_TYPE_LABELS - acronymes : identiques à la clé pour la plupart.
 // ============================================================================
 describe("REFERENCE_TYPE_LABELS", () => {
   const EXPECTED: readonly ReferenceType[] = [

@@ -447,7 +447,7 @@ export function AuditsTable({
 }
 
 // ---------------------------------------------------------------------------
-// SortHeader — <th> cliquable, toggle de direction de tri.
+// SortHeader - <th> cliquable, toggle de direction de tri.
 // ---------------------------------------------------------------------------
 function SortHeader({
   href,

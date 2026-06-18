@@ -15,7 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 
 interface InfoTipProps {
-  /** Contenu du tooltip — texte court ou markup léger. */
+  /** Contenu du tooltip - texte court ou markup léger. */
   children: React.ReactNode;
   /** Aria-label du déclencheur pour les lecteurs d'écran. */
   label?: string;

@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * Page d'atterrissage du lien envoyé par email à l'utilisateur après
  * `/forgot-password`. Supabase crée automatiquement une session de
- * récupération côté cookie quand le lien est cliqué — on s'appuie dessus
+ * récupération côté cookie quand le lien est cliqué - on s'appuie dessus
  * pour autoriser l'`updateUser({ password })` côté form.
  *
  * Si pas de session valide (lien expiré, clic depuis un autre navigateur),

@@ -41,7 +41,7 @@ export function ForgotPasswordForm() {
     setPending(false);
 
     // Sécurité : ne révèle PAS si l'email existe ou pas. Quel que soit le
-    // retour, on affiche le message générique de succès — un attaquant ne
+    // retour, on affiche le message générique de succès - un attaquant ne
     // peut pas énumérer les comptes via cette page. L'erreur réelle est
     // silencieusement absorbée (sauf rate-limit potentiel à plus long terme).
     if (resetError) {

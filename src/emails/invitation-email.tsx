@@ -117,7 +117,7 @@ export function InvitationEmail({
           <Section style={footer}>
             <Text style={footerText}>
               {brandName}
-              {branding.tagline ? ` — ${branding.tagline}` : ""}
+              {branding.tagline ? ` - ${branding.tagline}` : ""}
             </Text>
           </Section>
         </Container>

@@ -50,7 +50,7 @@ export default async function SimulatorPage({ params }: PageProps) {
 
   // Gate "Simulateur de remédiation" : feature `remediation.simulator`
   // (incluse à partir du plan Starter). Si l'org est en Free, on affiche
-  // un upsell complet à la place du composant — la navigation par tab
+  // un upsell complet à la place du composant - la navigation par tab
   // reste accessible pour montrer le contexte.
   const hasSimulator = await orgHasFeature("remediation.simulator");
   if (!hasSimulator) {

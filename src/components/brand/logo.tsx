@@ -1,4 +1,4 @@
-// Logo Axessyo — signature complète : monogramme « A y » (carré navy + trait +
+// Logo Axessyo - signature complète : monogramme « A y » (carré navy + trait +
 // point teal A11Y) accolé au wordmark « Axessyo ».
 //
 // Conventions Axessyo :

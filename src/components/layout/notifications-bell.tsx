@@ -88,7 +88,7 @@ const TONE_BUBBLE: Record<string, string> = {
 
 // ------------------------------------------------------------------
 // Groupement : les notifications de même type sur la même cible (audit, NC)
-// sont agrégées en une seule ligne — « 5 réponses sur la même NC » ne doit
+// sont agrégées en une seule ligne - « 5 réponses sur la même NC » ne doit
 // pas occuper 5 lignes de la cloche. L'entrée la plus récente représente le
 // groupe ; un clic marque tout le groupe comme lu.
 // ------------------------------------------------------------------
@@ -199,7 +199,7 @@ export function NotificationsBell({ initial }: Props) {
   };
 
   const handleMarkUnread = (group: NotificationGroup) => {
-    // Repasse tout le groupe en non lu (optimiste) — sans naviguer.
+    // Repasse tout le groupe en non lu (optimiste) - sans naviguer.
     const ids = new Set(group.ids);
     setItems((prev) =>
       prev.map((n) => (ids.has(n.id) ? { ...n, readAt: null } : n)),
@@ -358,7 +358,7 @@ export function NotificationsBell({ initial }: Props) {
                       )}
                     </button>
                     {/* Bouton frère (pas imbriqué : un <button> dans un      */}
-                    {/* <button> est invalide) — repasse le groupe en non lu. */}
+                    {/* <button> est invalide) - repasse le groupe en non lu. */}
                     {!isUnread && (
                       <button
                         type="button"

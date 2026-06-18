@@ -46,13 +46,13 @@ export async function OnboardingChecklist() {
   const { current } = await resolveCurrentOrg();
   if (!current) return null;
   // L'org plateforme « Axessyo Internal » est un espace technique pour le
-  // staff, pas une org client — pas d'onboarding à dérouler là-bas.
+  // staff, pas une org client - pas d'onboarding à dérouler là-bas.
   if (current.organizationId === AXESSIO_INTERNAL_ORG_ID) return null;
 
   const supabase = await createClient();
   const orgSlug = current.organizationSlug;
 
-  // Les 5 lectures sont indépendantes — un seul aller-retour parallèle.
+  // Les 5 lectures sont indépendantes - un seul aller-retour parallèle.
   const [orgRow, membersRes, clientsRes, projectsRes, auditsRes] =
     await Promise.all([
       supabase
@@ -110,9 +110,9 @@ export async function OnboardingChecklist() {
 
   const completed = items.filter((i) => i.done).length;
   const total = items.length;
-  // Disparaît une fois que tout est fait — pas besoin de polluer le dashboard
+  // Disparaît une fois que tout est fait - pas besoin de polluer le dashboard
   // d'une org établie. Si la donnée régresse (perte de logo, etc.), il
-  // revient — comportement attendu.
+  // revient - comportement attendu.
   if (completed === total) return null;
 
   const t = await getTranslations("dashboard.onboarding");

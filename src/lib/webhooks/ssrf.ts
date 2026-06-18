@@ -22,7 +22,7 @@ import { promises as dns, type LookupAddress } from "node:dns";
 import net from "node:net";
 
 // ============================================================================
-// IPv4 — CIDR matching
+// IPv4 - CIDR matching
 // ============================================================================
 
 function ipv4ToU32(ip: string): number {
@@ -50,19 +50,19 @@ function ipv4InCidr(ip: string, base: string, prefix: number): boolean {
 // Source : RFC 6890 + plages opérationnelles (CGNAT, metadata cloud).
 // Tout ce qui n'est PAS adressable globalement doit figurer ici.
 const PRIVATE_IPV4: ReadonlyArray<readonly [string, number]> = [
-  ["0.0.0.0", 8],         // "this network" — RFC 791
-  ["10.0.0.0", 8],        // privé — RFC 1918
-  ["100.64.0.0", 10],     // CGNAT — RFC 6598
-  ["127.0.0.0", 8],       // loopback — RFC 1122
-  ["169.254.0.0", 16],    // link-local + AWS/GCP metadata — RFC 3927
-  ["172.16.0.0", 12],     // privé — RFC 1918
-  ["192.0.0.0", 24],      // IETF protocol assignments — RFC 6890
-  ["192.0.2.0", 24],      // TEST-NET-1 — RFC 5737
-  ["192.168.0.0", 16],    // privé — RFC 1918
-  ["198.18.0.0", 15],     // benchmark — RFC 2544
-  ["198.51.100.0", 24],   // TEST-NET-2 — RFC 5737
-  ["203.0.113.0", 24],    // TEST-NET-3 — RFC 5737
-  ["224.0.0.0", 4],       // multicast — RFC 5771
+  ["0.0.0.0", 8],         // "this network" - RFC 791
+  ["10.0.0.0", 8],        // privé - RFC 1918
+  ["100.64.0.0", 10],     // CGNAT - RFC 6598
+  ["127.0.0.0", 8],       // loopback - RFC 1122
+  ["169.254.0.0", 16],    // link-local + AWS/GCP metadata - RFC 3927
+  ["172.16.0.0", 12],     // privé - RFC 1918
+  ["192.0.0.0", 24],      // IETF protocol assignments - RFC 6890
+  ["192.0.2.0", 24],      // TEST-NET-1 - RFC 5737
+  ["192.168.0.0", 16],    // privé - RFC 1918
+  ["198.18.0.0", 15],     // benchmark - RFC 2544
+  ["198.51.100.0", 24],   // TEST-NET-2 - RFC 5737
+  ["203.0.113.0", 24],    // TEST-NET-3 - RFC 5737
+  ["224.0.0.0", 4],       // multicast - RFC 5771
   ["240.0.0.0", 4],       // reserved (incl. 255.255.255.255 broadcast)
 ];
 
@@ -71,7 +71,7 @@ export function isPrivateIPv4(ip: string): boolean {
 }
 
 // ============================================================================
-// IPv6 — parsing + prefix matching
+// IPv6 - parsing + prefix matching
 // ============================================================================
 
 function ipv6ToBytes(ip: string): Uint8Array {
@@ -91,7 +91,7 @@ function ipv6ToBytes(ip: string): Uint8Array {
       : []
     : null;
 
-  // Embedded IPv4 (ex: ::ffff:1.2.3.4) — convertit le dernier groupe en 2 hex.
+  // Embedded IPv4 (ex: ::ffff:1.2.3.4) - convertit le dernier groupe en 2 hex.
   const lastList = tail ?? head;
   const lastItem = lastList[lastList.length - 1];
   if (lastItem !== undefined && lastItem.includes(".")) {
@@ -151,7 +151,7 @@ export function isPrivateIPv6(ip: string): boolean {
   // :: (unspecified) ou ::1 (loopback)
   if (allZeroExceptLast && (b[15] === 0 || b[15] === 1)) return true;
 
-  // ::ffff:0:0/96 — IPv4-mapped : recheck en v4
+  // ::ffff:0:0/96 - IPv4-mapped : recheck en v4
   if (
     b[0] === 0 && b[1] === 0 && b[2] === 0 && b[3] === 0 &&
     b[4] === 0 && b[5] === 0 && b[6] === 0 && b[7] === 0 &&
@@ -161,7 +161,7 @@ export function isPrivateIPv6(ip: string): boolean {
     return isPrivateIPv4(v4);
   }
 
-  // 64:ff9b::/96 — IPv4/IPv6 translation : recheck en v4
+  // 64:ff9b::/96 - IPv4/IPv6 translation : recheck en v4
   if (
     b[0] === 0x00 && b[1] === 0x64 && b[2] === 0xff && b[3] === 0x9b &&
     b[4] === 0 && b[5] === 0 && b[6] === 0 && b[7] === 0 &&
@@ -171,7 +171,7 @@ export function isPrivateIPv6(ip: string): boolean {
     return isPrivateIPv4(v4);
   }
 
-  // 100::/64 — discard prefix
+  // 100::/64 - discard prefix
   if (
     b[0] === 0x01 && b[1] === 0x00 &&
     b[2] === 0 && b[3] === 0 && b[4] === 0 && b[5] === 0 && b[6] === 0 && b[7] === 0
@@ -179,23 +179,23 @@ export function isPrivateIPv6(ip: string): boolean {
     return true;
   }
 
-  // 2001:db8::/32 — documentation
+  // 2001:db8::/32 - documentation
   if (b[0] === 0x20 && b[1] === 0x01 && b[2] === 0x0d && b[3] === 0xb8) return true;
 
-  // fc00::/7 — ULA (unique local addresses)
+  // fc00::/7 - ULA (unique local addresses)
   if (((b[0] ?? 0) & 0xfe) === 0xfc) return true;
 
-  // fe80::/10 — link-local
+  // fe80::/10 - link-local
   if (b[0] === 0xfe && ((b[1] ?? 0) & 0xc0) === 0x80) return true;
 
-  // ff00::/8 — multicast
+  // ff00::/8 - multicast
   if (b[0] === 0xff) return true;
 
   return false;
 }
 
 // ============================================================================
-// assertPublicUrl — point d'entrée de la garde
+// assertPublicUrl - point d'entrée de la garde
 // ============================================================================
 
 export interface SsrfOk {
@@ -236,7 +236,7 @@ const BLOCKED_LITERALS: ReadonlySet<string> = new Set([
 // TLDs / suffixes réservés à l'intranet ou aux résolveurs internes.
 // On bloque le suffixe exact (pas un endsWith générique pour éviter les FP).
 const BLOCKED_TLDS: ReadonlyArray<string> = [
-  ".local",      // mDNS — RFC 6762
+  ".local",      // mDNS - RFC 6762
   ".localhost",  // RFC 6761
   ".internal",   // convention privée (GCP, AWS)
   ".intranet",
@@ -263,7 +263,7 @@ export async function assertPublicUrl(rawUrl: string): Promise<SsrfCheckResult> 
     return { ok: false, reason: "invalid_url", detail: rawUrl };
   }
 
-  // 2) Protocole — https only
+  // 2) Protocole - https only
   if (parsed.protocol !== "https:") {
     return {
       ok: false,
@@ -308,7 +308,7 @@ export async function assertPublicUrl(rawUrl: string): Promise<SsrfCheckResult> 
     return { ok: true, resolvedHost: host, resolvedIps: [host] };
   }
 
-  // 6) Résolution DNS — tous les A/AAAA. `verbatim: true` pour éviter le
+  // 6) Résolution DNS - tous les A/AAAA. `verbatim: true` pour éviter le
   // tri qui pourrait masquer une mauvaise IP en fin de liste.
   let addresses: LookupAddress[];
   try {

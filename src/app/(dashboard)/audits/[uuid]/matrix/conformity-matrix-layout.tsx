@@ -111,7 +111,7 @@ export function ConformityMatrixLayout({
   const [saveError, setSaveError] = useState<string | null>(null);
 
   // Persistance localStorage : protège la saisie si le réseau tombe ou si
-  // l'onglet est fermé avant le flush. Clé par audit — localStorage est déjà
+  // l'onglet est fermé avant le flush. Clé par audit - localStorage est déjà
   // cloisonné par profil OS/navigateur. Une entrée = diff non sauvegardé.
   const storageKey = `axessio:matrix:${auditId}`;
   const [recoverable, setRecoverable] = useState<{
@@ -215,7 +215,7 @@ export function ConformityMatrixLayout({
   }, []);
 
   // Au montage : si un diff non sauvegardé existe pour cet audit, on propose
-  // de le reprendre (sans l'appliquer automatiquement — l'auditeur décide).
+  // de le reprendre (sans l'appliquer automatiquement - l'auditeur décide).
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {

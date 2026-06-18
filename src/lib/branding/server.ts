@@ -36,7 +36,7 @@ function fromRow(row: BrandingRow | null | undefined): OrgBranding | null {
 
 /**
  * Lit le branding de l'org active si son plan inclut `branding.custom`.
- * Retourne null sinon — c'est ce qui sert de gate côté UI (si null →
+ * Retourne null sinon - c'est ce qui sert de gate côté UI (si null →
  * fallback sur les valeurs par défaut Axessyo).
  */
 export async function getCurrentOrgBranding(): Promise<OrgBranding | null> {
@@ -50,7 +50,7 @@ export async function getCurrentOrgBranding(): Promise<OrgBranding | null> {
 }
 
 /**
- * Variante "par org_id" — utilisée par la page d'édition du branding où
+ * Variante "par org_id" - utilisée par la page d'édition du branding où
  * on connaît l'org cible par son slug. Ne fait PAS le check de feature
  * (le caller le fait juste avant pour afficher un message d'upsell).
  */
@@ -128,7 +128,7 @@ interface UpdateInput {
 /**
  * Persiste les champs branding. Passe par la service-role parce que les
  * triggers d'`organizations` (validate_profile_current_org etc.) ne
- * concernent que les colonnes membership — donc safe.
+ * concernent que les colonnes membership - donc safe.
  */
 export async function updateOrgBranding(
   organizationId: string,

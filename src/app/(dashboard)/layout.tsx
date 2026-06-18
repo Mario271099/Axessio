@@ -36,7 +36,7 @@ export default async function DashboardLayout({
   const profile = await requireProfile();
   const supabase = await createClient();
 
-  // Compteur "audits en cours" — alimente le badge de l'entrée Audits.
+  // Compteur "audits en cours" - alimente le badge de l'entrée Audits.
   // Et résolution de l'org active pour le selector sidebar (Phase 1 tenancy).
   // Branding éventuel pour le logo de la sidebar (Phase 5).
   const [{ count: inProgressCount }, org, branding, orgPerms] =
@@ -51,7 +51,7 @@ export default async function DashboardLayout({
     ]);
 
   // Permissions d'org sérialisées (array) pour les composants client de nav :
-  // ils gatent les liens via `canAny(role, perms, permission)` — legacy OU org.
+  // ils gatent les liens via `canAny(role, perms, permission)` - legacy OU org.
   const orgPermissions = Array.from(orgPerms);
 
   return (

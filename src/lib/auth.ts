@@ -36,7 +36,7 @@ async function mapProfile(row: ProfileRow): Promise<Profile> {
     row.is_platform_admin === true || realRole === "admin";
 
   // Observabilité : chaque event Sentry de la requête porte l'utilisateur et
-  // l'org active — indispensable pour trier un bug multi-tenant. No-op sans
+  // l'org active - indispensable pour trier un bug multi-tenant. No-op sans
   // DSN. Pas d'email ni de nom : l'id suffit pour croiser avec la DB.
   Sentry.setUser({ id: row.id });
   Sentry.setTag("organization_id", row.current_org_id ?? "none");
@@ -121,7 +121,7 @@ export async function requireProfile(): Promise<Profile> {
     });
     try {
       // audit_logs a RLS (SELECT only) : l'insert doit passer par la
-      // service-role pour ne pas être refusé. Best-effort — on ne bloque
+      // service-role pour ne pas être refusé. Best-effort - on ne bloque
       // jamais l'authentification sur un échec de log.
       const admin = createAdminClient();
       await admin.from("audit_logs").insert({

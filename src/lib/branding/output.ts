@@ -1,4 +1,4 @@
-// Branding "sortie" (output) — la forme du branding telle qu'elle est injectée
+// Branding "sortie" (output) - la forme du branding telle qu'elle est injectée
 // dans les emails et le PDF. Volontairement séparée de `OrgBranding` (qui est
 // la forme brute des colonnes DB) parce que la sortie est toujours résolue :
 // un champ manquant retombe sur la valeur Axessyo par défaut, jamais null.
@@ -31,7 +31,7 @@ export const AXESSIO_DEFAULT_OUTPUT_BRANDING: OutputBranding = {
 };
 
 /**
- * Valide une couleur HEX #RRGGBB. Retourne `fallback` si invalide — on injecte
+ * Valide une couleur HEX #RRGGBB. Retourne `fallback` si invalide - on injecte
  * cette valeur dans du CSS inline (email + PDF), donc une valeur non validée
  * permettrait une injection de style. La page branding valide déjà à la
  * saisie, mais on re-valide ici par défense en profondeur.

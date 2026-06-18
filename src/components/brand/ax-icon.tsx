@@ -1,4 +1,4 @@
-// AxIcon — version compacte du logo : carré arrondi navy + monogramme « A y »
+// AxIcon - version compacte du logo : carré arrondi navy + monogramme « A y »
 // tracé au trait + point d'accent teal (signal A11Y). Utilisé pour favicon /
 // app icon / badge dense (sidebar mobile, breadcrumbs, loader, etc.).
 //

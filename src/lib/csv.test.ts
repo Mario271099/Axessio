@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { escapeCsv, escapeCsvCell } from "./csv";
 
-describe("escapeCsv — RFC 4180", () => {
+describe("escapeCsv - RFC 4180", () => {
   it("retourne une chaîne vide pour null / undefined", () => {
     expect(escapeCsv(null)).toBe("");
     expect(escapeCsv(undefined)).toBe("");
@@ -28,7 +28,7 @@ describe("escapeCsv — RFC 4180", () => {
   });
 });
 
-describe("escapeCsv — anti-injection de formule", () => {
+describe("escapeCsv - anti-injection de formule", () => {
   it("préfixe d'une apostrophe une cellule commençant par =", () => {
     expect(escapeCsv("=1+1")).toBe("'=1+1");
   });
@@ -63,7 +63,7 @@ describe("escapeCsv — anti-injection de formule", () => {
   });
 });
 
-describe("escapeCsvCell — sérialisation des valeurs non-textuelles", () => {
+describe("escapeCsvCell - sérialisation des valeurs non-textuelles", () => {
   it("retourne une chaîne vide pour null / undefined", () => {
     expect(escapeCsvCell(null)).toBe("");
     expect(escapeCsvCell(undefined)).toBe("");

@@ -1,5 +1,5 @@
 // Section « Non-conformités détaillées » du rapport PDF.
-// Extraite de report-template.tsx (découpage des gros fichiers) — markup
+// Extraite de report-template.tsx (découpage des gros fichiers) - markup
 // strictement identique.
 
 import { NC_SEVERITY_ORDER } from "@/lib/constants";

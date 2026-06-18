@@ -18,7 +18,7 @@ export interface InviteMemberResult {
   error: string | null;
   success?: boolean;
   /** Lien d'invitation, renvoyé pour copie manuelle (utile si l'email Resend
-   *  n'a pas pu être délivré — sandbox). */
+   *  n'a pas pu être délivré - sandbox). */
   invitationUrl?: string;
 }
 
@@ -49,7 +49,7 @@ function orgRoleToDisplayRole(orgRole: OrgRole): UserRole {
  *
  * Sécurité :
  *   - réservé aux owner/admin de l'org cible ;
- *   - le profil legacy de l'invité est 'client' (inerte) — JAMAIS 'auditor'
+ *   - le profil legacy de l'invité est 'client' (inerte) - JAMAIS 'auditor'
  *     legacy (qui ouvrirait `is_auditor()` sur tous les tenants). Sa vraie
  *     autorisation vient de `organization_members.role` ;
  *   - gate `max_members` du plan de l'org.
@@ -178,7 +178,7 @@ export async function inviteOrgMember(
     .eq("id", newUserId);
 
   // 3. Email d'invitation (best-effort : en sandbox Resend l'envoi peut
-  //    échouer pour une adresse non vérifiée — on renvoie quand même le lien
+  //    échouer pour une adresse non vérifiée - on renvoie quand même le lien
   //    pour copie manuelle).
   try {
     const branding = await resolveOutputBranding(orgId);

@@ -188,7 +188,7 @@ export async function deleteNCTemplate(
 }
 
 // ============================================================================
-// listNCTemplatesForAudit — utilisée par le picker côté NC form
+// listNCTemplatesForAudit - utilisée par le picker côté NC form
 // ----------------------------------------------------------------------------
 // Renvoie les templates de l'org propriétaire de l'audit, filtrés à ceux
 // qui sont compatibles avec le référentiel de l'audit :

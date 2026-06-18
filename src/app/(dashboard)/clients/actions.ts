@@ -41,7 +41,7 @@ async function requirePerm(permission: Permission): Promise<{
 // du user (`current_org()`), pas en tant qu'organisation miroir.
 //
 // Le trigger DB `trg_clients_set_org` (migration 66) remplit automatiquement
-// `organization_id = current_org()` si on ne le précise pas — on le passe
+// `organization_id = current_org()` si on ne le précise pas - on le passe
 // explicitement quand même, lisible et insensible aux changements d'org
 // pendant la requête.
 //
@@ -69,7 +69,7 @@ export async function createClient(
   if (!orgId) return { error: t("noOrganization") };
 
   // Gate quota `max_clients` du plan (effective : override org + plan).
-  // 402 sémantique si la limite est atteinte — pas 403, car c'est une
+  // 402 sémantique si la limite est atteinte - pas 403, car c'est une
   // contrainte de plan, pas une absence de permission.
   const currentClients = await countClientsInOrg(orgId);
   const withinLimit = await orgWithinLimit("max_clients", currentClients);
@@ -179,7 +179,7 @@ export async function createProject(
   if (!name) return { error: t("projectNameRequired") };
 
   // Modèle Phase 1 : on dérive organization_id et workspace_id du client
-  // parent — `clients.organization_id` (mig. 66) est le tenant ; le
+  // parent - `clients.organization_id` (mig. 66) est le tenant ; le
   // workspace `default` de cette org est le silo par défaut.
   // Les triggers DB (mig. 65) servent de filet de sécurité si on oublie
   // d'expliciter ; on précise quand même côté code pour la lisibilité.

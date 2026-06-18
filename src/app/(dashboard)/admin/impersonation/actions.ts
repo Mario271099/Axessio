@@ -19,12 +19,12 @@ export interface ImpersonationResult {
 }
 
 // ============================================================================
-// enterImpersonation — passer en mode "Voir comme <role>"
+// enterImpersonation - passer en mode "Voir comme <role>"
 // ----------------------------------------------------------------------------
 // Sécurité :
 //   1. permission `impersonate` (admin + auditor)
 //   2. le rôle cible doit appartenir à `canImpersonateAs(realRole)`
-//   3. cookie HttpOnly, jamais accessible côté JS — Impossible à élever
+//   3. cookie HttpOnly, jamais accessible côté JS - Impossible à élever
 //      via tampering car les server actions s'appuient sur le rôle DB.
 //   4. trace audit_logs (action='impersonation.enter')
 // ============================================================================
@@ -62,7 +62,7 @@ export async function enterImpersonation(
 }
 
 // ============================================================================
-// exitImpersonation — revenir à son vrai rôle
+// exitImpersonation - revenir à son vrai rôle
 // ============================================================================
 export async function exitImpersonation(): Promise<ImpersonationResult> {
   const supabase = await createClient();
@@ -76,7 +76,7 @@ export async function exitImpersonation(): Promise<ImpersonationResult> {
   const previous = await readImpersonationCookie();
   await clearImpersonationCookie();
 
-  // Trace de sortie — on log même si le cookie était absent, c'est rare et
+  // Trace de sortie - on log même si le cookie était absent, c'est rare et
   // utile pour détecter un cookie effacé en parallèle.
   await supabase.from("audit_logs").insert({
     audit_id: null,
@@ -91,7 +91,7 @@ export async function exitImpersonation(): Promise<ImpersonationResult> {
 }
 
 // ============================================================================
-// enterImpersonationAndRedirect — variante pour les formulaires <form action>
+// enterImpersonationAndRedirect - variante pour les formulaires <form action>
 // (la navigation reset l'arbre React et garantit que la sidebar lit le nouveau
 // rôle au prochain rendu serveur)
 // ============================================================================
@@ -101,7 +101,7 @@ export async function enterImpersonationAndRedirect(
   const target = formData.get("targetRole")?.toString() as UserRole;
   const result = await enterImpersonation(target);
   if (result.error) {
-    // Pas de mécanisme de feedback dans un POST sans state — on redirige
+    // Pas de mécanisme de feedback dans un POST sans state - on redirige
     // vers la page d'origine, l'utilisateur verra que rien n'a changé.
     redirect("/admin/permissions");
   }

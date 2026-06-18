@@ -1,6 +1,6 @@
 "use client";
 
-// Page de détail d'un client — composant d'orchestration. Les blocs autonomes
+// Page de détail d'un client - composant d'orchestration. Les blocs autonomes
 // vivent dans leurs propres fichiers :
 //   - client-detail-types.ts (types partagés + normalizeUrl)
 //   - client-dialogs.tsx     (édition client, création/édition projet)

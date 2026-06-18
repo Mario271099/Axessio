@@ -1,7 +1,7 @@
 "use client";
 
 // Dialogues de la page client : édition du client, création et édition de
-// projet. Extraits de client-detail.tsx (découpage des gros composants) —
+// projet. Extraits de client-detail.tsx (découpage des gros composants) -
 // markup et comportement inchangés.
 
 import { useState, useTransition } from "react";

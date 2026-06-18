@@ -3,11 +3,11 @@
 //
 // Deux protections distinctes, toutes deux nécessaires :
 //
-//   1. RFC 4180 — guillemeter dès qu'un séparateur, un guillemet ou un saut de
+//   1. RFC 4180 - guillemeter dès qu'un séparateur, un guillemet ou un saut de
 //      ligne apparaît, et doubler les guillemets internes. Garantit un fichier
 //      relisible.
 //
-//   2. Anti-injection de formule (CSV / "formula injection") — une cellule qui
+//   2. Anti-injection de formule (CSV / "formula injection") - une cellule qui
 //      commence par `=`, `+`, `-`, `@`, une tabulation ou un retour chariot est
 //      interprétée comme une FORMULE par Excel / Google Sheets / LibreOffice à
 //      l'ouverture. Comme nos exports contiennent des données saisies par des

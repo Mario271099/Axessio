@@ -1,12 +1,12 @@
 // ============================================================================
-// Cycle de vie de `audits.status` — matrice de transitions
+// Cycle de vie de `audits.status` - matrice de transitions
 // ----------------------------------------------------------------------------
 // Source de vérité pour les transitions autorisées + leurs conditions.
 // Les server actions (statut/actions.ts) et l'UI (audit-status-actions.tsx)
 // consomment cette matrice. La RLS Postgres reste la deuxième ligne de
 // défense via la migration 31 (is_auditor() + accessible_project_ids).
 //
-// Spec : voir documentation produit "Spécifications — Transitions de statut
+// Spec : voir documentation produit "Spécifications - Transitions de statut
 // d'audit".
 // ============================================================================
 
@@ -158,7 +158,7 @@ export function evaluateTransition(
       return { to: target, ready: true };
 
     case "REMEDIATION":
-      // Transition uniquement automatique — pas évaluable manuellement.
+      // Transition uniquement automatique - pas évaluable manuellement.
       return { to: target, ready: false, errorCode: "STATUS_INVALID_TARGET" };
 
     default:

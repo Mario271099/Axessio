@@ -1,10 +1,10 @@
 import { ImageResponse } from "next/og";
 import { SITE } from "@/lib/site";
 
-// Image Open Graph (1.91:1) — affichée par Facebook, LinkedIn, Slack, Discord,
+// Image Open Graph (1.91:1) - affichée par Facebook, LinkedIn, Slack, Discord,
 // l'aperçu enrichi WhatsApp. Le design reprend les couleurs du favicon
 // (indigo brand + point teal-mint) pour rester reconnaissable.
-export const alt = `${SITE.name} — ${SITE.tagline.fr}`;
+export const alt = `${SITE.name} - ${SITE.tagline.fr}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -38,7 +38,7 @@ export default function OGImage() {
           }}
         />
 
-        {/* Header — logo */}
+        {/* Header - logo */}
         <div
           style={{
             display: "flex",
@@ -93,7 +93,7 @@ export default function OGImage() {
           </span>
         </div>
 
-        {/* Hero — titre + sous-titre */}
+        {/* Hero - titre + sous-titre */}
         <div style={{ display: "flex", flexDirection: "column", gap: 24, zIndex: 1, maxWidth: 920 }}>
           <p
             style={{
@@ -120,7 +120,7 @@ export default function OGImage() {
           </h1>
         </div>
 
-        {/* Footer — badges référentiels */}
+        {/* Footer - badges référentiels */}
         <div
           style={{
             display: "flex",

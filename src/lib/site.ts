@@ -9,10 +9,10 @@ function normalize(url: string): string {
 }
 
 // Résolution de l'URL canonique du site, par ordre de priorité :
-//   1. NEXT_PUBLIC_APP_URL — domaine maîtrisé, source de vérité explicite.
-//   2. VERCEL_PROJECT_PRODUCTION_URL — domaine de PROD stable injecté par Vercel
+//   1. NEXT_PUBLIC_APP_URL - domaine maîtrisé, source de vérité explicite.
+//   2. VERCEL_PROJECT_PRODUCTION_URL - domaine de PROD stable injecté par Vercel
 //      (jamais une URL de preview), utilisé comme garde-fou si (1) est oublié.
-//   3. FALLBACK_URL — dernier recours pour le dev local / les autres hôtes.
+//   3. FALLBACK_URL - dernier recours pour le dev local / les autres hôtes.
 // Évite que des canonicals/OG/sitemap pointent vers le mauvais domaine si la
 // variable d'env n'est pas posée sur Vercel.
 function resolveSiteUrl(): string {
@@ -33,8 +33,8 @@ export const SITE = {
     en: "Digital accessibility audit SaaS platform",
   },
   description: {
-    fr: "Axessyo centralise vos audits d'accessibilité numérique (RGAA, WCAG, RAWeb, RAAM). Saisie de conformité, gestion des non-conformités, rapports PDF — pour auditeurs et équipes clients.",
-    en: "Axessyo centralizes your digital accessibility audits (RGAA, WCAG, RAWeb, RAAM). Conformity tracking, non-conformity management, PDF reports — for auditors and client teams.",
+    fr: "Axessyo centralise vos audits d'accessibilité numérique (RGAA, WCAG, RAWeb, RAAM). Saisie de conformité, gestion des non-conformités, rapports PDF - pour auditeurs et équipes clients.",
+    en: "Axessyo centralizes your digital accessibility audits (RGAA, WCAG, RAWeb, RAAM). Conformity tracking, non-conformity management, PDF reports - for auditors and client teams.",
   },
   keywords: [
     "accessibilité numérique",
@@ -58,7 +58,7 @@ export const SITE = {
   twitter: "@axessyo",
   locale: { fr: "fr_FR", en: "en_US" },
   url: resolveSiteUrl(),
-  // Adresse de support — utilisée par le lien « Contactez votre
+  // Adresse de support - utilisée par le lien « Contactez votre
   // administrateur » sur /login et les voies de retour a11y.
   supportEmail: "contact@axessyo.com",
 } as const;

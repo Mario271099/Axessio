@@ -1,7 +1,7 @@
 "use client";
 
 // Ligne du tableau des utilisateurs + badges associés (rôle, statut, avatar).
-// Extrait de users-list.tsx (découpage des gros composants) — markup et
+// Extrait de users-list.tsx (découpage des gros composants) - markup et
 // comportement inchangés.
 
 import { useTranslations } from "next-intl";

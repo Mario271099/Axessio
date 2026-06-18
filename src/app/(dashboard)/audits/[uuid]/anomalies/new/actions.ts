@@ -44,8 +44,8 @@ export async function createNC(
   const testReference = input.testReference?.trim().slice(0, 50) || null;
 
   // Le titre est généré côté serveur depuis le critère + référence de test.
-  // L'utilisateur n'a plus à le saisir — la description porte le contenu
-  // descriptif réel. Format : "1.1 — Test 1.1.5" ou "1.1 — {nom critère}".
+  // L'utilisateur n'a plus à le saisir - la description porte le contenu
+  // descriptif réel. Format : "1.1 - Test 1.1.5" ou "1.1 - {nom critère}".
   const { data: criterion } = await supabase
     .from("criteria")
     .select("identifier, name")
@@ -53,8 +53,8 @@ export async function createNC(
     .maybeSingle();
   if (!criterion) return { error: t("criterionRequired") };
   const autoTitle = testReference
-    ? `${criterion.identifier} — ${testReference}`
-    : `${criterion.identifier} — ${criterion.name as string}`;
+    ? `${criterion.identifier} - ${testReference}`
+    : `${criterion.identifier} - ${criterion.name as string}`;
   // Borne dure pour ne pas dépasser la limite raisonnable d'un titre (la
   // colonne est text, mais l'UI affiche tronqué au-delà de 200 ch).
   const title = autoTitle.slice(0, 200);

@@ -38,7 +38,7 @@ function one<T>(v: T | T[] | null): T | null {
 /**
  * Exporte les non-conformités d'un audit en CSV. Réservé aux utilisateurs
  * pouvant consulter l'audit (admin/auditeur, ou client_admin du client).
- * Gated par la feature `export.pdf` (capacité d'export, Starter+) — re-vérifié
+ * Gated par la feature `export.pdf` (capacité d'export, Starter+) - re-vérifié
  * ici car une server action peut être appelée hors UI.
  */
 export async function exportNonConformitiesCsv(

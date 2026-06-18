@@ -151,7 +151,7 @@ export async function rateLimit(
     return await rateLimitRedis(redis, key, limit, windowMs);
   } catch {
     // Redis injoignable : on dégrade vers l'in-memory plutôt que de bloquer un
-    // utilisateur légitime (fail-open contrôlé — la limite reste appliquée au
+    // utilisateur légitime (fail-open contrôlé - la limite reste appliquée au
     // niveau de l'instance courante).
     return rateLimitInMemory(key, limit, windowMs);
   }

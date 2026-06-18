@@ -141,7 +141,7 @@ export async function markNotificationsRead(
 }
 
 /**
- * Repasse un lot de notifications en non lu — pour « reporter » une notif
+ * Repasse un lot de notifications en non lu - pour « reporter » une notif
  * qu'on veut retrouver plus tard dans le compteur.
  */
 export async function markNotificationsUnread(

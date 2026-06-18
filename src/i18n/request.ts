@@ -4,7 +4,7 @@ import { LOCALE_COOKIE, detectLocaleFromHeader, isLocale } from "./config";
 
 // Lu pour chaque requête : sélectionne la locale depuis le cookie partagé.
 // Sans cookie (tout premier chargement), on détecte la langue du navigateur
-// via Accept-Language — le proxy pose le cookie correspondant en parallèle,
+// via Accept-Language - le proxy pose le cookie correspondant en parallèle,
 // donc les requêtes suivantes passent par la branche cookie.
 export default getRequestConfig(async () => {
   const cookieStore = await cookies();

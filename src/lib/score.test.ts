@@ -6,7 +6,7 @@ import {
 } from "./score";
 
 // ============================================================================
-// calculateScore — formule officielle RGAA / WCAG :
+// calculateScore - formule officielle RGAA / WCAG :
 //   score = compliant / (totalCriteria - notApplicable) * 100
 // ============================================================================
 describe("calculateScore", () => {
@@ -66,7 +66,7 @@ describe("calculateScore", () => {
   });
 
   it("retourne 0 si le dénominateur est négatif (cas dégradé : NA > total)", () => {
-    // Garde défensive du code source — on n'est jamais censé arriver ici.
+    // Garde défensive du code source - on n'est jamais censé arriver ici.
     const score = calculateScore({
       compliant: 5,
       notApplicable: 10,
@@ -117,7 +117,7 @@ describe("calculateScore", () => {
 });
 
 // ============================================================================
-// getConformityLevel — seuils officiels :
+// getConformityLevel - seuils officiels :
 //   0–49 : non-compliant
 //   50–99 : partial
 //   100 : full
@@ -145,7 +145,7 @@ describe("getConformityLevel", () => {
 });
 
 // ============================================================================
-// getConformityLabel — libellés FR pour le rapport
+// getConformityLabel - libellés FR pour le rapport
 // ============================================================================
 describe("getConformityLabel", () => {
   it("retourne 'Non conforme' pour un score sous 50", () => {
