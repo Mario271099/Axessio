@@ -28,6 +28,10 @@ test.describe("Flux audit", () => {
     // ---- Étape 2 : référentiel (défauts Web + Audit) -----------------------
     await page.getByLabel(/référentiel d.accessibilité/i).click();
     await page.getByRole("option").first().click();
+    // Champs requis de l'étape 2 (sinon "Suivant" reste désactivé). Ciblés par
+    // id stable plutôt que par label, qui change selon plateforme/langue.
+    await page.locator("#site-name").fill("Site E2E");
+    await page.locator("#site-url").fill("https://e2e.example.com");
     // Plateforme et Type de prestation ont leurs valeurs par défaut (WEB,
     // AUDIT) — on n'y touche pas.
     await page
@@ -53,9 +57,9 @@ test.describe("Flux audit", () => {
     await expect(heading).toBeVisible({ timeout: 30_000 });
     await expect(heading).not.toHaveText("");
 
-    // Le QuickLink "Matrice de conformité" pointe vers /audits/.../matrix.
+    // L'onglet "Conformité" de l'audit pointe vers /audits/.../matrix.
     await expect(
-      page.getByRole("link", { name: /matrice de conformité/i }),
+      page.getByRole("link", { name: "Conformité", exact: true }),
     ).toBeVisible();
   });
 
@@ -68,9 +72,9 @@ test.describe("Flux audit", () => {
     await expect(firstAuditLink).toBeVisible({ timeout: 30_000 });
     await firstAuditLink.click({ timeout: 30_000 });
 
-    // Sur le détail, on bascule vers la matrice.
+    // Sur le détail, on bascule vers la matrice via l'onglet "Conformité".
     await page
-      .getByRole("link", { name: /matrice de conformité/i })
+      .getByRole("link", { name: "Conformité", exact: true })
       .click({ timeout: 30_000 });
 
     // Indicateur d'arrivée : le footer sticky avec "Sauvegarder tout" est

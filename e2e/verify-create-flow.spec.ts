@@ -126,6 +126,10 @@ test("E2E create flow : client → project → audit", async ({ page }) => {
   });
   await page.getByLabel(/référentiel d.accessibilité/i).click();
   await page.getByRole("option").first().click();
+  // Champs requis de l'étape 2 (sinon "Suivant" reste désactivé). Ciblés par
+  // id stable plutôt que par label, qui change selon plateforme/langue.
+  await page.locator("#site-name").fill(`Verify Site ${STAMP}`);
+  await page.locator("#site-url").fill(`https://verify-${STAMP}.example.com`);
   await page.getByRole("button", { name: /^suivant$/i }).click();
 
   // Étape 3 : notes + création
