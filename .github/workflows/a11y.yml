@@ -50,6 +50,12 @@ jobs:
           node-version: "20"
           cache: "npm"
 
+      # Node 20 embarque npm 10, mais le package-lock.json est genere avec
+      # npm 11 (version locale). Sans cet alignement, `npm ci` echoue en
+      # "out of sync" car npm 10 resout l'arbre differemment (cf. @swc/helpers).
+      - name: Align npm with the lockfile (npm 11)
+        run: npm install -g npm@11
+
       - name: Install dependencies
         run: npm ci
 
