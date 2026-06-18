@@ -68,6 +68,10 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/webhooks") ||
     pathname.startsWith("/api/v1") ||
+    // Crons (Vercel Cron + GitHub Actions) : appelés sans cookie de session,
+    // ils s'authentifient par `Bearer <CRON_SECRET>` dans leur route handler.
+    // Sans cette ligne, le proxy les redirige vers /login (307) avant le handler.
+    pathname.startsWith("/api/cron") ||
     pathname.startsWith("/_next") ||
     pathname.includes(".");
 
