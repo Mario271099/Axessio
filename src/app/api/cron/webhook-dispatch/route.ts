@@ -65,7 +65,7 @@ export async function GET(req: Request) {
   // 2) Pop la queue. On lit en LIMIT BATCH_SIZE et on ne se soucie pas d'un
   // verrou explicite (FOR UPDATE SKIP LOCKED non exposé par PostgREST) : si
   // deux dispatchers tournent en parallèle, ils traiteront éventuellement la
-  // même delivery deux fois — le pire cas est un double POST, l'abonné doit
+  // même delivery deux fois - le pire cas est un double POST, l'abonné doit
   // déduper sur le delivery_id (envoyé en header).
   const nowIso = new Date().toISOString();
   const { data: deliveries, error: queueError } = await admin
@@ -79,7 +79,7 @@ export async function GET(req: Request) {
     .limit(BATCH_SIZE);
 
   if (queueError) {
-    // Une erreur DB sur la lecture de la queue bloque TOUTES les deliveries —
+    // Une erreur DB sur la lecture de la queue bloque TOUTES les deliveries -
     // pas seulement une. Sans capture, le cron échoue en boucle sans bruit.
     Sentry.captureException(new Error(queueError.message), {
       tags: { source: "webhook-dispatch" },

@@ -1,6 +1,6 @@
 "use client";
 
-// Drawer de navigation mobile — affiché sous lg (1024px), où la sidebar
+// Drawer de navigation mobile - affiché sous lg (1024px), où la sidebar
 // desktop est cachée. Réutilise la config SECTIONS partagée pour rester
 // strictement aligné avec la sidebar desktop.
 

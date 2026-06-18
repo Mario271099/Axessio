@@ -6,7 +6,7 @@ import {
   type AuditLifecycleSnapshot,
 } from "./audit-status";
 
-// Snapshot "tout vert" par défaut — chaque test surcharge ce qui l'intéresse.
+// Snapshot "tout vert" par défaut - chaque test surcharge ce qui l'intéresse.
 function snapshot(
   overrides: Partial<AuditLifecycleSnapshot> = {},
 ): AuditLifecycleSnapshot {
@@ -22,7 +22,7 @@ function snapshot(
 }
 
 // ============================================================================
-// Matrice de transitions — invariants structurels
+// Matrice de transitions - invariants structurels
 // ============================================================================
 describe("AUDIT_STATUS_TRANSITIONS", () => {
   it("ne contient aucun doublon (from, to)", () => {
@@ -59,9 +59,9 @@ describe("AUDIT_STATUS_TRANSITIONS", () => {
 });
 
 // ============================================================================
-// evaluateTransition — source / cible inconnues
+// evaluateTransition - source / cible inconnues
 // ============================================================================
-describe("evaluateTransition — garde source/cible", () => {
+describe("evaluateTransition - garde source/cible", () => {
   it("refuse une transition inexistante (source ne matche aucune règle)", () => {
     const r = evaluateTransition("ONLINE", "ARCHIVED", snapshot());
     expect(r.ready).toBe(false);
@@ -82,9 +82,9 @@ describe("evaluateTransition — garde source/cible", () => {
 });
 
 // ============================================================================
-// evaluateTransition — PENDING -> PLANNED (échantillon non vide)
+// evaluateTransition - PENDING -> PLANNED (échantillon non vide)
 // ============================================================================
-describe("evaluateTransition — PENDING -> PLANNED", () => {
+describe("evaluateTransition - PENDING -> PLANNED", () => {
   it("refuse si l'échantillon est vide", () => {
     const r = evaluateTransition(
       "PENDING",
@@ -107,9 +107,9 @@ describe("evaluateTransition — PENDING -> PLANNED", () => {
 });
 
 // ============================================================================
-// evaluateTransition — PLANNED -> IN_PROGRESS (date de début)
+// evaluateTransition - PLANNED -> IN_PROGRESS (date de début)
 // ============================================================================
-describe("evaluateTransition — PLANNED -> IN_PROGRESS", () => {
+describe("evaluateTransition - PLANNED -> IN_PROGRESS", () => {
   it("refuse si la date de début n'est pas posée", () => {
     const r = evaluateTransition(
       "PLANNED",
@@ -137,9 +137,9 @@ describe("evaluateTransition — PLANNED -> IN_PROGRESS", () => {
 });
 
 // ============================================================================
-// evaluateTransition — IN_PROGRESS -> DELIVERED (matrice complète)
+// evaluateTransition - IN_PROGRESS -> DELIVERED (matrice complète)
 // ============================================================================
-describe("evaluateTransition — IN_PROGRESS -> DELIVERED", () => {
+describe("evaluateTransition - IN_PROGRESS -> DELIVERED", () => {
   it("refuse avec MATRIX_NO_PAGES quand il n'y a ni page ni critère", () => {
     const r = evaluateTransition(
       "IN_PROGRESS",
@@ -169,7 +169,7 @@ describe("evaluateTransition — IN_PROGRESS -> DELIVERED", () => {
 });
 
 // ============================================================================
-// availableManualTransitions — filtrage par statut + rôle
+// availableManualTransitions - filtrage par statut + rôle
 // ============================================================================
 describe("availableManualTransitions", () => {
   it("propose PLANNED depuis PENDING pour un auditor", () => {

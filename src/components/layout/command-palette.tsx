@@ -57,7 +57,7 @@ export function CommandPalette() {
   const [activeIndex, setActiveIndex] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Liens rapides toujours visibles (même sans recherche) — bornes du
+  // Liens rapides toujours visibles (même sans recherche) - bornes du
   // dashboard pour les power users.
   const navigationItems = useMemo<SearchResult[]>(
     () => [

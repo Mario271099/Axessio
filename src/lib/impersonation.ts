@@ -1,7 +1,7 @@
-// Système d'impersonation "View as" — UI uniquement, jamais d'élévation de
+// Système d'impersonation "View as" - UI uniquement, jamais d'élévation de
 // privilèges. Le cookie `axessio-view-as` détient le rôle visé. Le serveur lit
 // ce cookie pour adapter l'UI (sidebar, écrans en lecture seule, etc.) mais
-// toutes les server actions s'appuient sur le rôle RÉEL du profil en base —
+// toutes les server actions s'appuient sur le rôle RÉEL du profil en base -
 // un client_admin qui forgerait le cookie ne pourrait pas escalader.
 //
 // Règles métier (cf. canImpersonateAs dans permissions.ts) :
@@ -44,7 +44,7 @@ export async function readImpersonationCookie(): Promise<UserRole | null> {
 /**
  * Calcule le rôle effectif (UI) en croisant le rôle réel avec le cookie
  * d'impersonation. Si le cookie pointe vers un rôle non autorisé pour ce
- * profil, on l'ignore (on ne lève pas — on retombe sur le rôle réel).
+ * profil, on l'ignore (on ne lève pas - on retombe sur le rôle réel).
  *
  * `realRole` doit toujours provenir d'une source authentifiée (base profiles).
  */

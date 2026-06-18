@@ -56,7 +56,7 @@ export function Sidebar({
 
   return (
     <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
-      {/* Header sidebar — logo + nom de marque */}
+      {/* Header sidebar - logo + nom de marque */}
       <div className="flex h-16 items-center border-b border-border px-4">
         <Link
           href="/dashboard"
@@ -149,7 +149,7 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* Footer — user card + dropdown */}
+      {/* Footer - user card + dropdown */}
       <div className="border-t border-border p-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -230,7 +230,7 @@ export function Sidebar({
           </div>
         )}
 
-        {/* Liens légaux — toujours accessibles depuis l'app authentifiée. */}
+        {/* Liens légaux - toujours accessibles depuis l'app authentifiée. */}
         <nav
           aria-label={t("legal.label")}
           className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 text-[11px] text-muted-foreground"

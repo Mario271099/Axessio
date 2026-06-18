@@ -164,7 +164,7 @@ export function TemplateRow({ organizationId, template, references }: Props) {
 }
 
 // ---------------------------------------------------------------------------
-// DeleteConfirm — petit composant interne pour l'AlertDialog de confirmation.
+// DeleteConfirm - petit composant interne pour l'AlertDialog de confirmation.
 // Séparé pour garder TemplateRow lisible et permettre un useState propre.
 // ---------------------------------------------------------------------------
 function DeleteConfirm({

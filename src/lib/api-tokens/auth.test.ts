@@ -16,7 +16,7 @@ function ctx(overrides: Partial<ApiTokenContext> = {}): ApiTokenContext {
 }
 
 // ============================================================================
-// requireScope — garde de scope (pas d'I/O)
+// requireScope - garde de scope (pas d'I/O)
 // ============================================================================
 describe("requireScope", () => {
   it("laisse passer quand le scope demandé est présent", () => {
@@ -47,7 +47,7 @@ describe("requireScope", () => {
 });
 
 // ============================================================================
-// apiRateLimitHeaders — sérialisation des en-têtes IETF RateLimit-*
+// apiRateLimitHeaders - sérialisation des en-têtes IETF RateLimit-*
 // ============================================================================
 describe("apiRateLimitHeaders", () => {
   it("projette le contexte sur les en-têtes RateLimit-* en chaînes", () => {

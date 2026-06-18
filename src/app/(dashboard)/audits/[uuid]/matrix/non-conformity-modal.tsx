@@ -69,7 +69,7 @@ export function NonConformityModal({
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  // create | create_and_request — décide si on enchaîne avec requestNCReview
+  // create | create_and_request - décide si on enchaîne avec requestNCReview
   // après la création réussie.
   const [submitMode, setSubmitMode] =
     useState<"create" | "create_and_request">("create");

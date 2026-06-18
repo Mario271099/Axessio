@@ -1,7 +1,7 @@
 "use client";
 
 // Formulaire partagé entre création et édition d'un template de NC.
-// N'inclut PAS le wrapper modal / les boutons d'action — c'est aux
+// N'inclut PAS le wrapper modal / les boutons d'action - c'est aux
 // composants Dialog parents (new-template-dialog, template-row) de les
 // fournir. Garder ça séparé évite la duplication des champs et le code
 // "if editMode else createMode" dans un même composant.
@@ -43,7 +43,7 @@ export function TemplateForm({ formId, references, initial, onSubmit }: Props) {
   const tSeverity = useTranslations("constants.ncSeverity");
 
   // États contrôlés pour les selects Radix. Les inputs/textarea restent
-  // non contrôlés (defaultValue) — pas besoin de hooks, le FormData
+  // non contrôlés (defaultValue) - pas besoin de hooks, le FormData
   // récupère les valeurs au submit.
   const [severity, setSeverity] = useState<NCSeverity>(
     initial?.severity ?? "MEDIUM",

@@ -146,7 +146,7 @@ export function AuditForm({ projects, references }: AuditFormProps) {
   );
 
   // RAAM = référentiel d'apps mobiles. La plateforme est implicite et
-  // verrouillée sur MOBILE — sélectionner WEB n'aurait pas de sens.
+  // verrouillée sur MOBILE - sélectionner WEB n'aurait pas de sens.
   // L'utilisateur saisira un bundle id à la place d'une URL.
   const isMobileReference = selectedReference?.type === "RAAM";
   useEffect(() => {

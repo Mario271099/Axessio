@@ -3,7 +3,7 @@
 //
 // Contrairement à login-attempt/login-failed (anonymes), cette route EXIGE une
 // session valide : l'événement `login.success` porte donc un actor_id fiable
-// — c'est lui qui alimente la carte « Connexions récentes » des Settings.
+// - c'est lui qui alimente la carte « Connexions récentes » des Settings.
 // Impossible à forger sans être réellement connecté.
 
 import { NextResponse } from "next/server";

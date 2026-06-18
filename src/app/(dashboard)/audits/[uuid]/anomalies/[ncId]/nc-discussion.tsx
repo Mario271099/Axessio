@@ -1,7 +1,7 @@
 "use client";
 
 // Colonne discussion de la page NC : fils client/review, envoi et suppression
-// de messages. Extrait de nc-detail.tsx (découpage des gros composants) —
+// de messages. Extrait de nc-detail.tsx (découpage des gros composants) -
 // markup et comportement inchangés.
 
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -59,7 +59,7 @@ interface NCDiscussionProps {
   ncId: string;
   auditId: string;
   profileId: string;
-  /** Messages tous fils confondus — séparés ici via `thread`. */
+  /** Messages tous fils confondus - séparés ici via `thread`. */
   messages: MessageData[];
   canDiscuss: boolean;
   canAccessReviewThread: boolean;
@@ -170,7 +170,7 @@ export function NCDiscussion({
               </Badge>
             )}
           </CardTitle>
-          {/* Onglets — visibles seulement si l'utilisateur a accès au
+          {/* Onglets - visibles seulement si l'utilisateur a accès au
               fil 'review' (staff/proofreader). Sinon, un seul fil 'client'
               reste actif, on cache le toggle. */}
           {canAccessReviewThread && (

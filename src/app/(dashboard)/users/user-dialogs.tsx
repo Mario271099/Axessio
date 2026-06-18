@@ -1,7 +1,7 @@
 "use client";
 
 // Dialogues d'invitation et d'édition de rôle de la page utilisateurs.
-// Extraits de users-list.tsx (découpage des gros composants) — markup et
+// Extraits de users-list.tsx (découpage des gros composants) - markup et
 // comportement inchangés.
 
 import { useState, useTransition } from "react";

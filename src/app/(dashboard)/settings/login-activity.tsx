@@ -1,4 +1,4 @@
-// Carte « Connexions récentes » — server component pur (pas d'interactivité).
+// Carte « Connexions récentes » - server component pur (pas d'interactivité).
 // Affiche les derniers login.success / login.failed du compte courant pour
 // que l'utilisateur repère une activité qu'il ne reconnaît pas.
 
@@ -7,7 +7,7 @@ import { CheckCircle2, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LoginActivityEntry } from "./actions";
 
-// Résumé lisible du user-agent : navigateur + OS. Volontairement grossier —
+// Résumé lisible du user-agent : navigateur + OS. Volontairement grossier -
 // l'objectif est « Chrome · Windows », pas une détection exhaustive.
 function summarizeUserAgent(ua: string | null): string | null {
   if (!ua) return null;

@@ -92,7 +92,7 @@ export default async function HomePage() {
 
   const t = await getTranslations("home");
 
-  // JSON-LD SoftwareApplication + FAQPage — enrichit le snippet Google.
+  // JSON-LD SoftwareApplication + FAQPage - enrichit le snippet Google.
   type FaqItem = { q: string; a: string };
   const faqItems = (await getTranslations("home"))
     .raw("faq.items") as FaqItem[];

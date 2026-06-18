@@ -24,7 +24,7 @@ export async function createClient() {
             try {
               cookieStore.set(name, value, options);
             } catch {
-              // Lecture seule (Server Component) — silencieux
+              // Lecture seule (Server Component) - silencieux
             }
           }
         },

@@ -30,7 +30,7 @@ const dmMono = DM_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `${SITE.name} — ${SITE.tagline.fr}`,
+    default: `${SITE.name} - ${SITE.tagline.fr}`,
     template: `%s · ${SITE.name}`,
   },
   description: SITE.description.fr,
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  // Indexation par défaut — chaque layout privé écrase ce bloc avec
+  // Indexation par défaut - chaque layout privé écrase ce bloc avec
   // `robots: { index: false }`. Tous les bots utiles (Google, Bing, Applebot…)
   // suivent les directives `googleBot` ci-dessous.
   robots: {
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: SITE.name,
-    title: `${SITE.name} — ${SITE.tagline.fr}`,
+    title: `${SITE.name} - ${SITE.tagline.fr}`,
     description: SITE.description.fr,
     url: SITE.url,
     locale: SITE.locale.fr,
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: SITE.twitter,
     creator: SITE.twitter,
-    title: `${SITE.name} — ${SITE.tagline.fr}`,
+    title: `${SITE.name} - ${SITE.tagline.fr}`,
     description: SITE.description.fr,
   },
   manifest: "/manifest.webmanifest",
@@ -115,7 +115,7 @@ export default async function RootLayout({
   const locale = await getLocale();
   const messages = await getMessages();
 
-  // JSON-LD au niveau racine — visible sur toutes les pages publiques.
+  // JSON-LD au niveau racine - visible sur toutes les pages publiques.
   // Les pages privées (dashboard) ne sont de toute façon pas indexées.
   const organizationJsonLd = {
     "@context": "https://schema.org",
@@ -154,7 +154,7 @@ export default async function RootLayout({
                 : "Skip to main content"}
             </a>
             {children}
-            {/* Toasts globaux — accessibles (role="status" injecté par sonner),
+            {/* Toasts globaux - accessibles (role="status" injecté par sonner),
                 ne déclenchent pas de re-render des Server Components. */}
             <Toaster
               position="bottom-right"
@@ -162,12 +162,12 @@ export default async function RootLayout({
               closeButton
               theme="system"
             />
-            {/* Banniere de consentement RGPD — le composant decide lui-meme
+            {/* Banniere de consentement RGPD - le composant decide lui-meme
                 de s'afficher (pages publiques uniquement, premier passage). */}
             <CookieConsentBanner />
           </ThemeProvider>
         </NextIntlClientProvider>
-        {/* Données structurées Organization (Schema.org) — apparaissent
+        {/* Données structurées Organization (Schema.org) - apparaissent
             sur toutes les pages publiques. Rendu en JSON brut, non bloquant. */}
         <script
           type="application/ld+json"

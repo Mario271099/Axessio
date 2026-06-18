@@ -2,7 +2,7 @@
 
 // Carte « Détails de la NC » : lecture + formulaire d'édition (description,
 // résultat constaté, recommandation, sévérité, page). Extrait de nc-detail.tsx
-// (découpage des gros composants) — markup et comportement inchangés.
+// (découpage des gros composants) - markup et comportement inchangés.
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";

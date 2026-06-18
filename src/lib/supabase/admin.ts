@@ -1,6 +1,6 @@
 // SERVER-ONLY. Ne jamais importer ce fichier depuis un composant client
 // ni depuis un fichier au-dessus de la frontière "use server".
-// La service-role key contourne RLS — fuite côté client = compromission totale.
+// La service-role key contourne RLS - fuite côté client = compromission totale.
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -13,7 +13,7 @@ export function createAdminClient() {
   }
   if (!serviceRoleKey) {
     throw new Error(
-      "SUPABASE_SERVICE_ROLE_KEY manquant — requis pour les opérations admin.",
+      "SUPABASE_SERVICE_ROLE_KEY manquant - requis pour les opérations admin.",
     );
   }
 

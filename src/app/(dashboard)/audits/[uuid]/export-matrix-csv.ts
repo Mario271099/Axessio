@@ -1,6 +1,6 @@
 // Logique pure de construction du CSV de matrice de conformité.
 // Séparée de la server action (`export-matrix-actions.ts`) car un fichier
-// "use server" n'autorise que des exports async — et pour pouvoir tester le
+// "use server" n'autorise que des exports async - et pour pouvoir tester le
 // builder sans toucher à Supabase.
 
 import {

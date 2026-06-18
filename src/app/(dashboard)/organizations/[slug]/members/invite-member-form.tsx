@@ -47,7 +47,7 @@ export function InviteMemberForm({ orgId }: { orgId: string }) {
       await navigator.clipboard.writeText(invitedUrl);
       setCopied(true);
     } catch {
-      // clipboard indisponible — l'URL reste sélectionnable manuellement.
+      // clipboard indisponible - l'URL reste sélectionnable manuellement.
     }
   }
 

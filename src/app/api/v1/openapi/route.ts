@@ -1,7 +1,7 @@
 // Spec OpenAPI 3.1 de l'API publique v1, servie en JSON.
 //
 // Publique (pas d'auth) : un consommateur doit pouvoir lire le contrat avant
-// d'avoir un token. Maintenue à la main et alignée sur les routes réelles —
+// d'avoir un token. Maintenue à la main et alignée sur les routes réelles -
 // chaque nouvel endpoint /api/v1/* doit être ajouté ici.
 
 import { NextResponse } from "next/server";

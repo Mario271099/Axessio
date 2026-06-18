@@ -12,7 +12,7 @@ import { PLANS } from "@/lib/billing/plans";
 import { SITE, siteUrl } from "@/lib/site";
 import { BillingIntervalToggle } from "./billing-interval-toggle";
 
-// Clés des questions de la FAQ — l'ordre est l'ordre d'affichage. Chaque clé
+// Clés des questions de la FAQ - l'ordre est l'ordre d'affichage. Chaque clé
 // doit exister dans messages/{fr,en}.json sous pricing.faq.items.
 const FAQ_KEYS = [
   "free",
@@ -26,7 +26,7 @@ const FAQ_KEYS = [
 ] as const;
 
 // ----------------------------------------------------------------------------
-// Metadata SEO — page indexable, opposée des layouts privés.
+// Metadata SEO - page indexable, opposée des layouts privés.
 // ----------------------------------------------------------------------------
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("pricing");
@@ -54,7 +54,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PricingPage() {
   const t = await getTranslations("pricing");
 
-  // Économie annuelle moyenne sur les plans payants (Starter / Pro) — passée
+  // Économie annuelle moyenne sur les plans payants (Starter / Pro) - passée
   // en prop au composant client pour rester à jour si les prix changent.
   // On prend le plan Starter comme référence (≈ 290 € au lieu de 12 × 29 = 348 €).
   const starter = PLANS.starter;
@@ -71,7 +71,7 @@ export default async function PricingPage() {
     answer: t(`faq.items.${key}.answer`),
   }));
 
-  // JSON-LD FAQPage — les questions/réponses peuvent apparaître en rich
+  // JSON-LD FAQPage - les questions/réponses peuvent apparaître en rich
   // snippet dans les résultats de recherche.
   const faqJsonLd = {
     "@context": "https://schema.org",

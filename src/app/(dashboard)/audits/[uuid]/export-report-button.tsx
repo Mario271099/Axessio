@@ -67,7 +67,7 @@ export function ExportReportButton({
           const data = (await response.json()) as { error?: string };
           if (data.error) message = data.error;
         } catch {
-          // Non-JSON response — keep HTTP code
+          // Non-JSON response - keep HTTP code
         }
         throw new Error(message);
       }

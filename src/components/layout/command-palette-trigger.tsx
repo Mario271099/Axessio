@@ -2,7 +2,7 @@
 
 // Petit bouton "Rechercher" du topbar qui simule un appui sur Cmd+K pour
 // ouvrir la palette. Évite d'exposer un état partagé entre topbar et
-// palette — la palette écoute déjà le keydown global.
+// palette - la palette écoute déjà le keydown global.
 
 import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";

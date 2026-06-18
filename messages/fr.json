@@ -1,7 +1,7 @@
 {
   "home": {
-    "metaTitle": "Axessyo — Plateforme SaaS d'audits d'accessibilité numérique",
-    "metaDescription": "Centralisez vos audits d'accessibilité numérique (RGAA, WCAG, RAWeb, RAAM). Saisie de conformité, gestion des non-conformités, rapports PDF — pour auditeurs et équipes clients.",
+    "metaTitle": "Axessyo - Plateforme SaaS d'audits d'accessibilité numérique",
+    "metaDescription": "Centralisez vos audits d'accessibilité numérique (RGAA, WCAG, RAWeb, RAAM). Saisie de conformité, gestion des non-conformités, rapports PDF - pour auditeurs et équipes clients.",
     "skipToContent": "Aller au contenu principal",
     "nav": {
       "features": "Fonctionnalités",
@@ -13,7 +13,7 @@
     "hero": {
       "kicker": "Plateforme d'audit d'accessibilité",
       "title": "Pilotez vos audits d'accessibilité sans tableurs.",
-      "subtitle": "Axessyo centralise vos audits d'accessibilité numérique : grille de conformité, non-conformités tracées, rapports PDF prêts à livrer — pour auditeurs et équipes clients.",
+      "subtitle": "Axessyo centralise vos audits d'accessibilité numérique : grille de conformité, non-conformités tracées, rapports PDF prêts à livrer - pour auditeurs et équipes clients.",
       "primaryCta": "Accéder à mon espace",
       "secondaryCta": "Voir les fonctionnalités"
     },
@@ -23,7 +23,7 @@
       "items": {
         "matrix": {
           "title": "Matrice de conformité",
-          "desc": "Saisissez chaque critère page par page — conforme, non conforme ou non applicable — avec calcul automatique du score officiel."
+          "desc": "Saisissez chaque critère page par page - conforme, non conforme ou non applicable - avec calcul automatique du score officiel."
         },
         "ncs": {
           "title": "Non-conformités tracées",
@@ -35,15 +35,15 @@
         },
         "multitenant": {
           "title": "Multi-clients sécurisé",
-          "desc": "Isolation stricte des données entre clients (Row Level Security PostgreSQL). Auditeurs, admins client et membres — chacun voit ce qu'il doit voir."
+          "desc": "Isolation stricte des données entre clients (Row Level Security PostgreSQL). Auditeurs, admins client et membres - chacun voit ce qu'il doit voir."
         },
         "i18n": {
           "title": "Interface FR / EN",
-          "desc": "Bascule en un clic entre français et anglais — utile pour les équipes internationales et les clients hors-Europe."
+          "desc": "Bascule en un clic entre français et anglais - utile pour les équipes internationales et les clients hors-Europe."
         },
         "a11y": {
           "title": "Accessible par construction",
-          "desc": "L'outil qui sert à auditer l'accessibilité respecte WCAG 2.2 AA — focus visible, contrastes vérifiés, navigation clavier, lecteurs d'écran."
+          "desc": "L'outil qui sert à auditer l'accessibilité respecte WCAG 2.2 AA - focus visible, contrastes vérifiés, navigation clavier, lecteurs d'écran."
         }
       }
     },
@@ -116,7 +116,7 @@
         "lines": [
           "L'audit de conformité au RGAA 4.1 par un tiers indépendant n'a pas encore été réalisé. Le taux de conformité global (nombre de critères respectés / nombre de critères applicables) sera publié ici à l'issue de cet audit.",
           "En interne, l'équipe applique une démarche d'accessibilité dès la conception et utilise un test automatisé axe-core sur chaque pull request, intégré au CI. Sont validés à date : structure sémantique HTML, libellés de formulaire associés, navigation au clavier complète, lien d'évitement (« Aller au contenu principal »), contrastes WCAG AA sur les badges et textes principaux (clair et sombre).",
-          "axe-core couvre environ 50 % des critères WCAG par défaut — il reste indispensable de réaliser un audit RGAA manuel."
+          "axe-core couvre environ 50 % des critères WCAG par défaut - il reste indispensable de réaliser un audit RGAA manuel."
         ]
       },
       "nonAccessible": {
@@ -162,7 +162,7 @@
           "Axessyo SAS",
           "Société par Actions Simplifiée au capital de 10 000 €",
           "10 rue de la République, 75011 Paris, France",
-          "RCS Paris — SIRET 999 999 999 00000",
+          "RCS Paris - SIRET 999 999 999 00000",
           "N° TVA intracommunautaire : FR 99 999999999",
           "Adresse email : contact@axessyo.com"
         ]
@@ -285,7 +285,7 @@
       "complaint": {
         "title": "Réclamation",
         "lines": [
-          "Si vous estimez que vos droits ne sont pas respectés, vous pouvez introduire une réclamation auprès de la CNIL : 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 — www.cnil.fr."
+          "Si vous estimez que vos droits ne sont pas respectés, vous pouvez introduire une réclamation auprès de la CNIL : 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 - www.cnil.fr."
         ]
       },
       "security": {
@@ -520,7 +520,7 @@
         },
         "changePlan": {
           "question": "Puis-je changer de plan à tout moment ?",
-          "answer": "Oui. Un passage à un plan supérieur prend effet immédiatement, avec une facturation au prorata gérée par Stripe. Un passage à un plan inférieur prend effet à la fin de la période de facturation en cours — vous conservez vos fonctionnalités jusque-là."
+          "answer": "Oui. Un passage à un plan supérieur prend effet immédiatement, avec une facturation au prorata gérée par Stripe. Un passage à un plan inférieur prend effet à la fin de la période de facturation en cours - vous conservez vos fonctionnalités jusque-là."
         },
         "limits": {
           "question": "Que se passe-t-il si j'atteins les limites de mon plan ?",
@@ -536,7 +536,7 @@
         },
         "data": {
           "question": "Où sont hébergées mes données et qui y a accès ?",
-          "answer": "Vos audits sont cloisonnés par organisation : seuls les membres que vous invitez y ont accès. Les données sont hébergées chez nos sous-traitants cloud et traitées conformément au RGPD — le détail (sous-traitants, durées de conservation, vos droits) figure dans notre politique de confidentialité."
+          "answer": "Vos audits sont cloisonnés par organisation : seuls les membres que vous invitez y ont accès. Les données sont hébergées chez nos sous-traitants cloud et traitées conformément au RGPD - le détail (sous-traitants, durées de conservation, vos droits) figure dans notre politique de confidentialité."
         },
         "references": {
           "question": "Quels référentiels d'accessibilité sont pris en charge ?",
@@ -550,7 +550,7 @@
     "kicker": "Dernière étape",
     "title": "Choisissez votre formule",
     "subtitle": "Votre espace est prêt en plan Free. Vous pouvez le faire évoluer dès maintenant ou plus tard depuis vos réglages de facturation.",
-    "stripeUnavailable": "Le paiement n'est pas encore activé. Continuez en Free pour le moment — vous pourrez passer à un plan payant plus tard.",
+    "stripeUnavailable": "Le paiement n'est pas encore activé. Continuez en Free pour le moment - vous pourrez passer à un plan payant plus tard.",
     "continueFree": "Continuer en Free",
     "choose": "Choisir ce plan",
     "currentPlan": "Plan actuel",
@@ -559,7 +559,7 @@
     "skip": "Passer cette étape, je déciderai plus tard"
   },
   "planning": {
-    "metaTitle": "Planning — Axessyo",
+    "metaTitle": "Planning - Axessyo",
     "title": "Planning",
     "subtitle": "Vue calendrier des dates clés de vos audits.",
     "calendarHint": "Cliquez sur un audit pour ouvrir sa fiche.",
@@ -666,7 +666,7 @@
       "viewer": "Lecteur"
     },
     "detail": {
-      "metaTitle": "Organisation — {slug}",
+      "metaTitle": "Organisation - {slug}",
       "back": "Retour aux organisations",
       "membersTitle": "Membres",
       "membersCount": "{count, plural, =0 {Aucun membre} one {# membre} other {# membres}}",
@@ -696,7 +696,7 @@
       "membersCountLimit": "{count} / {limit} membres"
     },
     "ncTemplates": {
-      "metaTitle": "Modèles de NC — {slug}",
+      "metaTitle": "Modèles de NC - {slug}",
       "title": "Modèles de non-conformité",
       "subtitle": "Pré-remplit le formulaire de création de NC avec un titre, une description et une recommandation par défaut. Gagne du temps sur les anomalies récurrentes.",
       "back": "Retour à l'organisation",
@@ -732,13 +732,13 @@
       }
     },
     "apiTokens": {
-      "metaTitle": "Tokens API — {slug}",
+      "metaTitle": "Tokens API - {slug}",
       "title": "Tokens API",
       "subtitle": "Authentification programmatique. Chaque token donne accès à votre organisation avec les scopes choisis.",
       "back": "Retour à l'organisation",
       "newCta": "Nouveau token",
       "newTitle": "Créer un token API",
-      "newDesc": "Donnez-lui un nom descriptif, choisissez ses droits, et copiez-le immédiatement — il ne sera affiché qu'une seule fois.",
+      "newDesc": "Donnez-lui un nom descriptif, choisissez ses droits, et copiez-le immédiatement - il ne sera affiché qu'une seule fois.",
       "nameLabel": "Nom",
       "namePlaceholder": "ex. Script export quotidien",
       "nameHint": "Utilisez un nom qui décrit où le token sera utilisé.",
@@ -754,7 +754,7 @@
       "create": "Créer le token",
       "cancel": "Annuler",
       "revealTitle": "Votre nouveau token",
-      "revealDesc": "Copiez-le maintenant — il ne sera plus jamais affiché. Si vous le perdez, vous devrez en créer un nouveau.",
+      "revealDesc": "Copiez-le maintenant - il ne sera plus jamais affiché. Si vous le perdez, vous devrez en créer un nouveau.",
       "copy": "Copier",
       "close": "Fermer",
       "revokeCta": "Révoquer",
@@ -780,7 +780,7 @@
       }
     },
     "auditLogs": {
-      "metaTitle": "Journal d'audit — {slug}",
+      "metaTitle": "Journal d'audit - {slug}",
       "title": "Journal d'audit",
       "subtitle": "Toutes les actions effectuées sur cette organisation, du plus récent au plus ancien.",
       "back": "Retour à l'organisation",
@@ -804,7 +804,7 @@
       }
     },
     "webhooks": {
-      "metaTitle": "Webhooks — {slug}",
+      "metaTitle": "Webhooks - {slug}",
       "title": "Webhooks sortants",
       "subtitle": "Recevez les événements Axessyo sur vos systèmes externes (Slack, Zapier, votre backend…).",
       "back": "Retour à l'organisation",
@@ -827,7 +827,7 @@
       "deleteCta": "Supprimer",
       "confirmDelete": "Supprimer ce webhook ? Cette action est irréversible.",
       "secretRevealTitle": "Secret du webhook",
-      "secretRevealDesc": "Copiez ce secret maintenant — il ne sera plus jamais affiché. Il sert à vérifier la signature HMAC envoyée dans l'en-tête X-Axessyo-Signature.",
+      "secretRevealDesc": "Copiez ce secret maintenant - il ne sera plus jamais affiché. Il sert à vérifier la signature HMAC envoyée dans l'en-tête X-Axessyo-Signature.",
       "newSecretLabel": "Nouveau secret",
       "copy": "Copier",
       "close": "Fermer",
@@ -847,7 +847,7 @@
       }
     },
     "workspaces": {
-      "metaTitle": "Workspaces — {slug}",
+      "metaTitle": "Workspaces - {slug}",
       "title": "Workspaces",
       "subtitle": "Sous-divisions de votre organisation pour isoler des équipes ou des portefeuilles client.",
       "back": "Retour à l'organisation",
@@ -875,7 +875,7 @@
       }
     },
     "branding": {
-      "metaTitle": "Branding — {slug}",
+      "metaTitle": "Branding - {slug}",
       "title": "Personnalisation visuelle",
       "subtitle": "Logo, couleurs et email de support de votre organisation.",
       "back": "Retour à l'organisation",
@@ -903,7 +903,7 @@
       "seeBilling": "Voir les plans"
     },
     "billing": {
-      "metaTitle": "Facturation — {slug}",
+      "metaTitle": "Facturation - {slug}",
       "title": "Facturation",
       "subtitle": "Plan en cours, limites et gestion de l'abonnement.",
       "back": "Retour à l'organisation",
@@ -1009,7 +1009,7 @@
       "logout": "Déconnexion",
       "exitImpersonation": "Sortir du mode visualisation"
     },
-    "brandHomeAria": "Axessyo — retour au tableau de bord",
+    "brandHomeAria": "Axessyo - retour au tableau de bord",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
     "mobileNavDesc": "Navigation principale de l'application",
@@ -1022,7 +1022,7 @@
   },
   "topbar": {
     "notifications": "Notifications",
-    "notificationsWithUnread": "Notifications — nouvelles activités",
+    "notificationsWithUnread": "Notifications - nouvelles activités",
     "theme": {
       "switchToLight": "Activer le thème clair",
       "switchToDark": "Activer le thème sombre"
@@ -1068,7 +1068,7 @@
     },
     "register": {
       "title": "Créer votre compte",
-      "subtitle": "Lancez votre espace Axessyo en quelques secondes — sans carte bancaire.",
+      "subtitle": "Lancez votre espace Axessyo en quelques secondes - sans carte bancaire.",
       "firstName": "Prénom",
       "firstNamePlaceholder": "Camille",
       "lastName": "Nom",
@@ -1111,7 +1111,7 @@
     },
     "forgotPassword": {
       "title": "Mot de passe oublié",
-      "subtitle": "Saisis ton adresse email — on t'envoie un lien pour en définir un nouveau.",
+      "subtitle": "Saisis ton adresse email - on t'envoie un lien pour en définir un nouveau.",
       "email": "Adresse email",
       "emailPlaceholder": "vous@entreprise.com",
       "submit": "Envoyer le lien",
@@ -1212,7 +1212,7 @@
     },
     "onboarding": {
       "title": "Bien démarrer avec {name}",
-      "subtitle": "{completed} sur {total} étapes complétées — finis l'installation pour profiter de tout Axessyo.",
+      "subtitle": "{completed} sur {total} étapes complétées - finis l'installation pour profiter de tout Axessyo.",
       "progressAria": "Progression : {percent}%",
       "itemCta": "Aller →",
       "items": {
@@ -1418,7 +1418,7 @@
     },
     "createProject": {
       "title": "Nouveau projet",
-      "desc": "Un projet regroupe un ou plusieurs audits — site web, application mobile, sous-domaines… L'URL est désormais portée par chaque audit.",
+      "desc": "Un projet regroupe un ou plusieurs audits - site web, application mobile, sous-domaines… L'URL est désormais portée par chaque audit.",
       "nameRequired": "Le nom du projet est requis.",
       "name": "Nom",
       "namePlaceholder": "Ex : Site institutionnel",
@@ -1746,7 +1746,7 @@
           },
           "ready": {
             "title": "Prêt à planifier",
-            "description": "L'échantillon est défini — passez l'audit en planifié pour démarrer."
+            "description": "L'échantillon est défini - passez l'audit en planifié pour démarrer."
           }
         },
         "planned": {
@@ -1774,7 +1774,7 @@
           },
           "ready": {
             "title": "Prêt à livrer",
-            "description": "Matrice complète à 100 % — livrez le rapport au client."
+            "description": "Matrice complète à 100 % - livrez le rapport au client."
           }
         },
         "delivered": {
@@ -2049,7 +2049,7 @@
       "invite": "Inviter un contact",
       "inviteCta": "Envoyer l'invitation",
       "inviteTitle": "Inviter un contact client",
-      "inviteDesc": "Le contact reçoit un email d'invitation. Une fois son compte activé, il accède à cet audit uniquement — pas au reste de l'organisation, et jamais au fil de relecture interne.",
+      "inviteDesc": "Le contact reçoit un email d'invitation. Une fois son compte activé, il accède à cet audit uniquement - pas au reste de l'organisation, et jamais au fil de relecture interne.",
       "firstName": "Prénom",
       "lastName": "Nom",
       "email": "Email",
@@ -2147,10 +2147,10 @@
         "STATUS_ROLE_DENIED": "Votre rôle ne permet pas cette transition.",
         "SAMPLE_EMPTY": "Ajoutez au moins une page représentative dans l'échantillon avant de planifier l'audit.",
         "START_DATE_MISSING": "Renseignez une date de début prévue avant de démarrer l'audit.",
-        "START_DATE_FUTURE": "La date de début est postérieure à aujourd'hui — l'audit ne peut pas encore démarrer.",
+        "START_DATE_FUTURE": "La date de début est postérieure à aujourd'hui - l'audit ne peut pas encore démarrer.",
         "MATRIX_NO_PAGES": "L'audit ne contient aucune page : ajoutez l'échantillon avant la livraison.",
         "MATRIX_NO_CRITERIA": "Le référentiel sélectionné ne contient aucun critère.",
-        "MATRIX_INCOMPLETE": "La matrice doit être complétée à 100 % avant livraison ({filled} / {total} cellules — {percent} %)."
+        "MATRIX_INCOMPLETE": "La matrice doit être complétée à 100 % avant livraison ({filled} / {total} cellules - {percent} %)."
       }
     },
     "edit": {
@@ -2199,7 +2199,7 @@
       "pageName": "Nom de la page",
       "pageNamePlaceholder": "Page contact, Liste produits…",
       "complexity": "Complexité",
-      "complexityNone": "— Non définie —",
+      "complexityNone": "- Non définie -",
       "pageUrl": "URL de la page",
       "pageUrlPlaceholder": "https://exemple.com/contact",
       "adding": "Ajout en cours…",
@@ -2526,7 +2526,7 @@
         "BY_CRITERION": "Numéro de critère",
         "noThematic": "Sans thématique"
       },
-      "noProjectAccess": "—"
+      "noProjectAccess": "-"
     }
   }
 }

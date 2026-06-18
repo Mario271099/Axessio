@@ -4,7 +4,7 @@
 //   - constantes partagées (catalogue d'événements, limites retry)
 //
 // La logique CRUD (création/suppression d'endpoints) reste dans les server
-// actions de la page UI — ce module n'expose que les utilitaires bas niveau.
+// actions de la page UI - ce module n'expose que les utilitaires bas niveau.
 
 import "server-only";
 import crypto from "node:crypto";

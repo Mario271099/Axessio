@@ -46,7 +46,7 @@ export async function saveBranding(
   }
 
   // 2. Garde par plan (Enterprise uniquement). On switch côté code parce que
-  //    le user qui sauvegarde DOIT être sur l'org active — sinon `current_org`
+  //    le user qui sauvegarde DOIT être sur l'org active - sinon `current_org`
   //    serait une autre org. La page d'édition fait déjà le switch implicite
   //    via le slug, donc dans la pratique current_org() == organizationId.
   const enabled = await orgHasFeature("branding.custom");

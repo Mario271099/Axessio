@@ -88,7 +88,7 @@ async function loadNCContext(
 }
 
 // ============================================================================
-// 1) requestNCReview — auditeur demande une relecture
+// 1) requestNCReview - auditeur demande une relecture
 // ----------------------------------------------------------------------------
 // Source : not_requested | changes_requested | approved
 // Cible  : pending
@@ -143,7 +143,7 @@ export async function requestNCReview(
 
   const supabase = await createClient();
 
-  // L'absence de relecteur n'est plus bloquante — on ouvre quand même le
+  // L'absence de relecteur n'est plus bloquante - on ouvre quand même le
   // cycle pour que l'auditeur puisse poser le drapeau « relecture demandée »
   // côté NC. La notification est juste skippée (filter renverra vide), et un
   // relecteur assigné plus tard verra la NC en `pending` dès son arrivée.
@@ -174,7 +174,7 @@ export async function requestNCReview(
     payload: { nc_id: ncId, from: ctx.reviewStatus, to: "pending" },
   });
 
-  // Notif aux relecteurs (sauf si c'est l'auteur — peu probable). Si
+  // Notif aux relecteurs (sauf si c'est l'auteur - peu probable). Si
   // aucun relecteur n'est assigné on saute l'insert : pas d'erreur, le
   // cycle reste ouvert et la NC apparaît en `pending` pour le prochain
   // relecteur ajouté.
@@ -197,7 +197,7 @@ export async function requestNCReview(
 }
 
 // ============================================================================
-// 2) openNCReview — relecteur ouvre la NC, auto pending → under_review
+// 2) openNCReview - relecteur ouvre la NC, auto pending → under_review
 // ----------------------------------------------------------------------------
 // Idempotent : si déjà under_review/changes_requested/approved, no-op.
 // Appelée silencieusement par la page de détail NC quand un relecteur l'ouvre.
@@ -238,7 +238,7 @@ export async function openNCReview(
 }
 
 // ============================================================================
-// 3) requestNCChanges — relecteur demande des corrections (motif obligatoire)
+// 3) requestNCChanges - relecteur demande des corrections (motif obligatoire)
 // ============================================================================
 export async function requestNCChanges(
   ncId: string,
@@ -321,7 +321,7 @@ export async function requestNCChanges(
 }
 
 // ============================================================================
-// 4) approveNCReview — relecteur valide la relecture
+// 4) approveNCReview - relecteur valide la relecture
 // ============================================================================
 export async function approveNCReview(
   ncId: string,
@@ -386,7 +386,7 @@ export async function approveNCReview(
 }
 
 // ============================================================================
-// 5) cancelNCReview — auditeur annule sa demande de relecture
+// 5) cancelNCReview - auditeur annule sa demande de relecture
 // ----------------------------------------------------------------------------
 // Permet de retirer une demande avant qu'elle ne soit traitée. Utile si
 // l'auditeur réalise qu'il a fait l'action par erreur.

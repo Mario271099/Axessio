@@ -208,12 +208,12 @@ export async function transitionAuditStatus(
 // qui apparaît 5 secondes après une transition réussie dans
 // AuditStatusActions. Contrairement à `transitionAuditStatus`, on bypass
 // la matrice de transitions (qui est forward-only) et les conditions
-// métier — on veut juste remettre l'audit dans son état précédent.
+// métier - on veut juste remettre l'audit dans son état précédent.
 //
 // Garde-fou : on n'autorise l'annulation que si le statut courant est
 // bien `expectedFrom` (le statut juste après la transition à annuler).
 // Si l'audit a été modifié depuis (un cron a déclenché une auto-transition,
-// un autre user a bougé), on refuse — sinon on écraserait son travail.
+// un autre user a bougé), on refuse - sinon on écraserait son travail.
 //
 // Side-effects nettoyés selon le statut d'origine :
 //   - DELIVERED → IN_PROGRESS : clear delivered_at

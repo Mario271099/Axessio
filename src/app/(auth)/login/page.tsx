@@ -9,7 +9,7 @@ import { SITE } from "@/lib/site";
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("auth.login");
   const locale = await getLocale();
-  // Le h1 de la page (« Bon retour ») est un message d'accueil — pas idéal
+  // Le h1 de la page (« Bon retour ») est un message d'accueil - pas idéal
   // pour le <title>. On reprend un libellé SEO-friendly côté méta.
   const metaTitle = locale === "en" ? "Sign in" : "Connexion";
   return {

@@ -30,7 +30,7 @@ const ALL_ORG_ROLES: readonly OrgRole[] = ["owner", "admin", "auditor", "viewer"
 // ============================================================================
 describe("ALL_PERMISSIONS catalogue", () => {
   it("contient au moins les 20 permissions atomiques attendues", () => {
-    // Phase 2 a split chat.read/write en chat.client.* + chat.review.* —
+    // Phase 2 a split chat.read/write en chat.client.* + chat.review.* -
     // le compte total passe à 20 minimum.
     expect(ALL_PERMISSIONS.length).toBeGreaterThanOrEqual(20);
   });
@@ -55,7 +55,7 @@ describe("ALL_PERMISSIONS catalogue", () => {
 });
 
 // ============================================================================
-// PERMISSIONS — rôles plateforme (legacy)
+// PERMISSIONS - rôles plateforme (legacy)
 // ============================================================================
 describe("PERMISSIONS (rôles plateforme)", () => {
   it("couvre exactement les 4 rôles UserRole", () => {
@@ -150,7 +150,7 @@ describe("isStaff", () => {
 });
 
 // ============================================================================
-// ORG_PERMISSIONS — Phase 2 : 4 rôles, chat scopé par fil
+// ORG_PERMISSIONS - Phase 2 : 4 rôles, chat scopé par fil
 // ============================================================================
 describe("ORG_PERMISSIONS (rôles organisation)", () => {
   it("couvre exactement les 4 rôles OrgRole", () => {
@@ -230,7 +230,7 @@ describe("ORG_PERMISSIONS (rôles organisation)", () => {
 });
 
 // ============================================================================
-// Hiérarchie OrgRole — 4 niveaux désormais
+// Hiérarchie OrgRole - 4 niveaux désormais
 // ============================================================================
 describe("ORG_ROLE_WEIGHT + orgRoleAtLeast", () => {
   it("ordonne strictement owner > admin > auditor > viewer", () => {

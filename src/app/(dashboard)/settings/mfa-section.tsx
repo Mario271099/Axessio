@@ -116,7 +116,7 @@ export function MfaSection({ initialEnabled, initialFactorId }: Props) {
     setCode("");
     setError(null);
     setMode(initialEnabled ? "enabled" : "idle");
-    // Nettoyage best-effort en arrière-plan — l'utilisateur n'a pas à
+    // Nettoyage best-effort en arrière-plan - l'utilisateur n'a pas à
     // attendre que le facteur unverified soit retiré.
     startTransition(async () => {
       await cancelMfaEnrollment(fid);
@@ -147,7 +147,7 @@ export function MfaSection({ initialEnabled, initialFactorId }: Props) {
       setSecretCopied(true);
       setTimeout(() => setSecretCopied(false), 2000);
     } catch {
-      // Pas de clipboard API (HTTP, ancien navigateur) — silencieux, le
+      // Pas de clipboard API (HTTP, ancien navigateur) - silencieux, le
       // secret reste sélectionnable dans l'input.
     }
   };

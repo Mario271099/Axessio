@@ -18,13 +18,13 @@ export interface SwitchOrgResult {
  *
  * Pipeline en 3 temps :
  *   1. Vérifier que l'utilisateur est bien membre de l'org cible (anti-forge).
- *   2. Persister la préférence côté DB (`profiles.current_org_id`) — c'est
+ *   2. Persister la préférence côté DB (`profiles.current_org_id`) - c'est
  *      cette valeur que `current_org()` SQL lit pour la RLS.
  *   3. Miroir côté cookie HTTP-only pour minimiser les aller-retours DB
  *      lors du resolve initial.
  *
  * Le trigger SQL `validate_profile_current_org` (migration 46) refuse
- * l'UPDATE si le membership n'existe pas — défense en profondeur.
+ * l'UPDATE si le membership n'existe pas - défense en profondeur.
  */
 export async function switchOrganization(
   organizationId: string,

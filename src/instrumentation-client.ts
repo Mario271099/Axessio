@@ -1,4 +1,4 @@
-// Configuration Sentry — côté navigateur. Next 15.3+ charge ce fichier
+// Configuration Sentry - côté navigateur. Next 15.3+ charge ce fichier
 // automatiquement sur chaque page (remplace l'ancien sentry.client.config.ts).
 //
 // Mode tolérant : sans `NEXT_PUBLIC_SENTRY_DSN`, SDK désactivé, zéro overhead.
@@ -14,7 +14,7 @@ Sentry.init({
   dsn,
   enabled: Boolean(dsn),
 
-  // 10 % des transactions de navigation — suffisant pour repérer une page
+  // 10 % des transactions de navigation - suffisant pour repérer une page
   // lente, sans consommer le quota free tier.
   tracesSampleRate: 0.1,
 

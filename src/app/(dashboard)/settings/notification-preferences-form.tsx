@@ -26,7 +26,7 @@ export function NotificationPreferencesForm({ initialPreferences }: Props) {
 
   const toggle = (type: NotificationType) => {
     const next = !prefs[type];
-    // Optimistic — feedback immédiat, on rollback si la server action échoue.
+    // Optimistic - feedback immédiat, on rollback si la server action échoue.
     setPrefs((prev) => ({ ...prev, [type]: next }));
     setError(null);
     setPendingType(type);

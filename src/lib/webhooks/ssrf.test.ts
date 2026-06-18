@@ -14,7 +14,7 @@ import { assertPublicUrl, isPrivateIPv4, isPrivateIPv6 } from "./ssrf";
 // On spy sur la méthode pour contrôler le retour sans réseau. Les cas
 // littéraux et de parsing fonctionnent sans DNS du tout. Cast en `Mock` :
 // `dns.lookup` est surchargé, le type inféré du spy rend mockImplementation
-// inutilisable sans suppression — le cast simplifie sans `@ts-expect-error`.
+// inutilisable sans suppression - le cast simplifie sans `@ts-expect-error`.
 const lookupSpy = vi.spyOn(dns, "lookup") as unknown as Mock;
 
 beforeEach(() => {
@@ -126,9 +126,9 @@ describe("isPrivateIPv6", () => {
 });
 
 // ============================================================================
-// assertPublicUrl — parsing & schéma
+// assertPublicUrl - parsing & schéma
 // ============================================================================
-describe("assertPublicUrl — parsing & protocole", () => {
+describe("assertPublicUrl - parsing & protocole", () => {
   it("rejette une URL invalide", async () => {
     const r = await assertPublicUrl("not a url");
     expect(r.ok).toBe(false);
@@ -155,9 +155,9 @@ describe("assertPublicUrl — parsing & protocole", () => {
 });
 
 // ============================================================================
-// assertPublicUrl — hostnames bloqués sans DNS
+// assertPublicUrl - hostnames bloqués sans DNS
 // ============================================================================
-describe("assertPublicUrl — hostnames bloqués", () => {
+describe("assertPublicUrl - hostnames bloqués", () => {
   it("rejette https://localhost", async () => {
     const r = await assertPublicUrl("https://localhost/hook");
     expect(r.ok).toBe(false);
@@ -185,9 +185,9 @@ describe("assertPublicUrl — hostnames bloqués", () => {
 });
 
 // ============================================================================
-// assertPublicUrl — IPs littérales
+// assertPublicUrl - IPs littérales
 // ============================================================================
-describe("assertPublicUrl — IPs littérales", () => {
+describe("assertPublicUrl - IPs littérales", () => {
   it("rejette https://127.0.0.1", async () => {
     const r = await assertPublicUrl("https://127.0.0.1/hook");
     expect(r.ok).toBe(false);
@@ -239,9 +239,9 @@ describe("assertPublicUrl — IPs littérales", () => {
 });
 
 // ============================================================================
-// assertPublicUrl — résolution DNS
+// assertPublicUrl - résolution DNS
 // ============================================================================
-describe("assertPublicUrl — DNS lookup", () => {
+describe("assertPublicUrl - DNS lookup", () => {
   it("rejette un hostname qui résout vers une IP privée", async () => {
     lookupSpy.mockImplementation(
       async () => [{ address: "10.0.0.5", family: 4 }],

@@ -1,6 +1,6 @@
 "use client";
 
-// Wrap minimal de Radix Tooltip — style React 19 (pas de forwardRef, pas de
+// Wrap minimal de Radix Tooltip - style React 19 (pas de forwardRef, pas de
 // displayName). On expose Provider, Root, Trigger et Content avec des
 // classes Tailwind cohérentes avec le thème.
 

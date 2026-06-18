@@ -53,7 +53,7 @@ interface AuditAssigneesProps {
   available: AssignableAuditor[];
   /** Active les actions add/remove. False → vue lecture seule. */
   canManage: boolean;
-  /** Slug de l'org de l'audit — pour le lien « inviter un coéquipier ». */
+  /** Slug de l'org de l'audit - pour le lien « inviter un coéquipier ». */
   orgSlug?: string | null;
 }
 

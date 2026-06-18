@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import { SITE, siteUrl } from "./site";
 
 // ============================================================================
-// siteUrl — concatène le chemin à l'URL canonique en garantissant un seul "/"
+// siteUrl - concatène le chemin à l'URL canonique en garantissant un seul "/"
 // ============================================================================
 describe("siteUrl", () => {
   it("retourne l'URL racine par défaut (chemin '/')", () => {
@@ -23,7 +23,7 @@ describe("siteUrl", () => {
 });
 
 // ============================================================================
-// SITE — invariants du catalogue SEO
+// SITE - invariants du catalogue SEO
 // ============================================================================
 describe("SITE", () => {
   it("expose une URL canonique sans slash final", () => {
@@ -40,7 +40,7 @@ describe("SITE", () => {
 });
 
 // ============================================================================
-// resolveSiteUrl — priorité d'environnement (réévaluée à l'import du module).
+// resolveSiteUrl - priorité d'environnement (réévaluée à l'import du module).
 // On recharge le module avec un env stubbé pour observer la résolution.
 // ============================================================================
 describe("résolution de l'URL canonique (priorité d'env)", () => {

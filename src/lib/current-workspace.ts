@@ -2,7 +2,7 @@
 // `current-org.ts` mais un cran plus fin : on liste les workspaces de l'org
 // active et on permet la création.
 //
-// Pas de "current workspace" persisté pour l'instant — l'UI peut faire ce
+// Pas de "current workspace" persisté pour l'instant - l'UI peut faire ce
 // filtrage via un query-param `?workspace=...` sans avoir à toucher la DB.
 
 import "server-only";
@@ -34,7 +34,7 @@ export async function loadMyWorkspaces(): Promise<WorkspaceMembership[]> {
     isDefault: row.is_default,
     isArchived: row.is_archived,
     // Phase 2 (mig. 67) : viewer remplace l'ancien fallback "guest"
-    // — quand un user n'a aucun rôle effectif il ne devrait pas voir le
+    // - quand un user n'a aucun rôle effectif il ne devrait pas voir le
     // workspace de toute façon (filtré par RLS), mais on garde un défaut
     // sûr en lecture seule.
     effectiveRole: row.effective_role ?? "viewer",

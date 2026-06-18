@@ -10,7 +10,7 @@ interface Props {
   total: number;
   from: number;
   to: number;
-  /** URLSearchParams figés à passer aux liens — sans le param `page`. */
+  /** URLSearchParams figés à passer aux liens - sans le param `page`. */
   baseParams: URLSearchParams;
   pathname: string;
 }

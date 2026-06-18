@@ -137,7 +137,7 @@ export async function updateNCStatus(
 //   - 'client' : remédiation côté client (auditeur ↔ client_admin/client)
 //   - 'review' : relecture interne (auditeur ↔ relecteur)
 // L'accès est filtré côté RLS (migration 37). Côté server action on impose
-// que l'utilisateur ait le droit chat correspondant — la RLS reste la
+// que l'utilisateur ait le droit chat correspondant - la RLS reste la
 // dernière ligne de défense.
 // ============================================================================
 type MessageThread = "client" | "review";

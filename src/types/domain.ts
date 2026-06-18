@@ -10,12 +10,12 @@
 import type { TestProceduresMap } from "@/lib/methodology";
 
 // ============================================================================
-// Tenancy — organisations (Phase 1 du refactor RBAC)
+// Tenancy - organisations (Phase 1 du refactor RBAC)
 // ============================================================================
 export type OrgType = "individual" | "agency" | "company" | "enterprise";
 
 /**
- * Rôles d'organisation — 4 valeurs depuis la Phase 2 (mig. 67).
+ * Rôles d'organisation - 4 valeurs depuis la Phase 2 (mig. 67).
  * Voir ROLES_ROADMAP.md pour la matrice complète.
  *
  *   owner   : 1 par org, droits absolus + transfert de propriété
@@ -25,7 +25,7 @@ export type OrgType = "individual" | "agency" | "company" | "enterprise";
  *
  * Les invités externes (PO d'un customer, auditeur ponctuel) ne sont JAMAIS
  * dans cette enum : ils passent par `audit_assignees.role = 'contact'`
- * (Porte 2 — voir Phase 5).
+ * (Porte 2 - voir Phase 5).
  */
 export type OrgRole = "owner" | "admin" | "auditor" | "viewer";
 
@@ -61,7 +61,7 @@ export const AXESSIO_INTERNAL_ORG_ID =
   "00000000-0000-0000-0000-000000000001";
 
 // ============================================================================
-// Workspaces (Phase 6) — sous-divisions à l'intérieur d'une org
+// Workspaces (Phase 6) - sous-divisions à l'intérieur d'une org
 // ============================================================================
 export interface Workspace {
   id: string;
@@ -102,7 +102,7 @@ export interface Profile {
   firstName: string;
   lastName: string;
   /**
-   * Rôle **plateforme effectif** — éventuellement remplacé par le rôle
+   * Rôle **plateforme effectif** - éventuellement remplacé par le rôle
    * d'impersonation (View as). C'est le rôle que l'UI doit utiliser pour le
    * rendu conditionnel.
    *
@@ -119,7 +119,7 @@ export interface Profile {
    * terminée. Ne pas inliner de nouveau check `role === "..."`.
    */
   role: UserRole;
-  /** Rôle réel en base — utile pour afficher la bannière "Vous voyez en tant que". */
+  /** Rôle réel en base - utile pour afficher la bannière "Vous voyez en tant que". */
   realRole: UserRole;
   /** True si `role` diffère de `realRole` (impersonation active). */
   impersonating: boolean;
@@ -131,7 +131,7 @@ export interface Profile {
    * Super-administrateur plateforme Axessyo. Court-circuite TOUTES les
    * restrictions (RLS SQL via `is_admin()` + checks UI/server actions).
    * Source de vérité unique pour le « peut tout voir, peut tout faire »
-   * — backfillé depuis `role = 'admin'` par la migration 69. À utiliser
+   * - backfillé depuis `role = 'admin'` par la migration 69. À utiliser
    * à la place de `role === "admin"` dans tout nouveau code.
    */
   isPlatformAdmin: boolean;
@@ -184,7 +184,7 @@ export interface Criterion {
   guideline: string | null;
   /**
    * Méthodologie de test concaténée au format `Test X.Y.Z\n[question]`.
-   * Optionnel — chargé seulement par les écrans qui en ont besoin (matrice,
+   * Optionnel - chargé seulement par les écrans qui en ont besoin (matrice,
    * formulaire de NC). Voir `parseMethodology()` pour la décomposition en
    * tests individuels.
    */
@@ -336,7 +336,7 @@ export interface NonConformity {
   updatedAt: string;
 }
 
-/** NC enrichie (avec critère et page joints) — utile pour le simulateur. */
+/** NC enrichie (avec critère et page joints) - utile pour le simulateur. */
 export interface NonConformityEnriched extends NonConformity {
   criterion: Pick<Criterion, "id" | "identifier" | "name">;
   page: Pick<AuditPage, "id" | "name"> | null;

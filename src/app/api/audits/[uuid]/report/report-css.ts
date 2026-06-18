@@ -1,5 +1,5 @@
 // Feuille de style d'impression du rapport PDF (A4, Puppeteer).
-// Extraite de report-template.tsx (découpage des gros fichiers) — contenu
+// Extraite de report-template.tsx (découpage des gros fichiers) - contenu
 // strictement identique.
 
 import { COLORS } from "./report-helpers";

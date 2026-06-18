@@ -126,7 +126,7 @@ export default async function MatrixPage({ params, searchParams }: PageProps) {
 
   // On ne sélectionne que les colonnes réellement lues côté client (la map
   // est keyée par pageId:criteriaId, le status est la valeur). `id`/`audit_id`
-  // ne sont jamais lus — les omettre allège le payload RSC d'environ 40 %.
+  // ne sont jamais lus - les omettre allège le payload RSC d'environ 40 %.
   const { data: conformityRows } = await supabase
     .from("page_conformities")
     .select("page_id, criteria_id, status")

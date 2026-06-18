@@ -1,8 +1,8 @@
-// API tokens — génération, hash, validation.
+// API tokens - génération, hash, validation.
 //
 // Conventions :
 //   - Token format : `axe_<env>_<32 bytes base64url>`. Env = "live" (prod) /
-//     "test" (sandbox). Pour l'instant on n'utilise que "live" — la
+//     "test" (sandbox). Pour l'instant on n'utilise que "live" - la
 //     distinction sera utile plus tard pour les comptes test.
 //   - Stockage : token complet jamais en clair. SHA-256 hex dans la colonne
 //     `token_hash`. Préfixe public = 12 premiers caractères du token

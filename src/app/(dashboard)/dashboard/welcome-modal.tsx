@@ -1,7 +1,7 @@
 "use client";
 
 // Modale d'accueil première connexion. Affichée une seule fois par
-// utilisateur — fermeture persistée via `profiles.welcome_dismissed_at`
+// utilisateur - fermeture persistée via `profiles.welcome_dismissed_at`
 // (mig. 76). Au refresh suivant la prop `defaultOpen` redevient false
 // côté serveur et la modale ne se ré-affiche pas.
 
@@ -28,7 +28,7 @@ import { dismissWelcome } from "./welcome-actions";
 interface WelcomeModalProps {
   firstName: string;
   defaultOpen: boolean;
-  /** Type d'org choisie à la création — adapte les étapes affichées. */
+  /** Type d'org choisie à la création - adapte les étapes affichées. */
   orgType: "individual" | "agency" | "company" | "enterprise";
 }
 
@@ -49,7 +49,7 @@ export function WelcomeModal({
     });
   }
 
-  // Premier intitulé adapté au persona — un freelance pense d'abord
+  // Premier intitulé adapté au persona - un freelance pense d'abord
   // « ajouter mon premier client », une entreprise « inviter mon équipe ».
   const steps =
     orgType === "company" || orgType === "enterprise"
@@ -74,7 +74,7 @@ export function WelcomeModal({
       <DialogContent
         className="sm:max-w-lg"
         onOpenAutoFocus={(e) => {
-          // Focus le CTA principal plutôt que le bouton de fermeture X —
+          // Focus le CTA principal plutôt que le bouton de fermeture X -
           // l'utilisateur clavier peut appuyer Enter immédiatement pour
           // commencer. Le Button (style React 19) n'accepte pas de ref via
           // ses props, on passe par un id.

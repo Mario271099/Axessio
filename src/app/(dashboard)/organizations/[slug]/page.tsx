@@ -118,7 +118,7 @@ export default async function OrganizationDetailPage({
   // Le formulaire d'invitation n'est visible que pour un owner/admin de CETTE
   // org (ou le super-admin plateforme). On lit l'appartenance par une requête
   // DIRECTE (et non en cherchant l'utilisateur dans la liste des membres, qui
-  // dépend de la forme de la jointure et de la RLS) — la policy
+  // dépend de la forme de la jointure et de la RLS) - la policy
   // `org_members_select` garantit que `user_id = auth.uid()` voit sa propre
   // ligne.
   const { data: myMembership } = await supabase
@@ -260,7 +260,7 @@ export default async function OrganizationDetailPage({
         </Card>
       </section>
 
-      {/* Inviter un membre — owner/admin de l'org uniquement */}
+      {/* Inviter un membre - owner/admin de l'org uniquement */}
       {canInvite && (
         <section id="invite" className="space-y-3 scroll-mt-24">
           <Card>

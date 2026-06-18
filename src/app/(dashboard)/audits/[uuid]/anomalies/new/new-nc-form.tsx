@@ -151,7 +151,7 @@ export function NewNCForm({
   };
   const draft = useDraftStorage<Draft>(`nc-draft:${auditId}`, draftValue, {
     paused: submitting,
-    // Tant que l'utilisateur n'a rien tapé d'utile, on n'écrit pas — ça
+    // Tant que l'utilisateur n'a rien tapé d'utile, on n'écrit pas - ça
     // évite de créer un brouillon « vide » qui referait apparaître le
     // banner inutilement au prochain montage.
     shouldPersist: (v) =>
@@ -280,7 +280,7 @@ export function NewNCForm({
 
   // Cascade : quand on change de thématique, on reset le critère + test.
   // Quand on change de critère, on reset le test (mais on auto-sélectionne
-  // l'unique test s'il n'y en a qu'un — UX courant en RGAA).
+  // l'unique test s'il n'y en a qu'un - UX courant en RGAA).
   useEffect(() => {
     if (criteriaId && !filteredCriteria.some((c) => c.id === criteriaId)) {
       setCriteriaId("");
@@ -343,7 +343,7 @@ export function NewNCForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Validation client — tous les champs sauf captures sont requis.
+    // Validation client - tous les champs sauf captures sont requis.
     if (!pageId) {
       setError(t("pageRequired"));
       return;
@@ -370,7 +370,7 @@ export function NewNCForm({
     }
     setError(null);
     setWarning(null);
-    // Capture la valeur de submitMode au moment du submit — handleSubmit est
+    // Capture la valeur de submitMode au moment du submit - handleSubmit est
     // exécuté en réponse au click, après quoi setSubmitMode pourrait être
     // ré-armé par un autre click avant la fin de la transition.
     const mode = submitMode;

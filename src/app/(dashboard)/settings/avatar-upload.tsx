@@ -33,7 +33,7 @@ export function AvatarUpload({ initialAvatarUrl, initials }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validation côté client en miroir du serveur — feedback immédiat.
+    // Validation côté client en miroir du serveur - feedback immédiat.
     if (file.size > MAX_AVATAR_SIZE) {
       setFeedback({ kind: "error", message: t("errorTooLarge") });
       e.target.value = "";
@@ -83,7 +83,7 @@ export function AvatarUpload({ initialAvatarUrl, initials }: Props) {
           className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-xl font-semibold text-primary"
         >
           {avatarUrl ? (
-            // Image is intentionally rendered without next/image — avatars
+            // Image is intentionally rendered without next/image - avatars
             // come from Supabase Storage with cache-busting UUIDs in the URL.
             // eslint-disable-next-line @next/next/no-img-element
             <img

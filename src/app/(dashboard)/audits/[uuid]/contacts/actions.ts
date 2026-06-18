@@ -26,7 +26,7 @@ function buildRedirectUrl(auditId: string): string {
 // Le contact n'est PAS membre de l'organisation. Sa seule manifestation est
 // une ligne `audit_assignees(audit_id, profile_id, role='contact')`. La RLS
 // (migration 70) lui accorde la lecture de l'audit, sa matrice, ses NC, le
-// fil client des messages — et exclut strictement le fil review.
+// fil client des messages - et exclut strictement le fil review.
 //
 // Comportement :
 //  - si l'email correspond à un profil existant → ajout direct à audit_assignees
@@ -73,7 +73,7 @@ export async function inviteContact(
   if (existing?.id) {
     profileId = existing.id as string;
   } else {
-    // 2) Sinon invitation Supabase Auth — handle_new_user trigger créera
+    // 2) Sinon invitation Supabase Auth - handle_new_user trigger créera
     //    automatiquement la ligne profiles à partir du raw_user_meta_data.
     const admin = createAdminClient();
     const { data: linkData, error: linkError } =

@@ -34,7 +34,7 @@ export interface Interlocutor {
   id: string;
   name: string;
   email: string | null;
-  /** Rôle métier — détermine la légende secondaire affichée. */
+  /** Rôle métier - détermine la légende secondaire affichée. */
   role: InterlocutorRole;
   /** Contexte secondaire (ex: nom du projet pour les clients). */
   subtitle: string | null;
@@ -42,7 +42,7 @@ export interface Interlocutor {
 
 interface InterlocutorsCardProps {
   interlocutors: Interlocutor[];
-  /** href du bouton "Modifier" — affiché seulement si canEdit. */
+  /** href du bouton "Modifier" - affiché seulement si canEdit. */
   manageHref?: string;
   canEdit: boolean;
   /** Lien CTA "Envoyer un message" (mailto: ou bien interne). */

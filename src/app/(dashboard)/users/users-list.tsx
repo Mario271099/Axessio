@@ -1,6 +1,6 @@
 "use client";
 
-// Page utilisateurs — composant d'orchestration. Les blocs autonomes vivent
+// Page utilisateurs - composant d'orchestration. Les blocs autonomes vivent
 // dans leurs propres fichiers :
 //   - users-types.ts   (types + getUserStatus)
 //   - user-row.tsx     (ligne du tableau + badges)

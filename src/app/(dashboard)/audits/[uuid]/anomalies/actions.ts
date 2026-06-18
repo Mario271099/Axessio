@@ -17,7 +17,7 @@ const ALLOWED_STATUSES: NCStatus[] = ["TO_FIX", "IN_PROGRESS", "FIXED"];
 const ALLOWED_SEVERITIES: NCSeverity[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
 // 60 actions bulk / minute par auditeur. Chaque action ne touche que les NC
-// d'un audit (clause WHERE), donc l'impact est borné — on protège surtout
+// d'un audit (clause WHERE), donc l'impact est borné - on protège surtout
 // la base de données contre des boucles côté client.
 const BULK_LIMIT = 60;
 const BULK_WINDOW_MS = 60 * 1000;

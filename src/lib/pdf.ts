@@ -1,4 +1,4 @@
-// SERVER-ONLY. Module Node.js — ne jamais importer dans un composant client.
+// SERVER-ONLY. Module Node.js - ne jamais importer dans un composant client.
 // Génère un PDF via Puppeteer :
 //   - Sur Vercel (env serverless AWS Lambda) → binaire fourni par @sparticuz/chromium
 //   - En local (dev) → puppeteer-core avec un Chrome détecté sur la machine
@@ -151,7 +151,7 @@ export async function generatePDF(
       headerTemplate: options.headerTemplate ?? "<span></span>",
       footerTemplate: options.footerTemplate ?? "<span></span>",
       margin: {
-        // Quand on affiche un footer, Puppeteer le calque dans la marge — on
+        // Quand on affiche un footer, Puppeteer le calque dans la marge - on
         // augmente la marge basse pour qu'il ne mange pas du contenu.
         top: "20mm",
         right: "20mm",
@@ -160,13 +160,13 @@ export async function generatePDF(
       },
     });
 
-    // page.pdf() renvoie un Uint8Array — on le convertit en Buffer pour les
+    // page.pdf() renvoie un Uint8Array - on le convertit en Buffer pour les
     // consommateurs Node (NextResponse, fs.writeFile, etc.).
     return Buffer.from(pdf);
   } finally {
     if (browser) {
       await browser.close().catch(() => {
-        // Le browser peut déjà être déconnecté — on ignore.
+        // Le browser peut déjà être déconnecté - on ignore.
       });
     }
   }

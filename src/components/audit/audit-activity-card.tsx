@@ -118,7 +118,7 @@ export async function AuditActivityCard({
 
   function renderAction(row: LogRow): string {
     if (!KNOWN_ACTIONS.has(row.action)) return row.action;
-    // next-intl utilise le `.` comme séparateur de namespace — on doit
+    // next-intl utilise le `.` comme séparateur de namespace - on doit
     // donc translate-r le code d'action ("status.transition") vers une
     // clé valide ("status_transition") avant le lookup.
     const i18nKey = row.action.replaceAll(".", "_");

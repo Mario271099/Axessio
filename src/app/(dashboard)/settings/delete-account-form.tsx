@@ -112,7 +112,7 @@ export function DeleteAccountForm({ email }: Props) {
               variant="destructive"
               onClick={(e) => {
                 // Le composant Radix ferme automatiquement le dialog sur
-                // click — on bloque ça pour pouvoir afficher l'éventuelle
+                // click - on bloque ça pour pouvoir afficher l'éventuelle
                 // erreur dans le même dialog.
                 e.preventDefault();
                 onConfirm();

@@ -1,4 +1,4 @@
-// Configuration partagée de la navigation principale — utilisée par la
+// Configuration partagée de la navigation principale - utilisée par la
 // sidebar desktop (`sidebar.tsx`) ET le drawer mobile (`mobile-nav-sheet.tsx`).
 // Source unique de vérité pour éviter la divergence des deux navs.
 
@@ -65,7 +65,7 @@ export interface NavItem {
   /**
    * Permission requise pour voir l'entrée. `null` = visible pour tous les
    * rôles authentifiés. Le contrôle final reste côté serveur (RLS + checks
-   * dans les server actions) — la nav ne fait que cacher l'évident.
+   * dans les server actions) - la nav ne fait que cacher l'évident.
    */
   permission: Permission | null;
   /**

@@ -2,7 +2,7 @@
 //
 // Source unique de vérité côté code pour qui peut faire quoi. Toutes les
 // gardes UI (boutons, sidebar, états read-only) et toutes les vérifications
-// dans les server actions DOIVENT passer par ce module — jamais d'égalité
+// dans les server actions DOIVENT passer par ce module - jamais d'égalité
 // directe `role === "auditor"` dans le reste du code.
 //
 // La RLS Postgres est la deuxième ligne de défense : ce module ne remplace
@@ -48,7 +48,7 @@ export type Permission =
   | "impersonate"
   | "permissions.debug";
 
-/** Catalogue exhaustif — utilisé pour les pages debug et l'introspection. */
+/** Catalogue exhaustif - utilisé pour les pages debug et l'introspection. */
 export const ALL_PERMISSIONS: ReadonlyArray<Permission> = [
   "audit.view",
   "audit.edit",
@@ -120,7 +120,7 @@ const AUDITOR_PERMS: ReadonlyArray<Permission> = [
   // L'auditeur est lead sur ses audits : il peut assigner d'autres
   // auditeurs (collaboration) et inviter des contacts client (Porte 2).
   // Sans cette perm, le bouton « Inviter un contact » de la page audit
-  // restait caché — bug rapporté avant cette ligne.
+  // restait caché - bug rapporté avant cette ligne.
   "audit.assign_auditor",
   "impersonate", // limité à `client` côté UI (cf. canImpersonate ci-dessous)
 ];
@@ -181,7 +181,7 @@ export function listPermissions(role: UserRole): Permission[] {
 }
 
 // ----------------------------------------------------------------------------
-// Spécialisations — à utiliser depuis le code applicatif plutôt que `can()`
+// Spécialisations - à utiliser depuis le code applicatif plutôt que `can()`
 // (lisibilité + grep-ability).
 // ----------------------------------------------------------------------------
 export const canViewAudit          = (r: UserRole) => can(r, "audit.view");
@@ -220,7 +220,7 @@ export const isStaff = (r: UserRole): boolean => r === "admin" || r === "auditor
  * Peut désigner / retirer un relecteur sur un audit.
  * - admin : oui (super-admin)
  * - auditor : oui (lead de ses audits dans le nouveau modèle
- *   freelance/consultance — il invite son propre relecteur)
+ *   freelance/consultance - il invite son propre relecteur)
  * - client_admin : oui sur les audits de son client (verrou de scope
  *   appliqué côté RLS, mig. 35)
  */
@@ -228,7 +228,7 @@ export const canAssignProofreader = (r: UserRole): boolean =>
   r === "admin" || r === "auditor" || r === "client_admin";
 
 // ============================================================================
-// RBAC org-scopé (Phase 3 — migrations 47/48)
+// RBAC org-scopé (Phase 3 - migrations 47/48)
 // ----------------------------------------------------------------------------
 // Le mapping ci-dessous DOIT rester strictement aligné avec le seed
 // `role_permissions` (scope='org') de la migration 47. Si tu ajoutes une
@@ -236,13 +236,13 @@ export const canAssignProofreader = (r: UserRole): boolean =>
 //
 // Ce mapping est utilisé côté UI (rendu conditionnel rapide sans round-trip
 // DB). Côté serveur, préfère la fonction SQL `has_org_permission(...)` qui
-// lit la matrice persistée — c'est la source de vérité opposable à la RLS.
+// lit la matrice persistée - c'est la source de vérité opposable à la RLS.
 // ============================================================================
 
 const OWNER_ADMIN_ORG_PERMS: ReadonlyArray<Permission> = ALL_PERMISSIONS;
 
 // auditor (Phase 2) : absorbe les anciens `manager` et `member`. Contribue
-// pleinement aux audits — matrice, NC, projets, chat client + review.
+// pleinement aux audits - matrice, NC, projets, chat client + review.
 // Inclut aussi `client.manage` (mig. 73) pour qu'un freelance seul dans son
 // org puisse gérer son carnet de clients sans passer par owner/admin.
 // Ne gère ni les membres ni la facturation.
@@ -269,7 +269,7 @@ const AUDITOR_ORG_PERMS: ReadonlyArray<Permission> = [
 // partout. Pas d'édition de matrice ni de NC. Promu vs. l'ancien `viewer`
 // (qui ne pouvait que lire) ; absorbe aussi l'ancien `guest` côté org_members.
 // Les vrais invités (PO d'un customer, auditeur ponctuel) ne sont JAMAIS
-// dans cette matrice : ils sont sur `audit_assignees` (Porte 2 — Phase 5).
+// dans cette matrice : ils sont sur `audit_assignees` (Porte 2 - Phase 5).
 const VIEWER_ORG_PERMS: ReadonlyArray<Permission> = [
   "audit.view",
   "remediation.view",

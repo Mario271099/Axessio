@@ -43,7 +43,7 @@ export function AuthLayout({
       tabIndex={-1}
       className="grid min-h-screen grid-cols-1 lg:grid-cols-2"
     >
-      {/* Panneau gauche — formulaire ------------------------------------ */}
+      {/* Panneau gauche - formulaire ------------------------------------ */}
       <section className="flex min-h-screen flex-col justify-center bg-background px-6 py-12 sm:px-12">
         <div className="mx-auto w-full max-w-md fade-in-up">
           <Link
@@ -71,7 +71,7 @@ export function AuthLayout({
         </div>
       </section>
 
-      {/* Panneau droit — présentation ------------------------------------ */}
+      {/* Panneau droit - présentation ------------------------------------ */}
       <aside
         aria-hidden="true"
         className="relative hidden overflow-hidden bg-gradient-to-br from-navy-800 via-navy-700 to-teal-600 lg:flex lg:flex-col lg:justify-center lg:p-12 dark:from-navy-950 dark:via-navy-900 dark:to-teal-600"

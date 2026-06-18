@@ -103,7 +103,7 @@ export default async function NCDetailPage({ params }: PageProps) {
     : null;
 
   // 2) Messages (tous fils confondus) + auteur. La RLS (migration 37) filtre
-  // déjà selon le thread et le rôle de l'utilisateur — pas besoin de filtrer
+  // déjà selon le thread et le rôle de l'utilisateur - pas besoin de filtrer
   // côté serveur ici.
   const { data: messagesRows } = await supabase
     .from("nc_messages")
@@ -206,7 +206,7 @@ export default async function NCDetailPage({ params }: PageProps) {
   }
 
   // 6) Auto-bascule pending → under_review quand un relecteur ouvre la NC.
-  // Best-effort, on n'attend pas le résultat — le rendu utilise le statut
+  // Best-effort, on n'attend pas le résultat - le rendu utilise le statut
   // fraîchement chargé même si la transition n'a pas encore eu lieu (rafraîchi
   // au prochain affichage).
   if (

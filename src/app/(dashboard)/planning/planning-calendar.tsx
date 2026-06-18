@@ -88,7 +88,7 @@ export async function PlanningCalendar({
   monthStart.setHours(0, 0, 0, 0);
 
   // Construction d'une grille 6 lignes × 7 jours partant du lundi avant ou
-  // égal au 1er du mois — couvre tous les cas où le mois ne commence pas un
+  // égal au 1er du mois - couvre tous les cas où le mois ne commence pas un
   // lundi.
   const gridStart = startOfWeekMonday(monthStart);
 
@@ -210,7 +210,7 @@ export async function PlanningCalendar({
                             s.text,
                             "hover:opacity-80",
                           )}
-                          title={`${t(`eventType.${ev.type}`)} — ${subtitle}${
+                          title={`${t(`eventType.${ev.type}`)} - ${subtitle}${
                             assigneeLabel ? ` (${assigneeLabel})` : ""
                           }`}
                         >

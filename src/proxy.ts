@@ -10,7 +10,7 @@ export async function proxy(request: NextRequest) {
 
   // Premier chargement sans cookie de langue : on détecte la préférence du
   // navigateur (Accept-Language) au lieu d'imposer le français. Le cookie posé
-  // ici est ensuite la source de vérité — un choix explicite via le
+  // ici est ensuite la source de vérité - un choix explicite via le
   // LanguageToggle le remplace et n'est jamais écrasé.
   if (!request.cookies.get(LOCALE_COOKIE)) {
     response.cookies.set(

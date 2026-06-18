@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-// Apple Touch Icon — utilisée par iOS quand l'utilisateur ajoute Axessyo à
+// Apple Touch Icon - utilisée par iOS quand l'utilisateur ajoute Axessyo à
 // l'écran d'accueil. Reproduit le design de `AxIcon` (scheme "accent") avec
 // les couleurs de marque hardcodées car ce fichier est servi en dehors du
 // DOM de l'app (les CSS variables ne sont pas résolues ici).

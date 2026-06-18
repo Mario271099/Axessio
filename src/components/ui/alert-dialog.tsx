@@ -1,6 +1,6 @@
 "use client";
 
-// Boîte de confirmation accessible — remplace `window.confirm()`.
+// Boîte de confirmation accessible - remplace `window.confirm()`.
 // Wrapping minimal de Radix AlertDialog (focus auto, role="alertdialog",
 // fermeture à Esc, fond cliquable). Sémantiquement distinct de Dialog :
 // pour les actions destructrices qui exigent une confirmation explicite.

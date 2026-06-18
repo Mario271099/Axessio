@@ -1,11 +1,11 @@
-// Headers de sécurité HTTP — appliqués globalement via `next.config.ts`.
+// Headers de sécurité HTTP - appliqués globalement via `next.config.ts`.
 //
 // Le compromis principal : Next 16 et React 19 produisent des `<script>` et
 // `<style>` inline (RSC payload, hydratation, react/no-danger pour les
 // JSON-LD). On garde donc `'unsafe-inline'` sur `script-src`/`style-src`,
 // ce qui dégrade légèrement la CSP mais reste meilleur que pas de CSP du tout.
 // Pour atteindre une CSP "strict-dynamic", il faudrait générer un nonce par
-// requête via le middleware — c'est un chantier indépendant.
+// requête via le middleware - c'est un chantier indépendant.
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -93,7 +93,7 @@ export const SECURITY_HEADERS = [
   // Cross-Origin isolation : préserve l'isolation du contexte.
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
-  // HSTS — seulement en prod, sinon on bloque localhost. 1 an + subdomains + preload.
+  // HSTS - seulement en prod, sinon on bloque localhost. 1 an + subdomains + preload.
   ...(isDev
     ? []
     : [
@@ -102,7 +102,7 @@ export const SECURITY_HEADERS = [
           value: "max-age=31536000; includeSubDomains; preload",
         },
       ]),
-  // CSP — voir buildCSP() pour les compromis.
+  // CSP - voir buildCSP() pour les compromis.
   { key: "Content-Security-Policy", value: buildCSP() },
   // X-DNS-Prefetch-Control off pour éviter les fuites DNS sur la nav privée.
   { key: "X-DNS-Prefetch-Control", value: "off" },
