@@ -1,0 +1,87 @@
+# Suite E2E Playwright complete (parcours authentifies).
+#
+# Complete a11y.yml (qui ne couvre que les pages PUBLIQUES, sans login) : ici on
+# se connecte avec un vrai utilisateur de test et on deroule les parcours
+# applicatifs (auth, creation d'audit, client -> projet -> audit) + l'audit
+# axe-core des pages internes.
+#
+# /!\ Ces tests creent de VRAIES donnees dans le projet Supabase cible
+# (clients, projets, audits horodates). Pointe les secrets vers un projet de
+# test/staging, pas la prod, pour ne pas polluer les donnees reelles.
+#
+# Setup unique (Settings > Secrets and variables > Actions) :
+#   - NEXT_PUBLIC_SUPABASE_URL       (deja pose pour a11y.yml / ci.yml)
+#   - NEXT_PUBLIC_SUPABASE_ANON_KEY  (deja pose)
+#   - E2E_USER_EMAIL                 (email d'un utilisateur existant)
+#   - E2E_USER_PASSWORD              (son mot de passe)
+
+name: E2E (parcours authentifies)
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "messages/**"
+      - "e2e/**"
+      - "playwright.config.ts"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/e2e.yml"
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: "true"
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      E2E_USER_EMAIL: ${{ secrets.E2E_USER_EMAIL }}
+      E2E_USER_PASSWORD: ${{ secrets.E2E_USER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify required secrets
+        run: |
+          missing=""
+          [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] && missing="$missing NEXT_PUBLIC_SUPABASE_URL"
+          [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ] && missing="$missing NEXT_PUBLIC_SUPABASE_ANON_KEY"
+          [ -z "$E2E_USER_EMAIL" ] && missing="$missing E2E_USER_EMAIL"
+          [ -z "$E2E_USER_PASSWORD" ] && missing="$missing E2E_USER_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Secrets manquants :$missing (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+
+      - name: Run E2E suite (Playwright)
+        # webServer de playwright.config.ts lance `npm run dev` (reuse desactive
+        # en CI). retries: 2 cote config absorbe la flakiness du dev server.
+        # --grep-invert "pages publiques" : ce bloc a11y est deja couvert par
+        # a11y.yml. Les deux workflows partitionnent ainsi la suite sans doublon.
+        run: npx playwright test --grep-invert "pages publiques"
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
