@@ -26,6 +26,11 @@ export default defineConfig({
 
   use: {
     baseURL: BASE_URL,
+    // Force le français : sans ça, Chromium envoie Accept-Language: en-US et le
+    // proxy detecte l'anglais (detectLocaleFromHeader), faisant echouer les
+    // selecteurs de labels FR ("Adresse email", etc.). L'UI est principalement
+    // en francais (cf. CLAUDE.md) et les specs sont ecrites en francais.
+    locale: "fr-FR",
     headless: true,
     screenshot: "only-on-failure",
     video: "retain-on-failure",
