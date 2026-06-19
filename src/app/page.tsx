@@ -58,7 +58,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = t("metaTitle");
   const description = t("metaDescription");
   return {
-    title,
+    // `metaTitle` contient deja la marque ("Axessyo - ...") : on court-circuite
+    // le template racine "%s · Axessyo" via `absolute` pour eviter un doublon.
+    title: { absolute: title },
     description,
     alternates: { canonical: "/" },
     openGraph: {

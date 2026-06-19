@@ -10,13 +10,12 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        // Toutes les pages publiques indexables (alignées sur PUBLIC_PATHS du
-        // middleware et sur le sitemap). Le `/` couvre déjà tout, mais on liste
-        // explicitement pour documenter l'intention.
+        // Pages publiques indexables (alignées sur le sitemap). Le `/` couvre
+        // déjà tout, mais on liste explicitement pour documenter l'intention.
+        // /login et /register sont volontairement absents : ils sont en noindex
+        // et hors sitemap (pages utilitaires sans intérêt SEO).
         allow: [
           "/",
-          "/login",
-          "/register",
           "/pricing",
           "/legal",
           "/privacy",
