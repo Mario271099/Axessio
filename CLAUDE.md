@@ -87,6 +87,10 @@ Formule officielle RGAA dans `src/lib/score.ts` :
 7. **Fichier `middleware.ts` déprécié en Next 16** → utiliser `src/proxy.ts` avec une fonction nommée `proxy`. L'export `middleware` lève un warning au démarrage.
 8. **JWT custom claim côté Supabase Auth impossible** → Supabase ne propage pas nos cookies dans le JWT signé. Pour stocker un état "session-like" lu en SQL (ex. org active), passer par une colonne `profiles.*` plutôt qu'un claim.
 9. **`audit_transition_workflow` / workflow éditorial** → totalement retiré. Ne pas le réintroduire — le cycle de vie métier `audit_status` suffit, et le statut de relecture par NC (`review_status`) gère la qualité.
+10. **Routes `/api/cron/*` redirigées vers `/login`** → le proxy d'auth (`src/lib/supabase/middleware.ts`) doit whitelister `/api/cron` (au même titre que `/api/auth`, `/api/webhooks`, `/api/v1`). Les handlers cron s'authentifient par `Bearer CRON_SECRET`, **pas** par cookie. Sans la whitelist, Vercel Cron et la GitHub Action `webhook-dispatch` reçoivent un 307 → les crons sont morts en prod.
+11. **`npm ci` "out of sync" en CI** → le `package-lock.json` est maintenu avec **npm 11** (local) alors que Node 20 embarque npm 10, qui résout l'arbre différemment (`@swc/helpers`). Les workflows alignent la version via `npm install -g npm@11` avant `npm ci`. Ne pas régénérer le lock avec une autre version majeure de npm.
+12. **Sentry initialisé sans consentement** → l'init du SDK navigateur (`src/instrumentation-client.ts`) est conditionnée au consentement cookies (`src/lib/consent.ts`, clé `axessyo_cookie_consent` ; config partagée dans `src/lib/sentry-client.ts`). Ne **jamais** réintroduire un `Sentry.init()` inconditionnel — RGPD.
+13. **E2E qui sature le quota de plan** → les tests créant des audits nettoient en `afterAll` via `e2e/helpers/admin.ts` (client service-role). Sinon `max_active_audits` (10 sur Starter) bloque `createAudit`. Purge manuelle : `npm run e2e:cleanup`. Aussi : **pas** de `waitForLoadState("networkidle")` (ne se résout jamais avec une connexion persistante) ; en CI le webServer Playwright lance `next start` (build de prod), pas `next dev`.
 
 ## Fichiers structurants
 
@@ -145,7 +149,7 @@ L'autorisation finale = AND des 4 axes via le pipeline `authorize()` (auth → t
   - Intégration Stripe : client serveur-only (`lib/billing/stripe.ts`), webhook `/api/webhooks/stripe`, actions `startCheckout()` / `openCustomerPortal()`
   - Page `/organizations/[slug]/billing` (plan actuel + limites + comparateur 4 plans)
   - **Mode tolérant** : `isStripeReady()` permet à la plateforme de tourner sans clés Stripe (plan free uniquement). Les CTA d'upgrade affichent un message d'erreur tant que les clés ne sont pas posées
-  - **À configurer côté infra** : `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, puis remplir `stripe_product_id` / `stripe_price_id_monthly` / `stripe_price_id_yearly` dans la table `subscription_plans`
+  - **Mode test configuré et validé bout-en-bout (juin 2026)** : produits/prix Stripe créés, `stripe_product_id` / `stripe_price_id_monthly` / `stripe_price_id_yearly` remplis en DB (starter + pro ; free/enterprise restent NULL), clés `sk_test`/`whsec` posées sur Vercel, webhook `https://axessio.vercel.app/api/webhooks/stripe` actif (6 événements), Customer Portal activé. Parcours checkout (carte 4242) → webhook → activation DB (`subscriptions` passe en `starter`/`active`) testé OK. **Reste : le passage en live** (recréer produits/prix/webhook en mode live + clés `sk_live` sur Vercel — cf. [STRIPE-SETUP.md](STRIPE-SETUP.md) §9), le jour où l'on facture de vrais clients.
   - **Feature gates branchés (4.bis)** :
     - `export.pdf` (Starter+) — route `/api/audits/[uuid]/report` retourne 402 sans la feature + bouton client masqué via `orgHasFeature()` ; check **doublé serveur/UI** car l'API peut être appelée hors UI (curl/automatisation)
     - `remediation.simulator` (Starter+) — page `/audits/[uuid]/simulator` affiche `<FeatureUpsell />` à la place du composant
@@ -213,7 +217,7 @@ Deux systèmes coexistent. **Pour toute nouvelle logique, la permission d'organi
 - [x] Notifications (Resend + React Email)
 - [x] Export PDF
 - [x] Export CSV / Excel (CSV : matrice + NC + audit logs ; Excel : classeur matrice colorée + feuille NC via exceljs)
-- [ ] Tests automatisés (Vitest + Playwright) — partiel
+- [x] Tests automatisés — Vitest (398 tests unitaires) + Playwright E2E (auth, flux audit complet, client→projet→audit, a11y axe-core sur pages publiques + internes). CI : `ci.yml` (unit + build), `a11y.yml` (axe pages publiques), `e2e.yml` (parcours authentifiés, serveur de prod + auto-nettoyage des données). Secrets requis pour l'E2E authentifié : `NEXT_PUBLIC_SUPABASE_*`, `E2E_USER_EMAIL`/`E2E_USER_PASSWORD`, `SUPABASE_SERVICE_ROLE_KEY` (nettoyage). Workflows alignés sur npm 11 (cf. erreur résolue #11).
 
 ## Workflow avec l'utilisateur
 
