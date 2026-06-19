@@ -1809,6 +1809,22 @@
       "openNc": "NC ouvertes",
       "criticalNc": "NC critiques"
     },
+    "lifecycle": {
+      "eyebrow": "Cycle de vie",
+      "stepIndicator": "Étape {step} sur {total}",
+      "inProgress": "En cours",
+      "notPlanned": "Non planifié",
+      "stepperAria": "Cycle de vie de l'audit",
+      "stages": {
+        "created": "Audit créé",
+        "preparation": "Préparation",
+        "audit": "Audit",
+        "restitution": "Restitution",
+        "counterAudit": "Contre-audit",
+        "delivery": "Livraison",
+        "online": "Mise en ligne"
+      }
+    },
     "timeline": {
       "ariaLabel": "Échéances de l'audit",
       "notPlanned": "Non planifié",

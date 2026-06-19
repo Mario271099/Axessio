@@ -1809,6 +1809,22 @@
       "openNc": "Open NCs",
       "criticalNc": "Critical NCs"
     },
+    "lifecycle": {
+      "eyebrow": "Lifecycle",
+      "stepIndicator": "Step {step} of {total}",
+      "inProgress": "In progress",
+      "notPlanned": "Not scheduled",
+      "stepperAria": "Audit lifecycle",
+      "stages": {
+        "created": "Audit created",
+        "preparation": "Preparation",
+        "audit": "Audit",
+        "restitution": "Debrief",
+        "counterAudit": "Counter-audit",
+        "delivery": "Delivery",
+        "online": "Go-live"
+      }
+    },
     "timeline": {
       "ariaLabel": "Audit schedule",
       "notPlanned": "Not planned",
