@@ -31,15 +31,12 @@ import {
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
 import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
 import { AuditNextAction } from "@/components/audit/audit-next-action";
-import { AuditTimelineVertical } from "@/components/audit/audit-timeline-vertical";
-import { AuditActivityCard } from "@/components/audit/audit-activity-card";
+import { AuditDeadlines } from "@/components/audit/audit-deadlines";
 import { AuditKpiBar } from "@/components/audit/audit-kpi-bar";
-import {
-  InterlocutorsCard,
-  type Interlocutor,
-} from "@/components/audit/interlocutors-card";
+import { AuditLifecycleStepper } from "@/components/audit/audit-lifecycle-stepper";
 import type { AuditLifecycleSnapshot } from "@/lib/audit-status";
 import { availableManualTransitions } from "@/lib/audit-status";
+import { computeAuditLifecycle } from "@/lib/audit-lifecycle";
 import { MiniDonut } from "@/components/ui/mini-donut";
 import { cn } from "@/lib/utils";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
@@ -355,72 +352,6 @@ export default async function AuditDetailPage({ params }: PageProps) {
     }
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Liste consolidée d'interlocuteurs (auditeurs + relecteurs + client admins
-  // côté client) pour la carte de droite. Le format est uniforme.
-  // ──────────────────────────────────────────────────────────────────────────
-  let clientContacts: Array<{
-    id: string;
-    name: string;
-    email: string | null;
-  }> = [];
-  if (client?.id) {
-    const { data: contactsRows } = await supabase
-      .from("profiles")
-      .select("id, first_name, last_name, email")
-      .eq("client_id", client.id)
-      .eq("is_active", true)
-      .in("role", ["client_admin", "client"])
-      .limit(10);
-    clientContacts = (contactsRows ?? []).map((p) => ({
-      id: p.id as string,
-      name:
-        [p.first_name, p.last_name]
-          .filter((v) => typeof v === "string" && (v as string).trim())
-          .join(" ")
-          .trim() ||
-        (p.email as string | null) ||
-        "—",
-      email: (p.email as string | null) ?? null,
-    }));
-  }
-
-  const interlocutors: Interlocutor[] = [
-    ...assignees.map((a) => ({
-      id: a.profileId,
-      name:
-        [a.firstName, a.lastName]
-          .filter((v) => v && v.trim().length > 0)
-          .join(" ")
-          .trim() ||
-        a.email ||
-        "—",
-      email: a.email,
-      role: "auditor" as const,
-      subtitle: null,
-    })),
-    ...proofreaders.map((p) => ({
-      id: p.profileId,
-      name:
-        [p.firstName, p.lastName]
-          .filter((v) => v && v.trim().length > 0)
-          .join(" ")
-          .trim() ||
-        p.email ||
-        "—",
-      email: p.email,
-      role: "proofreader" as const,
-      subtitle: null,
-    })),
-    ...clientContacts.map((c) => ({
-      id: c.id,
-      name: c.name,
-      email: c.email,
-      role: "client" as const,
-      subtitle: project?.name ?? client?.name ?? null,
-    })),
-  ];
-
   // Identité du site/app audité (mig. 74) avec fallback sur les anciennes
   // données projet pour les audits créés avant la refonte.
   const siteName =
@@ -449,6 +380,20 @@ export default async function AuditDetailPage({ params }: PageProps) {
   // Un utilisateur "actif" sur l'audit = staff + a accès. Pour les boutons
   // CTA du Next Action ; la RLS + permissions bloqueraient de toute façon.
   const canAct = canEdit;
+
+  // Parcours de vie en 7 jalons (pièce maîtresse du dashboard). Dérivé du
+  // statut métier + des dates clés. Affichage seul.
+  const lifecycle = computeAuditLifecycle({
+    status: currentStatus,
+    createdAt: audit.created_at as string | null,
+    expectedStartAt: audit.expected_start_at as string | null,
+    expectedEndAt: audit.expected_end_at as string | null,
+    restitutionAt: audit.restitution_at as string | null,
+    counterAuditAt: audit.counter_audit_at as string | null,
+    deliveredAt: audit.delivered_at as string | null,
+    onlineAt: audit.online_at as string | null,
+  });
+  const tLifecycle = await getTranslations("audits.lifecycle");
 
   return (
     <div className="container mx-auto max-w-7xl space-y-5 p-6 md:p-8">
@@ -570,15 +515,55 @@ export default async function AuditDetailPage({ params }: PageProps) {
       </Card>
 
       {/* ──────────────────────────────────────────────────────────────────
-          NEXT ACTION : le cœur de la philosophie "Mission Control".
-          Lit le statut + complétion et propose UNE action claire.
+          HERO : CYCLE DE VIE - pièce maîtresse du dashboard.
+          Stepper horizontal en 7 jalons + prochaine action + transitions.
       ────────────────────────────────────────────────────────────────── */}
-      <AuditNextAction
-        auditId={uuid}
-        status={currentStatus}
-        snapshot={statusSnapshot}
-        canAct={canAct}
-      />
+      <Card id="lifecycle" className="scroll-mt-24">
+        <CardContent className="space-y-5 p-6 md:p-7">
+          {/* En-tête : titre + indicateur d'étape */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-0.5">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                {tLifecycle("eyebrow")}
+              </p>
+              <h2 className="text-lg font-bold tracking-tight text-foreground md:text-xl">
+                {t("lifecycleTitle")}
+              </h2>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {tLifecycle("stepIndicator", {
+                step: lifecycle.currentStep,
+                total: lifecycle.totalSteps,
+              })}{" "}
+              ·{" "}
+              <span className="font-bold text-primary">
+                {tLifecycle(`stages.${lifecycle.currentKey}`)}
+              </span>
+            </p>
+          </div>
+
+          {/* Stepper horizontal (scrollable sur mobile) */}
+          <div className="overflow-x-auto pb-1">
+            <AuditLifecycleStepper lifecycle={lifecycle} />
+          </div>
+
+          {/* Prochaine action (ex-carte "Prochaine étape", repliée ici) */}
+          <AuditNextAction
+            auditId={uuid}
+            status={currentStatus}
+            snapshot={statusSnapshot}
+            canAct={canAct}
+          />
+
+          {/* Transitions de statut manuelles + conditions */}
+          <AuditStatusActions
+            auditId={uuid}
+            currentStatus={currentStatus}
+            snapshot={statusSnapshot}
+            available={availableStatusTransitions}
+          />
+        </CardContent>
+      </Card>
 
       {/* ──────────────────────────────────────────────────────────────────
           KPI BAR : 4 indicateurs opérationnels en bandeau scanable.
@@ -592,66 +577,25 @@ export default async function AuditDetailPage({ params }: PageProps) {
       />
 
       {/* ──────────────────────────────────────────────────────────────────
-          Grille principale : Cycle de vie (gauche, large) | Timeline +
-          Interlocuteurs (droite, sticky-ish)
+          Bas de page : Échéances · Auditeurs · Relecteurs · Contacts client
       ────────────────────────────────────────────────────────────────── */}
-      <div className="grid gap-5 lg:grid-cols-[2fr_1fr]">
-        {/* Colonne gauche : actions de cycle de vie + activité récente */}
-        <div className="space-y-5">
-          <Card id="lifecycle" className="scroll-mt-24">
-            <CardHeader>
-              <CardTitle className="text-base">{t("lifecycleTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AuditStatusActions
-                auditId={uuid}
-                currentStatus={currentStatus}
-                snapshot={statusSnapshot}
-                available={availableStatusTransitions}
-              />
-            </CardContent>
-          </Card>
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("timelineTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <AuditDeadlines
+              expectedStartAt={audit.expected_start_at}
+              expectedEndAt={audit.expected_end_at}
+              restitutionAt={audit.restitution_at}
+              counterAuditAt={audit.counter_audit_at}
+              deliveredAt={audit.delivered_at}
+              onlineAt={audit.online_at}
+            />
+          </CardContent>
+        </Card>
 
-          <AuditActivityCard auditId={uuid} orgSlug={auditOrgSlug} />
-        </div>
-
-        {/* Colonne droite : timeline + interlocuteurs empilés */}
-        <div className="space-y-5">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">{t("timelineTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AuditTimelineVertical
-                expectedStartAt={audit.expected_start_at}
-                expectedEndAt={audit.expected_end_at}
-                restitutionAt={audit.restitution_at}
-                counterAuditAt={audit.counter_audit_at}
-                deliveredAt={audit.delivered_at}
-                onlineAt={audit.online_at}
-              />
-            </CardContent>
-          </Card>
-
-          <InterlocutorsCard
-            interlocutors={interlocutors}
-            canEdit={canManageAssignees || canManageProofreaders}
-            manageHref={
-              canManageAssignees || canManageProofreaders
-                ? `#team-${uuid}`
-                : undefined
-            }
-          />
-        </div>
-      </div>
-
-      {/* ──────────────────────────────────────────────────────────────────
-          ÉQUIPE : édition fine auditeurs / relecteurs (ancre)
-      ────────────────────────────────────────────────────────────────── */}
-      <div
-        id={`team-${uuid}`}
-        className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 scroll-mt-24"
-      >
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{t("assigneesTitle")}</CardTitle>
