@@ -45,10 +45,13 @@ export default defineConfig({
     },
   ],
 
-  // Lance `npm run dev` avant les tests. Sur une machine de dev où le serveur
-  // tourne déjà, on le réutilise pour économiser le démarrage de Next 16.
   webServer: {
-    command: "npm run dev",
+    // En CI : serveur de PRODUCTION (`next start`, sur un build prealable du
+    // workflow). Deterministe et rapide. Le dev server (Turbopack) compile les
+    // routes a la demande au premier acces, ce qui provoque des timeouts sur
+    // les tests lourds (creation d'audit, login) sur un runner CI lent.
+    // En local : `npm run dev` + reutilisation d'un serveur deja lance.
+    command: process.env.CI ? "npm run start" : "npm run dev",
     url: BASE_URL,
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,

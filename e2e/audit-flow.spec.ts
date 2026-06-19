@@ -1,9 +1,23 @@
 import { test, expect } from "@playwright/test";
 import { login } from "./helpers/auth";
+import { deleteAuditById } from "./helpers/admin";
+
+// Audits crees par les tests de ce fichier — supprimes en afterAll pour ne pas
+// saturer le quota du plan (no-op sans cle service-role, cf. helpers/admin.ts).
+const createdAuditIds: string[] = [];
+
+const UUID_RE =
+  /\/audits\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/;
 
 test.describe("Flux audit", () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
+  });
+
+  test.afterAll(async () => {
+    for (const id of createdAuditIds) {
+      await deleteAuditById(id);
+    }
   });
 
   test("crée un audit complet", async ({ page }) => {
@@ -51,6 +65,10 @@ test.describe("Flux audit", () => {
       /\/audits\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
       { timeout: 30_000 },
     );
+
+    // Memorise l'audit cree pour le nettoyage en afterAll.
+    const createdId = page.url().match(UUID_RE)?.[1];
+    if (createdId) createdAuditIds.push(createdId);
 
     // Le détail d'audit affiche un h1 (nom du projet) — non vide.
     const heading = page.getByRole("heading", { level: 1 });

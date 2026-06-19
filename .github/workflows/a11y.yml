@@ -69,6 +69,11 @@ jobs:
             exit 1
           fi
 
+      # Build de production : en CI, webServer de playwright.config.ts lance
+      # `next start` (et non le dev server), bien plus rapide/deterministe.
+      - name: Build (production)
+        run: npm run build
+
       - name: Run axe-core on public pages
         # Le grep filtre uniquement le describe « pages publiques » — les
         # tests dashboard restent skip via E2E_USER_* non définis.
