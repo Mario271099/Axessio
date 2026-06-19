@@ -1,5 +1,9 @@
 # Setup Stripe — guide pas-à-pas
 
+> **Statut (juin 2026) : mode TEST configuré et validé bout-en-bout.** ✅
+> Produits/prix créés, `stripe_*_id` remplis en DB (starter/pro), clés `sk_test`/`whsec` sur Vercel, webhook `https://axessio.vercel.app/api/webhooks/stripe` actif, Customer Portal activé. Parcours checkout (carte `4242…`) → webhook → activation DB testé OK.
+> **Reste à faire** : le **passage en live** (section 9) le jour où l'on facture de vrais clients. Les sections 2–8 ci-dessous servent de référence / pour reproduire en mode live.
+
 Toute l'infrastructure technique est déjà en place côté code :
 
 - Client Stripe ([src/lib/billing/stripe.ts](src/lib/billing/stripe.ts)) avec `isStripeReady()` pour fail-friendly
