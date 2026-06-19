@@ -45,6 +45,10 @@ jobs:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
       E2E_USER_EMAIL: ${{ secrets.E2E_USER_EMAIL }}
       E2E_USER_PASSWORD: ${{ secrets.E2E_USER_PASSWORD }}
+      # Nettoyage des donnees de test en afterAll (suppression des audits/clients
+      # crees), pour ne pas saturer le quota du plan. Sans ce secret, le
+      # nettoyage est saute (les tests passent quand meme).
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -77,9 +81,14 @@ jobs:
             exit 1
           fi
 
+      # Build de production : en CI, webServer de playwright.config.ts lance
+      # `next start` (et non le dev server), bien plus rapide/deterministe.
+      - name: Build (production)
+        run: npm run build
+
       - name: Run E2E suite (Playwright)
-        # webServer de playwright.config.ts lance `npm run dev` (reuse desactive
-        # en CI). retries: 2 cote config absorbe la flakiness du dev server.
+        # webServer lance `npm run start` (reuse desactive en CI). retries: 2
+        # cote config absorbe la flakiness residuelle.
         # --grep-invert "pages publiques" : ce bloc a11y est deja couvert par
         # a11y.yml. Les deux workflows partitionnent ainsi la suite sans doublon.
         run: npx playwright test --grep-invert "pages publiques"
