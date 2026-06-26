@@ -52,7 +52,7 @@ const ERROR_CODES = new Set([
   "server",
 ]);
 
-export function RegisterForm() {
+export function RegisterForm({ plan }: { plan?: string }) {
   const t = useTranslations("auth.register");
 
   const [password, setPassword] = useState("");
@@ -144,7 +144,11 @@ export function RegisterForm() {
     // Navigation brute : force l'envoi du cookie dès la première requête.
     // On passe par l'étape de choix du plan (Free pré-sélectionné, skippable)
     // avant le dashboard - incitation sans friction (cf. flux en deux temps).
-    window.location.href = "/onboarding/plan";
+    // Si l'inscription vient d'un clic sur un plan (page Tarifs), on porte ce
+    // plan jusqu'à l'onboarding qui le pré-sélectionne pour finaliser l'achat.
+    window.location.href = plan
+      ? `/onboarding/plan?plan=${plan}`
+      : "/onboarding/plan";
   }
 
   return (

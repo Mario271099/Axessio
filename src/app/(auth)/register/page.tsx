@@ -30,8 +30,31 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function RegisterPage() {
+interface RegisterPageProps {
+  searchParams: Promise<{ plan?: string }>;
+}
+
+// Plans actionnables depuis le parcours d'achat (Free/Enterprise n'ouvrent pas
+// de checkout). On valide la valeur d'URL pour ne porter qu'une intention réelle.
+const ACTIONABLE_PLANS = new Set(["starter", "pro"]);
+
+export default async function RegisterPage({ searchParams }: RegisterPageProps) {
   const t = await getTranslations("auth.register");
+  const sp = await searchParams;
+
+  // `?plan=starter|pro` : intention d'achat venue de la page Tarifs. On la
+  // propage à l'inscription (redirige vers l'onboarding avec le plan choisi) et
+  // au lien « déjà un compte ? » (qui repasse par /login en conservant le plan).
+  const plan =
+    typeof sp.plan === "string" && ACTIONABLE_PLANS.has(sp.plan)
+      ? sp.plan
+      : undefined;
+
+  // Un utilisateur existant qui clique sur un plan doit pouvoir se connecter
+  // sans perdre son intention : on cible l'onboarding via `next`.
+  const loginHref = plan
+    ? `/login?next=${encodeURIComponent(`/onboarding/plan?plan=${plan}`)}`
+    : "/login";
 
   return (
     <AuthLayout
@@ -41,7 +64,7 @@ export default async function RegisterPage() {
         <>
           {t("footer")}{" "}
           <Link
-            href="/login"
+            href={loginHref}
             className="font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded"
           >
             {t("footerCta")}
@@ -49,7 +72,7 @@ export default async function RegisterPage() {
         </>
       }
     >
-      <RegisterForm />
+      <RegisterForm plan={plan} />
     </AuthLayout>
   );
 }

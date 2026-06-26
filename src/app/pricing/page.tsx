@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { PLANS } from "@/lib/billing/plans";
 import { SITE, siteUrl } from "@/lib/site";
+import { createClient } from "@/lib/supabase/server";
 import { BillingIntervalToggle } from "./billing-interval-toggle";
 
 // Clés des questions de la FAQ - l'ordre est l'ordre d'affichage. Chaque clé
@@ -53,6 +54,16 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function PricingPage() {
   const t = await getTranslations("pricing");
+
+  // Détection de session côté serveur : un visiteur connecté qui choisit un
+  // plan part directement vers le choix de plan (checkout), un prospect part
+  // vers l'inscription en conservant le plan voulu. `getUser()` ne lève pas
+  // (page publique) - on lit juste l'état pour adapter les CTA.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthenticated = Boolean(user);
 
   // Économie annuelle moyenne sur les plans payants (Starter / Pro) - passée
   // en prop au composant client pour rester à jour si les prix changent.
@@ -123,6 +134,7 @@ export default async function PricingPage() {
           <div className="mt-12">
             <BillingIntervalToggle
               yearlySavingsPercent={yearlySavingsPercent}
+              isAuthenticated={isAuthenticated}
             />
           </div>
 

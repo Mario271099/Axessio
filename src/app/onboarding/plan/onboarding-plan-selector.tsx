@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { AlertCircle, Check, Loader2, Sparkles } from "lucide-react";
@@ -19,6 +19,11 @@ interface Props {
   currentPlan: PlanCode;
   stripeReady: boolean;
   yearlySavingsPercent: number | null;
+  /**
+   * Plan choisi sur la page Tarifs et porté jusqu'ici via `?plan=`. On met sa
+   * carte en avant (badge + anneau + scroll) pour reprendre l'intention d'achat.
+   */
+  preselectedPlan: PlanCode | null;
 }
 
 type BillingInterval = "monthly" | "yearly";
@@ -28,6 +33,7 @@ export function OnboardingPlanSelector({
   currentPlan,
   stripeReady,
   yearlySavingsPercent,
+  preselectedPlan,
 }: Props) {
   const t = useTranslations("onboarding");
   const tPricing = useTranslations("pricing");
@@ -38,6 +44,18 @@ export function OnboardingPlanSelector({
   const [pendingPlan, setPendingPlan] = useState<PlanCode | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [, startCheckoutTransition] = useTransition();
+
+  // Carte du plan pré-sélectionné : on l'amène dans le viewport au montage pour
+  // que l'utilisateur retrouve immédiatement le plan choisi sur la page Tarifs.
+  const preselectedRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (preselectedPlan && preselectedRef.current) {
+      preselectedRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [preselectedPlan]);
 
   function handleChoosePaid(code: Exclude<PlanCode, "free" | "enterprise">) {
     setError(null);
@@ -128,21 +146,32 @@ export function OnboardingPlanSelector({
       <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {PLAN_ORDER.map((code) => {
           const plan = PLANS[code];
-          const isHighlighted = code === "pro";
+          const isPreselected = code === preselectedPlan;
+          // Le plan choisi sur la page Tarifs prime sur le "recommandé" par
+          // défaut pour la mise en avant visuelle.
+          const isHighlighted = isPreselected || (!preselectedPlan && code === "pro");
           const isCurrent = code === currentPlan;
           return (
             <article
               key={code}
+              ref={isPreselected ? preselectedRef : undefined}
               className={cn(
                 "relative flex flex-col rounded-2xl border bg-card p-6 shadow-sm transition-all",
                 isHighlighted &&
                   "border-primary shadow-md ring-2 ring-primary/40",
+                isPreselected && "ring-primary",
               )}
             >
-              {isHighlighted && (
+              {isPreselected ? (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
-                  {tPricing("recommendedBadge")}
+                  {t("preselectedBadge")}
                 </span>
+              ) : (
+                code === "pro" && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
+                    {tPricing("recommendedBadge")}
+                  </span>
+                )
               )}
 
               <header className="space-y-1">
@@ -170,6 +199,7 @@ export function OnboardingPlanSelector({
                 stripeReady={stripeReady}
                 pending={pendingPlan === code}
                 anyPending={pendingPlan !== null}
+                emphasize={isHighlighted}
                 onChoose={handleChoosePaid}
                 onContinueFree={() => router.push("/dashboard")}
               />
@@ -312,6 +342,7 @@ function PlanCta({
   stripeReady,
   pending,
   anyPending,
+  emphasize,
   onChoose,
   onContinueFree,
 }: {
@@ -320,6 +351,7 @@ function PlanCta({
   stripeReady: boolean;
   pending: boolean;
   anyPending: boolean;
+  emphasize: boolean;
   onChoose: (code: Exclude<PlanCode, "free" | "enterprise">) => void;
   onContinueFree: () => void;
 }) {
@@ -352,7 +384,7 @@ function PlanCta({
   const paidCode = code as Exclude<PlanCode, "free" | "enterprise">;
   return (
     <Button
-      variant={code === "pro" ? "default" : "outline"}
+      variant={emphasize ? "default" : "outline"}
       className="w-full"
       onClick={() => onChoose(paidCode)}
       disabled={isCurrent || !stripeReady || anyPending}
