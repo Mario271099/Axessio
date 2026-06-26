@@ -1812,6 +1812,7 @@
     "lifecycle": {
       "eyebrow": "Lifecycle",
       "stepIndicator": "Step {step} of {total}",
+      "nextStep": "Move to next step",
       "inProgress": "In progress",
       "notPlanned": "Not scheduled",
       "stepperAria": "Audit lifecycle",

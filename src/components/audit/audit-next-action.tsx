@@ -285,7 +285,10 @@ export async function AuditNextAction({
         </p>
       </div>
 
-      {canAct && action.cta && Cta && (
+      {/* On masque le CTA qui pointe vers une ancre interne (ex. #lifecycle) :
+          le cycle de vie est désormais cette carte même, et le bouton
+          « Passer à l'étape suivante » rendu juste en dessous gère l'avancée. */}
+      {canAct && action.cta && Cta && !action.cta.href.startsWith("#") && (
         <Link
           href={action.cta.href}
           className={cn(
