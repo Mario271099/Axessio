@@ -14,16 +14,34 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("metaTitle") };
 }
 
+interface OnboardingPlanPageProps {
+  searchParams: Promise<{ plan?: string }>;
+}
+
+// Plans payants pré-sélectionnables depuis la page Tarifs (Free/Enterprise
+// n'ouvrent pas de checkout). On valide la valeur d'URL pour ne mettre en avant
+// qu'une intention d'achat réelle.
+const PRESELECTABLE_PLANS = new Set<PlanCode>(["starter", "pro"]);
+
 // Étape "soft" post-inscription : on affiche les plans avec Free pré-sélectionné.
 // L'utilisateur peut continuer en gratuit (ou passer l'étape) sans friction, ou
 // choisir un plan payant → checkout Stripe. Free reste l'état par défaut posé à
 // la création de l'org, donc cette étape n'engage rien tant qu'elle est skippée.
-export default async function OnboardingPlanPage() {
+// `?plan=starter|pro` (venu de la page Tarifs) met en avant le plan choisi.
+export default async function OnboardingPlanPage({
+  searchParams,
+}: OnboardingPlanPageProps) {
   await requireProfile();
 
   const { current } = await resolveCurrentOrg();
   // Cas pathologique : profil non rattaché à une org → on n'a rien à proposer.
   if (!current) redirect("/dashboard");
+
+  const sp = await searchParams;
+  const preselectedPlan: PlanCode | null =
+    typeof sp.plan === "string" && PRESELECTABLE_PLANS.has(sp.plan as PlanCode)
+      ? (sp.plan as PlanCode)
+      : null;
 
   const yearlySavingsPercent = computeYearlySavings();
   // On ne pré-coche pas une formule déjà payante (improbable juste après le
@@ -37,6 +55,7 @@ export default async function OnboardingPlanPage() {
       currentPlan={currentPlan}
       stripeReady={isStripeReady()}
       yearlySavingsPercent={yearlySavingsPercent}
+      preselectedPlan={preselectedPlan}
     />
   );
 }

@@ -17,9 +17,18 @@ interface Props {
    * Calculé côté serveur et passé en prop pour rester en sync avec les prix.
    */
   yearlySavingsPercent: number | null;
+  /**
+   * Session active détectée côté serveur. Détermine la cible des CTA :
+   * un visiteur connecté va droit au choix de plan (checkout), un prospect
+   * passe par l'inscription en conservant le plan choisi.
+   */
+  isAuthenticated: boolean;
 }
 
-export function BillingIntervalToggle({ yearlySavingsPercent }: Props) {
+export function BillingIntervalToggle({
+  yearlySavingsPercent,
+  isAuthenticated,
+}: Props) {
   const t = useTranslations("pricing");
   const tFeatures = useTranslations("organizations.billing.features");
   const [interval, setInterval] = useState<"monthly" | "yearly">("yearly");
@@ -105,7 +114,7 @@ export function BillingIntervalToggle({ yearlySavingsPercent }: Props) {
                 />
               </div>
 
-              <PlanCta code={code} />
+              <PlanCta code={code} isAuthenticated={isAuthenticated} />
 
               <ul className="mt-6 space-y-2.5 border-t pt-4 text-sm">
                 <FeatureItem
@@ -233,12 +242,19 @@ function PriceDisplay({
   );
 }
 
-function PlanCta({ code }: { code: PlanCode }) {
+function PlanCta({
+  code,
+  isAuthenticated,
+}: {
+  code: PlanCode;
+  isAuthenticated: boolean;
+}) {
   const t = useTranslations("pricing");
   if (code === "free") {
+    // Gratuit : un visiteur connecté file au dashboard, un prospect s'inscrit.
     return (
       <a
-        href="/register"
+        href={isAuthenticated ? "/dashboard" : "/register"}
         className="inline-flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         {t("cta.startFree")}
@@ -255,12 +271,16 @@ function PlanCta({ code }: { code: PlanCode }) {
       </a>
     );
   }
-  // Plan payant : on redirige vers la connexion en conservant l'intention
-  // (le plan choisi) pour ramener l'utilisateur vers la sélection d'org
-  // où finaliser l'abonnement après connexion.
+  // Plan payant : on conserve l'intention (le plan choisi) à travers l'auth.
+  //  - connecté → page de choix de plan, qui pré-sélectionne le plan et lance
+  //    le checkout Stripe ;
+  //  - prospect → inscription en portant le plan, l'onboarding reprend ensuite.
+  const href = isAuthenticated
+    ? `/onboarding/plan?plan=${code}`
+    : `/register?plan=${code}`;
   return (
     <a
-      href={`/login?next=${encodeURIComponent(`/organizations?plan=${code}`)}`}
+      href={href}
       className={cn(
         "inline-flex h-10 w-full items-center justify-center rounded-md px-4 text-sm font-medium shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         code === "pro"
