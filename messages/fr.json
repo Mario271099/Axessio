@@ -2234,6 +2234,9 @@
     },
     "report": {
       "exportPdf": "Exporter le rapport PDF",
+      "exportMenu": "Exporter",
+      "groupReport": "Rapport PDF",
+      "groupMatrix": "Matrice de conformité",
       "exportPdfFr": "Exporter en français",
       "exportPdfEn": "Exporter en anglais",
       "exportCsv": "Exporter la matrice (CSV)",

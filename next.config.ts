@@ -18,6 +18,18 @@ const nextConfig: NextConfig = {
   // ces deux packages doivent rester en `require()` natif côté serveur Node.
   serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
 
+  // Le binaire Chromium de @sparticuz/chromium charge ses fichiers brotli
+  // (`bin/*.br`) par chemin au runtime. Le file-tracing de Next ne les détecte
+  // donc pas et les exclut du bundle serverless → en prod Vercel on obtient
+  // « The input directory ".../@sparticuz/chromium/bin" does not exist ».
+  // On force l'inclusion du dossier `bin/` (et du reste du package) dans la
+  // lambda de la route d'export PDF.
+  outputFileTracingIncludes: {
+    "/api/audits/[uuid]/report": [
+      "./node_modules/@sparticuz/chromium/bin/**",
+    ],
+  },
+
   async headers() {
     return [
       {
