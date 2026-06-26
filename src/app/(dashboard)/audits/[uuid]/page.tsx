@@ -545,21 +545,24 @@ export default async function AuditDetailPage({ params }: PageProps) {
             <AuditLifecycleStepper lifecycle={lifecycle} />
           </div>
 
-          {/* Prochaine action (ex-carte "Prochaine étape", repliée ici) */}
+          {/* Prochaine action (ex-carte "Prochaine étape", repliée ici).
+              Quand l'étape suivante est une transition de statut, le bouton
+              « Passer à l'étape suivante » s'affiche directement dans le
+              callout. */}
           <AuditNextAction
             auditId={uuid}
             status={currentStatus}
             snapshot={statusSnapshot}
             canAct={canAct}
-          />
-
-          {/* Bouton direct : passer à l'étape suivante du cycle de vie */}
-          <AuditNextStepButton
-            auditId={uuid}
-            currentStatus={currentStatus}
-            snapshot={statusSnapshot}
-            available={availableStatusTransitions}
-            canAct={canAct}
+            advanceSlot={
+              <AuditNextStepButton
+                auditId={uuid}
+                currentStatus={currentStatus}
+                snapshot={statusSnapshot}
+                available={availableStatusTransitions}
+                canAct={canAct}
+              />
+            }
           />
         </CardContent>
       </Card>

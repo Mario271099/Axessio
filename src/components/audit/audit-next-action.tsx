@@ -19,6 +19,13 @@ interface AuditNextActionProps {
   snapshot: AuditLifecycleSnapshot;
   /** L'utilisateur peut-il agir (= staff + assigné). */
   canAct: boolean;
+  /**
+   * Action rendue à droite du callout quand la prochaine étape est une
+   * transition de statut (ex. « Passer à l'étape suivante »). Pour les états
+   * où il faut d'abord naviguer (composer l'échantillon, remplir la matrice),
+   * le callout rend son propre lien et ignore ce slot.
+   */
+  advanceSlot?: React.ReactNode;
 }
 
 type ActionTone = "info" | "warning" | "success" | "muted";
@@ -245,12 +252,16 @@ export async function AuditNextAction({
   status,
   snapshot,
   canAct,
+  advanceSlot,
 }: AuditNextActionProps) {
   const t = await getTranslations("audits.nextAction");
   const action = computeNextAction(auditId, status, snapshot);
   const styles = TONE_STYLES[action.tone];
   const HeadIcon = TONE_ICON[action.tone];
   const Cta = action.cta?.icon;
+  // Une ancre interne (#lifecycle) = la prochaine étape est une transition de
+  // statut : on délègue l'action au slot fourni (bouton « étape suivante »).
+  const isSelfAdvance = action.cta?.href.startsWith("#") ?? false;
 
   return (
     <div
@@ -285,10 +296,14 @@ export async function AuditNextAction({
         </p>
       </div>
 
-      {/* On masque le CTA qui pointe vers une ancre interne (ex. #lifecycle) :
-          le cycle de vie est désormais cette carte même, et le bouton
-          « Passer à l'étape suivante » rendu juste en dessous gère l'avancée. */}
-      {canAct && action.cta && Cta && !action.cta.href.startsWith("#") && (
+      {/* Prochaine étape = transition de statut : on rend le slot fourni
+          (bouton « Passer à l'étape suivante ») à la place d'un lien. */}
+      {isSelfAdvance && advanceSlot && (
+        <div className="shrink-0">{advanceSlot}</div>
+      )}
+
+      {/* Sinon : lien de navigation classique (échantillon, matrice, édition). */}
+      {!isSelfAdvance && canAct && action.cta && Cta && (
         <Link
           href={action.cta.href}
           className={cn(
