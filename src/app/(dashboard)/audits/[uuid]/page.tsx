@@ -24,10 +24,8 @@ import {
   type ProofreaderCandidate,
 } from "@/components/audit/audit-proofreaders";
 import { AuditContacts } from "@/components/audit/audit-contacts";
-import {
-  AuditStatusActions,
-  type AvailableStatusTransition,
-} from "@/components/audit/audit-status-actions";
+import type { AvailableStatusTransition } from "@/components/audit/audit-status-actions";
+import { AuditNextStepButton } from "@/components/audit/audit-next-step-button";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
 import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
 import { AuditNextAction } from "@/components/audit/audit-next-action";
@@ -555,12 +553,13 @@ export default async function AuditDetailPage({ params }: PageProps) {
             canAct={canAct}
           />
 
-          {/* Transitions de statut manuelles + conditions */}
-          <AuditStatusActions
+          {/* Bouton direct : passer à l'étape suivante du cycle de vie */}
+          <AuditNextStepButton
             auditId={uuid}
             currentStatus={currentStatus}
             snapshot={statusSnapshot}
             available={availableStatusTransitions}
+            canAct={canAct}
           />
         </CardContent>
       </Card>
