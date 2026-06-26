@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { initials } from "@/lib/utils";
-import { signOut } from "@/app/(auth)/actions";
+import { createClient } from "@/lib/supabase/client";
 
 interface Props {
   firstName: string;
@@ -31,6 +31,12 @@ export function TopbarUserMenu({
 }: Props) {
   const t = useTranslations("sidebar.user");
   const fullName = [firstName, lastName].filter(Boolean).join(" ").trim() || email;
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  }
 
   return (
     <DropdownMenu>
@@ -69,17 +75,16 @@ export function TopbarUserMenu({
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <form action={signOut}>
-          <DropdownMenuItem asChild>
-            <button
-              type="submit"
-              className="w-full cursor-pointer text-destructive focus:text-destructive"
-            >
-              <LogOut className="h-4 w-4" aria-hidden="true" />
-              {t("logout")}
-            </button>
-          </DropdownMenuItem>
-        </form>
+        <DropdownMenuItem
+          onSelect={(e) => {
+            e.preventDefault();
+            void handleSignOut();
+          }}
+          className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+        >
+          <LogOut className="h-4 w-4" aria-hidden="true" />
+          {t("logout")}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

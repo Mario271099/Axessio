@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { USER_ROLE_BADGE_VARIANT, USER_ROLE_LABELS } from "@/lib/constants";
 import { can, canAny, canImpersonateAs, type Permission } from "@/lib/permissions";
-import { signOut } from "@/app/(auth)/actions";
+import { createClient } from "@/lib/supabase/client";
 import { exitImpersonationAndRedirect } from "@/app/(dashboard)/admin/impersonation/actions";
 import { ImpersonationLauncher } from "@/components/layout/impersonation-launcher";
 import { OrgSwitcher } from "@/components/layout/org-switcher";
@@ -53,6 +53,12 @@ export function Sidebar({
   const orgPerms = new Set(orgPermissions ?? []);
   const impersonationOptions = canImpersonateAs(profile.realRole);
   const t = useTranslations("sidebar");
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  }
 
   return (
     <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
@@ -210,8 +216,9 @@ export function Sidebar({
             ) : null}
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onSelect={() => {
-                void signOut();
+              onSelect={(e) => {
+                e.preventDefault();
+                void handleSignOut();
               }}
               className="text-destructive focus:bg-destructive/10 focus:text-destructive"
             >
