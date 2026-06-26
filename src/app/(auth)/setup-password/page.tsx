@@ -8,6 +8,8 @@ import { SetupPasswordForm } from "./setup-password-form";
 export const metadata: Metadata = {
   title: "Activer mon compte",
   description: "Définissez votre mot de passe pour activer votre compte.",
+  // Page utilitaire d'auth : hors index (comme /login et /register).
+  robots: { index: false, follow: false },
 };
 
 export default async function SetupPasswordPage() {
