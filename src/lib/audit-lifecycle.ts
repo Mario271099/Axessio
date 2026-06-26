@@ -83,26 +83,24 @@ interface AuditLifecycleInput {
   onlineAt: string | null;
 }
 
-function isPast(iso: string | null, now: number): boolean {
-  if (!iso) return false;
-  return new Date(iso).getTime() <= now;
-}
-
 /**
- * Calcule l'état des 7 jalons à partir du statut et des dates de l'audit.
+ * Calcule l'état des 7 jalons à partir du statut métier de l'audit.
  *
- * Règles :
- *   - "Audit créé" est toujours terminé.
- *   - Un jalon est terminé s'il est avant l'étape projetée par le statut, OU
- *     si sa date réelle est dans le passé (livraison/mise en ligne : présence
- *     de la date suffit).
- *   - L'étape courante est le premier jalon non terminé.
+ * Le statut est l'unique source de vérité de la progression : l'étape
+ * courante est `STATUS_TO_STAGE[status]`. Les états sont **positionnels et
+ * monotones** :
+ *   - jalon AVANT l'étape courante  → done (vert + check)
+ *   - jalon de l'étape courante     → current (navy + halo + numéro)
+ *   - jalon APRÈS l'étape courante  → upcoming (creux gris)
+ *
+ * Les dates clés ne servent qu'à l'affichage (sous-titres) : une date prévue
+ * dépassée ne « termine » jamais un jalon que le statut n'a pas atteint (sinon
+ * un audit en retard afficherait une étape future en vert).
  */
 export function computeAuditLifecycle(
   input: AuditLifecycleInput,
 ): AuditLifecycle {
-  const now = Date.now();
-  const baseIndex = STATUS_TO_STAGE[input.status] ?? 1;
+  const currentIndex = STATUS_TO_STAGE[input.status] ?? 1;
 
   // Date affichée par jalon (sous-titre).
   const stageDate: Record<LifecycleStageKey, string | null> = {
@@ -115,30 +113,10 @@ export function computeAuditLifecycle(
     online: input.onlineAt,
   };
 
-  // Jalon terminé par signal de date concret (au-delà de la projection statut).
-  const dateDone: Record<LifecycleStageKey, boolean> = {
-    created: true,
-    preparation: baseIndex > 1,
-    audit: isPast(input.expectedEndAt, now),
-    restitution: isPast(input.restitutionAt, now),
-    counterAudit: isPast(input.counterAuditAt, now),
-    delivery: isPast(input.deliveredAt, now),
-    online: isPast(input.onlineAt, now),
-  };
-
-  const done = LIFECYCLE_STAGE_ORDER.map(
-    (key, index) => index < baseIndex || dateDone[key],
-  );
-
-  // Étape courante = premier jalon non terminé ; si tout est terminé, on
-  // pointe le dernier jalon.
-  let currentIndex = done.findIndex((d) => !d);
-  if (currentIndex === -1) currentIndex = LIFECYCLE_STAGE_ORDER.length - 1;
-
   const stages: LifecycleStage[] = LIFECYCLE_STAGE_ORDER.map((key, index) => {
     let state: StageState;
-    if (index === currentIndex) state = "current";
-    else if (done[index]) state = "done";
+    if (index < currentIndex) state = "done";
+    else if (index === currentIndex) state = "current";
     else state = "upcoming";
     return {
       key,
