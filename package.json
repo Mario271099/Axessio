@@ -33,7 +33,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@react-email/components": "^1.0.12",
     "@sentry/nextjs": "^10.57.0",
-    "@sparticuz/chromium": "^147.0.0",
+    "@sparticuz/chromium-min": "^147.0.0",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
     "class-variance-authority": "^0.7.1",

@@ -14,21 +14,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Empêche le bundler de Next d'embarquer puppeteer-core et le binaire Chromium :
-  // ces deux packages doivent rester en `require()` natif côté serveur Node.
-  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
-
-  // Le binaire Chromium de @sparticuz/chromium charge ses fichiers brotli
-  // (`bin/*.br`) par chemin au runtime. Le file-tracing de Next ne les détecte
-  // donc pas et les exclut du bundle serverless → en prod Vercel on obtient
-  // « The input directory ".../@sparticuz/chromium/bin" does not exist ».
-  // On force l'inclusion du dossier `bin/` (et du reste du package) dans la
-  // lambda de la route d'export PDF.
-  outputFileTracingIncludes: {
-    "/api/audits/[uuid]/report": [
-      "./node_modules/@sparticuz/chromium/bin/**",
-    ],
-  },
+  // Empêche le bundler de Next d'embarquer puppeteer-core et Chromium : ces
+  // deux packages doivent rester en `require()` natif côté serveur Node.
+  // On utilise @sparticuz/chromium-min (sans binaire) : le pack brotli est
+  // téléchargé depuis une URL distante au runtime (cf. src/lib/pdf.ts), ce qui
+  // évite d'embarquer ~68 Mo dans la lambda et de dépasser la limite Vercel.
+  serverExternalPackages: ["@sparticuz/chromium-min", "puppeteer-core"],
 
   async headers() {
     return [

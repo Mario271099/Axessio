@@ -1,10 +1,27 @@
 // SERVER-ONLY. Module Node.js - ne jamais importer dans un composant client.
 // Génère un PDF via Puppeteer :
-//   - Sur Vercel (env serverless AWS Lambda) → binaire fourni par @sparticuz/chromium
+//   - Sur Vercel (env serverless AWS Lambda) → binaire fourni par
+//     @sparticuz/chromium-min, dont le pack brotli (~68 Mo) est téléchargé
+//     depuis une URL distante au cold start (cf. CHROMIUM_PACK_URL)
 //   - En local (dev) → puppeteer-core avec un Chrome détecté sur la machine
 
 import { existsSync } from "node:fs";
 import type { Browser } from "puppeteer-core";
+
+// Version du pack Chromium = version du package @sparticuz/chromium-min.
+// DOIT rester alignée avec la dépendance dans package.json (actuellement
+// 147.0.0) : un pack d'une autre version ne démarre pas avec ce puppeteer-core.
+const CHROMIUM_VERSION = "147.0.0";
+
+// URL du pack brotli (al2023 + chromium + fonts + swiftshader) téléchargé au
+// runtime sur l'environnement serverless. On NE PEUT PAS embarquer ces ~68 Mo
+// dans la lambda : déjà compressés, ils dépassent la limite Vercel de 50 Mo
+// compressés par fonction (plan Hobby). Par défaut on tape la release GitHub
+// officielle de Sparticuz ; surchargeable via env pour héberger le pack soi-même
+// (recommandé en prod : CDN plus rapide et indépendant des quotas GitHub).
+const CHROMIUM_PACK_URL =
+  process.env.CHROMIUM_PACK_URL ??
+  `https://github.com/Sparticuz/chromium/releases/download/v${CHROMIUM_VERSION}/chromium-v${CHROMIUM_VERSION}-pack.x64.tar`;
 
 /**
  * Détecte si l'on tourne sur Vercel / AWS Lambda (Sparticuz nécessaire),
@@ -53,13 +70,15 @@ async function launchBrowser(): Promise<Browser> {
   const puppeteer = await import("puppeteer-core");
 
   if (isServerlessEnv()) {
-    // Lazy-import : on ne charge le binaire ~50 Mo qu'en serverless.
-    const chromiumModule = await import("@sparticuz/chromium");
+    // Lazy-import : on ne charge le runtime Chromium qu'en serverless.
+    // chromium-min ne contient PAS le binaire ; on lui passe l'URL du pack
+    // brotli distant, qu'il décompresse dans /tmp au premier appel.
+    const chromiumModule = await import("@sparticuz/chromium-min");
     const chromium = chromiumModule.default;
 
     return puppeteer.launch({
       args: chromium.args,
-      executablePath: await chromium.executablePath(),
+      executablePath: await chromium.executablePath(CHROMIUM_PACK_URL),
       headless: true,
     });
   }
