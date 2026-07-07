@@ -17,3 +17,7 @@ test-results/
 playwright-report/
 playwright/.cache/
 verify-screenshots/
+
+# Supabase CLI cache & bootstrap SQL genere pour le staging
+supabase/.temp/
+staging-bootstrap/
