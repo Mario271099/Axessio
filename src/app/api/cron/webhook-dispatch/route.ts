@@ -7,6 +7,7 @@ import {
   signWebhookPayload,
 } from "@/lib/webhooks/server";
 import { assertPublicUrl } from "@/lib/webhooks/ssrf";
+import { checkCronAuth } from "@/lib/cron-auth";
 
 // Cron de dispatch des webhooks sortants. Tourne fréquemment (every minute)
 // pour rester réactif. À chaque tick :
@@ -47,16 +48,15 @@ interface EndpointRow {
 }
 
 export async function GET(req: Request) {
-  // 1) Auth
-  const expected = process.env.CRON_SECRET;
-  if (!expected) {
+  // 1) Auth - comparaison en temps constant (cf. lib/cron-auth.ts)
+  const auth = checkCronAuth(req);
+  if (auth === "unconfigured") {
     return NextResponse.json(
       { error: "CRON_SECRET non configuré." },
       { status: 503 },
     );
   }
-  const auth = req.headers.get("authorization");
-  if (auth !== `Bearer ${expected}`) {
+  if (auth !== "ok") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
