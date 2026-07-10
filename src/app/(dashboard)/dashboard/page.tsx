@@ -28,18 +28,6 @@ import { resolveCurrentOrg } from "@/lib/current-org";
 import { WelcomeModal } from "./welcome-modal";
 import { intlLocale } from "@/lib/intl";
 
-const STATUS_GROUPS = {
-  pending: ["PENDING", "PLANNED"] as AuditStatus[],
-  inProgress: [
-    "IN_PROGRESS",
-    "DELIVERED",
-    "REMEDIATION",
-    "COUNTER_AUDIT",
-  ] as AuditStatus[],
-  completed: ["COMPLETED", "ONLINE"] as AuditStatus[],
-  archived: ["ARCHIVED"] as AuditStatus[],
-};
-
 export default async function DashboardPage() {
   const profile = await requireProfile();
   const supabase = await createClient();

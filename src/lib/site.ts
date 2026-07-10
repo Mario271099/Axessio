@@ -25,6 +25,18 @@ function resolveSiteUrl(): string {
   return FALLBACK_URL;
 }
 
+/**
+ * Vrai uniquement sur le déploiement de PRODUCTION Vercel. Les previews
+ * (staging.axessyo.com, URLs de branche) et le dev local retournent false.
+ *
+ * Sert à couper l'indexation moteur hors production : Vercel ne pose PAS de
+ * X-Robots-Tag automatique sur un domaine custom rattaché à une branche de
+ * preview - sans ce garde-fou, Google pourrait indexer le staging en doublon
+ * de la prod. Consommé par next.config.ts (header), robots.ts et layout.tsx.
+ */
+export const IS_PRODUCTION_DEPLOYMENT =
+  process.env.VERCEL_ENV === "production";
+
 export const SITE = {
   name: "Axessyo",
   shortName: "Axessyo",

@@ -627,6 +627,12 @@
     "description": "The requested resource does not exist or you don't have access to it.",
     "cta": "Back to dashboard"
   },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "This page failed to load. Our team has been notified automatically. You can try again or go back to the dashboard.",
+    "retry": "Try again",
+    "backToDashboard": "Back to dashboard"
+  },
   "fileDropZone": {
     "dropZoneAria": "Drag your files here or click to select",
     "dropHint": "Drag your files here",

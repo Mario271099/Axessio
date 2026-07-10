@@ -15,10 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import {
-  AUDIT_STATUS_LABELS,
-  USER_ROLE_LABELS,
-} from "@/lib/constants";
+import { AUDIT_STATUS_LABELS } from "@/lib/constants";
 import { PLANS, PLAN_ORDER, type PlanCode } from "@/lib/billing/plans";
 import type { AuditStatus, UserRole } from "@/types/domain";
 

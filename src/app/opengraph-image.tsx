@@ -105,7 +105,7 @@ export default function OGImage() {
               margin: 0,
             }}
           >
-            Audits d'accessibilité numérique
+            Audits d&apos;accessibilité numérique
           </p>
           <h1
             style={{

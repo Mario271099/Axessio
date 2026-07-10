@@ -1,7 +1,16 @@
 import type { MetadataRoute } from "next";
-import { SITE, siteUrl } from "@/lib/site";
+import { IS_PRODUCTION_DEPLOYMENT, SITE, siteUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
+  // Staging / previews : interdiction totale de crawl (doublé par le header
+  // X-Robots-Tag posé dans next.config.ts). Pas de sitemap ni de host - on ne
+  // donne aucun signal d'indexation hors production.
+  if (!IS_PRODUCTION_DEPLOYMENT) {
+    return {
+      rules: [{ userAgent: "*", disallow: "/" }],
+    };
+  }
+
   // Hôte canonique nu (sans schéma ni slash) - la directive `host` attend un
   // nom de domaine, pas une URL. Dérivé de SITE.url pour rester cohérent.
   const host = new URL(SITE.url).host;

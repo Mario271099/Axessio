@@ -192,7 +192,7 @@ export function ConformityMatrixLayout({
     previousValuesRef.current.clear();
     setSaveStatus("saved");
     return true;
-  }, [auditId, conformityMap, pendingChanges]);
+  }, [auditId, conformityMap, pendingChanges, tSave]);
 
   const handlePageChange = useCallback(
     async (pageId: string) => {

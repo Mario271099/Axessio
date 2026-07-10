@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { checkCronAuth } from "@/lib/cron-auth";
 
 // Cron quotidien des transitions automatiques d'audit_status :
 //
@@ -23,17 +24,15 @@ interface AuditRow {
 }
 
 export async function GET(req: Request) {
-  // 1) Auth
-  const expected = process.env.CRON_SECRET;
-  if (!expected) {
+  // 1) Auth - comparaison en temps constant (cf. lib/cron-auth.ts)
+  const auth = checkCronAuth(req);
+  if (auth === "unconfigured") {
     return NextResponse.json(
       { error: "CRON_SECRET non configuré." },
       { status: 500 },
     );
   }
-  const auth = req.headers.get("authorization") ?? "";
-  const provided = auth.startsWith("Bearer ") ? auth.slice(7) : auth;
-  if (provided !== expected) {
+  if (auth !== "ok") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

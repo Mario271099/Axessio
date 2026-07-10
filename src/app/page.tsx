@@ -323,12 +323,12 @@ export default async function HomePage() {
       {/* Données structurées spécifiques à la home */}
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
+         
         dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareLd) }}
       />
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
+         
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
     </>

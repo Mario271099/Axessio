@@ -189,6 +189,9 @@ export function NCAttachmentsCard({
                           className="block h-full w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           aria-label={t("enlargeAria", { name: displayName })}
                         >
+                          {/* URL signée Supabase éphémère (1h) : hôte non
+                              optimisable par next/image sans exposer le bucket. */}
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={att.signedUrl}
                             alt={displayName}
@@ -291,6 +294,8 @@ export function NCAttachmentsCard({
             {previewAttachment?.fileName ?? t("previewTitle")}
           </DialogTitle>
           {previewAttachment?.signedUrl && (
+            /* URL signée Supabase éphémère (1h) - cf. commentaire ci-dessus. */
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={previewAttachment.signedUrl}
               alt={previewAttachment.fileName ?? t("previewTitle")}
