@@ -629,6 +629,12 @@
     "description": "La ressource demandée n'existe pas ou vous n'y avez pas accès.",
     "cta": "Retour au tableau de bord"
   },
+  "errorBoundary": {
+    "title": "Une erreur est survenue",
+    "description": "Le chargement de cette page a échoué. Nos équipes ont été notifiées automatiquement. Vous pouvez réessayer ou revenir au tableau de bord.",
+    "retry": "Réessayer",
+    "backToDashboard": "Retour au tableau de bord"
+  },
   "fileDropZone": {
     "dropZoneAria": "Glissez vos fichiers ici ou cliquez pour sélectionner",
     "dropHint": "Glissez vos fichiers ici",
