@@ -5,7 +5,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { CookieConsentBanner } from "@/components/public/cookie-consent-banner";
-import { SITE, siteUrl } from "@/lib/site";
+import { IS_PRODUCTION_DEPLOYMENT, SITE, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -50,19 +50,26 @@ export const metadata: Metadata = {
   // Indexation par défaut - chaque layout privé écrase ce bloc avec
   // `robots: { index: false }`. Tous les bots utiles (Google, Bing, Applebot…)
   // suivent les directives `googleBot` ci-dessous.
-  robots: {
-    index: true,
-    follow: true,
-    nocache: false,
-    googleBot: {
-      index: true,
-      follow: true,
-      noimageindex: false,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
-  },
+  // Hors production Vercel (staging, previews) : noindex global, doublé par
+  // le header X-Robots-Tag (next.config.ts) et robots.txt (disallow all).
+  robots: IS_PRODUCTION_DEPLOYMENT
+    ? {
+        index: true,
+        follow: true,
+        nocache: false,
+        googleBot: {
+          index: true,
+          follow: true,
+          noimageindex: false,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+          "max-video-preview": -1,
+        },
+      }
+    : {
+        index: false,
+        follow: false,
+      },
   alternates: {
     canonical: "/",
   },
@@ -171,7 +178,7 @@ export default async function RootLayout({
             sur toutes les pages publiques. Rendu en JSON brut, non bloquant. */}
         <script
           type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
+           
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationJsonLd),
           }}

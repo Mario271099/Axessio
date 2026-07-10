@@ -22,18 +22,31 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@sparticuz/chromium-min", "puppeteer-core"],
 
   async headers() {
+    // Hors production Vercel (staging.axessyo.com, URLs de preview), on coupe
+    // l'indexation au niveau HTTP : Vercel ne pose pas de X-Robots-Tag sur un
+    // domaine custom de branche, et ce header couvre AUSSI les réponses non
+    // HTML (API, images OG) que la meta robots ne protège pas.
+    const isVercelPreview =
+      !!process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production";
+    const headers = isVercelPreview
+      ? [
+          ...SECURITY_HEADERS,
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ]
+      : SECURITY_HEADERS;
+
     return [
       {
         // Catch-all explicite. `/(.*)`  est universel ; certaines versions de
         // path-to-regexp utilisées par Next n'attachent pas `/:path*` à la
         // racine `/`, ce qui laissait la home sans headers.
         source: "/:path*",
-        headers: SECURITY_HEADERS,
+        headers,
       },
       {
         // Filet de sécurité explicite sur la racine.
         source: "/",
-        headers: SECURITY_HEADERS,
+        headers,
       },
     ];
   },
