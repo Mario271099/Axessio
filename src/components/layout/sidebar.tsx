@@ -21,7 +21,7 @@ import { exitImpersonationAndRedirect } from "@/app/(dashboard)/admin/impersonat
 import { ImpersonationLauncher } from "@/components/layout/impersonation-launcher";
 import { OrgSwitcher } from "@/components/layout/org-switcher";
 import { ICONS, SECTIONS, type NavCounts } from "@/components/layout/nav-config";
-import type { Profile, UserRole } from "@/types/domain";
+import type { Profile } from "@/types/domain";
 
 export type { NavCounts };
 

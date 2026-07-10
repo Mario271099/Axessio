@@ -101,7 +101,6 @@ export function NCDetail({
   messages,
   attachments,
   auditId,
-  auditTitle,
   profile,
   orgPermissions,
   userAssignmentRole,

@@ -99,15 +99,6 @@ export function EditAuditForm({
     formatForInputInit(initial.counterAuditAt),
   );
 
-  // Pour le `min={today}` on a besoin d'une date fixe - mémoïsée pour ne pas
-  // se réévaluer à chaque render et provoquer un re-render des inputs.
-  const today = useMemo(() => {
-    const d = new Date();
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate())
-      .toISOString()
-      .slice(0, 10);
-  }, []);
-
   // Validation chronologique stricte (cohérence métier du planning),
   // alignée sur audit-form.tsx (création). Sur l'édition, on tolère qu'une
   // date de début soit dans le passé : l'audit a pu démarrer hier et on

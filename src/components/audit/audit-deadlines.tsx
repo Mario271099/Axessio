@@ -17,6 +17,9 @@ interface AuditDeadlinesProps {
  */
 export async function AuditDeadlines(props: AuditDeadlinesProps) {
   const t = await getTranslations("audits.timeline");
+  // Server Component rendu à chaque requête (page dynamique) : lire l'horloge
+  // ici est voulu - la règle de pureté React vise les composants client.
+  // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
 
   const rows: Array<{ labelKey: string; date: string | null; done: boolean }> = [

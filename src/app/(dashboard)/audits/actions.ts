@@ -269,7 +269,6 @@ export async function updateAudit(
   formData: FormData,
 ): Promise<ActionState> {
   const supabase = await createClient();
-  const t = await getTranslations("errors");
 
   const guard = await requireAnyPermission("audit.edit");
   if (!guard.ok) return { error: guard.error };

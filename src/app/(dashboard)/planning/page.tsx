@@ -69,11 +69,6 @@ export default async function PlanningPage({ searchParams }: PageProps) {
   const t = await getTranslations("planning");
 
   const monthStart = parseMonthParam(params.month);
-  const monthEnd = new Date(
-    monthStart.getFullYear(),
-    monthStart.getMonth() + 1,
-    1,
-  );
 
   // Fenêtre élargie d'un mois avant/après pour couvrir les dates affichées en
   // bord de grille (les premiers/derniers jours débordent souvent du mois).
@@ -99,7 +94,7 @@ export default async function PlanningPage({ searchParams }: PageProps) {
   const auditorFilter =
     profile.isPlatformAdmin && params.auditor ? params.auditor : null;
 
-  let query = supabase
+  const query = supabase
     .from("audits")
     .select(
       `

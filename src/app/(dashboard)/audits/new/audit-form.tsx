@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   AlertCircle,
@@ -855,7 +856,7 @@ function EmptyProjectsState() {
         <p className="text-xs text-muted-foreground">{t("emptyDesc")}</p>
       </div>
       <Button asChild variant="outline" size="sm">
-        <a href="/clients">{t("emptyCta")}</a>
+        <Link href="/clients">{t("emptyCta")}</Link>
       </Button>
     </div>
   );

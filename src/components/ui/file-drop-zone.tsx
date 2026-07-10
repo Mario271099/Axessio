@@ -205,6 +205,9 @@ export function FileDropZone({
               <li key={key} className="space-y-1.5">
                 <div className="group relative aspect-square overflow-hidden rounded-md border border-border bg-muted">
                   {isImage && previewUrl ? (
+                    /* Aperçu local (URL blob: créée via createObjectURL) :
+                       next/image ne sait pas optimiser un blob en mémoire. */
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={previewUrl}
                       alt={file.name}
