@@ -4,7 +4,7 @@ import { LegalSection, LegalShell } from "@/components/public/legal-shell";
 import { intlLocale } from "@/lib/intl";
 import { SITE } from "@/lib/site";
 
-const LAST_UPDATED_ISO = "2026-05-18";
+const LAST_UPDATED_ISO = "2026-07-20";
 
 const SECTION_KEYS = [
   "controller",

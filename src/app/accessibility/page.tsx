@@ -6,7 +6,7 @@ import { SITE } from "@/lib/site";
 
 // Date d'établissement de la déclaration - à mettre à jour à chaque révision
 // (notamment après la réalisation de l'audit RGAA).
-const LAST_UPDATED_ISO = "2026-05-30";
+const LAST_UPDATED_ISO = "2026-07-20";
 
 const SECTION_KEYS = [
   "state",

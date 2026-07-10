@@ -6,7 +6,7 @@ import { SITE } from "@/lib/site";
 
 // Date de la dernière révision - à mettre à jour à chaque modification du
 // contenu pour informer les utilisateurs.
-const LAST_UPDATED_ISO = "2026-05-18";
+const LAST_UPDATED_ISO = "2026-07-20";
 
 const SECTION_KEYS = [
   "editor",
