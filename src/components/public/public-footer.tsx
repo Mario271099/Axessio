@@ -99,6 +99,7 @@ export function PublicFooter() {
 
         <p className="text-xs text-muted-foreground">
           {t("footer.copyright", { year })}
+          <span className="ml-1.5 opacity-70">· v1</span>
         </p>
       </div>
     </footer>

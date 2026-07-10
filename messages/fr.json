@@ -159,18 +159,16 @@
       "editor": {
         "title": "Éditeur du site",
         "lines": [
-          "Axessyo SAS",
-          "Société par Actions Simplifiée au capital de 10 000 €",
-          "10 rue de la République, 75011 Paris, France",
-          "RCS Paris - SIRET 999 999 999 00000",
-          "N° TVA intracommunautaire : FR 99 999999999",
+          "Axessyo SAS (société par actions simplifiée en cours d'immatriculation)",
+          "Capital social, numéro SIRET et immatriculation au RCS : en cours d'immatriculation.",
+          "Siège social : en cours d'immatriculation.",
           "Adresse email : contact@axessyo.com"
         ]
       },
       "director": {
         "title": "Directeur de la publication",
         "lines": [
-          "Le Président d'Axessyo SAS."
+          "Le représentant légal d'Axessyo SAS (société en cours d'immatriculation)."
         ]
       },
       "host": {
@@ -179,7 +177,7 @@
           "Le site est hébergé par Vercel Inc.",
           "440 N Barranca Ave #4133, Covina, CA 91723, États-Unis.",
           "Site web : https://vercel.com",
-          "Les données applicatives sont stockées par Supabase (Powerbase Inc.), 970 Toa Payoh North #07-04, Singapour 318992."
+          "Les données applicatives sont hébergées par Supabase dans l'Union européenne (région Europe — Irlande)."
         ]
       },
       "ip": {
@@ -221,7 +219,7 @@
       "controller": {
         "title": "Responsable de traitement",
         "lines": [
-          "Le responsable de traitement est Axessyo SAS, 10 rue de la République, 75011 Paris, France.",
+          "Le responsable de traitement est Axessyo SAS (société en cours d'immatriculation). Siège social : en cours d'immatriculation.",
           "Contact RGPD / DPO : privacy@axessyo.com."
         ]
       },
@@ -264,7 +262,7 @@
         "title": "Destinataires et sous-traitants",
         "lines": [
           "Vos données ne sont jamais vendues ni cédées à des tiers à des fins commerciales.",
-          "Sous-traitants techniques (hébergement, envoi d'emails) : Supabase (Singapour), Vercel (USA, certifié EU-US Data Privacy Framework), Resend (USA).",
+          "Sous-traitants techniques (hébergement, envoi d'emails) : Supabase — données hébergées dans l'Union européenne (Irlande) ; Vercel (USA, certifié EU-US Data Privacy Framework) ; Resend (USA).",
           "Des clauses contractuelles types (CCT) de la Commission européenne encadrent les transferts hors UE."
         ]
       },

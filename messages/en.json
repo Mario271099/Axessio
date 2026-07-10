@@ -159,18 +159,16 @@
       "editor": {
         "title": "Site publisher",
         "lines": [
-          "Axessyo SAS",
-          "Simplified joint-stock company (SAS) with a share capital of €10,000",
-          "10 rue de la République, 75011 Paris, France",
-          "Paris RCS - SIRET 999 999 999 00000",
-          "VAT number: FR 99 999999999",
+          "Axessyo SAS (simplified joint-stock company, registration in progress)",
+          "Share capital, SIRET number and Trade Register (RCS) registration: registration in progress.",
+          "Registered office: registration in progress.",
           "Email: contact@axessyo.com"
         ]
       },
       "director": {
         "title": "Publication director",
         "lines": [
-          "The President of Axessyo SAS."
+          "The legal representative of Axessyo SAS (company registration in progress)."
         ]
       },
       "host": {
@@ -179,7 +177,7 @@
           "The website is hosted by Vercel Inc.",
           "440 N Barranca Ave #4133, Covina, CA 91723, United States.",
           "Website: https://vercel.com",
-          "Application data is stored by Supabase (Powerbase Inc.), 970 Toa Payoh North #07-04, Singapore 318992."
+          "Application data is hosted by Supabase within the European Union (Europe region — Ireland)."
         ]
       },
       "ip": {
@@ -221,7 +219,7 @@
       "controller": {
         "title": "Data controller",
         "lines": [
-          "The data controller is Axessyo SAS, 10 rue de la République, 75011 Paris, France.",
+          "The data controller is Axessyo SAS (company registration in progress). Registered office: registration in progress.",
           "GDPR / DPO contact: privacy@axessyo.com."
         ]
       },
@@ -264,7 +262,7 @@
         "title": "Recipients and subprocessors",
         "lines": [
           "Your data is never sold or transferred to third parties for commercial purposes.",
-          "Technical subprocessors (hosting, email): Supabase (Singapore), Vercel (USA, certified under the EU-US Data Privacy Framework), Resend (USA).",
+          "Technical subprocessors (hosting, email): Supabase — data hosted within the European Union (Ireland); Vercel (USA, certified under the EU-US Data Privacy Framework); Resend (USA).",
           "Standard Contractual Clauses (SCCs) from the European Commission govern transfers outside the EU."
         ]
       },
