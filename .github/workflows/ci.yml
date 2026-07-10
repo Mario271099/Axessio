@@ -44,6 +44,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # `next lint` a été supprimé de Next 16 : le lint passe par la CLI
+      # ESLint (cf. eslint.config.mjs). Les warnings ne bloquent pas (dette
+      # react-hooks documentée) ; seules les erreurs font échouer le job.
+      - name: Lint (ESLint)
+        run: npm run lint
+
       - name: Run unit tests (Vitest)
         run: npm run test
 
