@@ -6,6 +6,10 @@ import { cn } from "@/lib/utils";
 
 export const Tabs = TabsPrimitive.Root;
 
+/**
+ * Onglets soulignes du design system « Pro H » : le soulignement cobalt
+ * s'etend a mi-course au survol, puis entierement sur l'onglet actif.
+ */
 export function TabsList({
   className,
   ...props
@@ -13,7 +17,7 @@ export function TabsList({
   return (
     <TabsPrimitive.List
       className={cn(
-        "inline-flex h-9 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+        "flex items-center gap-7 overflow-x-auto border-b border-border",
         className,
       )}
       {...props}
@@ -28,10 +32,12 @@ export function TabsTrigger({
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1 text-xs font-medium ring-offset-background transition-all",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        "relative inline-flex h-12 shrink-0 items-center gap-2 whitespace-nowrap text-base font-bold text-muted-foreground",
+        "transition-colors duration-150",
+        "after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:origin-bottom after:scale-x-0 after:rounded-t-[3px] after:bg-primary after:transition-transform after:duration-200",
+        "hover:text-foreground hover:after:scale-x-50",
         "disabled:pointer-events-none disabled:opacity-50",
-        "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+        "data-[state=active]:text-primary data-[state=active]:after:scale-x-100",
         className,
       )}
       {...props}
@@ -43,13 +49,5 @@ export function TabsContent({
   className,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Content>) {
-  return (
-    <TabsPrimitive.Content
-      className={cn(
-        "mt-3 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        className,
-      )}
-      {...props}
-    />
-  );
+  return <TabsPrimitive.Content className={cn("mt-4", className)} {...props} />;
 }

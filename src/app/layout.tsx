@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Mono, DM_Sans, Geist } from "next/font/google";
+import { DM_Mono, DM_Sans, Figtree } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
@@ -8,9 +8,11 @@ import { CookieConsentBanner } from "@/components/public/cookie-consent-banner";
 import { IS_PRODUCTION_DEPLOYMENT, SITE, siteUrl } from "@/lib/site";
 import "./globals.css";
 
-const geistSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
+// Figtree : police d'interface du design system (graisses 400 a 900).
+// DM Sans reste reservee au logo (<Logo />, <Wordmark />) : ne pas y toucher.
+const figtree = Figtree({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-figtree",
   display: "swap",
 });
 
@@ -107,7 +109,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: SITE.backgroundColor },
-    { media: "(prefers-color-scheme: dark)", color: "#0a1628" },
+    { media: "(prefers-color-scheme: dark)", color: "#12141f" },
   ],
   colorScheme: "light dark",
   width: "device-width",
@@ -145,7 +147,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${geistSans.variable} ${dmSans.variable} ${dmMono.variable}`}
+      className={`${figtree.variable} ${dmSans.variable} ${dmMono.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>

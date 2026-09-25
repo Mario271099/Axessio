@@ -47,7 +47,7 @@ export function SheetContent({
       <SheetOverlay />
       <DialogPrimitive.Content
         className={cn(
-          "fixed z-50 flex flex-col gap-6 bg-background p-6 shadow-lg duration-200 data-[state=closed]:animate-out data-[state=open]:animate-in border-border",
+          "fixed z-50 flex flex-col gap-6 bg-card p-6 shadow-float duration-200 data-[state=closed]:animate-out data-[state=open]:animate-in border-border",
           SIDE_CLASSES[side],
           className,
         )}
@@ -55,7 +55,7 @@ export function SheetContent({
       >
         {children}
         <DialogPrimitive.Close
-          className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute right-4 top-4 inline-flex size-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-primary-soft hover:text-primary"
           aria-label={closeLabel}
         >
           <X className="h-4 w-4" aria-hidden="true" />

@@ -2,32 +2,37 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
+/**
+ * Pastille du design system « Pro H » : fond plein pastel, pas de bordure,
+ * graisse 800. La couleur ne porte jamais seule l'information : le libelle
+ * reste toujours present dans le badge.
+ */
 const badgeVariants = cva(
-  // Bordure 1 px colorée de la même teinte que le fond - donne le rendu
-  // « pastille » caractéristique du DS Linear/Stripe.
-  "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium " +
-    "transition-colors duration-150 " +
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full font-extrabold " +
+    "transition-colors duration-150",
   {
     variants: {
       variant: {
-        default:
-          "border-primary/20 bg-primary/10 text-primary hover:bg-primary/15",
-        secondary:
-          "border-secondary bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive:
-          "border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/15",
-        success:
-          "border-success/20 bg-success/10 text-success hover:bg-success/15",
-        warning:
-          "border-warning/20 bg-warning/10 text-warning hover:bg-warning/15",
-        outline: "border-border bg-transparent text-foreground",
-        muted:
-          "border-muted bg-muted text-muted-foreground hover:bg-muted/80",
+        default: "bg-primary-muted text-primary",
+        secondary: "bg-secondary text-secondary-foreground",
+        destructive: "bg-severity-critical-bg text-severity-critical",
+        success: "bg-success/12 text-success",
+        warning: "bg-warning/12 text-warning",
+        outline: "border border-border-strong bg-transparent text-foreground",
+        muted: "bg-muted text-muted-foreground",
+        ink: "bg-ink text-ink-foreground",
+        highlight: "bg-highlight text-ink",
+      },
+      size: {
+        default: "h-7 px-3 text-[0.84rem]",
+        sm: "h-6 px-2.5 text-xs",
+        /** Compteur d'onglet / de navigation (ex. « Echantillon 10 »). */
+        count: "h-5 min-w-5 justify-center px-1.5 text-xs tabular",
       },
     },
     defaultVariants: {
       variant: "default",
+      size: "default",
     },
   },
 );
@@ -36,9 +41,12 @@ export interface BadgeProps
   extends React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof badgeVariants> {}
 
-export function Badge({ className, variant, ...props }: BadgeProps) {
+export function Badge({ className, variant, size, ...props }: BadgeProps) {
   return (
-    <span className={cn(badgeVariants({ variant }), className)} {...props} />
+    <span
+      className={cn(badgeVariants({ variant, size }), className)}
+      {...props}
+    />
   );
 }
 

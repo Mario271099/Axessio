@@ -1,8 +1,7 @@
 "use client";
 
 // Wrap minimal de Radix Tooltip - style React 19 (pas de forwardRef, pas de
-// displayName). On expose Provider, Root, Trigger et Content avec des
-// classes Tailwind cohérentes avec le thème.
+// displayName). Rendu « Pro H » : bulle encre, texte blanc, rayon 8 px.
 
 import * as React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
@@ -14,7 +13,7 @@ export const TooltipTrigger = TooltipPrimitive.Trigger;
 
 export function TooltipContent({
   className,
-  sideOffset = 4,
+  sideOffset = 6,
   children,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
@@ -23,7 +22,7 @@ export function TooltipContent({
       <TooltipPrimitive.Content
         sideOffset={sideOffset}
         className={cn(
-          "z-50 max-w-xs rounded-md border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md",
+          "z-50 max-w-xs rounded-lg bg-ink px-2.5 py-1.5 text-[0.82rem] font-bold leading-snug text-ink-foreground shadow-md",
           "data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=open]:animate-in data-[state=open]:fade-in",
           className,
         )}

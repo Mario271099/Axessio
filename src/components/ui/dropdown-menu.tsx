@@ -19,7 +19,7 @@ export function DropdownMenuContent({
       <DropdownMenuPrimitive.Content
         sideOffset={sideOffset}
         className={cn(
-          "z-50 min-w-[10rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md",
+          "z-50 min-w-40 overflow-hidden rounded-row border border-border bg-popover p-1 text-popover-foreground shadow-float",
           "data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95",
           "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95",
           className,
@@ -40,8 +40,8 @@ export function DropdownMenuItem({
   return (
     <DropdownMenuPrimitive.Item
       className={cn(
-        "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors",
-        "focus:bg-accent focus:text-accent-foreground",
+        "relative flex cursor-default select-none items-center gap-2 rounded-md px-2.5 py-2 text-sm font-semibold outline-none transition-colors",
+        "focus:bg-primary-soft focus:text-primary data-[highlighted]:bg-primary-soft data-[highlighted]:text-primary",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         inset && "pl-8",
         className,
@@ -61,7 +61,7 @@ export function DropdownMenuLabel({
   return (
     <DropdownMenuPrimitive.Label
       className={cn(
-        "px-2 py-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground",
+        "px-2.5 py-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground",
         inset && "pl-8",
         className,
       )}
