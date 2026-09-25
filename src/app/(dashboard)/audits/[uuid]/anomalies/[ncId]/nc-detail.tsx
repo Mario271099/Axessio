@@ -19,27 +19,11 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusDot } from "@/components/ui/status-dot";
 import { SeverityBadge } from "@/components/audit/severity-badge";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { cn, themeColorForIdentifier } from "@/lib/utils";
 import { canAny, canChat, type Permission } from "@/lib/permissions";
 import type { NCStatus, UserRole } from "@/types/domain";
 import { NCReviewBadge } from "@/components/audit/nc-review-badge";
@@ -59,13 +43,10 @@ import type {
 // Ré-export pour les consommateurs existants (page.tsx importe NCData ici).
 export type { MessageData, NCData, NCSibling } from "./nc-detail-types";
 
-const STATUS_BADGE_VARIANT: Record<
-  string,
-  "warning" | "secondary" | "success" | "muted" | "outline"
-> = {
-  TO_FIX: "warning",
-  IN_PROGRESS: "secondary",
-  FIXED: "success",
+const NC_STATUS_COLOR: Record<string, string> = {
+  TO_FIX: "hsl(var(--destructive))",
+  IN_PROGRESS: "hsl(var(--primary))",
+  FIXED: "hsl(var(--success))",
 };
 
 const NEW_STATUSES = ["TO_FIX", "IN_PROGRESS", "FIXED"] as const;
@@ -151,17 +132,20 @@ export function NCDetail({
     ? [status, ...NEW_STATUSES]
     : [...NEW_STATUSES];
 
-  const statusBadgeVariant = STATUS_BADGE_VARIANT[status] ?? "outline";
+  // La pastille du critère porte la couleur de sa thématique (« 11.1 » → 11).
+  const criterionColor = nc.criterion
+    ? themeColorForIdentifier(nc.criterion.identifier.split(".")[0] ?? "")
+    : "hsl(var(--muted-foreground))";
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      {/* Barre de navigation NC : retour liste + prev/next ----------------- */}
+    <div className="container mx-auto max-w-7xl space-y-4 p-4 md:p-6 lg:px-9">
+      {/* Navigation entre NC : retour liste + précédente / suivante ------- */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href={`/audits/${auditId}/anomalies`}
-          className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-1.5 rounded-lg text-sm font-bold text-muted-foreground transition-colors hover:text-primary"
         >
-          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+          <ChevronLeft className="size-4" aria-hidden="true" />
           {tAnomalies("breadcrumb")}
         </Link>
 
@@ -170,7 +154,6 @@ export function NCDetail({
             asChild={!!prevNC}
             variant="outline"
             size="sm"
-            className="gap-1.5"
             disabled={!prevNC}
             aria-label={
               prevNC
@@ -180,14 +163,16 @@ export function NCDetail({
           >
             {prevNC ? (
               <Link href={`/audits/${auditId}/anomalies/${prevNC.id}`}>
-                <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
-                <span className="tabular-nums">
-                  {t("prev", { num: String(prevNC.displayNumber).padStart(3, "0") })}
+                <ChevronLeft aria-hidden="true" />
+                <span className="tabular">
+                  {t("prev", {
+                    num: String(prevNC.displayNumber).padStart(3, "0"),
+                  })}
                 </span>
               </Link>
             ) : (
               <span>
-                <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                <ChevronLeft aria-hidden="true" />
                 {t("prevDisabled")}
               </span>
             )}
@@ -196,7 +181,6 @@ export function NCDetail({
             asChild={!!nextNC}
             variant="outline"
             size="sm"
-            className="gap-1.5"
             disabled={!nextNC}
             aria-label={
               nextNC
@@ -206,149 +190,179 @@ export function NCDetail({
           >
             {nextNC ? (
               <Link href={`/audits/${auditId}/anomalies/${nextNC.id}`}>
-                <span className="tabular-nums">
-                  {t("next", { num: String(nextNC.displayNumber).padStart(3, "0") })}
+                <span className="tabular">
+                  {t("next", {
+                    num: String(nextNC.displayNumber).padStart(3, "0"),
+                  })}
                 </span>
-                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+                <ChevronRight aria-hidden="true" />
               </Link>
             ) : (
               <span>
                 {t("nextDisabled")}
-                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+                <ChevronRight aria-hidden="true" />
               </span>
             )}
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      {/* En-tête de la NC : identité en pastilles, puis le titre ---------- */}
+      <header className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {nc.displayNumber > 0 && (
+            <span className="text-sm font-extrabold tabular text-muted-foreground">
+              NC #{String(nc.displayNumber).padStart(3, "0")}
+            </span>
+          )}
+          {nc.criterion && (
+            <span
+              className="inline-flex items-center rounded-md px-2 py-1 text-[0.8rem] font-extrabold text-white"
+              style={{ background: criterionColor }}
+            >
+              {t("criterionPill", {
+                identifier: nc.criterion.identifier,
+                name: nc.criterion.name,
+              })}
+            </span>
+          )}
+          <SeverityBadge severity={nc.severity} />
+          <NCReviewBadge status={nc.reviewStatus} hideWhenNotRequested />
+          <Badge variant="secondary" size="sm">
+            {nc.page
+              ? t("page") + " " + nc.page.name
+              : t("transversalShort")}
+          </Badge>
+        </div>
+
+        <h1 className="text-2xl font-black leading-tight tracking-tight md:text-[1.75rem]">
+          {nc.title}
+        </h1>
+
+        <NCReviewActions
+          ncId={nc.id}
+          reviewStatus={nc.reviewStatus}
+          userRole={userAssignmentRole}
+        />
+      </header>
+
+      <div className="grid gap-4 lg:grid-cols-3">
         {/* Colonne gauche (2/3) -------------------------------------------- */}
-        <div className="space-y-4 lg:col-span-2">
-          {/* Header NC ---------------------------------------------------- */}
-          <header className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <SeverityBadge severity={nc.severity} className="text-sm" />
+        <div className="flex flex-col gap-4 lg:col-span-2">
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Statut ---------------------------------------------------- */}
+            <Card className="p-5">
+              <h2 className="text-base font-extrabold">{t("statusTitle")}</h2>
               {isAuditor ? (
-                <Select
-                  value={status}
-                  onValueChange={handleStatusChange}
+                <fieldset
+                  className="mt-3 flex flex-col gap-1.5"
                   disabled={statusPending}
                 >
-                  <SelectTrigger
-                    className="h-8 w-44 text-xs"
-                    aria-label={t("statusAria")}
-                  >
-                    <SelectValue>{tNcStatus(status)}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {tNcStatus(s)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <legend className="sr-only">{t("statusAria")}</legend>
+                  {statusOptions.map((s) => (
+                    <label
+                      key={s}
+                      className={cn(
+                        "flex cursor-pointer items-center gap-3 rounded-row border px-3 py-2.5 text-sm font-bold",
+                        "transition-[background-color,border-color] duration-150",
+                        status === s
+                          ? "border-primary bg-primary-soft"
+                          : "border-border hover:border-primary hover:bg-primary-softer",
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="nc-status"
+                        className="size-[18px] accent-primary"
+                        checked={status === s}
+                        onChange={() => handleStatusChange(s)}
+                      />
+                      <span className="flex-1">{tNcStatus(s)}</span>
+                      <span
+                        aria-hidden="true"
+                        className="size-2.5 shrink-0 rounded-full"
+                        style={{
+                          background:
+                            NC_STATUS_COLOR[s] ??
+                            "hsl(var(--muted-foreground))",
+                        }}
+                      />
+                    </label>
+                  ))}
+                </fieldset>
               ) : (
-                <Badge variant={statusBadgeVariant} className="text-xs">
+                <StatusDot
+                  className="mt-3"
+                  color={
+                    NC_STATUS_COLOR[status] ?? "hsl(var(--muted-foreground))"
+                  }
+                >
                   {tNcStatus(status)}
-                </Badge>
+                </StatusDot>
               )}
-              <NCReviewBadge status={nc.reviewStatus} hideWhenNotRequested />
-            </div>
-            {statusError && (
-              <p role="alert" className="text-xs text-destructive">
-                {statusError}
-              </p>
-            )}
-            <h1 className="flex flex-wrap items-baseline gap-2 text-2xl font-bold tracking-tight">
-              {nc.displayNumber > 0 && (
-                <span className="font-mono text-base font-semibold text-muted-foreground tabular-nums">
-                  NC #{String(nc.displayNumber).padStart(3, "0")}
-                </span>
+              {statusError && (
+                <p
+                  role="alert"
+                  className="mt-2 text-sm font-semibold text-destructive"
+                >
+                  {statusError}
+                </p>
               )}
-              <span>{nc.title}</span>
-            </h1>
-            <NCReviewActions
-              ncId={nc.id}
-              reviewStatus={nc.reviewStatus}
-              userRole={userAssignmentRole}
-            />
-          </header>
+            </Card>
 
-          {/* Critère lié -------------------------------------------------- */}
-          {nc.criterion && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">
+            {/* Critère lié + méthodologie de test ------------------------ */}
+            {nc.criterion ? (
+              <Card className="flex flex-col gap-3 p-5">
+                <h2 className="text-base font-extrabold">
                   {t("linkedCriterion")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded bg-muted px-2 py-1 font-mono text-sm font-semibold text-muted-foreground">
-                    {nc.criterion.identifier}
-                  </span>
-                  <span className="font-medium">{nc.criterion.name}</span>
-                </div>
+                </h2>
+                <p className="text-sm font-semibold leading-snug">
+                  {nc.criterion.name}
+                </p>
                 {nc.testReference && (
-                  <div className="flex items-center gap-2 text-sm">
+                  <p className="flex items-center gap-2 text-sm">
                     <span className="text-muted-foreground">
                       {t("testLabel")}
                     </span>
-                    <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-xs font-semibold text-primary">
+                    <span className="rounded-md bg-primary-muted px-2 py-0.5 text-xs font-extrabold text-primary">
                       {nc.testReference}
                     </span>
-                  </div>
+                  </p>
                 )}
-                {nc.criterion.url && (
-                  <Button
-                    asChild
-                    variant="link"
-                    size="sm"
-                    className="h-auto gap-1 p-0"
-                  >
-                    <a
-                      href={nc.criterion.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {t("officialDocs")}
-                      <ExternalLink
-                        className="h-3 w-3"
-                        aria-hidden="true"
-                      />
-                    </a>
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          )}
 
-          {/* Méthodologie ------------------------------------------------- */}
-          <Accordion type="single" collapsible>
-            <AccordionItem value="methodology">
-              <AccordionTrigger>
-                <span className="flex items-center gap-2">
-                  <BookOpen
-                    className="h-4 w-4 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                  {t("methodology")}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent>
-                {nc.criterion?.methodology ? (
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {nc.criterion.methodology}
-                  </p>
-                ) : (
-                  <p className="text-sm italic text-muted-foreground">
-                    {t("noMethodology")}
-                  </p>
+                <div className="rounded-row border border-border bg-primary-softer p-3.5">
+                  <h3 className="flex items-center gap-2 text-sm font-extrabold">
+                    <BookOpen
+                      className="size-3.5 text-primary"
+                      aria-hidden="true"
+                    />
+                    {t("methodology")}
+                  </h3>
+                  {nc.criterion.methodology ? (
+                    <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-secondary-foreground">
+                      {nc.criterion.methodology}
+                    </p>
+                  ) : (
+                    <p className="mt-1.5 text-sm italic text-muted-foreground">
+                      {t("noMethodology")}
+                    </p>
+                  )}
+                </div>
+
+                {nc.criterion.url && (
+                  <a
+                    href={nc.criterion.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm font-bold text-primary underline decoration-1 underline-offset-4 hover:decoration-2"
+                  >
+                    {t("officialDocs")}
+                    <ExternalLink className="size-3" aria-hidden="true" />
+                  </a>
                 )}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+              </Card>
+            ) : null}
+          </div>
 
           {/* Détails NC --------------------------------------------------- */}
           <NCDetailsCard
@@ -369,7 +383,7 @@ export function NCDetail({
           />
         </div>
 
-        {/* Colonne droite (1/3) - Discussion ------------------------------ */}
+        {/* Colonne droite (1/3) - Échanges -------------------------------- */}
         <aside className="lg:col-span-1">
           <NCDiscussion
             ncId={nc.id}

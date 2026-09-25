@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { LayoutGrid, List, RotateCcw, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -234,7 +235,7 @@ export function AuditsFilters({
             label={t("filterMine")}
             pressed={mine}
             onClick={toggleMine}
-            ariaLabel={t("filterMineAria")}
+            aria-label={t("filterMineAria")}
             icon={<User className="size-3.5" aria-hidden="true" />}
           />
         )}
@@ -251,40 +252,6 @@ export function AuditsFilters({
 }
 
 /* -------------------------------------------------------------------------- */
-
-/** Pilule de filtre : pressée = fond encre, texte blanc. */
-function FilterChip({
-  label,
-  pressed,
-  onClick,
-  ariaLabel,
-  icon,
-}: {
-  label: string;
-  pressed: boolean;
-  onClick: () => void;
-  ariaLabel?: string;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={pressed}
-      aria-label={ariaLabel}
-      onClick={onClick}
-      className={cn(
-        "inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-full border px-3.5 text-sm font-bold",
-        "transition-[background-color,border-color,color] duration-150",
-        pressed
-          ? "border-ink bg-ink text-ink-foreground"
-          : "border-border-strong bg-card text-foreground hover:border-primary",
-      )}
-    >
-      {icon}
-      {label}
-    </button>
-  );
-}
 
 /** Bascule liste / cartes. */
 function ViewToggle({

@@ -364,7 +364,8 @@
     "reset": "Reset",
     "viewAll": "View all",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "open": "Open"
   },
   "errors": {
     "notAuthenticated": "Not authenticated.",
@@ -2419,7 +2420,16 @@
         "successDelete": "{count, plural, one {# non-conformity deleted} other {# non-conformities deleted}}",
         "dismiss": "Dismiss",
         "applyAria": "Apply bulk action"
-      }
+      },
+      "columns": {
+        "criterion": "Criterion",
+        "title": "Title",
+        "page": "Page",
+        "severity": "Severity",
+        "status": "Status",
+        "activity": "Activity"
+      },
+      "openAria": "Open the « {title} » record"
     },
     "ncDetail": {
       "breadcrumbDetail": "Detail",
@@ -2475,7 +2485,9 @@
       "deleteMessageAria": "Delete the message",
       "confirmDeleteMessage": "Delete this message?",
       "previewTitle": "Screenshot preview",
-      "user": "User"
+      "user": "User",
+      "statusTitle": "Status",
+      "criterionPill": "Criterion {identifier}, {name}"
     },
     "anomaliesNew": {
       "back": "Back to non-conformities",

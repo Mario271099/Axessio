@@ -282,7 +282,7 @@ export async function AuditNextAction({
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="text-sm font-bold text-muted-foreground">
           {t("kicker")}
         </p>
         <h3 className={cn("text-base font-semibold leading-tight", styles.icon)}>

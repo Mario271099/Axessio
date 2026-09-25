@@ -364,7 +364,8 @@
     "reset": "Réinitialiser",
     "viewAll": "Voir tout",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "open": "Ouvrir"
   },
   "errors": {
     "notAuthenticated": "Non authentifié.",
@@ -2419,7 +2420,16 @@
         "successDelete": "{count, plural, one {# non-conformité supprimée} other {# non-conformités supprimées}}",
         "dismiss": "Fermer",
         "applyAria": "Appliquer l'action en masse"
-      }
+      },
+      "columns": {
+        "criterion": "Critère",
+        "title": "Intitulé",
+        "page": "Page",
+        "severity": "Sévérité",
+        "status": "Statut",
+        "activity": "Activité"
+      },
+      "openAria": "Ouvrir la fiche « {title} »"
     },
     "ncDetail": {
       "breadcrumbDetail": "Détail",
@@ -2475,7 +2485,9 @@
       "deleteMessageAria": "Supprimer le message",
       "confirmDeleteMessage": "Supprimer ce message ?",
       "previewTitle": "Aperçu de la capture",
-      "user": "Utilisateur"
+      "user": "Utilisateur",
+      "statusTitle": "Statut",
+      "criterionPill": "Critère {identifier}, {name}"
     },
     "anomaliesNew": {
       "back": "Retour aux non-conformités",

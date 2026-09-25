@@ -248,7 +248,7 @@ function ReadField({
   const t = useTranslations("audits.ncDetail");
   return (
     <div className="space-y-1">
-      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="text-sm font-bold text-muted-foreground">
         {label}
       </div>
       {value ? (
