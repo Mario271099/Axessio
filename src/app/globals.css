@@ -511,6 +511,27 @@ h4 {
   animation: axessio-fade-in-up 400ms ease-out both;
 }
 
+/* Anneau de conformite : se remplit au chargement. Les deux variables sont
+   posees en style inline par <ScoreRing />. */
+@keyframes axessio-ring-fill {
+  from { stroke-dashoffset: var(--ring-circumference); }
+  to   { stroke-dashoffset: var(--ring-offset); }
+}
+
+.axs-ring {
+  animation: axessio-ring-fill 1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Barre d'actions groupees : arrive du bas quand une ligne est cochee. */
+@keyframes axessio-bulk-up {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+.axs-bulk {
+  animation: axessio-bulk-up 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
 /* Etape en cours d'un parcours (barre qui pulse). */
 @keyframes axessio-pulse-step {
   0%, 100% { opacity: 1; }
