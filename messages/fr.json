@@ -682,7 +682,13 @@
       "webhooksCta": "Webhooks",
       "apiTokensCta": "Tokens API",
       "auditLogsCta": "Journal d'audit",
-      "ncTemplatesCta": "Modèles de NC"
+      "ncTemplatesCta": "Modèles de NC",
+      "nav": {
+        "aria": "Sections des paramètres",
+        "general": "Général"
+      },
+      "memberActive": "Actif",
+      "memberInactive": "Désactivé"
     },
     "invite": {
       "title": "Inviter un membre",
@@ -1387,6 +1393,12 @@
       "contactEmail": "Email du contact",
       "contactEmailPlaceholder": "contact@exemple.fr",
       "submitCreate": "Créer le client"
+    },
+    "sort": {
+      "aria": "Trier les clients",
+      "name": "Nom",
+      "recent": "Ajout récent",
+      "audits": "Nombre d audits"
     }
   },
   "clientDetail": {
@@ -2601,7 +2613,18 @@
         "BY_CRITERION": "Numéro de critère",
         "noThematic": "Sans thématique"
       },
-      "noProjectAccess": "-"
+      "noProjectAccess": "-",
+      "headlineEmpty": "Cochez des critères à corriger",
+      "headline": "+{points} points avec {count, plural, one {# critère corrigé} other {# critères corrigés}}",
+      "summary": "Actuel {initial} %, simulé {simulated} %, sur {total} critères applicables. L'audit officiel ne change pas.",
+      "gaugeAria": "Score simulé {simulated} %, score actuel {initial} %",
+      "thematicTitle": "Effet par thématique",
+      "thematicLegendOpen": "NC ouvertes",
+      "thematicLegendSelected": "cochées",
+      "thematicEmpty": "Aucune non-conformité ouverte.",
+      "thematicNone": "Sans thématique",
+      "thematicBarAria": "{selected} NC cochées sur {total} pour {name}",
+      "gain": "+1 critère"
     }
   }
 }

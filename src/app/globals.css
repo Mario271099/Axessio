@@ -33,6 +33,7 @@
   --ink-surface-foreground: 0 0% 100%;
   --ink-surface-muted: 230 27% 83%;       /* #C9CDE0  texte secondaire sur encre */
   --ink-surface-raised: 230 30% 19%;      /* #22273F  bloc pose sur l'encre */
+  --ink-positive: 152 71% 67%;            /* #6EE7A0  vert lisible sur l'encre */
 
   --secondary: 225 31% 95%;           /* #EEF0F6  pistes de barres, chips neutres */
   --secondary-foreground: 229 21% 31%;/* #3F4560 */
@@ -155,6 +156,7 @@
   --ink-surface-foreground: 228 33% 97%;
   --ink-surface-muted: 230 20% 75%;
   --ink-surface-raised: 230 26% 23%;
+  --ink-positive: 152 71% 67%;
 
   --secondary: 230 25% 20%;
   --secondary-foreground: 228 25% 86%;
@@ -220,6 +222,7 @@
   --color-ink-foreground: hsl(var(--ink-surface-foreground));
   --color-ink-muted: hsl(var(--ink-surface-muted));
   --color-ink-raised: hsl(var(--ink-surface-raised));
+  --color-ink-positive: hsl(var(--ink-positive));
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-muted: hsl(var(--muted));

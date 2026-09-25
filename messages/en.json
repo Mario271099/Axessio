@@ -682,7 +682,13 @@
       "webhooksCta": "Webhooks",
       "apiTokensCta": "API tokens",
       "auditLogsCta": "Audit log",
-      "ncTemplatesCta": "NC templates"
+      "ncTemplatesCta": "NC templates",
+      "nav": {
+        "aria": "Settings sections",
+        "general": "General"
+      },
+      "memberActive": "Active",
+      "memberInactive": "Disabled"
     },
     "invite": {
       "title": "Invite a member",
@@ -1387,6 +1393,12 @@
       "contactEmail": "Contact email",
       "contactEmailPlaceholder": "contact@example.com",
       "submitCreate": "Create client"
+    },
+    "sort": {
+      "aria": "Sort clients",
+      "name": "Name",
+      "recent": "Recently added",
+      "audits": "Number of audits"
     }
   },
   "clientDetail": {
@@ -2601,7 +2613,18 @@
         "BY_CRITERION": "Criterion number",
         "noThematic": "No thematic"
       },
-      "noProjectAccess": "-"
+      "noProjectAccess": "-",
+      "headlineEmpty": "Tick the criteria to fix",
+      "headline": "+{points} points with {count, plural, one {# criterion fixed} other {# criteria fixed}}",
+      "summary": "Currently {initial}%, simulated {simulated}%, out of {total} applicable criteria. The official audit is unchanged.",
+      "gaugeAria": "Simulated score {simulated}%, current score {initial}%",
+      "thematicTitle": "Effect by topic",
+      "thematicLegendOpen": "open NCs",
+      "thematicLegendSelected": "ticked",
+      "thematicEmpty": "No open non-conformity.",
+      "thematicNone": "No topic",
+      "thematicBarAria": "{selected} NCs ticked out of {total} for {name}",
+      "gain": "+1 criterion"
     }
   }
 }

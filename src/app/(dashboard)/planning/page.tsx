@@ -7,13 +7,7 @@ import { requireProfile } from "@/lib/auth";
 import { canEditAudit } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { PlanningCalendar, type PlanningEvent } from "./planning-calendar";
 import { PlanningAuditorFilter } from "./planning-auditor-filter";
 
@@ -248,16 +242,16 @@ export default async function PlanningPage({ searchParams }: PageProps) {
   const todayHref = `/planning${auditorFilter ? `?auditor=${auditorFilter}` : ""}`;
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <CalendarDays className="h-4 w-4" aria-hidden="true" />
-            <span>{t("subtitle")}</span>
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+    <div className="space-y-5 px-4 pb-8 md:px-9">
+      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-[2.125rem] font-black leading-tight tracking-tight">
             {t("title")}
           </h1>
+          <p className="mt-1 flex items-center gap-2 text-base text-muted-foreground">
+            <CalendarDays className="size-4 shrink-0" aria-hidden="true" />
+            {t("subtitle")}
+          </p>
         </div>
 
         {profile.isPlatformAdmin && (
@@ -269,35 +263,37 @@ export default async function PlanningPage({ searchParams }: PageProps) {
         )}
       </header>
 
-      <Card>
-        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <Card className="p-5">
+        <div className="flex flex-col gap-3 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle className="text-base capitalize">{monthLabel}</CardTitle>
-            <CardDescription>{t("calendarHint")}</CardDescription>
+            <h2 className="text-lg font-extrabold capitalize">{monthLabel}</h2>
+            <p className="text-sm text-muted-foreground">
+              {t("calendarHint")}
+            </p>
           </div>
-          <div className="flex items-center gap-1">
-            <Button asChild variant="outline" size="sm" className="gap-1">
+          <div className="flex items-center gap-1.5">
+            <Button asChild variant="outline" size="icon-sm">
               <Link href={prevHref} aria-label={t("prevMonth")}>
-                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                <ChevronLeft aria-hidden="true" />
               </Link>
             </Button>
-            <Button asChild variant="ghost" size="sm">
+            <Button asChild variant="outline" size="sm">
               <Link href={todayHref}>{t("today")}</Link>
             </Button>
-            <Button asChild variant="outline" size="sm" className="gap-1">
+            <Button asChild variant="outline" size="icon-sm">
               <Link href={nextHref} aria-label={t("nextMonth")}>
-                <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                <ChevronRight aria-hidden="true" />
               </Link>
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div>
           <PlanningCalendar
             monthStart={monthStart.toISOString()}
             events={events}
             showAssignees={profile.isPlatformAdmin && !auditorFilter}
           />
-        </CardContent>
+        </div>
       </Card>
     </div>
   );
