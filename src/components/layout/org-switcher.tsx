@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Building2, Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, monogram, themeColorVar } from "@/lib/utils";
 import { switchOrganization } from "@/app/(dashboard)/organizations/actions";
 import type { OrganizationMembership } from "@/types/domain";
 
@@ -21,13 +20,6 @@ interface OrgSwitcherProps {
   current: OrganizationMembership | null;
   available: OrganizationMembership[];
 }
-
-const ROLE_VARIANT = {
-  owner: "default",
-  admin: "default",
-  auditor: "secondary",
-  viewer: "muted",
-} as const;
 
 /**
  * Sélecteur d'organisation active, affiché en tête de sidebar. Quand un user
@@ -41,7 +33,7 @@ export function OrgSwitcher({ current, available }: OrgSwitcherProps) {
 
   if (!current) {
     return (
-      <div className="rounded-md border border-dashed border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+      <div className="rounded-row border border-dashed border-border-strong bg-muted/40 p-3 text-xs text-muted-foreground">
         {t("noMembership")}
       </div>
     );
@@ -54,28 +46,33 @@ export function OrgSwitcher({ current, available }: OrgSwitcherProps) {
       type="button"
       disabled={isSingle || pending}
       className={cn(
-        "flex w-full items-center gap-2 rounded-md border border-border bg-card px-2.5 py-2 text-left transition-colors",
-        !isSingle && "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        isSingle && "cursor-default",
+        "flex h-[54px] w-full items-center justify-between gap-2 rounded-lg border border-border-strong bg-card px-3 text-left",
+        "transition-[border-color,background-color] duration-150",
+        isSingle
+          ? "cursor-default"
+          : "hover:border-primary hover:bg-primary-softer",
       )}
     >
-      <div
-        aria-hidden="true"
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-primary/10 text-primary"
-      >
-        <Building2 className="h-3.5 w-3.5" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold leading-tight">
-          {current.organizationName}
-        </p>
-        <p className="truncate text-[10px] uppercase tracking-wide text-muted-foreground">
-          {t(`role.${current.role}`)}
-        </p>
-      </div>
+      <span className="flex min-w-0 items-center gap-2.5">
+        <span
+          aria-hidden="true"
+          className="flex size-[30px] shrink-0 items-center justify-center rounded-lg text-xs font-extrabold text-white"
+          style={{ background: themeColorVar(current.organizationName) }}
+        >
+          {monogram(current.organizationName)}
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-bold leading-tight">
+            {current.organizationName}
+          </span>
+          <span className="block truncate text-xs text-muted-foreground">
+            {t(`role.${current.role}`)}
+          </span>
+        </span>
+      </span>
       {!isSingle && (
         <ChevronsUpDown
-          className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
+          className="size-4 shrink-0 text-muted-foreground"
           aria-hidden="true"
         />
       )}
@@ -87,14 +84,8 @@ export function OrgSwitcher({ current, available }: OrgSwitcherProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="start"
-        side="bottom"
-        className="w-64"
-      >
-        <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-muted-foreground">
-          {t("switchTo")}
-        </DropdownMenuLabel>
+      <DropdownMenuContent align="start" side="bottom" className="w-64">
+        <DropdownMenuLabel>{t("switchTo")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {available.map((org) => {
           const isCurrent = org.organizationId === current.organizationId;
@@ -109,22 +100,23 @@ export function OrgSwitcher({ current, available }: OrgSwitcherProps) {
                   if (!result.error) router.refresh();
                 });
               }}
-              className="flex items-center justify-between gap-2"
+              className="gap-2.5"
             >
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{org.organizationName}</p>
-                <Badge
-                  variant={ROLE_VARIANT[org.role]}
-                  className="mt-0.5 h-4 px-1 text-[9px]"
-                >
+              <span
+                aria-hidden="true"
+                className="flex size-7 shrink-0 items-center justify-center rounded-md text-[0.7rem] font-extrabold text-white"
+                style={{ background: themeColorVar(org.organizationName) }}
+              >
+                {monogram(org.organizationName)}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate">{org.organizationName}</span>
+                <span className="block truncate text-xs font-semibold text-muted-foreground">
                   {t(`role.${org.role}`)}
-                </Badge>
-              </div>
+                </span>
+              </span>
               {isCurrent && (
-                <Check
-                  className="h-4 w-4 text-primary"
-                  aria-hidden="true"
-                />
+                <Check className="size-4 text-primary" aria-hidden="true" />
               )}
             </DropdownMenuItem>
           );

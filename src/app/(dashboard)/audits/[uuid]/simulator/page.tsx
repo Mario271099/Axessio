@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
+import { AuditPageHeader } from "@/components/audit/audit-page-header";
+import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
+import { loadAuditHeader } from "../audit-header-data";
 import { RemediationSimulator } from "@/components/audit/remediation-simulator";
 import { FeatureUpsell } from "@/components/billing/feature-upsell";
 import { orgHasFeature } from "@/lib/billing/server";
@@ -35,12 +37,7 @@ export default async function SimulatorPage({ params }: PageProps) {
 
   const { data: audit, error } = await supabase
     .from("audits")
-    .select(
-      `
-      id, reference_id,
-      project:projects(name, client:clients(name))
-    `,
-    )
+    .select("id, reference_id")
     .eq("id", uuid)
     .single();
 
@@ -53,34 +50,29 @@ export default async function SimulatorPage({ params }: PageProps) {
   // un upsell complet à la place du composant - la navigation par tab
   // reste accessible pour montrer le contexte.
   const hasSimulator = await orgHasFeature("remediation.simulator");
+  const header = await loadAuditHeader(uuid);
   if (!hasSimulator) {
-    const project = Array.isArray(audit.project) ? audit.project[0] : audit.project;
-    const client = project?.client
-      ? Array.isArray(project.client)
-        ? project.client[0]
-        : project.client
-      : null;
     return (
-      <div className="container mx-auto max-w-4xl space-y-6 p-6 md:p-8">
-        <AuditTabsNav auditId={uuid} active="remediation" />
-        <header className="space-y-1">
-          <p className="text-xs text-muted-foreground">
-            {client?.name ?? "—"} · {project?.name ?? "—"}
-          </p>
-          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-        </header>
-        <FeatureUpsell feature="remediation.simulator" />
-      </div>
+      <>
+        {header && (
+          <AuditPageHeader
+            auditId={uuid}
+            active="remediation"
+            data={header}
+            titleAs="p"
+            status={<AuditStatusBadge status={header.status} />}
+          />
+        )}
+        <div className="container mx-auto max-w-4xl space-y-6 p-6 md:p-8">
+          <header className="space-y-1">
+            <h1 className="text-2xl font-black tracking-tight">{t("title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+          </header>
+          <FeatureUpsell feature="remediation.simulator" />
+        </div>
+      </>
     );
   }
-
-  const project = Array.isArray(audit.project) ? audit.project[0] : audit.project;
-  const client = project?.client
-    ? Array.isArray(project.client)
-      ? project.client[0]
-      : project.client
-    : null;
 
   const [
     { data: conformities },
@@ -206,25 +198,32 @@ export default async function SimulatorPage({ params }: PageProps) {
   );
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <AuditTabsNav auditId={uuid} active="remediation" />
+    <>
+      {header && (
+        <AuditPageHeader
+          auditId={uuid}
+          active="remediation"
+          data={header}
+          titleAs="p"
+          status={<AuditStatusBadge status={header.status} />}
+        />
+      )}
 
-      <header className="space-y-1">
-        <p className="text-xs text-muted-foreground">
-          {client?.name ?? "—"} · {project?.name ?? "—"}
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-      </header>
+      <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
+        <header className="space-y-1">
+          <h1 className="text-2xl font-black tracking-tight">{t("title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+        </header>
 
-      <RemediationSimulator
-        allNCs={allNCs}
-        auditPages={auditPages}
-        referenceThematics={referenceThematics}
-        compliantCount={compliantCount}
-        nonCompliantCount={nonCompliantCount}
-        nonCompliantCells={[...nonCompliantCells]}
-      />
-    </div>
+        <RemediationSimulator
+          allNCs={allNCs}
+          auditPages={auditPages}
+          referenceThematics={referenceThematics}
+          compliantCount={compliantCount}
+          nonCompliantCount={nonCompliantCount}
+          nonCompliantCells={[...nonCompliantCells]}
+        />
+      </div>
+    </>
   );
 }

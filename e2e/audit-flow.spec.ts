@@ -75,9 +75,9 @@ test.describe("Flux audit", () => {
     await expect(heading).toBeVisible({ timeout: 30_000 });
     await expect(heading).not.toHaveText("");
 
-    // L'onglet "Conformité" de l'audit pointe vers /audits/.../matrix.
+    // L'onglet "Matrice" de l'audit pointe vers /audits/.../matrix.
     await expect(
-      page.getByRole("link", { name: "Conformité", exact: true }),
+      page.getByRole("link", { name: "Matrice", exact: true }),
     ).toBeVisible();
   });
 
@@ -90,9 +90,9 @@ test.describe("Flux audit", () => {
     await expect(firstAuditLink).toBeVisible({ timeout: 30_000 });
     await firstAuditLink.click({ timeout: 30_000 });
 
-    // Sur le détail, on bascule vers la matrice via l'onglet "Conformité".
+    // Sur le détail, on bascule vers la matrice via l'onglet "Matrice".
     await page
-      .getByRole("link", { name: "Conformité", exact: true })
+      .getByRole("link", { name: "Matrice", exact: true })
       .click({ timeout: 30_000 });
 
     // Indicateur d'arrivée : le footer sticky avec "Sauvegarder tout" est

@@ -1843,12 +1843,16 @@
         "online": "Mise en ligne"
       }
     },
+    "header": {
+      "breadcrumbAria": "Fil d'Ariane",
+      "allAudits": "Audits"
+    },
     "tabsNav": {
       "ariaLabel": "Onglets de l'audit",
-      "dashboard": "Dashboard",
+      "dashboard": "Vue d'ensemble",
       "sample": "Échantillon",
       "anomalies": "Non-conformités",
-      "matrix": "Conformité",
+      "matrix": "Matrice",
       "remediation": "Simulateur"
     },
     "interlocutors": {

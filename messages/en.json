@@ -1843,12 +1843,16 @@
         "online": "Online"
       }
     },
+    "header": {
+      "breadcrumbAria": "Breadcrumb",
+      "allAudits": "Audits"
+    },
     "tabsNav": {
       "ariaLabel": "Audit tabs",
-      "dashboard": "Dashboard",
+      "dashboard": "Overview",
       "sample": "Sample",
       "anomalies": "Non-conformities",
-      "matrix": "Conformity",
+      "matrix": "Matrix",
       "remediation": "Simulator"
     },
     "interlocutors": {

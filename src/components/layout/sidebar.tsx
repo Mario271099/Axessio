@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ChevronUp, Eye, LogOut, Settings, Shield, UserCircle } from "lucide-react";
+import { ChevronUp, Eye, LogOut, Settings, UserCircle } from "lucide-react";
 import { cn, initials } from "@/lib/utils";
-import { Logo } from "@/components/brand";
-import { Badge } from "@/components/ui/badge";
+import { Logo, LogoIcon } from "@/components/brand";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,13 +13,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { USER_ROLE_BADGE_VARIANT, USER_ROLE_LABELS } from "@/lib/constants";
+import { USER_ROLE_LABELS } from "@/lib/constants";
 import { can, canAny, canImpersonateAs, type Permission } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/client";
 import { exitImpersonationAndRedirect } from "@/app/(dashboard)/admin/impersonation/actions";
 import { ImpersonationLauncher } from "@/components/layout/impersonation-launcher";
 import { OrgSwitcher } from "@/components/layout/org-switcher";
-import { ICONS, SECTIONS, type NavCounts } from "@/components/layout/nav-config";
+import { NavLink, RailNavLink } from "@/components/layout/nav-link";
+import {
+  ICONS,
+  SECTIONS,
+  type NavCounts,
+  type NavItem,
+} from "@/components/layout/nav-config";
 import type { Profile } from "@/types/domain";
 
 export type { NavCounts };
@@ -39,6 +44,13 @@ interface SidebarProps {
   orgPermissions?: Permission[];
 }
 
+/**
+ * Pages d'un audit : /audits/<uuid> et ses sous-pages, mais pas /audits ni
+ * /audits/new. Sur ces ecrans la navigation se replie en rail de 76 px pour
+ * laisser toute la largeur a la grille de conformite.
+ */
+const AUDIT_WORKSPACE = /^\/audits\/(?!new(?:\/|$))[^/]+/;
+
 export function Sidebar({
   profile,
   counts,
@@ -54,27 +66,179 @@ export function Sidebar({
   const impersonationOptions = canImpersonateAs(profile.realRole);
   const t = useTranslations("sidebar");
 
+  const isVisible = (item: NavItem) =>
+    item.permission === null
+      ? true
+      : item.orgScoped
+        ? canAny(userRole, orgPerms, item.permission)
+        : can(userRole, item.permission);
+
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`);
+
+  const badgeOf = (item: NavItem) =>
+    item.badgeKey ? counts[item.badgeKey] : 0;
+
+  // Sections « metier » d'un cote, entrees transverses (organisations,
+  // parametres) posees en bas de la coque comme dans les maquettes.
+  const mainSections = SECTIONS.filter((s) => s.sectionKey !== "other").map(
+    (section) => ({
+      ...section,
+      items: section.items.filter(isVisible),
+    }),
+  );
+  const footerItems = (
+    SECTIONS.find((s) => s.sectionKey === "other")?.items ?? []
+  ).filter(isVisible);
+
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
     window.location.href = "/login";
   }
 
-  return (
-    <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
-      {/* Header sidebar - logo + nom de marque */}
-      <div className="flex h-16 items-center border-b border-border px-4">
+  const userMenu = (compact: boolean) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        {compact ? (
+          <button
+            type="button"
+            aria-label={`${profile.firstName} ${profile.lastName}`}
+            className="flex size-[38px] items-center justify-center rounded-full bg-highlight text-xs font-extrabold text-ink transition-transform duration-200 hover:scale-105"
+          >
+            {initials(profile.firstName || "?", profile.lastName || "?")}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="flex w-full items-center gap-2.5 rounded-lg p-2 text-left transition-colors hover:bg-primary-soft"
+          >
+            <span
+              aria-hidden="true"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-highlight text-xs font-extrabold text-ink"
+            >
+              {initials(profile.firstName || "?", profile.lastName || "?")}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-bold leading-tight">
+                {profile.firstName} {profile.lastName}
+              </span>
+              <span className="block truncate text-xs text-muted-foreground">
+                {USER_ROLE_LABELS[profile.role]}
+              </span>
+            </span>
+            <ChevronUp
+              className="size-4 shrink-0 text-muted-foreground"
+              aria-hidden="true"
+            />
+          </button>
+        )}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" side="top" className="w-56">
+        <DropdownMenuItem asChild>
+          <Link href="/settings">
+            <UserCircle className="size-4" aria-hidden="true" />
+            {t("user.profile")}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/settings">
+            <Settings className="size-4" aria-hidden="true" />
+            {t("user.settings")}
+          </Link>
+        </DropdownMenuItem>
+        {profile.impersonating ? (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={() => {
+                void exitImpersonationAndRedirect();
+              }}
+              className="text-warning focus:bg-warning/10 focus:text-warning"
+            >
+              <Eye className="size-4" aria-hidden="true" />
+              {t("user.exitImpersonation")}
+            </DropdownMenuItem>
+          </>
+        ) : null}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onSelect={(e) => {
+            e.preventDefault();
+            void handleSignOut();
+          }}
+          className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+        >
+          <LogOut className="size-4" aria-hidden="true" />
+          {t("user.logout")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Rail 76 px — pages d'un audit
+  // ─────────────────────────────────────────────────────────────────────
+  if (AUDIT_WORKSPACE.test(pathname)) {
+    return (
+      <nav
+        aria-label={t("navAria")}
+        className="hidden h-screen w-[76px] shrink-0 flex-col items-center gap-2 border-r border-border bg-card py-[18px] lg:flex"
+      >
         <Link
           href="/dashboard"
           aria-label={t("brandHomeAria")}
-          className="-mx-2 inline-flex items-center gap-2 rounded-md px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="mb-3.5 inline-flex rounded-row"
+        >
+          <LogoIcon size="md" />
+        </Link>
+
+        {mainSections.flatMap((section) =>
+          section.items.map((item) => (
+            <RailNavLink
+              key={item.href}
+              href={item.href}
+              label={t(`items.${item.itemKey}`)}
+              icon={ICONS[item.iconKey]}
+              active={isActive(item.href)}
+            />
+          )),
+        )}
+
+        <div className="mt-auto flex flex-col items-center gap-2">
+          {footerItems.map((item) => (
+            <RailNavLink
+              key={item.href}
+              href={item.href}
+              label={t(`items.${item.itemKey}`)}
+              icon={ICONS[item.iconKey]}
+              active={isActive(item.href)}
+            />
+          ))}
+          {userMenu(true)}
+        </div>
+      </nav>
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Sidebar 256 px — tous les autres ecrans
+  // ─────────────────────────────────────────────────────────────────────
+  return (
+    <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
+      {/* Logo */}
+      <div className="px-4 pb-1 pt-[22px]">
+        <Link
+          href="/dashboard"
+          aria-label={t("brandHomeAria")}
+          className="inline-flex items-center gap-2 rounded-lg px-2 py-1"
         >
           {brandLogoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={brandLogoUrl}
               alt=""
-              className="h-7 w-auto max-w-[10rem] object-contain"
+              className="h-7 w-auto max-w-40 object-contain"
             />
           ) : (
             <Logo size="md" />
@@ -83,153 +247,61 @@ export function Sidebar({
       </div>
 
       {/* Sélecteur d'organisation active */}
-      <div className="border-b border-border p-3">
+      <div className="px-4 py-3">
         <OrgSwitcher current={org.current} available={org.available} />
       </div>
 
       {/* Navigation */}
       <nav
         aria-label={t("navAria")}
-        className="flex-1 space-y-5 overflow-y-auto p-3"
+        className="flex-1 space-y-5 overflow-y-auto px-4"
       >
-        {SECTIONS.map((section) => {
-          const visibleItems = section.items.filter((item) =>
-            item.permission === null
-              ? true
-              : item.orgScoped
-                ? canAny(userRole, orgPerms, item.permission)
-                : can(userRole, item.permission),
-          );
-          if (visibleItems.length === 0) return null;
+        {mainSections.map((section) => {
+          if (section.items.length === 0) return null;
           return (
             <div key={section.sectionKey}>
-              <h2 className="px-3 pb-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {t(`sections.${section.sectionKey}`)}
-              </h2>
+              {section.sectionKey !== "main" && (
+                <h2 className="px-3 pb-1.5 text-xs font-bold text-muted-foreground">
+                  {t(`sections.${section.sectionKey}`)}
+                </h2>
+              )}
               <ul className="space-y-0.5">
-                {visibleItems.map((item) => {
-                  const isActive =
-                    pathname === item.href ||
-                    pathname.startsWith(`${item.href}/`);
-                  const Icon = ICONS[item.iconKey];
-                  const badgeValue = item.badgeKey
-                    ? counts[item.badgeKey]
-                    : 0;
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        aria-current={isActive ? "page" : undefined}
-                        className={cn(
-                          "relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-all duration-150",
-                          isActive
-                            ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                        )}
-                      >
-                        {isActive && (
-                          <span
-                            aria-hidden="true"
-                            className="absolute left-0 top-1 bottom-1 w-1 rounded-r bg-primary"
-                          />
-                        )}
-                        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                        <span className="flex-1 truncate">
-                          {t(`items.${item.itemKey}`)}
-                        </span>
-                        {badgeValue > 0 && (
-                          <Badge
-                            variant="secondary"
-                            className="ml-auto h-5 px-1.5 text-[10px] tabular-nums"
-                          >
-                            {badgeValue}
-                          </Badge>
-                        )}
-                      </Link>
-                    </li>
-                  );
-                })}
+                {section.items.map((item) => (
+                  <li key={item.href}>
+                    <NavLink
+                      href={item.href}
+                      label={t(`items.${item.itemKey}`)}
+                      icon={ICONS[item.iconKey]}
+                      active={isActive(item.href)}
+                      badge={badgeOf(item)}
+                    />
+                  </li>
+                ))}
               </ul>
             </div>
           );
         })}
       </nav>
 
-      {/* Footer - user card + dropdown */}
-      <div className="border-t border-border p-3">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              className="flex w-full items-center gap-3 rounded-md p-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <div
-                aria-hidden="true"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary"
-              >
-                {initials(profile.firstName || "?", profile.lastName || "?")}
-              </div>
-              <div className="min-w-0 flex-1 space-y-1">
-                <p className="truncate text-sm font-medium leading-tight">
-                  {profile.firstName} {profile.lastName}
-                </p>
-                <Badge
-                  variant={USER_ROLE_BADGE_VARIANT[profile.role]}
-                  className="h-5 px-1.5 text-[10px] font-medium"
-                >
-                  <Shield className="mr-1 h-2.5 w-2.5" aria-hidden="true" />
-                  {USER_ROLE_LABELS[profile.role]}
-                </Badge>
-              </div>
-              <ChevronUp
-                className="h-4 w-4 shrink-0 text-muted-foreground"
-                aria-hidden="true"
+      {/* Footer — entrees transverses, profil, liens legaux */}
+      <div className="mt-auto space-y-1 px-4 pb-4 pt-3">
+        <ul className="space-y-0.5">
+          {footerItems.map((item) => (
+            <li key={item.href}>
+              <NavLink
+                href={item.href}
+                label={t(`items.${item.itemKey}`)}
+                icon={ICONS[item.iconKey]}
+                active={isActive(item.href)}
               />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="top" className="w-56">
-            <DropdownMenuItem asChild>
-              <Link href="/settings">
-                <UserCircle className="h-4 w-4" aria-hidden="true" />
-                {t("user.profile")}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/settings">
-                <Settings className="h-4 w-4" aria-hidden="true" />
-                {t("user.settings")}
-              </Link>
-            </DropdownMenuItem>
-            {profile.impersonating ? (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onSelect={() => {
-                    void exitImpersonationAndRedirect();
-                  }}
-                  className="text-warning focus:bg-warning/10 focus:text-warning"
-                >
-                  <Eye className="h-4 w-4" aria-hidden="true" />
-                  {t("user.exitImpersonation")}
-                </DropdownMenuItem>
-              </>
-            ) : null}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onSelect={(e) => {
-                e.preventDefault();
-                void handleSignOut();
-              }}
-              className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-            >
-              <LogOut className="h-4 w-4" aria-hidden="true" />
-              {t("user.logout")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </li>
+          ))}
+        </ul>
+
+        <div className="border-t border-border pt-2">{userMenu(false)}</div>
 
         {!profile.impersonating && impersonationOptions.length > 0 && (
-          <div className="mt-2 px-1">
+          <div className="px-1 pt-1">
             <ImpersonationLauncher
               availableRoles={impersonationOptions}
               triggerVariant="ghost"
@@ -240,24 +312,18 @@ export function Sidebar({
         {/* Liens légaux - toujours accessibles depuis l'app authentifiée. */}
         <nav
           aria-label={t("legal.label")}
-          className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 text-[11px] text-muted-foreground"
+          className={cn(
+            "flex flex-wrap items-center gap-x-3 gap-y-1 px-2 pt-2",
+            "text-xs text-muted-foreground",
+          )}
         >
-          <Link
-            href="/legal"
-            className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
+          <Link href="/legal" className="rounded hover:text-primary">
             {t("legal.mentions")}
           </Link>
-          <Link
-            href="/privacy"
-            className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
+          <Link href="/privacy" className="rounded hover:text-primary">
             {t("legal.privacy")}
           </Link>
-          <Link
-            href="/cookies"
-            className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
+          <Link href="/cookies" className="rounded hover:text-primary">
             {t("legal.cookies")}
           </Link>
         </nav>

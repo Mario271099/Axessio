@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -12,7 +12,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   AuditAssignees,
   type AssigneeEntry,
@@ -27,7 +26,7 @@ import { AuditContacts } from "@/components/audit/audit-contacts";
 import type { AvailableStatusTransition } from "@/components/audit/audit-status-actions";
 import { AuditNextStepButton } from "@/components/audit/audit-next-step-button";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
-import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
+import { AuditPageHeader } from "@/components/audit/audit-page-header";
 import { AuditNextAction } from "@/components/audit/audit-next-action";
 import { AuditDeadlines } from "@/components/audit/audit-deadlines";
 import { AuditKpiBar } from "@/components/audit/audit-kpi-bar";
@@ -363,15 +362,6 @@ export default async function AuditDetailPage({ params }: PageProps) {
     ? `${REFERENCE_TYPE_LABELS[ref.type as ReferenceType]} ${ref.version}`
     : t("unknownReference");
 
-  // Couleur d'accent du hero, dérivée du score (rouge/jaune/vert).
-  // Donne un signal visuel immédiat sur la santé de l'audit sans nécessiter
-  // de lecture du chiffre.
-  const heroAccent =
-    level === "non-compliant"
-      ? "from-destructive/15 via-destructive/5 to-transparent"
-      : level === "partial"
-        ? "from-warning/15 via-warning/5 to-transparent"
-        : "from-success/15 via-success/5 to-transparent";
 
   // Un utilisateur "actif" sur l'audit = staff + a accès. Pour les boutons
   // CTA du Next Action ; la RLS + permissions bloqueraient de toute façon.
@@ -392,115 +382,60 @@ export default async function AuditDetailPage({ params }: PageProps) {
   const tLifecycle = await getTranslations("audits.lifecycle");
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-5 p-6 md:p-8">
-      {/* Breadcrumb minimaliste */}
-      <nav aria-label="Breadcrumb">
-        <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
-          <Link href="/audits">
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-            {t("back")}
-          </Link>
-        </Button>
-      </nav>
+    <>
+      <AuditPageHeader
+        auditId={uuid}
+        active="dashboard"
+        data={{
+          title: siteName ?? t("noProjectTitle"),
+          clientName: client?.name ?? null,
+          siteUrl,
+          urlIsLink: !isMobileAudit,
+          referenceLabel,
+          platformLabel: tPlatform(audit.platform as PlatformType),
+          serviceTypeLabel: tServiceType(audit.service_type as ServiceType),
+          status: currentStatus,
+          counts: { sample: pageCount ?? 0, anomalies: ncCount ?? 0 },
+        }}
+        status={<AuditStatusBadge status={currentStatus} />}
+        actions={
+          <>
+            {canExportReport && (
+              <ExportMenu
+                auditId={uuid}
+                projectName={project?.name ?? "audit"}
+                variant="outline"
+              />
+            )}
+            {canEdit && (
+              <Button asChild variant="outline">
+                <Link href={`/audits/${uuid}/edit`}>
+                  <Pencil aria-hidden="true" />
+                  {t("edit")}
+                </Link>
+              </Button>
+            )}
+          </>
+        }
+      />
 
-      {/* Onglets de navigation (Dashboard / Échantillon / NC / ...) */}
-      <AuditTabsNav auditId={uuid} active="dashboard" />
-
-      {/* ──────────────────────────────────────────────────────────────────
-          HERO ADAPTATIF : gradient dérivé du score + identité + KPIs
-          ────────────────────────────────────────────────────────────────
-          Le contraste de teinte donne le pouls de l'audit au premier regard.
-          À gauche : projet, client, tags. À droite : score donut prominent.
-      ────────────────────────────────────────────────────────────────── */}
-      <Card className="overflow-hidden border-0 shadow-sm ring-1 ring-border">
-        <div
-          className={cn(
-            "bg-gradient-to-br p-6 md:p-7",
-            heroAccent,
-          )}
-        >
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            {/* Identité projet */}
-            <div className="min-w-0 flex-1 space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="default" className="rounded-full">
-                  {client?.name ?? "—"}
-                </Badge>
-                <Badge variant="outline" className="rounded-full">
-                  {tPlatform(audit.platform as PlatformType)}
-                </Badge>
-                <AuditStatusBadge status={currentStatus} className="rounded-full" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                  {project?.name ?? t("noProjectTitle")}
-                </p>
-                <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                  {siteName ?? t("noProjectTitle")}
-                </h1>
-              </div>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                {siteUrl &&
-                  (isMobileAudit ? (
-                    <span className="break-all font-mono text-xs text-foreground/80">
-                      {siteUrl}
-                    </span>
-                  ) : (
-                    <a
-                      href={siteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="break-all text-primary underline-offset-2 hover:underline"
-                    >
-                      {siteUrl}
-                    </a>
-                  ))}
-                {siteUrl && <span aria-hidden="true">·</span>}
-                <span>{referenceLabel}</span>
-                <span aria-hidden="true">·</span>
-                <span>{tServiceType(audit.service_type as ServiceType)}</span>
-              </div>
-
-              {/* Actions header - boutons compacts, rangés en pills */}
-              <div className="flex flex-wrap items-center gap-2 pt-2">
-                {canExportReport && (
-                  <ExportMenu
-                    auditId={uuid}
-                    projectName={project?.name ?? "audit"}
-                    variant="outline"
-                  />
-                )}
-                {canEdit && (
-                  <Button asChild variant="outline" className="gap-2 rounded-full">
-                    <Link href={`/audits/${uuid}/edit`}>
-                      <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-                      {t("edit")}
-                    </Link>
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Score donut prominent */}
-            <div className="flex shrink-0 items-center gap-4 md:flex-col md:items-end md:text-right">
-              <MiniDonut value={score} size={130} tone="score" />
-              <div>
-                <p
-                  className={cn(
-                    "text-sm font-semibold",
-                    level === "non-compliant" && "text-destructive",
-                    level === "partial" && "text-warning",
-                    level === "full" && "text-success",
-                  )}
-                >
-                  {getConformityLabel(score)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("conformityRate")}
-                </p>
-              </div>
-            </div>
-          </div>
+      <div className="container mx-auto max-w-7xl space-y-5 p-6 md:p-8">
+      {/* Taux de conformite. La refonte complete de la vue d'ensemble
+          (carte C / NC / NA + resultats par thematique) est l'etape 4. */}
+      <Card className="flex flex-wrap items-center gap-5 p-5">
+        <MiniDonut value={score} size={120} tone="score" />
+        <div>
+          <p
+            className={cn(
+              "text-lg font-extrabold",
+              level === "non-compliant" && "text-destructive",
+              level === "partial" && "text-warning",
+              level === "full" && "text-success",
+            )}
+          >
+            {getConformityLabel(score)}
+          </p>
+          <p className="text-sm text-muted-foreground">{t("conformityRate")}</p>
         </div>
       </Card>
 
@@ -635,7 +570,8 @@ export default async function AuditDetailPage({ params }: PageProps) {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

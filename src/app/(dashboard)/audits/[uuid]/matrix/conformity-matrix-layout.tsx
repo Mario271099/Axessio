@@ -456,7 +456,7 @@ export function ConformityMatrixLayout({
     <div className="flex min-h-[calc(100vh-4rem)] flex-col">
       {/* En-tête : onglets audit + titre + score global ------------------ */}
       <div className="border-b border-border bg-card/50 px-4 pt-2 pb-4 md:px-8">
-        <AuditTabsNav auditId={auditId} active="matrix" className="border-0" />
+        <AuditTabsNav auditId={auditId} active="matrix" />
 
         <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
