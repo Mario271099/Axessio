@@ -1254,9 +1254,6 @@
       "title": "Conformité moyenne",
       "ringLabel": "Conformité moyenne : {score} %",
       "verdict": {
-        "nonCompliant": "Non conforme",
-        "partial": "Partiellement conforme",
-        "full": "Totalement conforme",
         "none": "Aucun audit évalué"
       }
     },
@@ -1740,6 +1737,11 @@
       "AUDIT": "Audit avec contre-audit",
       "NO_COUNTER_AUDIT": "Audit sans contre-audit",
       "COMPLIANCE_AUDIT": "Audit de conformité"
+    },
+    "conformityLevel": {
+      "nonCompliant": "Non conforme",
+      "partial": "Partiellement conforme",
+      "full": "Totalement conforme"
     }
   },
   "audits": {
@@ -1822,7 +1824,8 @@
       "sample": "Échantillon",
       "matrix": "Matrice",
       "openNc": "NC ouvertes",
-      "criticalNc": "NC critiques"
+      "criticalNc": "NC critiques",
+      "criteriaEvaluated": "Critères évalués"
     },
     "lifecycle": {
       "eyebrow": "Cycle de vie",
@@ -2082,7 +2085,8 @@
       "proofreadersTitle": "Relecteurs",
       "proofreadersSubtitle": "Membres désignés pour relire et valider le rapport.",
       "contactsTitle": "Contacts client",
-      "contactsDesc": "Personnes côté client invitées à consulter cet audit. Elles voient la matrice, les non-conformités et peuvent commenter le fil client, mais n'ont pas accès au fil de relecture interne."
+      "contactsDesc": "Personnes côté client invitées à consulter cet audit. Elles voient la matrice, les non-conformités et peuvent commenter le fil client, mais n'ont pas accès au fil de relecture interne.",
+      "verdict": "Verdict"
     },
     "contacts": {
       "empty": "Aucun contact client invité pour l'instant.",
@@ -2254,7 +2258,16 @@
       "deleteAria": "Supprimer la page {name}",
       "confirmDeleteTitle": "Supprimer cette page ?",
       "confirmDelete": "La page « {name} » sera supprimée définitivement, ainsi que toutes les saisies de matrice et NC associées. Cette action est irréversible.",
-      "errorPrefix": "Erreur : {message}"
+      "errorPrefix": "Erreur : {message}",
+      "groups": {
+        "mandatory": "Pages obligatoires",
+        "mandatoryHint": "Exigées par le référentiel",
+        "representative": "Pages représentatives",
+        "representativeHint": "Choisies selon les services du site",
+        "transversal": "Transversal",
+        "transversalHint": "En-tête, menu, pied de page"
+      },
+      "helpTitle": "Un échantillon représentatif"
     },
     "report": {
       "exportPdf": "Exporter le rapport PDF",
@@ -2335,7 +2348,10 @@
         "compliantAria": "{prefix} : marquer {label}",
         "compliantText": "Conforme",
         "nonCompliantText": "Non conforme",
-        "notApplicableText": "Non applicable"
+        "notApplicableText": "Non applicable",
+        "compliantShort": "C",
+        "nonCompliantShort": "NC",
+        "notApplicableShort": "NA"
       },
       "ncModal": {
         "title": "Créer une non-conformité",
@@ -2350,7 +2366,10 @@
         "creationFailed": "Échec de la création.",
         "captureErrors": "Non-conformité créée, mais {count} capture(s) en erreur : {errors}",
         "submit": "Créer la NC"
-      }
+      },
+      "titleForPage": "Matrice, page {page}",
+      "pageScore": "conformité de la page",
+      "toAssess": "à évaluer"
     },
     "anomalies": {
       "breadcrumb": "Non-conformités",

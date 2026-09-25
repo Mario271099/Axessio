@@ -66,3 +66,16 @@ export function themeColorVar(seed: string | null | undefined): string {
   }
   return `var(--theme-${(hash % 13) + 1})`;
 }
+
+/**
+ * Couleur de la thématique RGAA portant cet identifiant (« 1 », « 11 »…).
+ * Les référentiels qui ne numérotent pas leurs thématiques retombent sur la
+ * couleur dérivée du libellé.
+ */
+export function themeColorForIdentifier(identifier: string): string {
+  const index = Number.parseInt(identifier, 10);
+  if (Number.isInteger(index) && index >= 1 && index <= 13) {
+    return `var(--theme-${index})`;
+  }
+  return themeColorVar(identifier);
+}

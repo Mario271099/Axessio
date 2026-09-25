@@ -522,6 +522,16 @@ h4 {
   animation: axessio-ring-fill 1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
+/* Halo de l'etape en cours d'un parcours : un anneau qui s'ecarte et s'efface. */
+@keyframes axessio-halo-ring {
+  0%   { transform: scale(0.8); opacity: 0.9; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+.axs-halo {
+  animation: axessio-halo-ring 1.8s ease-out infinite;
+}
+
 /* Barre d'actions groupees : arrive du bas quand une ligne est cochee. */
 @keyframes axessio-bulk-up {
   from { transform: translateY(12px); opacity: 0; }

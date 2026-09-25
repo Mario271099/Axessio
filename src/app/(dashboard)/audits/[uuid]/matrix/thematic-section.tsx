@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WcagLevelBadge } from "@/components/ui/wcag-level-badge";
-import { cn } from "@/lib/utils";
+import { themeColorForIdentifier } from "@/lib/utils";
 import { ConformityCell } from "./conformity-cell";
 import type { ConformityStatus, Criterion, Thematic } from "@/types/domain";
 
@@ -86,30 +86,26 @@ export function ThematicSection({
 
   if (visibleCriteria.length === 0) return null;
 
-  const indicatorClass =
-    counts.saisis === 0
-      ? "bg-muted-foreground/40"
-      : counts.saisis === counts.total
-        ? "bg-success"
-        : "bg-warning";
+  const complete = counts.saisis === counts.total;
+  const themeColor = themeColorForIdentifier(thematic.identifier);
 
   return (
-    <AccordionItem value={thematic.id} className="my-3 shadow-sm">
-      <AccordionTrigger className="px-4 py-4">
+    <AccordionItem value={thematic.id} className="mb-3">
+      <AccordionTrigger className="px-3.5 py-3">
         <span className="flex flex-1 items-center gap-3">
           <span
             aria-hidden="true"
-            className={cn("h-2 w-2 shrink-0 rounded-full", indicatorClass)}
-          />
-          <span className="truncate font-mono text-xs text-muted-foreground">
+            className="flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-black tabular text-white"
+            style={{ background: themeColor }}
+          >
             {thematic.identifier}
           </span>
-          <span className="truncate font-semibold">·</span>
-          <span className="truncate font-semibold">{thematic.name}</span>
+          <span className="truncate">{thematic.name}</span>
         </span>
         <Badge
-          variant="muted"
-          className="ml-auto mr-2 tabular-nums"
+          variant={complete ? "success" : "secondary"}
+          size="sm"
+          className="ml-auto mr-2 tabular"
           aria-label={t("saisiAria", {
             filled: counts.saisis,
             total: counts.total,
@@ -145,17 +141,20 @@ export function ThematicSection({
           </div>
         )}
 
-        <ul role="list" className="divide-y divide-border border-t border-border">
+        <ul role="list" className="flex flex-col gap-0.5 border-t border-border pt-2">
           {visibleCriteria.map((criterion) => {
             const key = `${pageId}:${criterion.id}`;
             const current = conformityMap.get(key) ?? null;
             return (
               <li
                 key={criterion.id}
-                className="flex flex-col gap-3 p-3 transition-colors hover:bg-accent/30 sm:flex-row sm:items-start sm:gap-4"
+                className="axs-row flex flex-col gap-3 rounded-row p-3 sm:flex-row sm:items-center sm:gap-4"
               >
                 <div className="flex shrink-0 items-center gap-2">
-                  <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm font-semibold text-muted-foreground">
+                  <span
+                    className="text-sm font-black tabular"
+                    style={{ color: themeColor }}
+                  >
                     {criterion.identifier}
                   </span>
                   <WcagLevelBadge
@@ -169,9 +168,9 @@ export function ThematicSection({
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium leading-snug">{criterion.name}</p>
+                  <p className="font-semibold leading-snug">{criterion.name}</p>
                   {criterion.nameEn && (
-                    <p className="mt-0.5 text-xs italic text-muted-foreground">
+                    <p className="mt-0.5 text-sm italic text-muted-foreground">
                       {criterion.nameEn}
                     </p>
                   )}
@@ -181,11 +180,11 @@ export function ThematicSection({
                         href={criterion.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
                       >
-                        <BookOpen className="h-3 w-3" aria-hidden="true" />
+                        <BookOpen className="size-3.5" aria-hidden="true" />
                         {t("viewMethodology")}
-                        <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                        <ExternalLink className="size-3" aria-hidden="true" />
                       </a>
                     )}
                   </div>

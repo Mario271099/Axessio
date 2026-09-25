@@ -1254,9 +1254,6 @@
       "title": "Average conformity",
       "ringLabel": "Average conformity: {score}%",
       "verdict": {
-        "nonCompliant": "Non-compliant",
-        "partial": "Partially compliant",
-        "full": "Fully compliant",
         "none": "No audit scored yet"
       }
     },
@@ -1740,6 +1737,11 @@
       "AUDIT": "Audit with counter-audit",
       "NO_COUNTER_AUDIT": "Audit without counter-audit",
       "COMPLIANCE_AUDIT": "Compliance audit"
+    },
+    "conformityLevel": {
+      "nonCompliant": "Non-compliant",
+      "partial": "Partially compliant",
+      "full": "Fully compliant"
     }
   },
   "audits": {
@@ -1822,7 +1824,8 @@
       "sample": "Sample",
       "matrix": "Matrix",
       "openNc": "Open NCs",
-      "criticalNc": "Critical NCs"
+      "criticalNc": "Critical NCs",
+      "criteriaEvaluated": "Criteria assessed"
     },
     "lifecycle": {
       "eyebrow": "Lifecycle",
@@ -2082,7 +2085,8 @@
       "proofreadersTitle": "Proofreaders",
       "proofreadersSubtitle": "Members assigned to review and validate the report.",
       "contactsTitle": "Client contacts",
-      "contactsDesc": "People on the client side invited to consult this audit. They can view the matrix, non-conformities and comment on the client thread, but never access the internal review thread."
+      "contactsDesc": "People on the client side invited to consult this audit. They can view the matrix, non-conformities and comment on the client thread, but never access the internal review thread.",
+      "verdict": "Verdict"
     },
     "contacts": {
       "empty": "No client contact invited yet.",
@@ -2254,7 +2258,16 @@
       "deleteAria": "Delete page {name}",
       "confirmDeleteTitle": "Delete this page?",
       "confirmDelete": "Page \"{name}\" will be permanently deleted, along with all associated matrix entries and NCs. This action is irreversible.",
-      "errorPrefix": "Error: {message}"
+      "errorPrefix": "Error: {message}",
+      "groups": {
+        "mandatory": "Mandatory pages",
+        "mandatoryHint": "Required by the framework",
+        "representative": "Representative pages",
+        "representativeHint": "Chosen from the site's services",
+        "transversal": "Cross-cutting",
+        "transversalHint": "Header, menu, footer"
+      },
+      "helpTitle": "A representative sample"
     },
     "report": {
       "exportPdf": "Export PDF report",
@@ -2335,7 +2348,10 @@
         "compliantAria": "{prefix}: mark {label}",
         "compliantText": "Compliant",
         "nonCompliantText": "Non-compliant",
-        "notApplicableText": "Not applicable"
+        "notApplicableText": "Not applicable",
+        "compliantShort": "C",
+        "nonCompliantShort": "NC",
+        "notApplicableShort": "NA"
       },
       "ncModal": {
         "title": "Create a non-conformity",
@@ -2350,7 +2366,10 @@
         "creationFailed": "Creation failed.",
         "captureErrors": "Non-conformity created, but {count} capture(s) failed: {errors}",
         "submit": "Create NC"
-      }
+      },
+      "titleForPage": "Matrix, {page} page",
+      "pageScore": "page conformity",
+      "toAssess": "to assess"
     },
     "anomalies": {
       "breadcrumb": "Non-conformities",

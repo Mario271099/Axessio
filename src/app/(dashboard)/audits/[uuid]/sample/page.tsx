@@ -3,11 +3,9 @@ import { requireProfile } from "@/lib/auth";
 import { canAny } from "@/lib/permissions";
 import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuditPageHeader } from "@/components/audit/audit-page-header";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
 import { loadAuditHeader } from "../audit-header-data";
-import { InfoTip } from "@/components/ui/info-tip";
 import { SampleActionsBar } from "./sample-actions-bar";
 import type { ComplexityLevel, PageType } from "@/types/domain";
 
@@ -51,43 +49,17 @@ export default async function SamplePage({
         />
       )}
 
-      <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-        <header className="space-y-1">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight">
+      <div className="container mx-auto max-w-7xl space-y-4 p-4 md:p-6 lg:px-9">
+        <header>
+          <h1 className="text-[1.75rem] font-black leading-tight tracking-tight">
             {t("title")}
           </h1>
-          <InfoTip label={t("pageTypesHelpAria")}>
-            <div className="space-y-1.5">
-              <p className="font-semibold">{t("pageTypesHelp.title")}</p>
-              <p>
-                <strong>{t("pageTypesHelp.mandatory.label")}</strong>{" "}
-                {t("pageTypesHelp.mandatory.text")}
-              </p>
-              <p>
-                <strong>{t("pageTypesHelp.representative.label")}</strong>{" "}
-                {t("pageTypesHelp.representative.text")}
-              </p>
-              <p>
-                <strong>{t("pageTypesHelp.transversal.label")}</strong>{" "}
-                {t("pageTypesHelp.transversal.text")}
-              </p>
-            </div>
-          </InfoTip>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          {t("subtitle", { count: list.length })}
-        </p>
-      </header>
+          <p className="mt-1 text-base text-muted-foreground">
+            {t("subtitle", { count: list.length })}
+          </p>
+        </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("cardTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <SampleActionsBar auditId={uuid} pages={list} canEdit={canEdit} />
-        </CardContent>
-        </Card>
+        <SampleActionsBar auditId={uuid} pages={list} canEdit={canEdit} />
       </div>
     </>
   );

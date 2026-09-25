@@ -39,6 +39,7 @@ export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
   const tCommon = await getTranslations("common");
   const tAvg = await getTranslations("dashboard.averageScore");
+  const tConformity = await getTranslations("constants.conformityLevel");
   const tLifecycle = await getTranslations("audits.lifecycle");
   const intl = intlLocale(locale);
 
@@ -251,7 +252,7 @@ export default async function DashboardPage() {
           verdict={
             evaluatedTotal === 0
               ? tAvg("verdict.none")
-              : tAvg(`verdict.${VERDICT_KEY[getConformityLevel(avgScore)]}`)
+              : tConformity(VERDICT_KEY[getConformityLevel(avgScore)])
           }
           note={t("kpi.scoreNote", { count: evaluatedTotal })}
           ringLabel={tAvg("ringLabel", { score: avgScore })}

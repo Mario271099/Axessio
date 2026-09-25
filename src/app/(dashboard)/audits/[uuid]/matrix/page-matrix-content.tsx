@@ -5,30 +5,20 @@ import { useTranslations } from "next-intl";
 import {
   CheckCircle2,
   Circle,
-  ExternalLink,
   LayoutGrid,
   MinusCircle,
   XCircle,
 } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Accordion } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import { formatScore } from "@/lib/utils";
-import {
-  calculateScore,
-  getConformityLabel,
-  getScoreColorVar,
-} from "@/lib/score";
 import { ThematicSection, type MatrixFilter } from "./thematic-section";
 import type {
-  AuditPage,
   ConformityStatus,
   Criterion,
   Thematic,
 } from "@/types/domain";
 
 interface Props {
-  page: AuditPage;
   thematics: Thematic[];
   criteria: Criterion[];
   conformityMap: Map<string, ConformityStatus>;
@@ -85,7 +75,6 @@ const FILTER_OPTIONS: FilterOption[] = [
 ];
 
 export function PageMatrixContent({
-  page,
   thematics,
   criteria,
   conformityMap,
@@ -101,25 +90,6 @@ export function PageMatrixContent({
   const t = useTranslations("audits.matrix.content");
   const [filter, setFilter] = useState<MatrixFilter>("ALL");
   const [openThematics, setOpenThematics] = useState<string[]>([]);
-
-  const score = useMemo(() => {
-    let compliant = 0;
-    let notApplicable = 0;
-    for (const c of criteria) {
-      const status = conformityMap.get(`${currentPageId}:${c.id}`);
-      if (status === "COMPLIANT") compliant += 1;
-      else if (status === "NOT_APPLICABLE") notApplicable += 1;
-    }
-    return {
-      value: calculateScore({
-        compliant,
-        notApplicable,
-        totalCriteria: criteria.length,
-      }),
-      compliant,
-      notApplicable,
-    };
-  }, [criteria, conformityMap, currentPageId]);
 
   const counters = useMemo(() => {
     let pending = 0;
@@ -142,14 +112,6 @@ export function PageMatrixContent({
     } as const;
   }, [criteria, conformityMap, currentPageId]);
 
-  // Gradient subtil sur la card hero selon le niveau de conformité.
-  const heroGradient =
-    score.value >= 100
-      ? "from-success/10 via-card to-card"
-      : score.value >= 50
-        ? "from-warning/10 via-card to-card"
-        : "from-destructive/10 via-card to-card";
-
   const handleAccordionChange = (value: string[]) => {
     const wasOpen = openThematics;
     const closed = wasOpen.filter((v) => !value.includes(v));
@@ -160,88 +122,14 @@ export function PageMatrixContent({
   };
 
   return (
-    <div className="space-y-6">
-      {/* En-tête : titre + URL ------------------------------------------- */}
-      <header className="space-y-1">
-        <h2 className="text-xl font-bold tracking-tight">{page.name}</h2>
-        {page.url && (
-          <a
-            href={page.url}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex max-w-full items-center gap-1 truncate text-sm text-primary hover:underline"
-          >
-            <span className="truncate">{page.url}</span>
-            <ExternalLink
-              className="h-3.5 w-3.5 shrink-0"
-              aria-hidden="true"
-            />
-          </a>
-        )}
-      </header>
-
-      {/* Card hero : score de la page + compteurs visuels -------------- */}
-      <Card
-        className={cn(
-          "bg-gradient-to-br p-6",
-          heroGradient,
-        )}
-      >
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {t("scoreLabel")}
-            </p>
-            <div className="mt-1 flex items-baseline gap-3">
-              <span
-                className="text-4xl font-bold tabular-nums tracking-tight"
-                style={{ color: `hsl(${getScoreColorVar(score.value)})` }}
-              >
-                {formatScore(score.value)}
-              </span>
-              <span className="text-sm font-medium text-muted-foreground">
-                {getConformityLabel(score.value)}
-              </span>
-            </div>
-          </div>
-
-          <ul className="grid grid-cols-2 gap-x-6 gap-y-2 sm:flex sm:items-center sm:gap-6">
-            <CounterPill
-              icon={CheckCircle2}
-              tone="text-success"
-              count={counters.COMPLIANT}
-              label={t("compliant")}
-            />
-            <CounterPill
-              icon={XCircle}
-              tone="text-destructive"
-              count={counters.NON_COMPLIANT}
-              label={t("nonCompliant")}
-            />
-            <CounterPill
-              icon={MinusCircle}
-              tone="text-muted-foreground"
-              count={counters.NOT_APPLICABLE}
-              label={t("notApplicable")}
-            />
-            <CounterPill
-              icon={Circle}
-              tone="text-muted-foreground/70"
-              count={counters.PENDING}
-              label={t("pending")}
-            />
-          </ul>
-        </div>
-      </Card>
-
-      {/* Barre de filtres ------------------------------------------------ */}
-      {/* Le scrolling ancestor est le <main> du dashboard (overflow-y-auto). */}
-      {/* La Topbar vit en dehors de ce <main>, donc on stick à top-0.       */}
-      <Card className="sticky top-0 z-10 flex flex-wrap gap-2 p-2 shadow-sm">
+    <div className="space-y-4">
+      {/* Barre de filtres, en pilules. Le score et les compteurs de la page
+          vivent dans l'en-tête de l'écran (au-dessus de la matrice). */}
+      <div className="sticky top-0 z-10 -mx-1 bg-background/95 px-1 py-2 backdrop-blur">
         <div
           role="radiogroup"
           aria-label={t("filterAria")}
-          className="flex flex-wrap gap-1"
+          className="flex flex-wrap gap-2"
         >
           {FILTER_OPTIONS.map((opt) => {
             const isActive = filter === opt.value;
@@ -255,30 +143,23 @@ export function PageMatrixContent({
                 aria-checked={isActive}
                 onClick={() => setFilter(opt.value)}
                 className={cn(
-                  "inline-flex h-8 items-center gap-2 rounded-md border px-3 text-xs font-medium transition-all duration-150",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  "inline-flex h-9 items-center gap-2 rounded-full border px-3.5 text-sm font-bold",
+                  "transition-[background-color,border-color,color] duration-150",
                   isActive
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-transparent bg-background text-muted-foreground hover:bg-accent hover:text-foreground",
+                    ? "border-ink bg-ink text-ink-foreground"
+                    : "border-border-strong bg-card text-foreground hover:border-primary",
                 )}
               >
-                <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                <Icon className="size-3.5 shrink-0" aria-hidden="true" />
                 <span>{t(opt.labelKey)}</span>
-                <span
-                  className={cn(
-                    "tabular-nums",
-                    isActive
-                      ? "rounded bg-primary/20 px-1 py-0.5 text-[10px]"
-                      : "rounded bg-muted px-1 py-0.5 text-[10px]",
-                  )}
-                >
+                <span className="text-xs font-extrabold tabular opacity-75">
                   {count}
                 </span>
               </button>
             );
           })}
         </div>
-      </Card>
+      </div>
 
       {/* Accordéons des thématiques ------------------------------------- */}
       <Accordion
@@ -312,27 +193,5 @@ export function PageMatrixContent({
         })}
       </Accordion>
     </div>
-  );
-}
-
-function CounterPill({
-  icon: Icon,
-  tone,
-  count,
-  label,
-}: {
-  icon: React.ElementType;
-  tone: string;
-  count: number;
-  label: string;
-}) {
-  return (
-    <li className="flex items-center gap-2">
-      <Icon className={cn("h-4 w-4 shrink-0", tone)} aria-hidden="true" />
-      <span className="text-sm">
-        <span className={cn("font-semibold tabular-nums", tone)}>{count}</span>
-        <span className="ml-1 text-muted-foreground">{label}</span>
-      </span>
-    </li>
   );
 }

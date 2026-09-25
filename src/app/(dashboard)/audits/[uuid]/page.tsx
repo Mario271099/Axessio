@@ -26,26 +26,21 @@ import { AuditContacts } from "@/components/audit/audit-contacts";
 import type { AvailableStatusTransition } from "@/components/audit/audit-status-actions";
 import { AuditNextStepButton } from "@/components/audit/audit-next-step-button";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
+import { AuditScoreCard } from "@/components/audit/audit-score-card";
 import { AuditPageHeader } from "@/components/audit/audit-page-header";
 import { AuditNextAction } from "@/components/audit/audit-next-action";
 import { AuditDeadlines } from "@/components/audit/audit-deadlines";
-import { AuditKpiBar } from "@/components/audit/audit-kpi-bar";
 import { AuditLifecycleStepper } from "@/components/audit/audit-lifecycle-stepper";
 import type { AuditLifecycleSnapshot } from "@/lib/audit-status";
 import { availableManualTransitions } from "@/lib/audit-status";
 import { computeAuditLifecycle } from "@/lib/audit-lifecycle";
-import { MiniDonut } from "@/components/ui/mini-donut";
-import { cn } from "@/lib/utils";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import {
   canAssignProofreader,
   canAny,
 } from "@/lib/permissions";
 import { loadMyOrgPermissions } from "@/lib/server-permissions";
-import {
-  getConformityLabel,
-  getConformityLevel,
-} from "@/lib/score";
+
 import type {
   AuditStatus,
   PlatformType,
@@ -162,7 +157,6 @@ export default async function AuditDetailPage({ params }: PageProps) {
     liveScore ??
     (audit.initial_score as number | null) ??
     0;
-  const level = getConformityLevel(score);
 
   const lifecycleRow = Array.isArray(lifecycleRpc.data)
     ? lifecycleRpc.data[0]
@@ -419,63 +413,45 @@ export default async function AuditDetailPage({ params }: PageProps) {
         }
       />
 
-      <div className="container mx-auto max-w-7xl space-y-5 p-6 md:p-8">
-      {/* Taux de conformite. La refonte complete de la vue d'ensemble
-          (carte C / NC / NA + resultats par thematique) est l'etape 4. */}
-      <Card className="flex flex-wrap items-center gap-5 p-5">
-        <MiniDonut value={score} size={120} tone="score" />
-        <div>
-          <p
-            className={cn(
-              "text-lg font-extrabold",
-              level === "non-compliant" && "text-destructive",
-              level === "partial" && "text-warning",
-              level === "full" && "text-success",
-            )}
-          >
-            {getConformityLabel(score)}
+      <div className="container mx-auto max-w-7xl space-y-4 p-4 md:p-6 lg:px-9">
+      {/* ──────────────────────────────────────────────────────────────────
+          PARCOURS DE L'AUDIT : 7 jalons, du cadrage a la mise en ligne.
+      ────────────────────────────────────────────────────────────────── */}
+      <Card id="lifecycle" className="scroll-mt-24 p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 className="text-lg font-extrabold">{t("lifecycleTitle")}</h2>
+          <p className="text-sm text-muted-foreground">
+            {tLifecycle("stepIndicator", {
+              step: lifecycle.currentStep,
+              total: lifecycle.totalSteps,
+            })}{" "}
+            ·{" "}
+            <span className="font-bold text-primary">
+              {tLifecycle(`stages.${lifecycle.currentKey}`)}
+            </span>
           </p>
-          <p className="text-sm text-muted-foreground">{t("conformityRate")}</p>
+        </div>
+
+        <div className="mt-4 overflow-x-auto pb-1">
+          <AuditLifecycleStepper lifecycle={lifecycle} />
         </div>
       </Card>
 
       {/* ──────────────────────────────────────────────────────────────────
-          HERO : CYCLE DE VIE - pièce maîtresse du dashboard.
-          Stepper horizontal en 7 jalons + prochaine action + transitions.
+          Conformite (anneau + compteurs) et prochaine action.
       ────────────────────────────────────────────────────────────────── */}
-      <Card id="lifecycle" className="scroll-mt-24">
-        <CardContent className="space-y-5 p-6 md:p-7">
-          {/* En-tête : titre + indicateur d'étape */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <div className="space-y-0.5">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                {tLifecycle("eyebrow")}
-              </p>
-              <h2 className="text-lg font-bold tracking-tight text-foreground md:text-xl">
-                {t("lifecycleTitle")}
-              </h2>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {tLifecycle("stepIndicator", {
-                step: lifecycle.currentStep,
-                total: lifecycle.totalSteps,
-              })}{" "}
-              ·{" "}
-              <span className="font-bold text-primary">
-                {tLifecycle(`stages.${lifecycle.currentKey}`)}
-              </span>
-            </p>
-          </div>
+      <div className="grid gap-4 lg:grid-cols-[340px_minmax(0,1fr)]">
+        <AuditScoreCard
+          score={score}
+          matrixFilled={statusSnapshot.matrixFilled}
+          matrixTotal={statusSnapshot.matrixTotal}
+          openNcCount={ncCount ?? 0}
+          criticalNcCount={criticalNcCount ?? 0}
+          sampleCount={pageCount ?? 0}
+          simulatorHref={`/audits/${uuid}/simulator`}
+        />
 
-          {/* Stepper horizontal (scrollable sur mobile) */}
-          <div className="overflow-x-auto pb-1">
-            <AuditLifecycleStepper lifecycle={lifecycle} />
-          </div>
-
-          {/* Prochaine action (ex-carte "Prochaine étape", repliée ici).
-              Quand l'étape suivante est une transition de statut, le bouton
-              « Passer à l'étape suivante » s'affiche directement dans le
-              callout. */}
+        <Card className="p-5">
           <AuditNextAction
             auditId={uuid}
             status={currentStatus}
@@ -491,24 +467,13 @@ export default async function AuditDetailPage({ params }: PageProps) {
               />
             }
           />
-        </CardContent>
-      </Card>
-
-      {/* ──────────────────────────────────────────────────────────────────
-          KPI BAR : 4 indicateurs opérationnels en bandeau scanable.
-      ────────────────────────────────────────────────────────────────── */}
-      <AuditKpiBar
-        sampleCount={pageCount ?? 0}
-        matrixFilled={statusSnapshot.matrixFilled}
-        matrixTotal={statusSnapshot.matrixTotal}
-        openNcCount={ncCount ?? 0}
-        criticalNcCount={criticalNcCount ?? 0}
-      />
+        </Card>
+      </div>
 
       {/* ──────────────────────────────────────────────────────────────────
           Bas de page : Échéances · Auditeurs · Relecteurs · Contacts client
       ────────────────────────────────────────────────────────────────── */}
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{t("timelineTitle")}</CardTitle>
