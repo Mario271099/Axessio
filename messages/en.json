@@ -14,8 +14,9 @@
       "kicker": "Accessibility audit platform",
       "title": "Run your accessibility audits without spreadsheets.",
       "subtitle": "Axessyo centralizes your digital accessibility audits: conformity grid, traceable non-conformities, ready-to-deliver PDF reports - for auditors and client teams.",
-      "primaryCta": "Go to my workspace",
-      "secondaryCta": "See features"
+      "primaryCta": "Start for free",
+      "secondaryCta": "See features",
+      "note": "Free for one audit, no credit card, no time limit."
     },
     "features": {
       "title": "Everything for an accessibility audit, in one place",
@@ -49,12 +50,30 @@
     },
     "standards": {
       "title": "Compatible with official standards",
-      "subtitle": "The reference frameworks recognized in France and Europe for digital accessibility."
+      "subtitle": "The reference frameworks recognized in France and Europe for digital accessibility.",
+      "items": {
+        "RGAA": {
+          "name": "RGAA",
+          "desc": "4.1.2, French public services"
+        },
+        "WCAG": {
+          "name": "WCAG",
+          "desc": "2.2, the W3C international standard"
+        },
+        "RAWeb": {
+          "name": "RAWeb",
+          "desc": "1.1, Belgium and Luxembourg"
+        },
+        "RAAM": {
+          "name": "RAAM",
+          "desc": "1.1, mobile applications"
+        }
+      }
     },
     "cta": {
-      "title": "Ready to structure your audits?",
-      "subtitle": "Sign in to your Axessyo workspace to resume your in-progress audits, or contact us to open an account.",
-      "button": "Open Axessyo"
+      "title": "Your next audit, without a spreadsheet.",
+      "subtitle": "Create your workspace and start your first audit.",
+      "button": "Start for free"
     },
     "footer": {
       "tagline": "Digital accessibility audit platform.",
@@ -69,6 +88,11 @@
         "privacy": "Privacy",
         "cookies": "Cookies",
         "accessibility": "Accessibility"
+      },
+      "groups": {
+        "product": "Product",
+        "account": "Account",
+        "info": "Information"
       }
     },
     "faq": {
@@ -86,6 +110,46 @@
         {
           "q": "Can I export the report in English?",
           "a": "Yes. Every PDF report can be generated in French or English, with labels, badges and metadata in the target language."
+        }
+      ],
+      "contact": "Another question?",
+      "contactCta": "Write to us"
+    },
+    "steps": {
+      "title": "An audit in three moves",
+      "items": [
+        {
+          "title": "Create the audit",
+          "desc": "Pick the framework, the client and the sample. Mandatory pages are added for you."
+        },
+        {
+          "title": "Assess the grid",
+          "desc": "Test each criterion with its methodology at hand, and write up non-conformities as you go."
+        },
+        {
+          "title": "Deliver and follow up",
+          "desc": "Export the report, then track fixes with the client's team through to the counter-audit."
+        }
+      ]
+    },
+    "a11yBlock": {
+      "link": "Read the accessibility statement",
+      "items": [
+        {
+          "title": "Keyboard navigation",
+          "desc": "Focus always visible"
+        },
+        {
+          "title": "Checked contrasts",
+          "desc": "4.5:1 minimum for text"
+        },
+        {
+          "title": "Screen readers",
+          "desc": "Headings, labels and ARIA roles"
+        },
+        {
+          "title": "Reduced motion",
+          "desc": "Respects your system settings"
         }
       ]
     }

@@ -14,8 +14,9 @@
       "kicker": "Plateforme d'audit d'accessibilité",
       "title": "Pilotez vos audits d'accessibilité sans tableurs.",
       "subtitle": "Axessyo centralise vos audits d'accessibilité numérique : grille de conformité, non-conformités tracées, rapports PDF prêts à livrer - pour auditeurs et équipes clients.",
-      "primaryCta": "Accéder à mon espace",
-      "secondaryCta": "Voir les fonctionnalités"
+      "primaryCta": "Démarrer gratuitement",
+      "secondaryCta": "Voir les fonctionnalités",
+      "note": "Gratuit pour un audit, sans carte bancaire et sans limite de durée."
     },
     "features": {
       "title": "Tout l'audit d'accessibilité au même endroit",
@@ -49,12 +50,30 @@
     },
     "standards": {
       "title": "Compatible avec les référentiels officiels",
-      "subtitle": "Les référentiels reconnus en France et en Europe pour l'accessibilité numérique."
+      "subtitle": "Les référentiels reconnus en France et en Europe pour l'accessibilité numérique.",
+      "items": {
+        "RGAA": {
+          "name": "RGAA",
+          "desc": "4.1.2, services publics français"
+        },
+        "WCAG": {
+          "name": "WCAG",
+          "desc": "2.2, standard international du W3C"
+        },
+        "RAWeb": {
+          "name": "RAWeb",
+          "desc": "1.1, Belgique et Luxembourg"
+        },
+        "RAAM": {
+          "name": "RAAM",
+          "desc": "1.1, applications mobiles"
+        }
+      }
     },
     "cta": {
-      "title": "Prêt à structurer vos audits ?",
-      "subtitle": "Connectez-vous à votre espace Axessyo pour reprendre vos audits en cours, ou contactez-nous pour ouvrir un compte.",
-      "button": "Accéder à Axessyo"
+      "title": "Votre prochain audit, sans tableur.",
+      "subtitle": "Créez votre espace et lancez votre premier audit.",
+      "button": "Démarrer gratuitement"
     },
     "footer": {
       "tagline": "Plateforme d'audits d'accessibilité numérique.",
@@ -69,6 +88,11 @@
         "privacy": "Confidentialité",
         "cookies": "Cookies",
         "accessibility": "Accessibilité"
+      },
+      "groups": {
+        "product": "Produit",
+        "account": "Compte",
+        "info": "Informations"
       }
     },
     "faq": {
@@ -86,6 +110,46 @@
         {
           "q": "Puis-je exporter le rapport en anglais ?",
           "a": "Oui. Chaque rapport PDF se génère au choix en français ou en anglais, avec libellés, badges et métadonnées dans la langue cible."
+        }
+      ],
+      "contact": "Une autre question ?",
+      "contactCta": "Écrivez-nous"
+    },
+    "steps": {
+      "title": "Un audit en trois temps",
+      "items": [
+        {
+          "title": "Créer l'audit",
+          "desc": "Choisissez le référentiel, le client et l'échantillon. Les pages obligatoires sont ajoutées pour vous."
+        },
+        {
+          "title": "Évaluer la grille",
+          "desc": "Testez chaque critère avec sa méthodologie sous les yeux, et rédigez les non-conformités au fil de l'eau."
+        },
+        {
+          "title": "Livrer et suivre",
+          "desc": "Exportez le rapport, puis suivez la correction avec l'équipe du client jusqu'au contre-audit."
+        }
+      ]
+    },
+    "a11yBlock": {
+      "link": "Lire la déclaration d'accessibilité",
+      "items": [
+        {
+          "title": "Navigation au clavier",
+          "desc": "Focus toujours visible"
+        },
+        {
+          "title": "Contrastes vérifiés",
+          "desc": "4,5:1 minimum pour le texte"
+        },
+        {
+          "title": "Lecteurs d'écran",
+          "desc": "Titres, libellés et rôles ARIA"
+        },
+        {
+          "title": "Mouvement réduit",
+          "desc": "Respecte vos réglages système"
         }
       ]
     }

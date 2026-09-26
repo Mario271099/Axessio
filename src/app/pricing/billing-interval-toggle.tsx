@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Sparkles } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   PLAN_ORDER,
@@ -34,96 +34,113 @@ export function BillingIntervalToggle({
   const [interval, setInterval] = useState<"monthly" | "yearly">("yearly");
 
   return (
-    <div className="space-y-8">
-      {/* Toggle mensuel/annuel */}
+    <div className="flex flex-col gap-9">
+      {/* Bascule mensuel / annuel */}
       <div className="flex justify-center">
         <div
           role="tablist"
           aria-label={t("toggleAria")}
-          className="inline-flex items-center gap-1 rounded-full border bg-card p-1 shadow-sm"
+          className="inline-flex items-center gap-1 rounded-[14px] bg-secondary p-1"
         >
-          {(["monthly", "yearly"] as const).map((value) => (
-            <button
-              key={value}
-              type="button"
-              role="tab"
-              aria-selected={interval === value}
-              onClick={() => setInterval(value)}
-              className={cn(
-                "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                interval === value
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {t(`interval.${value}`)}
-              {value === "yearly" && yearlySavingsPercent !== null && (
-                <span
-                  className={cn(
-                    "ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                    interval === value
-                      ? "bg-primary-foreground/20"
-                      : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200",
-                  )}
-                >
-                  <Sparkles className="h-3 w-3" aria-hidden="true" />
-                  {t("savingsBadge", { percent: yearlySavingsPercent })}
-                </span>
-              )}
-            </button>
-          ))}
+          {(["monthly", "yearly"] as const).map((value) => {
+            const isActive = interval === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setInterval(value)}
+                className={cn(
+                  "inline-flex h-10 items-center gap-2 rounded-lg px-4.5 text-[0.9rem] font-extrabold",
+                  "transition-colors duration-150",
+                  isActive
+                    ? "bg-card text-primary shadow-sm"
+                    : "text-secondary-foreground hover:text-foreground",
+                )}
+              >
+                {t(`interval.${value}`)}
+                {value === "yearly" && yearlySavingsPercent !== null && (
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-extrabold",
+                      isActive
+                        ? "bg-primary-muted text-primary"
+                        : "bg-success/12 text-success",
+                    )}
+                  >
+                    <Sparkles className="size-3" aria-hidden="true" />
+                    {t("savingsBadge", { percent: yearlySavingsPercent })}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Grille des plans */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {PLAN_ORDER.map((code) => {
           const plan = PLANS[code];
-          const isHighlighted = code === "pro"; // plan "recommandé"
+          // Plan « recommandé » : carte encre, comme dans les maquettes.
+          const isHighlighted = code === "pro";
           return (
             <article
               key={code}
               className={cn(
-                "relative flex flex-col rounded-2xl border bg-card p-6 shadow-sm transition-all",
-                isHighlighted &&
-                  "border-primary shadow-md ring-2 ring-primary/40",
+                "axs-lift relative flex flex-col gap-3.5 rounded-hero border p-6",
+                isHighlighted
+                  ? "border-ink bg-ink text-ink-foreground"
+                  : "border-border bg-card",
               )}
             >
-              {isHighlighted && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
-                  {t("recommendedBadge")}
-                </span>
-              )}
-
-              <header className="space-y-1">
-                <h2 className="text-xl font-bold tracking-tight">
+              <header className="flex items-start justify-between gap-3">
+                <h2 className="text-[1.375rem] font-black tracking-tight">
                   {plan.name}
                 </h2>
-                <p className="min-h-[2.75em] text-sm text-muted-foreground">
-                  {plan.description}
-                </p>
+                {isHighlighted && (
+                  <span className="shrink-0 rounded-full bg-highlight px-3 py-1 text-xs font-extrabold text-ink">
+                    {t("recommendedBadge")}
+                  </span>
+                )}
               </header>
 
-              <div className="my-6">
-                <PriceDisplay
-                  code={code}
-                  interval={interval}
-                  monthlyPrice={plan.monthlyPriceEur}
-                  yearlyPrice={plan.yearlyPriceEur}
-                  isContactSales={plan.isContactSales}
-                />
-              </div>
+              <p
+                className={cn(
+                  "min-h-[2.75em] text-sm",
+                  isHighlighted ? "text-ink-muted" : "text-muted-foreground",
+                )}
+              >
+                {plan.description}
+              </p>
 
-              <PlanCta code={code} isAuthenticated={isAuthenticated} />
+              <PriceDisplay
+                code={code}
+                interval={interval}
+                monthlyPrice={plan.monthlyPriceEur}
+                yearlyPrice={plan.yearlyPriceEur}
+                isContactSales={plan.isContactSales}
+                onInk={isHighlighted}
+              />
 
-              <ul className="mt-6 space-y-2.5 border-t pt-4 text-sm">
+              <PlanCta
+                code={code}
+                isAuthenticated={isAuthenticated}
+                onInk={isHighlighted}
+              />
+
+              <ul className="mt-1.5 flex flex-col gap-2.5 text-[0.9rem]">
                 <FeatureItem
+                  onInk={isHighlighted}
                   text={t("limits.members", {
                     count: plan.limits.max_members ?? 0,
-                    unlimited: plan.limits.max_members === null ? "true" : "false",
+                    unlimited:
+                      plan.limits.max_members === null ? "true" : "false",
                   })}
                 />
                 <FeatureItem
+                  onInk={isHighlighted}
                   text={t("limits.clients", {
                     count: plan.limits.max_clients ?? 0,
                     unlimited:
@@ -131,6 +148,7 @@ export function BillingIntervalToggle({
                   })}
                 />
                 <FeatureItem
+                  onInk={isHighlighted}
                   text={t("limits.audits", {
                     count: plan.limits.max_active_audits ?? 0,
                     unlimited:
@@ -138,13 +156,21 @@ export function BillingIntervalToggle({
                   })}
                 />
                 {plan.features.length === 0 ? (
-                  <li className="text-xs text-muted-foreground">
+                  <li
+                    className={cn(
+                      "text-sm",
+                      isHighlighted
+                        ? "text-ink-muted"
+                        : "text-muted-foreground",
+                    )}
+                  >
                     {t("noExtraFeatures")}
                   </li>
                 ) : (
                   plan.features.map((feature) => (
                     <FeatureItem
                       key={feature}
+                      onInk={isHighlighted}
                       text={tFeatures(featureKey(feature))}
                     />
                   ))
@@ -162,22 +188,18 @@ function featureKey(f: FeatureCode): string {
   return f.replace(".", "_");
 }
 
-function FeatureItem({ text }: { text: string }) {
+function FeatureItem({ text, onInk }: { text: string; onInk: boolean }) {
   return (
-    <li className="flex items-start gap-2">
-      <svg
+    <li className="flex items-start gap-2.5">
+      <Check
         aria-hidden="true"
-        viewBox="0 0 20 20"
-        className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500"
-        fill="currentColor"
-      >
-        <path
-          fillRule="evenodd"
-          d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 1 1 1.4-1.4l3.8 3.8 6.8-6.8a1 1 0 0 1 1.4 0z"
-          clipRule="evenodd"
-        />
-      </svg>
-      <span>{text}</span>
+        strokeWidth={3}
+        className={cn(
+          "mt-0.5 size-4 shrink-0",
+          onInk ? "text-ink-positive" : "text-success",
+        )}
+      />
+      <span className="leading-snug">{text}</span>
     </li>
   );
 }
@@ -188,22 +210,25 @@ function PriceDisplay({
   monthlyPrice,
   yearlyPrice,
   isContactSales,
+  onInk,
 }: {
   code: PlanCode;
   interval: "monthly" | "yearly";
   monthlyPrice: number | null;
   yearlyPrice: number | null;
   isContactSales: boolean;
+  onInk: boolean;
 }) {
   const t = useTranslations("pricing");
+  const muted = onInk ? "text-ink-muted" : "text-muted-foreground";
 
   if (isContactSales) {
     return (
       <div>
-        <p className="text-3xl font-bold tracking-tight">
+        <p className="text-[1.75rem] font-black tracking-tight">
           {t("contactSales")}
         </p>
-        <p className="text-xs text-muted-foreground">{t("contactSalesNote")}</p>
+        <p className={cn("text-sm", muted)}>{t("contactSalesNote")}</p>
       </div>
     );
   }
@@ -211,10 +236,10 @@ function PriceDisplay({
   if (code === "free" || monthlyPrice === 0) {
     return (
       <div>
-        <p className="text-4xl font-bold tracking-tight tabular-nums">
-          0 <span className="text-base font-normal text-muted-foreground">€</span>
+        <p className="text-[2.5rem] font-black leading-none tabular tracking-tight">
+          0 <span className={cn("text-base font-semibold", muted)}>€</span>
         </p>
-        <p className="text-xs text-muted-foreground">{t("forever")}</p>
+        <p className={cn("mt-1.5 text-sm", muted)}>{t("forever")}</p>
       </div>
     );
   }
@@ -227,13 +252,13 @@ function PriceDisplay({
 
   return (
     <div>
-      <p className="text-4xl font-bold tracking-tight tabular-nums">
+      <p className="text-[2.5rem] font-black leading-none tabular tracking-tight">
         {Math.round(displayed)}
-        <span className="ml-1 text-base font-normal text-muted-foreground">
+        <span className={cn("ml-1 text-base font-semibold", muted)}>
           € {t("perMonth")}
         </span>
       </p>
-      <p className="text-xs text-muted-foreground">
+      <p className={cn("mt-1.5 text-sm", muted)}>
         {interval === "monthly"
           ? t("billedMonthly")
           : t("billedYearly", { yearly })}
@@ -245,17 +270,26 @@ function PriceDisplay({
 function PlanCta({
   code,
   isAuthenticated,
+  onInk,
 }: {
   code: PlanCode;
   isAuthenticated: boolean;
+  onInk: boolean;
 }) {
   const t = useTranslations("pricing");
+
+  const base =
+    "inline-flex h-11 w-full items-center justify-center rounded-lg px-4 text-base font-bold transition-[background-color,border-color,box-shadow,transform] duration-200 active:scale-[0.97]";
+  const outline =
+    "border border-border-strong bg-card text-foreground hover:border-primary hover:bg-primary-softer";
+  const onInkCta = "bg-card text-foreground hover:bg-ink-muted";
+
   if (code === "free") {
     // Gratuit : un visiteur connecté file au dashboard, un prospect s'inscrit.
     return (
       <a
         href={isAuthenticated ? "/dashboard" : "/register"}
-        className="inline-flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={cn(base, outline)}
       >
         {t("cta.startFree")}
       </a>
@@ -265,7 +299,7 @@ function PlanCta({
     return (
       <a
         href="mailto:contact@axessyo.com?subject=Demande%20Enterprise"
-        className="inline-flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={cn(base, outline)}
       >
         {t("cta.contactSales")}
       </a>
@@ -282,10 +316,10 @@ function PlanCta({
     <a
       href={href}
       className={cn(
-        "inline-flex h-10 w-full items-center justify-center rounded-md px-4 text-sm font-medium shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        code === "pro"
-          ? "bg-primary text-primary-foreground hover:bg-primary/90"
-          : "border border-input bg-background hover:bg-accent hover:text-foreground",
+        base,
+        onInk
+          ? onInkCta
+          : "bg-primary text-primary-foreground shadow-btn hover:bg-primary-hover hover:shadow-btn-hover",
       )}
     >
       {t("cta.choosePlan")}

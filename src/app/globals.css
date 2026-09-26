@@ -282,38 +282,6 @@
   --color-brand-navy:         hsl(var(--brand-navy));
   --color-brand-navy-deep:    hsl(var(--brand-navy-deep));
 
-  /* Echelles legacy navy / teal — conservees le temps de migrer les ecrans
-     restants, a retirer en fin de chantier (une seule couleur de marque). */
-  --color-navy-950: #050d1a;
-  --color-navy-900: #0a1628;
-  --color-navy-800: #132238;
-  --color-navy-700: #1a4066;
-  --color-navy-600: #1e5080;
-  --color-navy-500: #2a6099;
-  --color-navy-400: #4a88c0;
-  --color-navy-300: #7aaed4;
-  --color-navy-200: #b8d4e8;
-  --color-navy-100: #dceaf4;
-  --color-navy-50:  #f0f6fb;
-
-  --color-teal-600: #0891b2;
-  --color-teal-500: #06b6d4;
-  --color-teal-400: #22d3ee;
-  --color-teal-100: #cffafe;
-  --color-teal-50:  #ecfeff;
-
-  --color-slate-950: #020617;
-  --color-slate-900: #0f172a;
-  --color-slate-800: #1e293b;
-  --color-slate-700: #334155;
-  --color-slate-600: #475569;
-  --color-slate-500: #64748b;
-  --color-slate-400: #94a3b8;
-  --color-slate-300: #cbd5e1;
-  --color-slate-200: #e2e8f0;
-  --color-slate-100: #f1f5f9;
-  --color-slate-50:  #f8fafc;
-
   /* Fontes — Figtree pour l'interface, DM Sans reserve au logo. */
   --font-sans: var(--font-figtree), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;

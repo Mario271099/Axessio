@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Logo } from "@/components/brand";
-import { cn } from "@/lib/utils";
 
 interface AuthLayoutProps {
   /** Slot principal du formulaire. */
@@ -21,12 +20,7 @@ const BENEFIT_KEYS = [
   "collaboration",
 ] as const;
 
-const VERSION_BADGES = [
-  "RGAA 4.1.2",
-  "WCAG 2.2",
-  "RAWeb 1.1",
-  "RAAM 1.1",
-];
+const VERSION_BADGES = ["RGAA 4.1.2", "WCAG 2.2", "RAWeb 1.1", "RAAM 1.1"];
 
 export function AuthLayout({
   children,
@@ -41,24 +35,24 @@ export function AuthLayout({
     <main
       id="main"
       tabIndex={-1}
-      className="grid min-h-screen grid-cols-1 lg:grid-cols-2"
+      className="grid min-h-screen grid-cols-1 bg-card lg:grid-cols-[minmax(0,600px)_minmax(0,1fr)]"
     >
       {/* Panneau gauche - formulaire ------------------------------------ */}
-      <section className="flex min-h-screen flex-col justify-center bg-background px-6 py-12 sm:px-12">
-        <div className="mx-auto w-full max-w-md fade-in-up">
+      <section className="flex min-h-screen flex-col justify-center px-6 py-12 sm:px-12 lg:px-16">
+        <div className="fade-in-up mx-auto w-full max-w-md">
           <Link
             href="/"
             aria-label={tSidebar("brandHomeAria")}
-            className="inline-flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 rounded-lg"
           >
             <Logo size="lg" />
           </Link>
 
-          <header className="mt-10 space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+          <header className="mt-10">
+            <h1 className="text-[2rem] font-black leading-[1.05] tracking-[-0.035em] md:text-[2.375rem]">
               {title}
             </h1>
-            <p className="text-sm text-muted-foreground md:text-base">
+            <p className="mt-2.5 text-base text-muted-foreground md:text-[1.05rem]">
               {subtitle}
             </p>
           </header>
@@ -74,44 +68,47 @@ export function AuthLayout({
       {/* Panneau droit - présentation ------------------------------------ */}
       <aside
         aria-hidden="true"
-        className="relative hidden overflow-hidden bg-gradient-to-br from-navy-800 via-navy-700 to-teal-600 lg:flex lg:flex-col lg:justify-center lg:p-12 dark:from-navy-950 dark:via-navy-900 dark:to-teal-600"
+        className="relative m-4 hidden overflow-hidden rounded-[1.75rem] bg-primary p-14 text-primary-foreground lg:flex lg:flex-col lg:justify-center"
       >
-        {/* Pattern de points */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-30"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.18) 1px, transparent 0)",
-            backgroundSize: "24px 24px",
-          }}
-        />
-        {/* Glow radial doux en haut à droite */}
-        <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_55%)]"
-        />
+        {/* Formes géométriques de la marque, purement décoratives. */}
+        <svg
+          viewBox="0 0 760 760"
+          className="pointer-events-none absolute -bottom-64 -right-56 h-[760px] w-[760px] opacity-[0.14]"
+        >
+          <g fill="currentColor">
+            <rect x="0" y="0" width="360" height="360" rx="80" />
+            <circle cx="580" cy="180" r="180" />
+            <rect x="0" y="400" width="360" height="360" rx="80" />
+            <rect
+              x="400"
+              y="400"
+              width="360"
+              height="360"
+              rx="80"
+              opacity="0.5"
+            />
+          </g>
+        </svg>
 
-        <div className="relative max-w-lg">
-          <p className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+        <div className="relative max-w-[34rem]">
+          <p className="max-w-[15ch] text-[2.25rem] font-black leading-[1.05] tracking-[-0.035em] xl:text-[2.75rem]">
             {tMarketing("tagline")}
           </p>
-          <p className="mt-4 text-lg text-white/80">
+          <p className="mt-4 max-w-[44ch] text-[1.05rem] leading-relaxed text-primary-foreground/85">
             {tMarketing("subtitle")}
           </p>
 
-          <ul className="mt-8 space-y-3">
+          <ul className="mt-9 flex flex-col gap-3">
             {BENEFIT_KEYS.map((key, i) => (
               <li
                 key={key}
-                className={cn(
-                  "fade-in-up flex items-center gap-3 text-white",
-                )}
+                className="fade-in-up flex items-center gap-3"
                 style={{ animationDelay: `${100 + i * 80}ms` }}
               >
-                <CheckCircle2
-                  className="h-5 w-5 shrink-0 text-white"
-                  aria-hidden="true"
-                />
-                <span className="text-base">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary-foreground/15">
+                  <Check className="size-3.5" strokeWidth={3} />
+                </span>
+                <span className="text-base font-semibold">
                   {tMarketing(`benefits.${key}`)}
                 </span>
               </li>
@@ -122,7 +119,7 @@ export function AuthLayout({
             {VERSION_BADGES.map((badge) => (
               <span
                 key={badge}
-                className="rounded-md border border-white/20 bg-white/10 px-2.5 py-1 font-mono text-xs text-white/80"
+                className="rounded-full border border-primary-foreground/25 px-3 py-1 text-sm font-bold text-primary-foreground/90"
               >
                 {badge}
               </span>

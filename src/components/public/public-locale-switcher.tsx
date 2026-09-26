@@ -32,7 +32,7 @@ export function PublicLocaleSwitcher({
       title={label}
       className={className}
     >
-      <span aria-hidden="true" className="font-mono text-xs font-semibold">
+      <span aria-hidden="true" className="text-sm font-extrabold">
         {target.toUpperCase()}
       </span>
     </Button>

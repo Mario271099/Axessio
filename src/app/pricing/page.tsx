@@ -114,24 +114,24 @@ export default async function PricingPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-card">
       <PublicHeader />
 
       <main id="main" tabIndex={-1} className="flex-1">
-        <section className="container mx-auto max-w-6xl px-6 py-16 sm:py-24">
-          <header className="mx-auto max-w-2xl space-y-4 text-center">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+        <section className="container mx-auto max-w-7xl px-6 py-16 sm:py-20 lg:px-9">
+          <header className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
+            <p className="inline-flex items-center rounded-full bg-primary-soft px-3.5 py-1.5 text-sm font-extrabold text-primary">
               {t("kicker")}
             </p>
-            <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
+            <h1 className="text-[2.25rem] font-black leading-[1.05] tracking-[-0.04em] md:text-[2.875rem]">
               {t("title")}
             </h1>
-            <p className="text-base text-muted-foreground md:text-lg">
+            <p className="text-lg text-secondary-foreground">
               {t("subtitle")}
             </p>
           </header>
 
-          <div className="mt-12">
+          <div className="mt-10">
             <BillingIntervalToggle
               yearlySavingsPercent={yearlySavingsPercent}
               isAuthenticated={isAuthenticated}
@@ -143,26 +143,34 @@ export default async function PricingPage() {
             aria-labelledby="pricing-faq-title"
             className="mx-auto mt-20 max-w-3xl"
           >
-            <header className="space-y-2 text-center">
+            <header className="flex flex-col gap-2 text-center">
               <h2
                 id="pricing-faq-title"
-                className="text-2xl font-bold tracking-tight md:text-3xl"
+                className="text-[1.75rem] font-black leading-[1.05] tracking-[-0.04em] md:text-[2.25rem]"
               >
                 {t("faq.title")}
               </h2>
-              <p className="text-sm text-muted-foreground md:text-base">
+              <p className="text-base text-secondary-foreground">
                 {t("faq.subtitle")}
               </p>
             </header>
 
-            <Accordion type="single" collapsible className="mt-8">
+            <Accordion
+              type="single"
+              collapsible
+              className="mt-8 border-t border-border"
+            >
               {faqItems.map((item) => (
-                <AccordionItem key={item.key} value={item.key}>
-                  <AccordionTrigger className="text-left text-sm font-medium md:text-base">
+                <AccordionItem
+                  key={item.key}
+                  value={item.key}
+                  className="rounded-none border-x-0 border-b border-t-0"
+                >
+                  <AccordionTrigger className="px-0 py-5 text-left text-lg">
                     {item.question}
                   </AccordionTrigger>
-                  <AccordionContent>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
+                  <AccordionContent className="border-t-0 px-0 pb-5 pt-0">
+                    <p className="max-w-[60ch] text-base leading-relaxed text-secondary-foreground">
                       {item.answer}
                     </p>
                   </AccordionContent>
@@ -171,13 +179,13 @@ export default async function PricingPage() {
             </Accordion>
           </section>
 
-          <footer className="mx-auto mt-12 max-w-2xl space-y-2 text-center text-xs text-muted-foreground">
+          <footer className="mx-auto mt-12 flex max-w-2xl flex-col gap-2 text-center text-sm text-muted-foreground">
             <p>{t("vatNote")}</p>
             <p>
               {t("questionsLead")}{" "}
               <a
                 href="mailto:contact@axessyo.com"
-                className="text-primary underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded"
+                className="font-bold text-primary underline decoration-1 underline-offset-4 hover:decoration-2"
               >
                 contact@axessyo.com
               </a>

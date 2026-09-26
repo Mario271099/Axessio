@@ -6,64 +6,59 @@ import { PublicLocaleSwitcher } from "@/components/public/public-locale-switcher
 import { PublicMobileNav } from "@/components/public/public-mobile-nav";
 import { SITE } from "@/lib/site";
 
+/** Lien de navigation publique : soulignement cobalt qui s'étend au survol. */
+const navLink =
+  "relative inline-flex items-center py-1.5 text-base font-bold text-secondary-foreground transition-colors duration-150 " +
+  "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:origin-bottom after:scale-x-0 after:rounded-full after:bg-primary after:transition-transform after:duration-200 " +
+  "hover:text-foreground hover:after:scale-x-100";
+
 export function PublicHeader() {
   const t = useTranslations("home");
   const locale = useLocale();
   return (
-    <header className="border-b border-border bg-background/80 backdrop-blur sticky top-0 z-30">
-      <div className="container mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
+    <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur">
+      <div className="container mx-auto flex h-20 max-w-7xl items-center gap-10 px-6 lg:px-9">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="inline-flex shrink-0 items-center gap-2 rounded-lg"
           aria-label={SITE.name}
         >
           <Logo size="md" />
         </Link>
 
-        <nav aria-label={locale === "en" ? "Primary" : "Principale"}>
-          <ul className="flex items-center gap-2 text-sm">
-            <li className="hidden sm:block">
-              <Link
-                href="/#features"
-                className="rounded-md px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
+        <nav
+          aria-label={locale === "en" ? "Primary" : "Principale"}
+          className="hidden sm:block"
+        >
+          <ul className="flex items-center gap-8">
+            <li>
+              <Link href="/#features" className={navLink}>
                 {t("nav.features")}
               </Link>
             </li>
-            <li className="hidden sm:block">
-              <Link
-                href="/#standards"
-                className="rounded-md px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
+            <li>
+              <Link href="/#standards" className={navLink}>
                 {t("nav.standards")}
               </Link>
             </li>
-            <li className="hidden sm:block">
-              <Link
-                href="/pricing"
-                className="rounded-md px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
+            <li>
+              <Link href="/pricing" className={navLink}>
                 {t("nav.pricing")}
               </Link>
             </li>
-            <li className="hidden sm:block">
-              <Button asChild size="sm" variant="ghost">
-                <Link href="/login">{t("nav.login")}</Link>
-              </Button>
-            </li>
-            <li className="hidden sm:block">
-              <Button asChild size="sm">
-                <Link href="/register">{t("nav.register")}</Link>
-              </Button>
-            </li>
-            <li>
-              <PublicLocaleSwitcher />
-            </li>
-            <li>
-              <PublicMobileNav />
-            </li>
           </ul>
         </nav>
+
+        <div className="ml-auto flex items-center gap-2.5">
+          <PublicLocaleSwitcher />
+          <Button asChild variant="outline" className="hidden sm:inline-flex">
+            <Link href="/login">{t("nav.login")}</Link>
+          </Button>
+          <Button asChild className="hidden sm:inline-flex">
+            <Link href="/register">{t("nav.register")}</Link>
+          </Button>
+          <PublicMobileNav />
+        </div>
       </div>
     </header>
   );
