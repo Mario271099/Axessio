@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Logo } from "@/components/brand";
+import { SUPPORTED_STANDARDS } from "@/lib/constants";
 
 interface AuthLayoutProps {
   /** Slot principal du formulaire. */
@@ -20,7 +21,6 @@ const BENEFIT_KEYS = [
   "collaboration",
 ] as const;
 
-const VERSION_BADGES = ["RGAA 4.1.2", "WCAG 2.2", "RAWeb 1.1", "RAAM 1.1"];
 
 export function AuthLayout({
   children,
@@ -116,7 +116,7 @@ export function AuthLayout({
           </ul>
 
           <div className="mt-12 flex flex-wrap gap-2">
-            {VERSION_BADGES.map((badge) => (
+            {SUPPORTED_STANDARDS.map((badge) => (
               <span
                 key={badge}
                 className="rounded-full border border-cobalt-foreground/25 px-3 py-1 text-sm font-bold text-cobalt-foreground/90"

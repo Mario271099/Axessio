@@ -7,8 +7,10 @@
       "features": "Fonctionnalités",
       "standards": "Référentiels",
       "pricing": "Tarifs",
+      "faq": "Questions",
       "login": "Se connecter",
-      "register": "S'inscrire"
+      "register": "S'inscrire",
+      "getStarted": "Démarrer gratuitement"
     },
     "hero": {
       "kicker": "Plateforme d'audit d'accessibilité",
@@ -78,6 +80,8 @@
     "footer": {
       "tagline": "Plateforme d'audits d'accessibilité numérique.",
       "copyright": "© {year} Axessyo. Tous droits réservés.",
+      "standardsLabel": "Référentiels pris en charge",
+      "a11yStatus": "Conformité partielle au RGAA 4.1",
       "links": {
         "login": "Connexion",
         "register": "S'inscrire",

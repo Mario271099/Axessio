@@ -107,6 +107,20 @@ const PAIRS = [
   ["--border-strong", "--card", 1.2, "bord decoratif fort sur carte (indicatif)"],
   ["--ring", "--background", 3, "anneau de focus sur le fond"],
   ["--ring", "--card", 3, "anneau de focus sur carte"],
+  // Sur les aplats sombres, l'anneau passe au blanc de la surface : l'anneau
+  // cobalt n'y fait que 2,15:1 (cf. globals.css, regles .bg-ink / .bg-cobalt).
+  [
+    "--ink-surface-foreground",
+    "--ink-surface",
+    3,
+    "anneau de focus sur encre",
+  ],
+  [
+    "--cobalt-surface-foreground",
+    "--cobalt-surface",
+    3,
+    "anneau de focus sur aplat cobalt",
+  ],
   ["--destructive", "--card", 4.5, "texte destructif sur carte"],
   ["--success", "--card", 4.5, "texte succes sur carte"],
   ["--warning", "--card", 4.5, "texte avertissement sur carte"],

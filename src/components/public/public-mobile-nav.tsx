@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PUBLIC_NAV_LINKS } from "@/components/public/public-nav-links";
 import {
   Sheet,
   SheetClose,
@@ -22,11 +23,10 @@ export function PublicMobileNav() {
   const openLabel = isEn ? "Open menu" : "Ouvrir le menu";
   const navLabel = isEn ? "Menu" : "Menu";
 
-  const links = [
-    { href: "/#features", label: t("nav.features") },
-    { href: "/#standards", label: t("nav.standards") },
-    { href: "/pricing", label: t("nav.pricing") },
-  ];
+  const links = PUBLIC_NAV_LINKS.map((link) => ({
+    href: link.href,
+    label: t(`nav.${link.key}`),
+  }));
 
   return (
     <Sheet>
@@ -35,7 +35,7 @@ export function PublicMobileNav() {
           type="button"
           size="icon"
           variant="ghost"
-          className="sm:hidden"
+          className="lg:hidden"
           aria-label={openLabel}
         >
           <Menu className="h-5 w-5" aria-hidden="true" />
@@ -71,7 +71,7 @@ export function PublicMobileNav() {
           </SheetClose>
           <SheetClose asChild>
             <Button asChild>
-              <Link href="/register">{t("nav.register")}</Link>
+              <Link href="/register">{t("nav.getStarted")}</Link>
             </Button>
           </SheetClose>
         </div>

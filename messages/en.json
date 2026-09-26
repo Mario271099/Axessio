@@ -7,8 +7,10 @@
       "features": "Features",
       "standards": "Standards",
       "pricing": "Pricing",
+      "faq": "Questions",
       "login": "Sign in",
-      "register": "Sign up"
+      "register": "Sign up",
+      "getStarted": "Start for free"
     },
     "hero": {
       "kicker": "Accessibility audit platform",
@@ -78,6 +80,8 @@
     "footer": {
       "tagline": "Digital accessibility audit platform.",
       "copyright": "© {year} Axessyo. All rights reserved.",
+      "standardsLabel": "Supported standards",
+      "a11yStatus": "Partial conformity with RGAA 4.1",
       "links": {
         "login": "Sign in",
         "register": "Sign up",

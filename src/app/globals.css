@@ -353,6 +353,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* L'en-tete public est colle en haut (80 px) : sans cette marge, une cible
+     d'ancre (#features, #standards, #faq) se place dessous. */
+  scroll-padding-top: 5.5rem;
 }
 
 body {
@@ -385,6 +388,19 @@ h4 {
 *:focus-visible {
   outline: 3px solid hsl(var(--ring));
   outline-offset: 2px;
+}
+
+/* Sur les grands aplats sombres (encre, cobalt), l'anneau cobalt tombe a
+   2,15:1 contre le fond : il n'est plus discernable. On passe alors a la
+   couleur de texte de la surface (WCAG 2.4.11 demande >= 3:1). */
+.bg-ink:focus-visible,
+.bg-ink *:focus-visible {
+  outline-color: hsl(var(--ink-surface-foreground));
+}
+
+.bg-cobalt:focus-visible,
+.bg-cobalt *:focus-visible {
+  outline-color: hsl(var(--cobalt-surface-foreground));
 }
 
 /* Skip link (WCAG 2.4.1) */

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Logo } from "@/components/brand";
+import { StatusDot } from "@/components/ui/status-dot";
+import { SUPPORTED_STANDARDS } from "@/lib/constants";
 import { SITE } from "@/lib/site";
 
 /** Groupes de liens du pied de page, dans l'ordre des maquettes. */
@@ -36,46 +38,83 @@ export function PublicFooter() {
   const locale = useLocale();
   const year = new Date().getFullYear();
   return (
-    <footer className="border-t border-border bg-card pb-10 pt-14">
-      <div className="container mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[1.4fr_repeat(3,minmax(0,1fr))] lg:px-9">
-        <div className="min-w-0">
-          <Link href="/" className="inline-flex rounded-lg" aria-label={SITE.name}>
-            <Logo size="md" />
-          </Link>
-          <p className="mt-3.5 max-w-[32ch] text-sm text-muted-foreground">
-            {t("footer.tagline")}
-          </p>
-          <p className="mt-6 text-sm text-muted-foreground">
-            {t("footer.copyright", { year })}
-          </p>
+    // Surface encre : le pied de page ferme la lecture et se distingue du bloc
+    // d'appel a l'action, qui est un bloc cobalt pose dans la largeur du texte.
+    <footer className="bg-ink pb-10 pt-12 text-ink-foreground">
+      <div className="container mx-auto max-w-7xl px-6 lg:px-9">
+        {/* Bandeau de reassurance : ce que la plateforme couvre, et ou en est
+            sa propre accessibilite. */}
+        <div className="flex flex-wrap items-center gap-x-7 gap-y-4 border-b border-ink-raised pb-7">
+          <h2 className="text-base font-extrabold">
+            {t("footer.standardsLabel")}
+          </h2>
+          <ul className="flex flex-wrap gap-2">
+            {SUPPORTED_STANDARDS.map((standard) => (
+              <li
+                key={standard}
+                className="rounded-full border border-ink-raised px-3.5 py-1 text-sm font-bold tabular-nums text-ink-muted"
+              >
+                {standard}
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 lg:ml-auto">
+            <StatusDot color="hsl(var(--highlight))" className="text-ink-muted">
+              {t("footer.a11yStatus")}
+            </StatusDot>
+            <Link
+              href="/accessibility"
+              className="rounded text-sm font-extrabold underline decoration-1 underline-offset-4 hover:decoration-2"
+            >
+              {t("a11yBlock.link")}
+            </Link>
+          </div>
         </div>
 
-        {GROUPS.map((group) => (
-          <nav
-            key={group.key}
-            aria-labelledby={`footer-${group.key}`}
-            className="min-w-0"
-          >
-            <h2
-              id={`footer-${group.key}`}
-              className="text-base font-extrabold"
+        {/* Colonnes -------------------------------------------------------- */}
+        <div className="mt-9 grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(3,minmax(0,1fr))]">
+          <div className="min-w-0">
+            <Link
+              href="/"
+              className="inline-flex rounded-lg"
+              aria-label={SITE.name}
             >
-              {t(`footer.groups.${group.key}`)}
-            </h2>
-            <ul className="mt-3 flex flex-col gap-2.5">
-              {group.links.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="rounded text-sm text-secondary-foreground transition-colors hover:text-primary hover:underline hover:underline-offset-4"
-                  >
-                    {t(`footer.links.${link.labelKey}`)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        ))}
+              {/* Variante prevue pour fond sombre (cf. components/brand). */}
+              <Logo variant="light" size="md" />
+            </Link>
+            <p className="mt-3.5 max-w-[32ch] text-sm text-ink-muted">
+              {t("footer.tagline")}
+            </p>
+            <p className="mt-6 text-sm text-ink-muted">
+              {t("footer.copyright", { year })}
+            </p>
+          </div>
+
+          {GROUPS.map((group) => (
+            <nav
+              key={group.key}
+              aria-labelledby={`footer-${group.key}`}
+              className="min-w-0"
+            >
+              <h2 id={`footer-${group.key}`} className="text-base font-extrabold">
+                {t(`footer.groups.${group.key}`)}
+              </h2>
+              <ul className="mt-3 flex flex-col gap-2.5">
+                {group.links.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="rounded text-sm text-ink-muted transition-colors hover:text-ink-foreground hover:underline hover:underline-offset-4"
+                    >
+                      {t(`footer.links.${link.labelKey}`)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
       </div>
 
       <p className="sr-only">{locale === "en" ? "Footer" : "Pied de page"}</p>

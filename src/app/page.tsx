@@ -384,6 +384,7 @@ export default async function HomePage() {
             FAQ
             ================================================================= */}
         <section
+          id="faq"
           aria-labelledby="faq-title"
           className="container mx-auto max-w-7xl px-6 pb-16 md:pb-20 lg:px-9"
         >

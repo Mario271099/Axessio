@@ -168,6 +168,21 @@ export const CONFORMITY_STATUS_LABELS: Record<ConformityStatus, string> = {
 };
 
 // ============================================================================
+// Référentiels
+// ============================================================================
+/**
+ * Référentiels pris en charge par la plateforme, avec leur version — ceux dont
+ * la grille de critères est réellement importée. Noms propres et numéros de
+ * version : identiques dans toutes les langues, donc hors i18n.
+ */
+export const SUPPORTED_STANDARDS = [
+  "RGAA 4.1.2",
+  "WCAG 2.2",
+  "RAWeb 1.1",
+  "RAAM 1.1",
+] as const;
+
+// ============================================================================
 // Handicaps
 // ============================================================================
 export const DISABILITY_LABELS: Record<DisabilityType, string> = {
