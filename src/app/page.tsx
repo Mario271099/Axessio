@@ -144,13 +144,15 @@ export default async function HomePage() {
               <rect x="0" y="0" width="290" height="290" rx="70" />
               <circle cx="475" cy="145" r="145" />
               <rect x="0" y="330" width="290" height="290" rx="70" />
+              {/* L'ambre est franc sur fond clair, presque effacé en sombre :
+                  sinon la forme vire au brun sur le fond encre. */}
               <rect
                 x="330"
                 y="330"
                 width="290"
                 height="290"
                 rx="70"
-                fill="hsl(var(--highlight) / 0.18)"
+                fill="var(--highlight-wash)"
               />
             </g>
           </svg>
@@ -435,7 +437,7 @@ export default async function HomePage() {
           aria-labelledby="cta-title"
           className="container mx-auto max-w-7xl px-6 pb-16 md:pb-20 lg:px-9"
         >
-          <div className="relative flex flex-wrap items-center justify-between gap-8 overflow-hidden rounded-[2rem] bg-primary p-8 text-primary-foreground md:p-14">
+          <div className="relative flex flex-wrap items-center justify-between gap-8 overflow-hidden rounded-[2rem] bg-cobalt p-8 text-cobalt-foreground md:p-14">
             <svg
               aria-hidden="true"
               viewBox="0 0 420 420"
@@ -455,7 +457,7 @@ export default async function HomePage() {
               >
                 {t("cta.title")}
               </h2>
-              <p className="mt-3.5 max-w-[46ch] text-lg text-primary-foreground/85">
+              <p className="mt-3.5 max-w-[46ch] text-lg text-cobalt-foreground/85">
                 {t("cta.subtitle")}
               </p>
             </div>

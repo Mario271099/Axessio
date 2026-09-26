@@ -68,7 +68,7 @@ export function AuthLayout({
       {/* Panneau droit - présentation ------------------------------------ */}
       <aside
         aria-hidden="true"
-        className="relative m-4 hidden overflow-hidden rounded-[1.75rem] bg-primary p-14 text-primary-foreground lg:flex lg:flex-col lg:justify-center"
+        className="relative m-4 hidden overflow-hidden rounded-[1.75rem] bg-cobalt p-14 text-cobalt-foreground lg:flex lg:flex-col lg:justify-center"
       >
         {/* Formes géométriques de la marque, purement décoratives. */}
         <svg
@@ -94,7 +94,7 @@ export function AuthLayout({
           <p className="max-w-[15ch] text-[2.25rem] font-black leading-[1.05] tracking-[-0.035em] xl:text-[2.75rem]">
             {tMarketing("tagline")}
           </p>
-          <p className="mt-4 max-w-[44ch] text-[1.05rem] leading-relaxed text-primary-foreground/85">
+          <p className="mt-4 max-w-[44ch] text-[1.05rem] leading-relaxed text-cobalt-foreground/85">
             {tMarketing("subtitle")}
           </p>
 
@@ -105,7 +105,7 @@ export function AuthLayout({
                 className="fade-in-up flex items-center gap-3"
                 style={{ animationDelay: `${100 + i * 80}ms` }}
               >
-                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary-foreground/15">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-cobalt-foreground/15">
                   <Check className="size-3.5" strokeWidth={3} />
                 </span>
                 <span className="text-base font-semibold">
@@ -119,7 +119,7 @@ export function AuthLayout({
             {VERSION_BADGES.map((badge) => (
               <span
                 key={badge}
-                className="rounded-full border border-primary-foreground/25 px-3 py-1 text-sm font-bold text-primary-foreground/90"
+                className="rounded-full border border-cobalt-foreground/25 px-3 py-1 text-sm font-bold text-cobalt-foreground/90"
               >
                 {badge}
               </span>

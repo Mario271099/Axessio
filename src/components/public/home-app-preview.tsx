@@ -118,10 +118,10 @@ export function HomeAppPreview() {
       </div>
 
       {/* Carte flottante : simulation */}
-      <div className="absolute -right-2 top-0 w-[210px] rounded-[1.125rem] bg-primary p-4 text-primary-foreground shadow-float transition-transform duration-500 ease-lift group-hover:translate-x-3.5 group-hover:translate-y-3">
-        <span className="block h-2 w-20 rounded-full bg-primary-foreground/40" />
-        <span className="mt-2.5 block h-5 w-32 rounded-full bg-primary-foreground/80" />
-        <span className="mt-2 block h-2 w-24 rounded-full bg-primary-foreground/40" />
+      <div className="absolute -right-6 -top-3 w-[210px] rounded-[1.125rem] bg-cobalt p-4 text-cobalt-foreground shadow-float transition-transform duration-500 ease-lift group-hover:translate-x-3.5 group-hover:translate-y-3">
+        <span className="block h-2 w-20 rounded-full bg-cobalt-foreground/40" />
+        <span className="mt-2.5 block h-5 w-32 rounded-full bg-cobalt-foreground/80" />
+        <span className="mt-2 block h-2 w-24 rounded-full bg-cobalt-foreground/40" />
       </div>
     </div>
   );

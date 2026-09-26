@@ -28,6 +28,16 @@
   --primary-muted: 228 71% 95%;       /* #E7EBFB  pastilles, compteurs, halo de survol */
   --highlight: 39 100% 56%;           /* #FFB020  accent graphique uniquement */
 
+  /* Grands aplats de marque (panneau de connexion, bloc d'appel a l'action).
+     Contrairement a --primary, ce token reste sombre en theme sombre : un
+     aplat plein ecran ne doit pas s'eclaircir avec le bouton. */
+  --cobalt-surface: 230 69% 46%;
+  --cobalt-surface-foreground: 0 0% 100%;
+
+  /* Lavis d ambre des formes decoratives : franc sur fond clair, presque
+     efface en sombre, ou il virerait au brun. */
+  --highlight-wash: hsl(var(--highlight) / 0.18);
+
   /* Cartes sombres des blocs de synthese (score moyen, plan, astuces) */
   --ink-surface: 230 35% 13%;             /* #161A2E */
   --ink-surface-foreground: 0 0% 100%;
@@ -133,8 +143,13 @@
 }
 
 /* ============================================================================
-   Mode sombre — derive des memes tokens. Non maquette (etape 8 du chantier) :
-   les valeurs ci-dessous garantissent la lisibilite, elles seront affinees.
+   Mode sombre — derive des memes tokens (etape 8, sans maquette).
+   Hierarchie des surfaces : fond 10 % < carte 14 % < carte encre 17 % <
+   bloc pose 23 %. En sombre l'emphase se fait donc par eclaircissement.
+   Les 13 couleurs de thematique ne sont PAS eclaircies : elles portent du
+   texte blanc, qui passerait sous 4,5:1 si on montait leur luminosite.
+   Tous les couples texte/fond sont mesures a >= 4,5:1 et les bords de champ
+   a >= 3:1 (scripts de verification dans le rapport d'etape).
    ========================================================================== */
 .dark {
   --background: 230 30% 10%;          /* #12141F */
@@ -149,8 +164,11 @@
   --primary-hover: 228 80% 80%;
   --primary-soft: 230 28% 21%;
   --primary-softer: 230 28% 17%;
-  --primary-muted: 230 30% 24%;
+  --primary-muted: 230 32% 19%;
   --highlight: 39 100% 62%;
+  --cobalt-surface: 230 62% 34%;
+  --highlight-wash: hsl(var(--highlight) / 0.06);
+  --cobalt-surface-foreground: 0 0% 100%;
 
   --ink-surface: 230 28% 17%;
   --ink-surface-foreground: 228 33% 97%;
@@ -218,6 +236,8 @@
   --color-primary-softer: hsl(var(--primary-softer));
   --color-primary-muted: hsl(var(--primary-muted));
   --color-highlight: hsl(var(--highlight));
+  --color-cobalt: hsl(var(--cobalt-surface));
+  --color-cobalt-foreground: hsl(var(--cobalt-surface-foreground));
   --color-ink: hsl(var(--ink-surface));
   --color-ink-foreground: hsl(var(--ink-surface-foreground));
   --color-ink-muted: hsl(var(--ink-surface-muted));
