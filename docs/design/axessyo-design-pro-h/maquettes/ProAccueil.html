@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Axessyo Pro — Accueil public</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.px{font-family:'Figtree',system-ui,sans-serif;color:#161A2E;-webkit-font-smoothing:antialiased}
+.px .num{font-variant-numeric:tabular-nums}
+.px .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.px a:focus-visible,.px button:focus-visible,.px input:focus-visible,.px select:focus-visible,.px textarea:focus-visible,.px [tabindex]:focus-visible{outline:3px solid #2440C8;outline-offset:2px}
+
+.px-nav{position:relative;display:flex;align-items:center;gap:12px;height:42px;padding:0 12px;border-radius:10px;color:#3F4560;font-size:15px;font-weight:600;text-decoration:none;transition:background-color .18s ease,color .18s ease}
+.px-nav svg{color:#7A8099;transition:color .18s ease,transform .25s cubic-bezier(.3,1.5,.5,1)}
+.px-nav:hover{background:#EEF1FB;color:#161A2E}
+.px-nav:hover svg{color:#2440C8;transform:scale(1.12)}
+.px-nav[aria-current]{background:#2440C8;color:#FFFFFF}
+.px-nav[aria-current] svg{color:#FFFFFF}
+.px-badge{margin-left:auto;min-width:22px;height:22px;padding:0 7px;box-sizing:border-box;border-radius:11px;background:#E7EBFB;color:#2440C8;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.px-nav[aria-current] .px-badge{background:rgba(255,255,255,.2);color:#FFFFFF}
+
+.px-rail a{position:relative;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#7A8099;transition:background-color .15s ease,color .15s ease}
+.px-rail a:hover{background:#EEF1FB;color:#2440C8}
+.px-rail a[aria-current]{background:#2440C8;color:#FFFFFF}
+.px-rail a .tip{position:absolute;left:calc(100% + 12px);top:50%;transform:translate(-4px,-50%);opacity:0;pointer-events:none;white-space:nowrap;background:#161A2E;color:#FFFFFF;font-size:13px;font-weight:700;padding:6px 10px;border-radius:8px;transition:opacity .15s ease,transform .15s ease;z-index:10}
+.px-rail a:hover .tip,.px-rail a:focus-visible .tip{opacity:1;transform:translate(0,-50%)}
+
+.px-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:10px;background:#2440C8;color:#FFFFFF;font:inherit;font-weight:700;font-size:15px;text-decoration:none;border:0;cursor:pointer;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 6px 16px -8px rgba(36,64,200,.8);transition:transform .12s ease,box-shadow .2s ease,background-color .2s ease;white-space:nowrap}
+.px-btn:hover{background:#1C34A8;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 10px 22px -8px rgba(36,64,200,.9)}
+.px-btn:active{transform:scale(.97)}
+.px-btn svg{transition:transform .25s ease}
+.px-btn:hover svg.spin{transform:rotate(90deg)}.px-btn:hover svg.go{transform:translateX(3px)}
+.px-btn.danger{background:#C81E1E;box-shadow:0 6px 16px -8px rgba(200,30,30,.8)}.px-btn.danger:hover{background:#A61B1B}
+.px-btn.dark{background:#161A2E;box-shadow:none}.px-btn.dark:hover{background:#2B3050}
+.px-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border-radius:10px;border:1px solid #D5DAE8;background:#FFFFFF;color:#161A2E;font:inherit;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer;white-space:nowrap;transition:border-color .15s ease,background-color .15s ease}
+.px-ghost:hover{border-color:#2440C8;background:#F4F6FE}
+.px-icon{width:40px;height:40px;border-radius:10px;border:0;background:transparent;color:#3F4560;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.px-icon:hover{background:#EEF1FB;color:#2440C8}
+.px-link{color:#2440C8;font-weight:700;font-size:14px;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.px-link:hover{text-decoration-thickness:2px}
+
+.px-card{background:#FFFFFF;border:1px solid #E4E7F0;border-radius:16px}
+.px-lift{transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease,border-color .2s ease}
+.px-lift:hover,.px-lift:focus-visible{transform:translateY(-3px);border-color:var(--c,#2440C8);box-shadow:0 16px 30px -18px var(--c,#2440C8)}
+
+.px-search{display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;box-sizing:border-box;border-radius:12px;border:1px solid #D5DAE8;background:#FFFFFF;color:#5B6178;transition:border-color .15s ease,box-shadow .2s ease}
+.px-search:hover{border-color:#2440C8;box-shadow:0 0 0 4px #E7EBFB}
+.px-search input{flex:1;min-width:0;border:0;outline:none;background:transparent;font:inherit;font-size:15px;color:#161A2E}
+.px-kbd{font-size:12px;font-weight:700;padding:2px 7px;border-radius:6px;background:#F1F3F9;color:#5B6178}
+
+.px-tab{position:relative;display:flex;align-items:center;gap:8px;height:48px;color:#5B6178;font-weight:700;font-size:15px;text-decoration:none;transition:color .15s ease;white-space:nowrap}
+.px-tab::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:#2440C8;transform:scaleX(0);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.px-tab:hover{color:#161A2E}.px-tab:hover::after{transform:scaleX(.5)}
+.px-tab[aria-current]{color:#2440C8}.px-tab[aria-current]::after{transform:scaleX(1)}
+.px-count{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:10px;background:#EEF0F6;color:#3F4560;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+
+.px-chip{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:18px;border:1px solid #D5DAE8;background:#FFFFFF;font:inherit;font-size:14px;font-weight:700;color:#161A2E;cursor:pointer;white-space:nowrap;transition:border-color .15s ease,background-color .15s ease,color .15s ease}
+.px-chip:hover{border-color:#2440C8}
+.px-chip[aria-pressed="true"]{background:#161A2E;border-color:#161A2E;color:#FFFFFF}
+.px-chip .n{font-size:12px;font-weight:800;opacity:.75}
+
+.px-label{display:block;font-size:14px;font-weight:700;margin-bottom:6px}
+.px-hint{display:block;font-size:13px;color:#5B6178;margin-top:5px}
+.px-input,.px-select,.px-textarea{width:100%;box-sizing:border-box;height:44px;padding:0 14px;border-radius:10px;border:1px solid #7C849C;background:#FFFFFF;font:inherit;font-size:15px;color:#161A2E;transition:border-color .15s ease,box-shadow .2s ease}
+.px-textarea{height:auto;min-height:96px;padding:12px 14px;line-height:1.5;resize:vertical}
+.px-input:hover,.px-select:hover,.px-textarea:hover{border-color:#2440C8}
+.px-input:focus,.px-select:focus,.px-textarea:focus{outline:none;border-color:#2440C8;box-shadow:0 0 0 4px #D9DFF8}
+
+.px-sev{display:inline-flex;align-items:center;gap:6px;justify-self:start;font-size:13px;font-weight:800;padding:4px 10px;border-radius:8px;white-space:nowrap}
+.px-sev.crit{background:#FDE8E8;color:#A61B1B}.px-sev.high{background:#FEF0E6;color:#9A3412}.px-sev.med{background:#FEF6DC;color:#7A5300}.px-sev.low{background:#E7EEFB;color:#1E4E8C}
+.px-st{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;white-space:nowrap}
+.px-st::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+.px-pill{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 12px;border-radius:14px;font-size:13.5px;font-weight:800;white-space:nowrap}
+.px-av{width:28px;height:28px;border-radius:50%;border:2px solid #FFFFFF;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#FFFFFF;flex-shrink:0}
+.px-mono{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:800;font-size:15px;flex-shrink:0;transition:transform .25s cubic-bezier(.3,1.5,.5,1),border-radius .25s ease}
+.px-row{transition:background-color .15s ease,box-shadow .2s ease}
+.px-row:hover,.px-row:focus-visible{background:#F4F6FE;box-shadow:inset 0 0 0 1px #D9DFF8}
+.px-row:hover .px-mono{transform:rotate(-6deg) scale(1.06);border-radius:50%}
+.px-row .chev{opacity:0;transform:translateX(-6px);transition:opacity .15s ease,transform .2s ease;color:#2440C8}
+.px-row:hover .chev,.px-row:focus-visible .chev{opacity:1;transform:none}
+.px-check{width:20px;height:20px;margin:0;accent-color:#2440C8;cursor:pointer}
+
+.px-toggle{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;cursor:pointer}
+.px-toggle input{appearance:none;width:40px;height:24px;flex-shrink:0;border-radius:12px;background:#9AA1B8;position:relative;cursor:pointer;margin:0;transition:background-color .2s ease}
+.px-toggle input::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s cubic-bezier(.3,1.4,.5,1)}
+.px-toggle input:checked{background:#2440C8}
+.px-toggle input:checked::after{transform:translateX(16px)}
+.px-toggle input:focus-visible{outline:3px solid #2440C8;outline-offset:2px}
+
+.px-steps{display:flex;gap:4px}
+.px-steps span{flex:1;height:6px;border-radius:3px;background:#E4E7F0}
+.px-steps span.on{background:#2440C8}
+.px-steps span.cur{background:#2440C8;animation:pxpulse 1.8s ease-in-out infinite}
+@keyframes pxpulse{0%,100%{opacity:1}50%{opacity:.45}}
+.px-fill{transform-origin:left;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion: reduce){.px *{transition:none!important;animation:none!important}}
+
+.ld-nav a.l{position:relative;color:#3F4560;font-weight:700;font-size:15px;text-decoration:none;padding:6px 0;transition:color .15s ease}
+.ld-nav a.l::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:2px;background:#2440C8;transform:scaleX(0);transition:transform .2s ease}
+.ld-nav a.l:hover{color:#161A2E}.ld-nav a.l:hover::after{transform:scaleX(1)}
+.ld-stage .f1,.ld-stage .f2,.ld-stage .main{transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.ld-stage:hover .main{transform:perspective(1600px) rotateY(-4deg) rotateX(2deg)}
+.ld-stage:hover .f1{transform:translate(-14px,-10px) rotate(-2deg)}
+.ld-stage:hover .f2{transform:translate(14px,12px) rotate(2deg)}
+.ld-std{display:flex;flex-direction:column;gap:2px;padding:18px 20px;border-radius:16px;border:1px solid #E4E7F0;background:#FFFFFF;transition:border-color .2s ease,transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease}
+.ld-std:hover{border-color:var(--c);transform:translateY(-3px);box-shadow:0 16px 30px -20px var(--c)}
+.ld-tile{position:relative;overflow:hidden;border-radius:22px;border:1px solid #E4E7F0;background:#FFFFFF;padding:26px;display:flex;flex-direction:column;gap:10px;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease,border-color .2s ease}
+.ld-tile:hover{transform:translateY(-4px);border-color:var(--c);box-shadow:0 26px 44px -28px var(--c)}
+.ld-tile h3{margin:0;font-size:21px;font-weight:900;letter-spacing:-.02em}
+.ld-tile p{margin:0;font-size:15px;line-height:1.55;color:#3F4560;max-width:46ch}
+.ld-tile .demo{margin-top:auto;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.ld-tile:hover .demo{transform:translateY(-6px)}
+.ld-cell{width:22px;height:22px;border-radius:6px;transition:transform .2s cubic-bezier(.3,1.5,.5,1)}
+.ld-tile:hover .ld-cell:nth-child(3n){transform:scale(1.15)}
+.ld-step{position:relative;display:flex;flex-direction:column;gap:12px;padding:26px;border-radius:22px;background:#FFFFFF;border:1px solid #E4E7F0;transition:transform .25s ease,box-shadow .3s ease}
+.ld-step:hover{transform:translateY(-4px);box-shadow:0 24px 40px -28px #2440C8}
+.ld-step .n{width:48px;height:48px;border-radius:14px;background:#2440C8;color:#FFFFFF;font-weight:900;font-size:20px;display:flex;align-items:center;justify-content:center;transition:transform .3s cubic-bezier(.3,1.5,.5,1),border-radius .3s ease}
+.ld-step:hover .n{transform:rotate(-8deg);border-radius:50%}
+.ld-plan{display:flex;flex-direction:column;gap:14px;padding:26px;border-radius:22px;border:1px solid #E4E7F0;background:#FFFFFF;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease,border-color .2s ease}
+.ld-plan:hover{transform:translateY(-4px);border-color:#2440C8;box-shadow:0 24px 40px -28px #2440C8}
+.ld-plan.rec{background:#161A2E;border-color:#161A2E;color:#FFFFFF}
+.ld-plan li{display:flex;gap:10px;font-size:14.5px;line-height:1.4}
+.ld-plan li svg{flex-shrink:0;margin-top:1px;color:#15803D}
+.ld-plan.rec li svg{color:#6EE7A0}
+.ld-bill{display:flex;padding:4px;border-radius:14px;background:#EEF0F6;gap:4px}
+.ld-bill button{height:40px;padding:0 18px;border:0;border-radius:10px;background:transparent;font:inherit;font-weight:800;font-size:14.5px;color:#3F4560;cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.ld-bill button:hover{color:#161A2E}
+.ld-bill button[aria-pressed="true"]{background:#FFFFFF;color:#2440C8;box-shadow:0 1px 3px rgba(22,26,46,.12)}
+.ld-faq{border-bottom:1px solid #E4E7F0}
+.ld-faq button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 4px;border:0;background:transparent;font:inherit;font-size:18px;font-weight:800;color:#161A2E;text-align:left;cursor:pointer;transition:color .15s ease}
+.ld-faq button:hover{color:#2440C8}
+.ld-faq .pm{width:34px;height:34px;flex-shrink:0;border-radius:50%;background:#EEF0F6;display:flex;align-items:center;justify-content:center;transition:transform .3s cubic-bezier(.3,1.4,.5,1),background-color .2s ease,color .2s ease}
+.ld-faq button:hover .pm{background:#2440C8;color:#FFFFFF}
+.ld-faq button[aria-expanded="true"] .pm{transform:rotate(45deg);background:#2440C8;color:#FFFFFF}
+.ld-foot a{color:#3F4560;font-size:14.5px;text-decoration:none;transition:color .15s ease}
+.ld-foot a:hover{color:#2440C8;text-decoration:underline;text-underline-offset:3px}
+.ld-cta-btn{display:inline-flex;align-items:center;gap:10px;height:54px;padding:0 26px;border-radius:14px;background:#FFFFFF;color:#161A2E;font-weight:800;font-size:16.5px;text-decoration:none;transition:transform .15s ease,box-shadow .25s ease}
+.ld-cta-btn:hover{transform:translateY(-2px);box-shadow:0 16px 30px -16px rgba(0,0,0,.6)}
+.ld-cta-btn svg{transition:transform .25s ease}.ld-cta-btn:hover svg{transform:translateX(4px)}
+</style>
+</helmet>
+<div class="px" style="width: 1440px; height: 4300px; display: flex; flex-direction: column; background: #FFFFFF; overflow: hidden">
+  <header class="ld-nav" style="height: 80px; flex-shrink: 0; display: flex; align-items: center; gap: 40px; padding: 0 80px; border-bottom: 1px solid #EEF0F6">
+    <a href="#" style="display: flex; align-items: center; gap: 10px; color: #161A2E; text-decoration: none"><span aria-hidden="true" style="width: 34px; height: 34px; border-radius: 10px; background: #2440C8; display: grid; grid-template-columns: repeat(2, 9px); gap: 3px; align-content: center; justify-content: center; flex-shrink: 0"><span style="height: 9px; border-radius: 3px; background: #FFFFFF"></span><span style="height: 9px; border-radius: 50%; background: #FFB020"></span><span style="height: 9px; border-radius: 3px; background: #FFFFFF"></span><span style="height: 9px; border-radius: 3px; background: #FFFFFF; opacity: .55"></span></span><span style="font-size: 21px; font-weight: 900; letter-spacing: -0.03em">Axessyo</span></a>
+    <nav aria-label="Navigation principale"><ul style="list-style: none; margin: 0; padding: 0; display: flex; gap: 32px"><li><a class="l" href="#fonctionnalites">Fonctionnalités</a></li><li><a class="l" href="#referentiels">Référentiels</a></li><li><a class="l" href="#tarifs">Tarifs</a></li><li><a class="l" href="#faq">Questions</a></li></ul></nav>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <button type="button" class="px-icon" aria-label="Switch to English" style="width: auto; padding: 0 12px; font: inherit; font-weight: 800; font-size: 14px">EN</button>
+      <a class="px-ghost" href="#">Se connecter</a>
+      <a class="px-btn" href="#">Démarrer gratuitement</a>
+    </div>
+  </header>
+
+  <main id="main" style="display: flex; flex-direction: column">
+    <section aria-labelledby="ld-h1" style="position: relative; padding: 80px 80px 90px; display: grid; grid-template-columns: 560px minmax(0, 1fr); gap: 60px; align-items: center">
+      <svg aria-hidden="true" width="620" height="620" viewBox="0 0 620 620" style="position: absolute; right: -120px; top: -60px"><g fill="#EEF1FB"><rect x="0" y="0" width="290" height="290" rx="70"></rect><circle cx="475" cy="145" r="145"></circle><rect x="0" y="330" width="290" height="290" rx="70"></rect><rect x="330" y="330" width="290" height="290" rx="70" fill="#FFF3DA"></rect></g></svg>
+      <div style="position: relative">
+        <p style="margin: 0; display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px 0 6px; border-radius: 17px; background: #EEF1FB; color: #2440C8; font-size: 14px; font-weight: 800"><span style="height: 24px; padding: 0 9px; border-radius: 12px; background: #2440C8; color: #FFFFFF; display: inline-flex; align-items: center; font-size: 12.5px">Nouveau</span>Simulateur de remédiation disponible</p>
+        <h1 id="ld-h1" style="margin: 22px 0 0; font-size: 66px; font-weight: 900; letter-spacing: -0.045em; line-height: 1">Pilotez vos audits d'accessibilité sans tableurs.</h1>
+        <p style="margin: 24px 0 0; font-size: 19px; line-height: 1.55; color: #3F4560; max-width: 48ch">Grille de conformité, non-conformités suivies avec vos clients, rapports PDF prêts à livrer. Pour les auditeurs et les équipes qui corrigent.</p>
+        <div style="display: flex; gap: 12px; margin-top: 32px"><a class="px-btn" href="#" style="height: 54px; padding: 0 26px; font-size: 16.5px; border-radius: 14px">Démarrer gratuitement<svg class="go" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a><a class="px-ghost" href="#" style="height: 54px; padding: 0 24px; font-size: 16.5px; border-radius: 14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>Voir une démo</a></div>
+        <p style="margin: 16px 0 0; font-size: 14px; color: #5B6178">Gratuit pour un audit, sans carte bancaire et sans limite de durée.</p>
+      </div>
+
+      <div class="ld-stage" aria-hidden="true" style="position: relative; height: 520px">
+        <div class="main" style="position: absolute; left: 30px; top: 30px; width: 620px; height: 440px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E4E7F0; box-shadow: 0 40px 80px -40px rgba(22,26,46,.45); overflow: hidden; display: flex">
+          <div style="width: 150px; border-right: 1px solid #EEF0F6; padding: 16px 12px; display: flex; flex-direction: column; gap: 6px">
+            <span style="display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 13px; margin-bottom: 8px"><span style="width: 18px; height: 18px; border-radius: 6px; background: #2440C8"></span>Axessyo</span>
+            <span style="height: 26px; border-radius: 7px; background: #2440C8"></span><span style="height: 26px; border-radius: 7px; background: #F1F3F9"></span><span style="height: 26px; border-radius: 7px; background: #F1F3F9"></span><span style="height: 26px; border-radius: 7px; background: #F1F3F9"></span>
+          </div>
+          <div style="flex: 1; padding: 18px; background: #F5F6FA; display: flex; flex-direction: column; gap: 12px">
+            <span style="font-weight: 900; font-size: 18px">Bonjour Mario</span>
+            <div style="display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 10px">
+              <div style="border-radius: 12px; background: #161A2E; color: #FFFFFF; padding: 12px; display: flex; gap: 10px; align-items: center"><svg width="54" height="54" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#2B3050" stroke-width="14"></circle><circle cx="60" cy="60" r="50" fill="none" stroke="#FFB020" stroke-width="14" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="91" transform="rotate(-90 60 60)"></circle></svg><span style="font-size: 11px; line-height: 1.3"><span style="display: block; font-size: 17px; font-weight: 900">71 %</span>conformité</span></div>
+              <div style="border-radius: 12px; background: #FFFFFF; border: 1px solid #E4E7F0; padding: 12px"><span style="display: block; font-size: 20px; font-weight: 900">7</span><span style="font-size: 11px; color: #5B6178">audits en cours</span></div>
+              <div style="border-radius: 12px; background: #FFFFFF; border: 1px solid #E4E7F0; padding: 12px"><span style="display: block; font-size: 20px; font-weight: 900; color: #C81E1E">14</span><span style="font-size: 11px; color: #5B6178">NC critiques</span></div>
+            </div>
+            <div style="border-radius: 12px; background: #FFFFFF; border: 1px solid #E4E7F0; padding: 10px; display: flex; flex-direction: column; gap: 8px">
+              <sc-for list="{{mini}}" as="m" hint-placeholder-count="4"><div style="display: grid; grid-template-columns: 26px 1fr 60px 34px; gap: 10px; align-items: center; font-size: 11.5px; font-weight: 700"><span style="{{m.mono}}">{{m.ini}}</span><span>{{m.name}}</span><span style="display: flex; gap: 2px"><span style="flex: 1; height: 4px; border-radius: 2px; background: #2440C8"></span><span style="flex: 1; height: 4px; border-radius: 2px; background: #2440C8"></span><span style="{{m.s3}}"></span><span style="flex: 1; height: 4px; border-radius: 2px; background: #E4E7F0"></span></span><span style="{{m.sc}}">{{m.score}}</span></div></sc-for>
+            </div>
+          </div>
+        </div>
+        <div class="f1" style="position: absolute; left: -20px; bottom: 0; width: 290px; border-radius: 18px; background: #FFFFFF; border: 1px solid #E4E7F0; padding: 16px; box-shadow: 0 30px 60px -30px rgba(22,26,46,.5)">
+          <div style="display: flex; gap: 8px; align-items: center"><span style="font-weight: 800; font-size: 12px; border-radius: 6px; padding: 2px 7px; background: #BE123C; color: #FFFFFF">11.1</span><span class="px-sev crit" style="font-size: 12px; padding: 3px 8px">Critique</span></div>
+          <p style="margin: 8px 0 0; font-weight: 800; font-size: 14.5px; line-height: 1.3">Champs du formulaire de contact sans étiquette</p>
+          <p style="margin: 8px 0 0; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #5B6178"><span class="px-av" style="width: 22px; height: 22px; border: 0; background: #BE185D; font-size: 9.5px">LM</span>Léa a marqué comme corrigée</p>
+        </div>
+        <div class="f2" style="position: absolute; right: -10px; top: 0; width: 230px; border-radius: 18px; background: #2440C8; color: #FFFFFF; padding: 16px; box-shadow: 0 30px 60px -30px rgba(36,64,200,.8)">
+          <p style="margin: 0; font-size: 12.5px; color: #DCE2FB">Simulation de remédiation</p>
+          <p style="margin: 4px 0 0; font-size: 26px; font-weight: 900; letter-spacing: -0.02em">62 % → 76 %</p>
+          <p style="margin: 4px 0 0; font-size: 12.5px; color: #DCE2FB">si les 14 NC critiques sont corrigées</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="referentiels" aria-labelledby="ld-std" style="padding: 0 80px 90px">
+      <h2 id="ld-std" style="margin: 0 0 18px; font-size: 17px; font-weight: 800; color: #3F4560">Compatible avec les référentiels officiels, pour le web et le mobile</h2>
+      <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px">
+        <sc-for list="{{stds}}" as="s" hint-placeholder-count="5"><li class="ld-std" style="{{s.c}}"><span style="font-size: 22px; font-weight: 900; letter-spacing: -0.02em">{{s.n}}</span><span style="font-size: 14px; color: #5B6178">{{s.d}}</span></li></sc-for>
+      </ul>
+    </section>
+
+    <section id="fonctionnalites" aria-labelledby="ld-feat" style="padding: 90px 80px; background: #F5F6FA">
+      <h2 id="ld-feat" style="margin: 0; font-size: 46px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05; max-width: 18ch">Tout l'audit d'accessibilité au même endroit.</h2>
+      <p style="margin: 16px 0 0; font-size: 18px; color: #3F4560; max-width: 56ch">De l'échantillon au rapport livré, sans copier-coller entre Excel, Word et vos e-mails.</p>
+      <div style="margin-top: 44px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: 290px; gap: 18px">
+        <article class="ld-tile" style="--c: #1D4ED8; grid-column: span 4">
+          <h3>Matrice de conformité</h3>
+          <p>Saisissez chaque critère page par page : conforme, non conforme ou non applicable. Le score officiel se calcule tout seul.</p>
+          <div class="demo" aria-hidden="true" style="display: flex; gap: 6px; flex-wrap: wrap; max-width: 620px"><sc-for list="{{cells}}" as="c" hint-placeholder-count="26"><span class="ld-cell" style="{{c}}"></span></sc-for></div>
+        </article>
+        <article class="ld-tile" style="--c: #C81E1E; grid-column: span 2">
+          <h3>Non-conformités suivies</h3>
+          <p>Sévérité, recommandation, captures et échanges avec le client, dans un fil par NC.</p>
+          <div class="demo" aria-hidden="true" style="display: flex; flex-direction: column; gap: 6px"><span style="display: flex; gap: 8px; align-items: center"><span class="px-sev crit">Critique</span><span style="font-size: 13px; font-weight: 700">Captcha sans alternative</span></span><span style="display: flex; gap: 8px; align-items: center"><span class="px-sev high">Haute</span><span style="font-size: 13px; font-weight: 700">Focus invisible</span></span></div>
+        </article>
+        <article class="ld-tile" style="--c: #15803D; grid-column: span 2">
+          <h3>Simulateur de remédiation</h3>
+          <p>Cochez les corrections prévues et voyez le score monter, sans toucher à l'audit officiel.</p>
+          <div class="demo" aria-hidden="true" style="display: flex; align-items: center; gap: 12px"><span style="width: 40px; height: 24px; border-radius: 12px; background: #2440C8; position: relative"><span style="position: absolute; right: 3px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF"></span></span><span style="font-size: 22px; font-weight: 900; color: #15803D">+14 points</span></div>
+        </article>
+        <article class="ld-tile" style="--c: #7C3AED; grid-column: span 2">
+          <h3>Rapports PDF bilingues</h3>
+          <p>Page de garde, synthèse, détail par page et fiches NC, en français ou en anglais.</p>
+          <div class="demo" aria-hidden="true" style="display: flex; gap: 10px"><span style="width: 64px; height: 84px; border-radius: 8px; border: 1px solid #E4E7F0; background: #FFFFFF; box-shadow: 0 8px 16px -10px rgba(0,0,0,.3); padding: 8px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px"><span style="height: 6px; border-radius: 3px; background: #7C3AED"></span><span style="height: 4px; border-radius: 2px; background: #E4E7F0"></span><span style="height: 4px; width: 70%; border-radius: 2px; background: #E4E7F0"></span></span><span style="width: 64px; height: 84px; border-radius: 8px; border: 1px solid #E4E7F0; background: #FFFFFF; box-shadow: 0 8px 16px -10px rgba(0,0,0,.3); padding: 8px; box-sizing: border-box; font-size: 11px; font-weight: 900; color: #7C3AED">EN</span></div>
+        </article>
+        <article class="ld-tile" style="--c: #0F766E; grid-column: span 2">
+          <h3>Multi-clients sécurisé</h3>
+          <p>Chaque client ne voit que ses audits. Isolation des données au niveau de la base, rôles par organisation.</p>
+          <div class="demo" aria-hidden="true" style="display: flex; padding-left: 8px"><span class="px-av" style="width: 36px; height: 36px; margin-left: -8px; background: #1D4ED8">MV</span><span class="px-av" style="width: 36px; height: 36px; margin-left: -8px; background: #BE185D">MH</span><span class="px-av" style="width: 36px; height: 36px; margin-left: -8px; background: #0F766E">BI</span><span class="px-av" style="width: 36px; height: 36px; margin-left: -8px; background: #161A2E; font-size: 11px">+6</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="ld-how" style="padding: 90px 80px">
+      <h2 id="ld-how" style="margin: 0; font-size: 46px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05">Un audit en trois temps</h2>
+      <ol style="list-style: none; margin: 40px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px">
+        <li class="ld-step"><span class="n" aria-hidden="true">1</span><h3 style="margin: 0; font-size: 21px; font-weight: 900">Créer l'audit</h3><p style="margin: 0; font-size: 15.5px; line-height: 1.55; color: #3F4560">Choisissez le référentiel, le client et l'échantillon. Les pages obligatoires sont ajoutées pour vous.</p></li>
+        <li class="ld-step"><span class="n" aria-hidden="true">2</span><h3 style="margin: 0; font-size: 21px; font-weight: 900">Évaluer la grille</h3><p style="margin: 0; font-size: 15.5px; line-height: 1.55; color: #3F4560">Testez chaque critère avec sa méthodologie sous les yeux, et rédigez les non-conformités au fil de l'eau.</p></li>
+        <li class="ld-step"><span class="n" aria-hidden="true">3</span><h3 style="margin: 0; font-size: 21px; font-weight: 900">Livrer et suivre</h3><p style="margin: 0; font-size: 15.5px; line-height: 1.55; color: #3F4560">Exportez le rapport, puis suivez la correction avec l'équipe du client jusqu'au contre-audit.</p></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="ld-a11y" style="margin: 0 80px; border-radius: 32px; background: #161A2E; color: #FFFFFF; padding: 64px 64px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 60px; align-items: center">
+      <div>
+        <h2 id="ld-a11y" style="margin: 0; font-size: 42px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05">Un outil d'accessibilité accessible.</h2>
+        <p style="margin: 18px 0 0; font-size: 17.5px; line-height: 1.55; color: #C9CDE0; max-width: 46ch">Axessyo vise le niveau AA des WCAG 2.2 sur toute l'application, et la déclaration d'accessibilité est publique.</p>
+        <a href="#" style="display: inline-block; margin-top: 18px; color: #FFFFFF; font-weight: 800; font-size: 15.5px; text-underline-offset: 4px">Lire la déclaration d'accessibilité</a>
+      </div>
+      <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+        <li style="border-radius: 18px; background: #22273F; padding: 18px"><span style="display: block; font-size: 17px; font-weight: 800">Navigation au clavier</span><span style="font-size: 14px; color: #C9CDE0">Focus toujours visible</span></li>
+        <li style="border-radius: 18px; background: #22273F; padding: 18px"><span style="display: block; font-size: 17px; font-weight: 800">Contrastes vérifiés</span><span style="font-size: 14px; color: #C9CDE0">4,5:1 minimum pour le texte</span></li>
+        <li style="border-radius: 18px; background: #22273F; padding: 18px"><span style="display: block; font-size: 17px; font-weight: 800">Lecteurs d'écran</span><span style="font-size: 14px; color: #C9CDE0">Titres, libellés et rôles ARIA</span></li>
+        <li style="border-radius: 18px; background: #22273F; padding: 18px"><span style="display: block; font-size: 17px; font-weight: 800">Mouvement réduit</span><span style="font-size: 14px; color: #C9CDE0">Respecte vos réglages système</span></li>
+      </ul>
+    </section>
+
+    <section id="tarifs" aria-labelledby="ld-price" style="padding: 100px 80px 90px">
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px">
+        <div><h2 id="ld-price" style="margin: 0; font-size: 46px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05">Un plan pour chaque équipe</h2><p style="margin: 14px 0 0; font-size: 18px; color: #3F4560">Démarrez gratuitement. Passez à un plan payant quand vos audits se multiplient.</p></div>
+        <div class="ld-bill" role="group" aria-label="Période de facturation"><button type="button" aria-pressed="{{mPressed}}" onClick="{{setM}}">Mensuel</button><button type="button" aria-pressed="{{yPressed}}" onClick="{{setY}}">Annuel, 2 mois offerts</button></div>
+      </div>
+      <ul style="list-style: none; margin: 40px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+        <sc-for list="{{plans}}" as="p" hint-placeholder-count="4">
+          <li class="{{p.cls}}">
+            <div style="display: flex; align-items: center; justify-content: space-between"><h3 style="margin: 0; font-size: 22px; font-weight: 900">{{p.name}}</h3><sc-if value="{{p.rec}}" hint-placeholder-val="{{false}}"><span class="px-pill" style="height: 26px; font-size: 12.5px; background: #FFB020; color: #161A2E">Recommandé</span></sc-if></div>
+            <p style="{{p.descS}}">{{p.desc}}</p>
+            <p style="margin: 4px 0 0"><span class="num" style="font-size: 40px; font-weight: 900; letter-spacing: -0.03em">{{p.price}}</span><span style="{{p.unitS}}">{{p.unit}}</span></p>
+            <p style="{{p.noteS}}">{{p.note}}</p>
+            <a href="#" class="{{p.btnC}}" style="{{p.btnS}}">{{p.cta}}</a>
+            <ul style="list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+              <sc-for list="{{p.items}}" as="it" hint-placeholder-count="4"><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg><span>{{it}}</span></li></sc-for>
+            </ul>
+          </li>
+        </sc-for>
+      </ul>
+      <p style="margin: 18px 0 0; font-size: 14px; color: #5B6178">Tarifs hors taxes. La TVA est ajoutée selon votre pays.</p>
+    </section>
+
+    <section id="faq" aria-labelledby="ld-faq" style="padding: 0 80px 90px; display: grid; grid-template-columns: 420px minmax(0, 1fr); gap: 60px">
+      <div><h2 id="ld-faq" style="margin: 0; font-size: 46px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05">Questions fréquentes</h2><p style="margin: 14px 0 0; font-size: 17px; color: #3F4560">Une autre question ? <a class="px-link" href="#" style="font-size: 17px">Écrivez-nous</a></p></div>
+      <div style="border-top: 1px solid #E4E7F0">
+        <sc-for list="{{faq}}" as="q" hint-placeholder-count="5">
+          <div class="ld-faq">
+            <h3 style="margin: 0"><button type="button" aria-expanded="{{q.open}}" onClick="{{q.toggle}}">{{q.q}}<span class="pm" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3>
+            <sc-if value="{{q.isOpen}}" hint-placeholder-val="{{false}}"><p style="margin: 0 0 22px; padding-right: 60px; font-size: 16px; line-height: 1.6; color: #3F4560">{{q.a}}</p></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-labelledby="ld-cta" style="margin: 0 80px; border-radius: 32px; background: #2440C8; color: #FFFFFF; padding: 64px; display: flex; align-items: center; justify-content: space-between; gap: 40px; position: relative; overflow: hidden">
+      <svg aria-hidden="true" width="420" height="420" viewBox="0 0 420 420" style="position: absolute; right: -60px; top: -80px; opacity: .14"><g fill="#FFFFFF"><rect x="0" y="0" width="190" height="190" rx="46"></rect><circle cx="325" cy="95" r="95"></circle><rect x="0" y="230" width="190" height="190" rx="46"></rect></g></svg>
+      <div style="position: relative"><h2 id="ld-cta" style="margin: 0; font-size: 44px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05; max-width: 20ch">Votre prochain audit, sans tableur.</h2><p style="margin: 14px 0 0; font-size: 18px; color: #DCE2FB">Créez votre espace et lancez votre premier audit.</p></div>
+      <a class="ld-cta-btn" href="#" style="position: relative">Démarrer gratuitement<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+    </section>
+  </main>
+
+  <footer class="ld-foot" style="margin-top: auto; padding: 56px 80px 40px; display: grid; grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr)); gap: 40px">
+    <div><a href="#" style="display: flex; align-items: center; gap: 10px; color: #161A2E; text-decoration: none"><span aria-hidden="true" style="width: 34px; height: 34px; border-radius: 10px; background: #2440C8; display: grid; grid-template-columns: repeat(2, 9px); gap: 3px; align-content: center; justify-content: center; flex-shrink: 0"><span style="height: 9px; border-radius: 3px; background: #FFFFFF"></span><span style="height: 9px; border-radius: 50%; background: #FFB020"></span><span style="height: 9px; border-radius: 3px; background: #FFFFFF"></span><span style="height: 9px; border-radius: 3px; background: #FFFFFF; opacity: .55"></span></span><span style="font-size: 20px; font-weight: 900; letter-spacing: -0.03em">Axessyo</span></a><p style="margin: 14px 0 0; font-size: 14.5px; color: #5B6178; max-width: 32ch">Plateforme d'audits d'accessibilité numérique.</p><p style="margin: 24px 0 0; font-size: 13.5px; color: #5B6178">© 2026 Axessyo. Tous droits réservés.</p></div>
+    <nav aria-labelledby="ft-p"><h2 id="ft-p" style="margin: 0 0 12px; font-size: 15px; font-weight: 800">Produit</h2><ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px"><li><a href="#">Fonctionnalités</a></li><li><a href="#">Référentiels</a></li><li><a href="#">Tarifs</a></li></ul></nav>
+    <nav aria-labelledby="ft-c"><h2 id="ft-c" style="margin: 0 0 12px; font-size: 15px; font-weight: 800">Compte</h2><ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px"><li><a href="#">Se connecter</a></li><li><a href="#">Créer un compte</a></li></ul></nav>
+    <nav aria-labelledby="ft-l"><h2 id="ft-l" style="margin: 0 0 12px; font-size: 15px; font-weight: 800">Informations</h2><ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px"><li><a href="#">Mentions légales</a></li><li><a href="#">Confidentialité</a></li><li><a href="#">Cookies</a></li><li><a href="#">Déclaration d'accessibilité</a></li></ul></nav>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4300}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { yearly: true, open: 0 }; }
+  renderVals() {
+    var self = this, y = this.state.yearly;
+    var mini = [['MV', '#1D4ED8', 'Portail usagers', '62 %', '#A16207'], ['MH', '#BE185D', 'Application mobile', '41 %', '#C81E1E'], ['BI', '#0F766E', 'Espace client', '78 %', '#A16207'], ['CM', '#15803D', 'Site institutionnel', '100 %', '#15803D']].map(function (m) {
+      return { ini: m[0], name: m[2], score: m[3], mono: 'width: 26px; height: 26px; border-radius: 8px; background: ' + m[1] + '; color: #FFFFFF; font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center', s3: 'flex: 1; height: 4px; border-radius: 2px; background: #2440C8', sc: 'text-align: right; font-weight: 900; color: ' + m[4] };
+    });
+    var stds = [['RGAA', '4.1.2, services publics', '#1D4ED8'], ['WCAG', '2.2, standard W3C', '#0F766E'], ['RAWeb', '1.1, Belgique et Luxembourg', '#7C3AED'], ['RAAM', '1.1, applications mobiles', '#BE185D'], ['EN 301 549', 'Norme européenne', '#A16207']].map(function (s) { return { n: s[0], d: s[1], c: '--c: ' + s[2] }; });
+    var pat = 'CCNCCACNCCCNCACCNCCCNCCACCCNCC';
+    var cells = pat.split('').map(function (v) { return 'background: ' + (v === 'C' ? '#1D4ED8' : v === 'N' ? '#C81E1E' : '#C9CFE0'); });
+    function plan(name, desc, m, yr, items, rec, cta) {
+      var price = m === null ? 'Sur devis' : m === 0 ? '0 €' : (y ? Math.round(yr / 12) : m) + ' €';
+      var note = m === null ? 'Adapté à votre volume' : m === 0 ? 'Gratuit, pour toujours' : y ? 'Facturé ' + yr + ' € par an' : 'Facturé chaque mois, sans engagement';
+      var muted = rec ? '#C9CDE0' : '#5B6178';
+      return {
+        name: name, desc: desc, price: price, unit: m ? ' / mois' : '', note: note, items: items, rec: rec, cta: cta,
+        cls: 'ld-plan' + (rec ? ' rec' : ''),
+        descS: 'margin: 0; font-size: 14.5px; color: ' + muted,
+        unitS: 'font-size: 15px; font-weight: 600; color: ' + muted,
+        noteS: 'margin: -8px 0 0; font-size: 13.5px; color: ' + muted,
+        btnC: rec ? 'px-btn' : 'px-ghost',
+        btnS: rec ? 'background: #FFFFFF; color: #161A2E; box-shadow: none' : ''
+      };
+    }
+    var plans = [
+      plan('Free', 'Pour découvrir Axessyo', 0, 0, ['1 audit actif', '2 membres', '1 client', 'Matrice de conformité'], false, 'Démarrer gratuitement'),
+      plan('Starter', 'Freelances et consultants', 39, 390, ['10 audits actifs', '5 membres', '10 clients', 'Export PDF', 'Simulateur de remédiation'], false, 'Choisir Starter'),
+      plan('Pro', 'Agences et équipes', 99, 990, ['Audits et clients illimités', '25 membres', 'Relecture des NC', 'Plusieurs auditeurs par audit', 'Webhooks et export du journal'], true, 'Choisir Pro'),
+      plan('Enterprise', 'Grandes organisations', null, null, ['Tout le plan Pro', 'SSO SAML et OIDC, SCIM', 'Accès API', 'Marque blanche', 'Support dédié'], false, 'Nous contacter')
+    ];
+    var qs = [
+      ['Quels référentiels d\u2019accessibilité sont pris en charge ?', 'Axessyo prend en charge RGAA 4.1.2, WCAG 2.2, RAWeb 1.1, RAAM 1.1 et EN 301 549, pour les plateformes web et mobile.'],
+      ['Comment est calculé le score de conformité ?', 'Le score utilise la formule officielle : conformes ÷ (total − non applicables) × 100. Les critères non évalués ne pénalisent pas le score.'],
+      ['Puis-je exporter le rapport en anglais ?', 'Oui. Chaque rapport PDF se génère au choix en français ou en anglais, avec libellés, badges et métadonnées dans la langue cible.'],
+      ['Puis-je utiliser Axessyo gratuitement ?', 'Oui. Le plan Free permet de créer un audit actif et de découvrir la matrice de conformité, sans carte bancaire et sans limite de durée.'],
+      ['Y a-t-il un engagement de durée ?', 'Non. L\u2019abonnement mensuel est sans engagement : vous pouvez le résilier à tout moment depuis votre espace de facturation.']
+    ];
+    var faq = qs.map(function (q, i) {
+      var o = self.state.open === i;
+      return { q: q[0], a: q[1], isOpen: o, open: o ? 'true' : 'false', toggle: function () { self.setState({ open: o ? -1 : i }); } };
+    });
+    return {
+      mini: mini, stds: stds, cells: cells, plans: plans, faq: faq,
+      mPressed: y ? 'false' : 'true', yPressed: y ? 'true' : 'false',
+      setM: function () { self.setState({ yearly: false }); }, setY: function () { self.setState({ yearly: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
