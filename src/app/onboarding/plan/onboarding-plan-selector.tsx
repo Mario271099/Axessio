@@ -77,18 +77,20 @@ export function OnboardingPlanSelector({
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">
           {t("kicker")}
         </p>
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+        <h1 className="text-[2rem] font-black leading-[1.08] tracking-[-0.035em] md:text-[2.5rem]">
           {t("title")}
         </h1>
-        <p className="text-base text-muted-foreground">{t("subtitle")}</p>
+        <p className="mt-2 text-[1.05rem] text-muted-foreground">
+          {t("subtitle")}
+        </p>
       </header>
 
       {error && (
         <p
           role="alert"
-          className="mx-auto mt-8 inline-flex max-w-xl items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+          className="mx-auto mt-8 flex max-w-xl items-start gap-2.5 rounded-row bg-severity-critical-bg px-3.5 py-3 text-[0.95rem] leading-snug text-severity-critical"
         >
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          <AlertCircle className="mt-0.5 size-[18px] shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </p>
       )}
@@ -96,7 +98,7 @@ export function OnboardingPlanSelector({
       {!stripeReady && (
         <p
           role="status"
-          className="mx-auto mt-8 max-w-xl rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200"
+          className="mx-auto mt-8 max-w-xl rounded-row bg-warning/10 px-4 py-3 text-center text-[0.95rem] font-semibold text-warning"
         >
           {t("stripeUnavailable")}
         </p>
@@ -107,7 +109,7 @@ export function OnboardingPlanSelector({
         <div
           role="tablist"
           aria-label={tPricing("toggleAria")}
-          className="inline-flex items-center gap-1 rounded-full border bg-card p-1 shadow-sm"
+          className="inline-flex items-center gap-1 rounded-[14px] bg-secondary p-1"
         >
           {(["monthly", "yearly"] as const).map((value) => (
             <button
@@ -117,23 +119,24 @@ export function OnboardingPlanSelector({
               aria-selected={interval === value}
               onClick={() => setInterval(value)}
               className={cn(
-                "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                "inline-flex h-10 items-center gap-2 rounded-lg px-4.5 text-[0.9rem] font-extrabold",
+                "transition-colors duration-150",
                 interval === value
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
+                  ? "bg-card text-primary shadow-sm"
+                  : "text-secondary-foreground hover:text-foreground",
               )}
             >
               {tPricing(`interval.${value}`)}
               {value === "yearly" && yearlySavingsPercent !== null && (
                 <span
                   className={cn(
-                    "ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-extrabold",
                     interval === value
-                      ? "bg-primary-foreground/20"
-                      : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200",
+                      ? "bg-primary-muted text-primary"
+                      : "bg-success/12 text-success",
                   )}
                 >
-                  <Sparkles className="h-3 w-3" aria-hidden="true" />
+                  <Sparkles className="size-3" aria-hidden="true" />
                   {tPricing("savingsBadge", { percent: yearlySavingsPercent })}
                 </span>
               )}
@@ -143,7 +146,7 @@ export function OnboardingPlanSelector({
       </div>
 
       {/* Grille des plans */}
-      <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {PLAN_ORDER.map((code) => {
           const plan = PLANS[code];
           const isPreselected = code === preselectedPlan;
@@ -156,29 +159,36 @@ export function OnboardingPlanSelector({
               key={code}
               ref={isPreselected ? preselectedRef : undefined}
               className={cn(
-                "relative flex flex-col rounded-2xl border bg-card p-6 shadow-sm transition-all",
-                isHighlighted &&
-                  "border-primary shadow-md ring-2 ring-primary/40",
-                isPreselected && "ring-primary",
+                "axs-lift relative flex flex-col rounded-hero border p-6",
+                isHighlighted
+                  ? "border-ink bg-ink text-ink-foreground"
+                  : "border-border bg-card",
+                isPreselected &&
+                  "shadow-[0_0_0_4px_hsl(var(--primary-muted))]",
               )}
             >
               {isPreselected ? (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-primary-foreground">
                   {t("preselectedBadge")}
                 </span>
               ) : (
                 code === "pro" && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-highlight px-3 py-1 text-xs font-extrabold text-ink">
                     {tPricing("recommendedBadge")}
                   </span>
                 )
               )}
 
-              <header className="space-y-1">
-                <h2 className="text-xl font-bold tracking-tight">
+              <header className="flex flex-col gap-1">
+                <h2 className="text-[1.375rem] font-black tracking-tight">
                   {plan.name}
                 </h2>
-                <p className="min-h-[2.75em] text-sm text-muted-foreground">
+                <p
+                  className={cn(
+                    "min-h-[2.75em] text-sm",
+                    isHighlighted ? "text-ink-muted" : "text-muted-foreground",
+                  )}
+                >
                   {plan.description}
                 </p>
               </header>
@@ -190,6 +200,7 @@ export function OnboardingPlanSelector({
                   monthlyPrice={plan.monthlyPriceEur}
                   yearlyPrice={plan.yearlyPriceEur}
                   isContactSales={plan.isContactSales}
+                  onInk={isHighlighted}
                 />
               </div>
 
@@ -204,8 +215,14 @@ export function OnboardingPlanSelector({
                 onContinueFree={() => router.push("/dashboard")}
               />
 
-              <ul className="mt-6 space-y-2.5 border-t pt-4 text-sm">
+              <ul
+                className={cn(
+                  "mt-6 flex flex-col gap-2.5 border-t pt-4 text-sm",
+                  isHighlighted ? "border-ink-raised" : "border-border",
+                )}
+              >
                 <FeatureItem
+                  onInk={isHighlighted}
                   text={tPricing("limits.members", {
                     count: plan.limits.max_members ?? 0,
                     unlimited:
@@ -213,6 +230,7 @@ export function OnboardingPlanSelector({
                   })}
                 />
                 <FeatureItem
+                  onInk={isHighlighted}
                   text={tPricing("limits.clients", {
                     count: plan.limits.max_clients ?? 0,
                     unlimited:
@@ -220,6 +238,7 @@ export function OnboardingPlanSelector({
                   })}
                 />
                 <FeatureItem
+                  onInk={isHighlighted}
                   text={tPricing("limits.audits", {
                     count: plan.limits.max_active_audits ?? 0,
                     unlimited:
@@ -229,13 +248,19 @@ export function OnboardingPlanSelector({
                   })}
                 />
                 {plan.features.length === 0 ? (
-                  <li className="text-xs text-muted-foreground">
+                  <li
+                    className={cn(
+                      "text-sm",
+                      isHighlighted ? "text-ink-muted" : "text-muted-foreground",
+                    )}
+                  >
                     {tPricing("noExtraFeatures")}
                   </li>
                 ) : (
                   plan.features.map((feature) => (
                     <FeatureItem
                       key={feature}
+                      onInk={isHighlighted}
                       text={tFeatures(featureKey(feature))}
                     />
                   ))
@@ -264,14 +289,18 @@ function featureKey(f: FeatureCode): string {
   return f.replace(".", "_");
 }
 
-function FeatureItem({ text }: { text: string }) {
+function FeatureItem({ text, onInk }: { text: string; onInk: boolean }) {
   return (
-    <li className="flex items-start gap-2">
+    <li className="flex items-start gap-2.5">
       <Check
-        className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500"
         aria-hidden="true"
+        strokeWidth={3}
+        className={cn(
+          "mt-0.5 size-4 shrink-0",
+          onInk ? "text-ink-positive" : "text-success",
+        )}
       />
-      <span>{text}</span>
+      <span className="leading-snug">{text}</span>
     </li>
   );
 }
@@ -282,22 +311,25 @@ function PriceDisplay({
   monthlyPrice,
   yearlyPrice,
   isContactSales,
+  onInk,
 }: {
   code: PlanCode;
   interval: BillingInterval;
   monthlyPrice: number | null;
   yearlyPrice: number | null;
   isContactSales: boolean;
+  onInk: boolean;
 }) {
   const t = useTranslations("pricing");
+  const muted = onInk ? "text-ink-muted" : "text-muted-foreground";
 
   if (isContactSales) {
     return (
       <div>
-        <p className="text-3xl font-bold tracking-tight">
+        <p className="text-[1.75rem] font-black tracking-tight">
           {t("contactSales")}
         </p>
-        <p className="text-xs text-muted-foreground">{t("contactSalesNote")}</p>
+        <p className={cn("text-sm", muted)}>{t("contactSalesNote")}</p>
       </div>
     );
   }
@@ -305,11 +337,10 @@ function PriceDisplay({
   if (code === "free" || monthlyPrice === 0) {
     return (
       <div>
-        <p className="text-4xl font-bold tracking-tight tabular-nums">
-          0{" "}
-          <span className="text-base font-normal text-muted-foreground">€</span>
+        <p className="text-[2.5rem] font-black leading-none tabular tracking-tight">
+          0 <span className={cn("text-base font-semibold", muted)}>€</span>
         </p>
-        <p className="text-xs text-muted-foreground">{t("forever")}</p>
+        <p className={cn("mt-1.5 text-sm", muted)}>{t("forever")}</p>
       </div>
     );
   }
@@ -321,13 +352,13 @@ function PriceDisplay({
 
   return (
     <div>
-      <p className="text-4xl font-bold tracking-tight tabular-nums">
+      <p className="text-[2.5rem] font-black leading-none tabular tracking-tight">
         {Math.round(displayed)}
-        <span className="ml-1 text-base font-normal text-muted-foreground">
+        <span className={cn("ml-1 text-base font-semibold", muted)}>
           € {t("perMonth")}
         </span>
       </p>
-      <p className="text-xs text-muted-foreground">
+      <p className={cn("mt-1.5 text-sm", muted)}>
         {interval === "monthly"
           ? t("billedMonthly")
           : t("billedYearly", { yearly })}
@@ -384,14 +415,14 @@ function PlanCta({
   const paidCode = code as Exclude<PlanCode, "free" | "enterprise">;
   return (
     <Button
-      variant={emphasize ? "default" : "outline"}
+      variant={emphasize ? "secondary" : "outline"}
       className="w-full"
       onClick={() => onChoose(paidCode)}
       disabled={isCurrent || !stripeReady || anyPending}
     >
       {pending ? (
         <>
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          <Loader2 className="animate-spin" aria-hidden="true" />
           {t("redirecting")}
         </>
       ) : isCurrent ? (
