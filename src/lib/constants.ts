@@ -133,6 +133,16 @@ export const REFERENCE_TYPE_LABELS: Record<ReferenceType, string> = {
   EN_301_549: "EN 301 549",
 };
 
+/** Sigle court, pour les pastilles carrées (choix du référentiel). */
+export const REFERENCE_TYPE_SHORT: Record<ReferenceType, string> = {
+  RGAA: "R",
+  WCAG: "W",
+  RAWeb: "RW",
+  RAAM: "RM",
+  PDF_UA: "PU",
+  EN_301_549: "EN",
+};
+
 /**
  * Libellés français des 4 principes WCAG.
  * Clé = valeur stockée en base (anglais), valeur = libellé affiché (français).

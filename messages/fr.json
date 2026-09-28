@@ -2073,6 +2073,7 @@
           "title": "Référentiel et type de service",
           "description": "Le référentiel détermine la liste des critères à évaluer.",
           "field": "Référentiel d'accessibilité",
+          "versionLabel": "Version {version}",
           "placeholder": "Choisir un référentiel…",
           "helpAria": "Aide sur les référentiels d'accessibilité",
           "help": {

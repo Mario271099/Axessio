@@ -2073,6 +2073,7 @@
           "title": "Reference and service type",
           "description": "The reference determines the list of criteria to evaluate.",
           "field": "Accessibility reference",
+          "versionLabel": "Version {version}",
           "placeholder": "Choose a reference…",
           "helpAria": "Help on accessibility reference frameworks",
           "help": {

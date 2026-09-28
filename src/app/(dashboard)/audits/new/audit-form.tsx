@@ -5,14 +5,11 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   AlertCircle,
-  Briefcase,
   CalendarDays,
   Check,
-  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   FolderKanban,
-  Languages,
   Layers,
   Library,
   Loader2,
@@ -30,13 +27,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { InfoTip } from "@/components/ui/info-tip";
 import {
   createAudit,
   type ActionState,
 } from "@/app/(dashboard)/audits/actions";
-import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { REFERENCE_TYPE_LABELS, REFERENCE_TYPE_SHORT } from "@/lib/constants";
+import { cn, themeColorVar } from "@/lib/utils";
 import type { PlatformType, ReferenceType, ServiceType } from "@/types/domain";
 
 interface ProjectOption {
@@ -65,6 +61,18 @@ const STEP_ICONS = {
   2: Library,
   3: CalendarDays,
 } as const;
+
+/**
+ * Descriptions déjà traduites, par référentiel. Les référentiels sans texte
+ * dédié (PDF/UA, EN 301 549) s'affichent sans description plutôt qu'avec un
+ * texte inventé.
+ */
+const REFERENCE_HELP_KEYS: Partial<Record<ReferenceType, string>> = {
+  RGAA: "rgaa",
+  WCAG: "wcag",
+  RAWeb: "raweb",
+  RAAM: "raam",
+};
 
 export function AuditForm({ projects, references }: AuditFormProps) {
   const t = useTranslations("audits.new");
@@ -190,32 +198,27 @@ export function AuditForm({ projects, references }: AuditFormProps) {
       <input type="hidden" name="siteName" value={siteName} />
       <input type="hidden" name="siteUrl" value={siteUrl} />
 
-      <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-        <Stepper
-          currentStep={step}
-          onStepClick={setStep}
-          canGoNext1={canGoNext1}
-          canGoNext2={canGoNext2}
-        />
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="flex min-w-0 flex-col gap-4">
+          <Stepper
+            currentStep={step}
+            onStepClick={setStep}
+            canGoNext1={canGoNext1}
+            canGoNext2={canGoNext2}
+          />
 
-        <div className="space-y-6">
           {state.error && (
             <p
               role="alert"
-              className="inline-flex w-full items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+              className="flex w-full items-start gap-2.5 rounded-row bg-severity-critical-bg px-3.5 py-3 text-[0.95rem] leading-snug text-severity-critical"
             >
-              <AlertCircle
-                className="mt-0.5 h-4 w-4 shrink-0"
-                aria-hidden="true"
-              />
+              <AlertCircle className="mt-0.5 size-[18px] shrink-0" aria-hidden="true" />
               <span>{state.error}</span>
             </p>
           )}
 
           {step === 1 && (
             <StepCard
-              icon={FolderKanban}
-              tone="primary"
               title={t("steps.project.title")}
               description={t("steps.project.description")}
             >
@@ -259,54 +262,85 @@ export function AuditForm({ projects, references }: AuditFormProps) {
 
           {step === 2 && (
             <StepCard
-              icon={Library}
-              tone="violet"
               title={t("steps.reference.title")}
               description={t("steps.reference.description")}
             >
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5">
-                  <Label htmlFor="ref-select">
-                    {t("steps.reference.field")} *
-                  </Label>
-                  <InfoTip label={t("steps.reference.helpAria")}>
-                    <div className="space-y-1.5">
-                      <p className="font-semibold">
-                        {t("steps.reference.help.title")}
-                      </p>
-                      <p>
-                        <strong>RGAA :</strong>{" "}
-                        {t("steps.reference.help.rgaa")}
-                      </p>
-                      <p>
-                        <strong>WCAG :</strong>{" "}
-                        {t("steps.reference.help.wcag")}
-                      </p>
-                      <p>
-                        <strong>RAWeb :</strong>{" "}
-                        {t("steps.reference.help.raweb")}
-                      </p>
-                      <p>
-                        <strong>RAAM :</strong>{" "}
-                        {t("steps.reference.help.raam")}
-                      </p>
-                    </div>
-                  </InfoTip>
-                </div>
-                <Select value={referenceId} onValueChange={setReferenceId}>
-                  <SelectTrigger id="ref-select" aria-required="true">
-                    <SelectValue
-                      placeholder={t("steps.reference.placeholder")}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {references.map((r) => (
-                      <SelectItem key={r.id} value={r.id}>
-                        {REFERENCE_TYPE_LABELS[r.type]} {r.version}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* Choix du référentiel en cartes : le libellé, la version et
+                  ce que le référentiel couvre, visibles d'un coup d'oeil. */}
+              <div
+                role="radiogroup"
+                aria-labelledby="ref-group-label"
+                aria-required="true"
+                className="grid gap-3 md:grid-cols-2"
+              >
+                <span id="ref-group-label" className="sr-only">
+                  {t("steps.reference.field")}
+                </span>
+                {references.map((r) => {
+                  const selected = referenceId === r.id;
+                  const helpKey = REFERENCE_HELP_KEYS[r.type];
+                  return (
+                    <label
+                      key={r.id}
+                      className={cn(
+                        "relative flex cursor-pointer flex-col gap-2.5 rounded-card border-2 bg-card p-4",
+                        "transition-[border-color,box-shadow,transform] duration-200",
+                        "has-[input:focus-visible]:outline has-[input:focus-visible]:outline-[3px]",
+                        "has-[input:focus-visible]:outline-offset-[3px] has-[input:focus-visible]:outline-primary",
+                        selected
+                          ? "border-primary shadow-[0_0_0_4px_hsl(var(--primary-muted))]"
+                          : "border-border hover:-translate-y-0.5 hover:border-primary/60 hover:shadow-lg",
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="reference-choice"
+                        className="absolute size-px opacity-0"
+                        checked={selected}
+                        onChange={() => setReferenceId(r.id)}
+                      />
+
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "absolute right-3.5 top-3.5 flex size-[26px] items-center justify-center rounded-full border-2 text-white",
+                          "transition-[background-color,border-color,transform] duration-200",
+                          selected
+                            ? "scale-105 border-primary bg-primary"
+                            : "border-border-strong",
+                        )}
+                      >
+                        <Check className="size-3.5" strokeWidth={3} />
+                      </span>
+
+                      <span className="flex items-center gap-2.5 pr-8">
+                        <span
+                          aria-hidden="true"
+                          className="flex size-[42px] shrink-0 items-center justify-center rounded-xl text-[0.95rem] font-black text-white"
+                          style={{ background: themeColorVar(r.type) }}
+                        >
+                          {REFERENCE_TYPE_SHORT[r.type]}
+                        </span>
+                        <span className="flex min-w-0 flex-col leading-tight">
+                          <span className="text-[1.05rem] font-extrabold">
+                            {REFERENCE_TYPE_LABELS[r.type]}
+                          </span>
+                          <span className="text-[0.82rem] tabular text-muted-foreground">
+                            {t("steps.reference.versionLabel", {
+                              version: r.version,
+                            })}
+                          </span>
+                        </span>
+                      </span>
+
+                      {helpKey && (
+                        <span className="text-[0.88rem] leading-snug text-secondary-foreground">
+                          {t(`steps.reference.help.${helpKey}`)}
+                        </span>
+                      )}
+                    </label>
+                  );
+                })}
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
@@ -440,8 +474,6 @@ export function AuditForm({ projects, references }: AuditFormProps) {
           {step === 3 && (
             <>
               <StepCard
-                icon={CalendarDays}
-                tone="warning"
                 title={t("steps.planning.title")}
                 description={t("steps.planning.description")}
               >
@@ -535,49 +567,57 @@ export function AuditForm({ projects, references }: AuditFormProps) {
                   />
                 </div>
               </StepCard>
-
-              <Recap
-                project={selectedProject}
-                reference={selectedReference}
-                platform={platform}
-                serviceType={serviceType}
-                language={language}
-              />
-
-              <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
-                <Layers
-                  className="mt-0.5 h-4 w-4 shrink-0 text-primary"
-                  aria-hidden="true"
-                />
-                <div>
-                  <p className="font-medium">
-                    {t("steps.planning.mandatoryPagesTitle")}
-                  </p>
-                  <p className="mt-0.5 text-muted-foreground">
-                    {t("steps.planning.mandatoryPagesDesc")}
-                  </p>
-                </div>
-              </div>
             </>
           )}
+        </div>
 
-          <div className="sticky bottom-0 -mx-4 flex items-center justify-between gap-3 border-t border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 md:-mx-6 md:px-6">
+        {/* Récapitulatif : visible à chaque étape, il se remplit au fur et à
+            mesure. C'est aussi lui qui porte la navigation. */}
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-6">
+          <Recap
+            project={selectedProject}
+            reference={selectedReference}
+            platform={platform}
+            serviceType={serviceType}
+            language={language}
+          />
+
+          {/* Ce que la création va produire d'office (5 pages obligatoires
+              + les éléments transversaux), et qu'on peut ensuite retirer. */}
+          <div className="flex items-start gap-3 rounded-row bg-primary-softer p-3.5 text-[0.85rem] leading-snug">
+            <Layers
+              className="mt-0.5 size-4 shrink-0 text-primary"
+              aria-hidden="true"
+            />
+            <span>
+              <span className="block font-bold">
+                {t("steps.planning.mandatoryPagesTitle")}
+              </span>
+              <span className="text-muted-foreground">
+                {t("steps.planning.mandatoryPagesDesc")}
+              </span>
+            </span>
+          </div>
+
+          <p className="text-[0.8rem] tabular text-muted-foreground">
+            {t("stepCount", { current: step, total: 3 })}
+          </p>
+
+          <div className="flex gap-2.5">
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
+              className="flex-1"
               onClick={() => setStep((step - 1) as StepId)}
               disabled={step === 1 || pending}
             >
-              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+              <ChevronLeft aria-hidden="true" />
               {t("previous")}
             </Button>
 
-            <span className="text-xs text-muted-foreground tabular-nums">
-              {t("stepCount", { current: step, total: 3 })}
-            </span>
-
             <Button
               type="button"
+              className="flex-[1.4]"
               onClick={handlePrimaryAction}
               disabled={
                 pending ||
@@ -589,27 +629,24 @@ export function AuditForm({ projects, references }: AuditFormProps) {
               {step === 3 ? (
                 pending ? (
                   <>
-                    <Loader2
-                      className="h-4 w-4 animate-spin"
-                      aria-hidden="true"
-                    />
+                    <Loader2 className="animate-spin" aria-hidden="true" />
                     {t("creating")}
                   </>
                 ) : (
                   <>
-                    <Plus className="h-4 w-4" aria-hidden="true" />
+                    <Plus data-anim="spin" aria-hidden="true" />
                     {t("create")}
                   </>
                 )
               ) : (
                 <>
                   {t("next")}
-                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  <ChevronRight data-anim="go" aria-hidden="true" />
                 </>
               )}
             </Button>
           </div>
-        </div>
+        </aside>
       </div>
     </form>
   );
@@ -641,108 +678,88 @@ function Stepper({
   };
 
   return (
-    <aside
+    <ol
       aria-label={t("stepsAria")}
-      className="lg:sticky lg:top-20 lg:self-start"
+      className="grid gap-2.5 sm:grid-cols-3"
     >
-      <Card className="p-2">
-        <ol className="space-y-1">
-          {stepDefs.map((s, idx) => {
-            const completed = currentStep > s.id;
-            const current = currentStep === s.id;
-            const accessible = canAccess(s.id);
+      {stepDefs.map((s, idx) => {
+        const completed = currentStep > s.id;
+        const current = currentStep === s.id;
+        const accessible = canAccess(s.id);
+        const Icon = STEP_ICONS[s.id];
 
-            const Icon = STEP_ICONS[s.id];
-
-            return (
-              <li key={s.id}>
-                <button
-                  type="button"
-                  onClick={() => accessible && onStepClick(s.id)}
-                  disabled={!accessible}
-                  aria-current={current ? "step" : undefined}
-                  className={cn(
-                    "group flex w-full items-center gap-3 rounded-md p-3 text-left transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                    current && "bg-primary/10",
-                    !current && accessible && "hover:bg-accent",
-                    !accessible && "cursor-not-allowed opacity-60",
-                  )}
-                >
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors",
-                      completed
-                        ? "bg-success text-success-foreground"
-                        : current
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    {completed ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      <Icon className="h-4 w-4" />
-                    )}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      {t("stepLabel")} {idx + 1}
-                    </span>
-                    <span className="block truncate text-sm font-medium text-foreground">
-                      {t(`steps.${s.labelKey}.label`)}
-                    </span>
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-      </Card>
-    </aside>
+        return (
+          <li key={s.id}>
+            <button
+              type="button"
+              onClick={() => accessible && onStepClick(s.id)}
+              disabled={!accessible}
+              aria-current={current ? "step" : undefined}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-[0.875rem] border bg-card px-3.5 py-3 text-left",
+                "transition-[background-color,border-color,box-shadow] duration-150",
+                current
+                  ? "border-primary shadow-[0_0_0_3px_hsl(var(--primary-muted))]"
+                  : "border-border",
+                !current && accessible && "hover:border-primary hover:bg-primary-softer",
+                !accessible && "cursor-not-allowed opacity-60",
+              )}
+            >
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-black transition-colors",
+                  completed
+                    ? "bg-success text-success-foreground"
+                    : current
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-muted-foreground",
+                )}
+              >
+                {completed ? (
+                  <Check className="size-4" strokeWidth={3} />
+                ) : (
+                  <Icon className="size-4" />
+                )}
+              </span>
+              <span className="min-w-0 flex-1 leading-[1.25]">
+                <span className="block text-[0.78rem] font-semibold text-muted-foreground">
+                  {t("stepLabel")} {idx + 1}
+                </span>
+                <span className="block truncate text-[0.9rem] font-extrabold">
+                  {t(`steps.${s.labelKey}.label`)}
+                </span>
+              </span>
+            </button>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
-const stepToneClasses = {
-  primary: "bg-primary/10 text-primary",
-  violet: "bg-violet-500/10 text-violet-500",
-  warning: "bg-warning/10 text-warning",
-} as const;
-
 function StepCard({
-  icon: Icon,
-  tone,
   title,
   description,
   children,
 }: {
-  icon: React.ElementType;
-  tone: keyof typeof stepToneClasses;
   title: string;
   description: string;
   children: React.ReactNode;
 }) {
   return (
     <Card>
-      <CardContent className="space-y-5 p-6">
-        <div className="flex items-start gap-3">
-          <div
-            aria-hidden="true"
-            className={cn(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
-              stepToneClasses[tone],
-            )}
-          >
-            <Icon className="h-5 w-5" />
-          </div>
-          <div className="min-w-0 space-y-1">
-            <h2 className="text-lg font-bold tracking-tight">{title}</h2>
-            <p className="text-sm text-muted-foreground">{description}</p>
-          </div>
+      <CardContent className="flex flex-col gap-4 px-6 py-5">
+        <div>
+          <h2 className="text-[1.2rem] font-extrabold tracking-[-0.02em]">
+            {title}
+          </h2>
+          <p className="mt-1 text-[0.95rem] text-muted-foreground">
+            {description}
+          </p>
         </div>
 
-        <div className="space-y-4">{children}</div>
+        <div className="flex flex-col gap-4">{children}</div>
       </CardContent>
     </Card>
   );
@@ -766,23 +783,16 @@ function Recap({
   const tServiceType = useTranslations("constants.serviceType");
   return (
     <Card>
-      <CardContent className="space-y-4 p-6">
-        <div className="flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("title")}
-          </h3>
-        </div>
+      <CardContent className="flex flex-col gap-4 px-5 py-5">
+        <h2 className="text-[1.05rem] font-extrabold">{t("title")}</h2>
 
-        <dl className="grid gap-3 sm:grid-cols-2">
+        <dl className="flex flex-col gap-3">
           <RecapItem
-            icon={Briefcase}
             label={t("project")}
             value={project ? project.name : "—"}
             sub={project?.clientName}
           />
           <RecapItem
-            icon={Library}
             label={t("reference")}
             value={
               reference
@@ -791,17 +801,14 @@ function Recap({
             }
           />
           <RecapItem
-            icon={Layers}
             label={t("platform")}
             value={tPlatform(platform)}
           />
           <RecapItem
-            icon={Briefcase}
             label={t("serviceType")}
             value={tServiceType(serviceType)}
           />
           <RecapItem
-            icon={Languages}
             label={t("language")}
             value={language === "fr" ? "Français" : "English"}
           />
@@ -812,31 +819,23 @@ function Recap({
 }
 
 function RecapItem({
-  icon: Icon,
   label,
   value,
   sub,
 }: {
-  icon: React.ElementType;
   label: string;
   value: string;
   sub?: string;
 }) {
   return (
-    <div className="flex items-start gap-3">
-      <div
-        aria-hidden="true"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground"
-      >
-        <Icon className="h-4 w-4" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <dt className="text-xs text-muted-foreground">{label}</dt>
-        <dd className="truncate text-sm font-medium">{value}</dd>
-        {sub && (
-          <p className="truncate text-xs text-muted-foreground">{sub}</p>
-        )}
-      </div>
+    <div className="min-w-0">
+      <dt className="text-[0.82rem] text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 truncate text-[0.95rem] font-bold">{value}</dd>
+      {sub && (
+        <dd className="truncate text-[0.82rem] text-muted-foreground">
+          {sub}
+        </dd>
+      )}
     </div>
   );
 }
@@ -844,16 +843,18 @@ function RecapItem({
 function EmptyProjectsState() {
   const t = useTranslations("audits.new.steps.project");
   return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-muted/30 p-8 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-card border-2 border-dashed border-input p-8 text-center">
       <div
         aria-hidden="true"
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
+        className="flex size-12 items-center justify-center rounded-full bg-secondary text-muted-foreground"
       >
-        <FolderKanban className="h-6 w-6" />
+        <FolderKanban className="size-6" />
       </div>
-      <div className="space-y-1">
-        <p className="text-sm font-medium">{t("emptyTitle")}</p>
-        <p className="text-xs text-muted-foreground">{t("emptyDesc")}</p>
+      <div>
+        <p className="text-[0.95rem] font-extrabold">{t("emptyTitle")}</p>
+        <p className="mt-0.5 text-[0.85rem] text-muted-foreground">
+          {t("emptyDesc")}
+        </p>
       </div>
       <Button asChild variant="outline" size="sm">
         <Link href="/clients">{t("emptyCta")}</Link>

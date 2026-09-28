@@ -40,8 +40,14 @@ test.describe("Flux audit", () => {
       .click({ timeout: 30_000 });
 
     // ---- Étape 2 : référentiel (défauts Web + Audit) -----------------------
-    await page.getByLabel(/référentiel d.accessibilité/i).click();
-    await page.getByRole("option").first().click();
+    // Le référentiel se choisit en cartes radio (refonte « Pro H ») : on clique
+    // la carte, comme un utilisateur. L input radio est volontairement masqué
+    // (il reste focusable et pilotable au clavier), donc on ne le cible pas
+    // directement.
+    await page
+      .locator("label:has(input[name=\"reference-choice\"])")
+      .first()
+      .click();
     // Champs requis de l'étape 2 (sinon "Suivant" reste désactivé). Ciblés par
     // id stable plutôt que par label, qui change selon plateforme/langue.
     await page.locator("#site-name").fill("Site E2E");
