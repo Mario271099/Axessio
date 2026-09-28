@@ -12,12 +12,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import {
-  BookOpen,
-  ChevronLeft,
-  ChevronRight,
-  ExternalLink,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +26,7 @@ import { NCReviewActions } from "@/components/audit/nc-review-actions";
 import { updateNCStatus } from "./actions";
 import { NCDetailsCard } from "./nc-details-card";
 import { NCAttachmentsCard } from "./nc-attachments-card";
+import { NCCriterionAnnex } from "./nc-criterion-annex";
 import { NCDiscussion } from "./nc-discussion";
 import type {
   AttachmentData,
@@ -97,6 +93,9 @@ export function NCDetail({
   const isAuditor = canAny(profile.role, orgPerms, "nc.edit");
 
   const [status, setStatus] = useState<string>(nc.status);
+  // L'annexe est repliée par défaut ; le lien « voir l'annexe » de l'en-tête
+  // la déplie en même temps qu'il y amène.
+  const [annexOpen, setAnnexOpen] = useState(false);
   const [statusPending, startStatusTransition] = useTransition();
   const [statusError, setStatusError] = useState<string | null>(null);
 
@@ -207,164 +206,56 @@ export function NCDetail({
         </div>
       </div>
 
-      {/* En-tête de la NC : identité en pastilles, puis le titre ---------- */}
-      <header className="space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          {nc.displayNumber > 0 && (
-            <span className="text-sm font-extrabold tabular text-muted-foreground">
-              NC #{String(nc.displayNumber).padStart(3, "0")}
-            </span>
-          )}
-          {nc.criterion && (
-            <span
-              className="inline-flex items-center rounded-md px-2 py-1 text-[0.8rem] font-extrabold text-white"
-              style={{ background: criterionColor }}
-            >
-              {t("criterionPill", {
-                identifier: nc.criterion.identifier,
-                name: nc.criterion.name,
-              })}
-            </span>
-          )}
-          <SeverityBadge severity={nc.severity} />
-          <NCReviewBadge status={nc.reviewStatus} hideWhenNotRequested />
-          <Badge variant="secondary" size="sm">
-            {nc.page
-              ? t("page") + " " + nc.page.name
-              : t("transversalShort")}
-          </Badge>
-        </div>
-
-        <h1 className="text-2xl font-black leading-tight tracking-tight md:text-[1.75rem]">
-          {nc.title}
-        </h1>
-
-        <NCReviewActions
-          ncId={nc.id}
-          reviewStatus={nc.reviewStatus}
-          userRole={userAssignmentRole}
-        />
-      </header>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        {/* Colonne gauche (2/3) -------------------------------------------- */}
-        <div className="flex flex-col gap-4 lg:col-span-2">
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* Statut ---------------------------------------------------- */}
-            <Card className="p-5">
-              <h2 className="text-base font-extrabold">{t("statusTitle")}</h2>
-              {isAuditor ? (
-                <fieldset
-                  className="mt-3 flex flex-col gap-1.5"
-                  disabled={statusPending}
-                >
-                  <legend className="sr-only">{t("statusAria")}</legend>
-                  {statusOptions.map((s) => (
-                    <label
-                      key={s}
-                      className={cn(
-                        "flex cursor-pointer items-center gap-3 rounded-row border px-3 py-2.5 text-sm font-bold",
-                        "transition-[background-color,border-color] duration-150",
-                        status === s
-                          ? "border-primary bg-primary-soft"
-                          : "border-border hover:border-primary hover:bg-primary-softer",
-                      )}
-                    >
-                      <input
-                        type="radio"
-                        name="nc-status"
-                        className="size-[18px] accent-primary"
-                        checked={status === s}
-                        onChange={() => handleStatusChange(s)}
-                      />
-                      <span className="flex-1">{tNcStatus(s)}</span>
-                      <span
-                        aria-hidden="true"
-                        className="size-2.5 shrink-0 rounded-full"
-                        style={{
-                          background:
-                            NC_STATUS_COLOR[s] ??
-                            "hsl(var(--muted-foreground))",
-                        }}
-                      />
-                    </label>
-                  ))}
-                </fieldset>
-              ) : (
-                <StatusDot
-                  className="mt-3"
-                  color={
-                    NC_STATUS_COLOR[status] ?? "hsl(var(--muted-foreground))"
-                  }
-                >
-                  {tNcStatus(status)}
-                </StatusDot>
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_330px]">
+        {/* Colonne principale : constat, captures, echanges, annexe ------- */}
+        <div className="flex min-w-0 flex-col gap-4">
+          {/* En-tête de la NC : identité en pastilles, puis le titre ------ */}
+          <header>
+            <div className="flex flex-wrap items-center gap-2">
+              {nc.displayNumber > 0 && (
+                <span className="text-sm font-extrabold tabular text-muted-foreground">
+                  NC #{String(nc.displayNumber).padStart(3, "0")}
+                </span>
               )}
-              {statusError && (
-                <p
-                  role="alert"
-                  className="mt-2 text-sm font-semibold text-destructive"
+              <SeverityBadge severity={nc.severity} />
+              <NCReviewBadge status={nc.reviewStatus} hideWhenNotRequested />
+              <Badge variant="secondary" size="sm">
+                {nc.page
+                  ? t("page") + " " + nc.page.name
+                  : t("transversalShort")}
+              </Badge>
+              {nc.criterion && (
+                // Renvoie vers l'annexe en bas de page, ou le critere est
+                // detaille : ici on ne garde que son numero.
+                <a
+                  href="#nc-annex"
+                  onClick={() => setAnnexOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[0.8rem] font-bold text-secondary-foreground transition-colors hover:border-primary hover:text-primary"
                 >
-                  {statusError}
-                </p>
+                  <span
+                    aria-hidden="true"
+                    className="size-2 rounded-full"
+                    style={{ background: criterionColor }}
+                  />
+                  {t("criterionAnnexLink", {
+                    identifier: nc.criterion.identifier,
+                  })}
+                </a>
               )}
-            </Card>
+            </div>
 
-            {/* Critère lié + méthodologie de test ------------------------ */}
-            {nc.criterion ? (
-              <Card className="flex flex-col gap-3 p-5">
-                <h2 className="text-base font-extrabold">
-                  {t("linkedCriterion")}
-                </h2>
-                <p className="text-sm font-semibold leading-snug">
-                  {nc.criterion.name}
-                </p>
-                {nc.testReference && (
-                  <p className="flex items-center gap-2 text-sm">
-                    <span className="text-muted-foreground">
-                      {t("testLabel")}
-                    </span>
-                    <span className="rounded-md bg-primary-muted px-2 py-0.5 text-xs font-extrabold text-primary">
-                      {nc.testReference}
-                    </span>
-                  </p>
-                )}
+            <h1 className="mt-2.5 text-2xl font-black leading-[1.12] tracking-[-0.035em] md:text-[2rem]">
+              {nc.title}
+            </h1>
 
-                <div className="rounded-row border border-border bg-primary-softer p-3.5">
-                  <h3 className="flex items-center gap-2 text-sm font-extrabold">
-                    <BookOpen
-                      className="size-3.5 text-primary"
-                      aria-hidden="true"
-                    />
-                    {t("methodology")}
-                  </h3>
-                  {nc.criterion.methodology ? (
-                    <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-secondary-foreground">
-                      {nc.criterion.methodology}
-                    </p>
-                  ) : (
-                    <p className="mt-1.5 text-sm italic text-muted-foreground">
-                      {t("noMethodology")}
-                    </p>
-                  )}
-                </div>
+            <NCReviewActions
+              ncId={nc.id}
+              reviewStatus={nc.reviewStatus}
+              userRole={userAssignmentRole}
+            />
+          </header>
 
-                {nc.criterion.url && (
-                  <a
-                    href={nc.criterion.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm font-bold text-primary underline decoration-1 underline-offset-4 hover:decoration-2"
-                  >
-                    {t("officialDocs")}
-                    <ExternalLink className="size-3" aria-hidden="true" />
-                  </a>
-                )}
-              </Card>
-            ) : null}
-          </div>
-
-          {/* Détails NC --------------------------------------------------- */}
+          {/* 1. Détails de la non-conformité ------------------------------ */}
           <NCDetailsCard
             nc={nc}
             pages={pages}
@@ -372,7 +263,7 @@ export function NCDetail({
             isAuditor={isAuditor}
           />
 
-          {/* Captures d'écran -------------------------------------------- */}
+          {/* 2. Captures -------------------------------------------------- */}
           <NCAttachmentsCard
             ncId={nc.id}
             auditId={auditId}
@@ -381,10 +272,8 @@ export function NCDetail({
             canDeleteAny={canAny(profile.role, orgPerms, "nc.edit")}
             profileId={profile.id}
           />
-        </div>
 
-        {/* Colonne droite (1/3) - Échanges -------------------------------- */}
-        <aside className="lg:col-span-1">
+          {/* 3. Échanges -------------------------------------------------- */}
           <NCDiscussion
             ncId={nc.id}
             auditId={auditId}
@@ -393,6 +282,110 @@ export function NCDetail({
             canDiscuss={canDiscuss}
             canAccessReviewThread={canAccessReviewThread}
           />
+
+          {/* 4. Annexe, critère lié (repliée) ----------------------------- */}
+          {nc.criterion && (
+            <NCCriterionAnnex
+              criterion={nc.criterion}
+              testReference={nc.testReference}
+              open={annexOpen}
+              onOpenChange={setAnnexOpen}
+            />
+          )}
+        </div>
+
+        {/* Colonne de droite : statut et informations --------------------- */}
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-6">
+          {/* Statut ------------------------------------------------------- */}
+          <Card className="p-5">
+            <h2 className="text-base font-extrabold" id="nc-status-title">
+              {t("statusTitle")}
+            </h2>
+            {isAuditor ? (
+              <fieldset
+                className="mt-3 flex flex-col gap-1.5"
+                disabled={statusPending}
+              >
+                <legend className="sr-only">{t("statusAria")}</legend>
+                {statusOptions.map((s) => (
+                  <label
+                    key={s}
+                    className={cn(
+                      "flex cursor-pointer items-center gap-3 rounded-row border px-3 py-2.5 text-sm font-bold",
+                      "transition-[background-color,border-color] duration-150",
+                      status === s
+                        ? "border-primary bg-primary-soft"
+                        : "border-border hover:border-primary hover:bg-primary-softer",
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="nc-status"
+                      className="size-[18px] accent-primary"
+                      checked={status === s}
+                      onChange={() => handleStatusChange(s)}
+                    />
+                    <span className="flex-1">{tNcStatus(s)}</span>
+                    <span
+                      aria-hidden="true"
+                      className="size-2.5 shrink-0 rounded-full"
+                      style={{
+                        background:
+                          NC_STATUS_COLOR[s] ?? "hsl(var(--muted-foreground))",
+                      }}
+                    />
+                  </label>
+                ))}
+              </fieldset>
+            ) : (
+              <StatusDot
+                className="mt-3"
+                color={NC_STATUS_COLOR[status] ?? "hsl(var(--muted-foreground))"}
+              >
+                {tNcStatus(status)}
+              </StatusDot>
+            )}
+            {statusError && (
+              <p
+                role="alert"
+                className="mt-2 text-sm font-semibold text-destructive"
+              >
+                {statusError}
+              </p>
+            )}
+          </Card>
+
+          {/* Informations -------------------------------------------------- */}
+          <Card className="p-5">
+            <h2 className="sr-only">{t("infoTitle")}</h2>
+            <dl className="grid grid-cols-[minmax(0,100px)_minmax(0,1fr)] items-center gap-x-2.5 gap-y-3 text-[0.95rem]">
+              <dt className="text-muted-foreground">{t("linkedPage")}</dt>
+              <dd className="m-0 font-bold">
+                {nc.page?.name ?? t("transversalShort")}
+              </dd>
+
+              <dt className="text-muted-foreground">{t("severity")}</dt>
+              <dd className="m-0">
+                <SeverityBadge severity={nc.severity} />
+              </dd>
+
+              <dt className="text-muted-foreground">{t("reviewLabel")}</dt>
+              <dd className="m-0">
+                <NCReviewBadge status={nc.reviewStatus} />
+              </dd>
+
+              {nc.testReference && (
+                <>
+                  <dt className="text-muted-foreground">{t("testLabel")}</dt>
+                  <dd className="m-0">
+                    <span className="rounded-md bg-primary-muted px-2 py-0.5 text-xs font-extrabold text-primary">
+                      {nc.testReference}
+                    </span>
+                  </dd>
+                </>
+              )}
+            </dl>
+          </Card>
         </aside>
       </div>
     </div>

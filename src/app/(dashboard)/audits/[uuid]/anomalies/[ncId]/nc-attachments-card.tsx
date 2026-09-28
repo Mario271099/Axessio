@@ -29,6 +29,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { createClient } from "@/lib/supabase/client";
 import { intlLocale } from "@/lib/intl";
+import { cn } from "@/lib/utils";
 import { addAttachment, deleteAttachment } from "./actions";
 import type { AttachmentData } from "./nc-detail-types";
 
@@ -71,24 +72,34 @@ export function NCAttachmentsCard({
   const [attachmentToDelete, setAttachmentToDelete] =
     useState<AttachmentData | null>(null);
 
-  // Ligne d'information de la visionneuse : type et poids reels du fichier.
-  const previewMeta = (() => {
-    if (!previewAttachment) return null;
+  // Capture affichée en grand. Par défaut la première ; si celle qui était
+  // choisie vient d'être supprimée, on retombe sur la première.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const shown =
+    attachments.find((a) => a.id === selectedId) ?? attachments[0] ?? null;
+  const shownIsImage = !!shown?.mimeType?.startsWith("image/");
+
+  const nameOf = (att: AttachmentData) =>
+    att.fileName ?? att.storagePath.split("/").pop() ?? "fichier";
+
+  /** Type et poids réels du fichier, pour la légende et la visionneuse. */
+  const metaOf = (att: AttachmentData | null) => {
+    if (!att) return null;
     const parts: string[] = [];
-    const subtype = previewAttachment.mimeType?.split("/")[1];
+    const subtype = att.mimeType?.split("/")[1];
     if (subtype) parts.push(subtype.toUpperCase());
-    if (previewAttachment.fileSize) {
+    if (att.fileSize) {
       parts.push(
         new Intl.NumberFormat(intlLocale(locale), {
           style: "unit",
           unit: "kilobyte",
           unitDisplay: "short",
           maximumFractionDigits: 0,
-        }).format(previewAttachment.fileSize / 1024),
+        }).format(att.fileSize / 1024),
       );
     }
     return parts.length > 0 ? parts.join(" · ") : null;
-  })();
+  };
 
   const handleFilesChange = (selected: File[]) => {
     if (selected.length === 0 || uploading) return;
@@ -187,94 +198,117 @@ export function NCAttachmentsCard({
             </p>
           )}
 
-          {attachments.length > 0 && (
-            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {/* Visionneuse : la capture choisie en grand, les autres en
+              miniatures dessous. */}
+          {shown && (
+            <figure className="m-0">
+              <div className="group relative h-[300px] overflow-hidden rounded-card border border-border bg-secondary sm:h-[420px]">
+                {shownIsImage && shown.signedUrl ? (
+                  <button
+                    type="button"
+                    onClick={() => setPreviewAttachment(shown)}
+                    className="flex size-full items-center justify-center p-4"
+                    aria-label={t("enlargeAria", { name: nameOf(shown) })}
+                  >
+                    {/* URL signée Supabase éphémère (1h) : hôte non
+                        optimisable par next/image sans exposer le bucket. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={shown.signedUrl}
+                      alt={nameOf(shown)}
+                      className="max-h-full max-w-full rounded-row object-contain shadow-lg transition-transform duration-200 group-hover:scale-[1.01]"
+                    />
+                  </button>
+                ) : shown.signedUrl ? (
+                  <a
+                    href={shown.signedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex size-full flex-col items-center justify-center gap-2.5 p-4 text-center text-sm font-bold text-secondary-foreground hover:bg-primary-softer"
+                    aria-label={t("openAria", { name: nameOf(shown) })}
+                  >
+                    <FileText className="size-10" aria-hidden="true" />
+                    {t("openPdf")}
+                  </a>
+                ) : (
+                  <p className="flex size-full items-center justify-center text-sm text-muted-foreground">
+                    {t("unavailable")}
+                  </p>
+                )}
+
+                {(canDeleteAny || shown.uploadedBy === profileId) && (
+                  <Button
+                    type="button"
+                    size="icon-sm"
+                    variant="destructive"
+                    className="absolute right-3 top-3 rounded-full opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+                    onClick={() => setAttachmentToDelete(shown)}
+                    disabled={deletingId === shown.id}
+                    aria-label={t("deleteAria", { name: nameOf(shown) })}
+                  >
+                    {deletingId === shown.id ? (
+                      <Loader2 className="animate-spin" aria-hidden="true" />
+                    ) : (
+                      <Trash2 aria-hidden="true" />
+                    )}
+                  </Button>
+                )}
+              </div>
+
+              <figcaption className="mt-2.5 text-[0.95rem] font-bold">
+                {nameOf(shown)}{" "}
+                {metaOf(shown) && (
+                  <span className="font-medium text-muted-foreground">
+                    {metaOf(shown)}
+                  </span>
+                )}
+              </figcaption>
+            </figure>
+          )}
+
+          {attachments.length > 1 && (
+            <div
+              role="group"
+              aria-label={t("captureSelectAria")}
+              className="flex flex-wrap gap-3"
+            >
               {attachments.map((att) => {
-                // Auteur de l'upload OU droit d'éditer les NC (staff legacy
-                // OU membre d'org avec `nc.edit`).
-                const canDelete = canDeleteAny || att.uploadedBy === profileId;
-                const isImage = !!att.mimeType?.startsWith("image/");
-                const isDeleting = deletingId === att.id;
-                const displayName =
-                  att.fileName ??
-                  att.storagePath.split("/").pop() ??
-                  "fichier";
-
+                const isShown = att.id === shown?.id;
                 return (
-                  <li key={att.id} className="space-y-1.5">
-                    <div className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-muted">
-                      {isImage && att.signedUrl ? (
-                        <button
-                          type="button"
-                          onClick={() => setPreviewAttachment(att)}
-                          className="block h-full w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          aria-label={t("enlargeAria", { name: displayName })}
-                        >
-                          {/* URL signée Supabase éphémère (1h) : hôte non
-                              optimisable par next/image sans exposer le bucket. */}
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={att.signedUrl}
-                            alt={displayName}
-                            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
-                          />
-                        </button>
-                      ) : att.signedUrl ? (
-                        <a
-                          href={att.signedUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex h-full w-full flex-col items-center justify-center gap-2 p-3 text-center text-xs text-muted-foreground hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          aria-label={t("openAria", { name: displayName })}
-                        >
-                          <FileText
-                            className="h-8 w-8"
-                            aria-hidden="true"
-                          />
-                          <span className="line-clamp-2 break-all">
-                            {t("openPdf")}
-                          </span>
-                        </a>
+                  <button
+                    key={att.id}
+                    type="button"
+                    aria-pressed={isShown}
+                    onClick={() => setSelectedId(att.id)}
+                    className={cn(
+                      "flex w-[150px] flex-col gap-1.5 rounded-row border-2 bg-card p-1.5 text-left",
+                      "transition-[border-color,transform] duration-200",
+                      isShown
+                        ? "border-primary"
+                        : "border-border hover:-translate-y-0.5 hover:border-primary",
+                    )}
+                  >
+                    <span className="block h-[74px] overflow-hidden rounded-lg bg-secondary">
+                      {att.mimeType?.startsWith("image/") && att.signedUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={att.signedUrl}
+                          alt=""
+                          className="size-full object-cover"
+                        />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                          {t("unavailable")}
-                        </div>
+                        <span className="flex size-full items-center justify-center text-muted-foreground">
+                          <FileText className="size-6" aria-hidden="true" />
+                        </span>
                       )}
-
-                      {canDelete && (
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="destructive"
-                          className="absolute right-1.5 top-1.5 h-7 w-7 rounded-full opacity-0 shadow transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-                          onClick={() => setAttachmentToDelete(att)}
-                          disabled={isDeleting}
-                          aria-label={t("deleteAria", { name: displayName })}
-                        >
-                          {isDeleting ? (
-                            <Loader2
-                              className="h-3.5 w-3.5 animate-spin"
-                              aria-hidden="true"
-                            />
-                          ) : (
-                            <Trash2
-                              className="h-3.5 w-3.5"
-                              aria-hidden="true"
-                            />
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                    <p
-                      className="truncate text-xs text-muted-foreground"
-                      title={displayName}
-                    >
-                      {displayName}
-                    </p>
-                  </li>
+                    </span>
+                    <span className="truncate text-[0.78rem] font-bold">
+                      {nameOf(att)}
+                    </span>
+                  </button>
                 );
               })}
-            </ul>
+            </div>
           )}
 
           {attachments.length === 0 && (
@@ -321,8 +355,8 @@ export function NCAttachmentsCard({
               <DialogTitle className="truncate text-lg font-extrabold">
                 {previewAttachment?.fileName ?? t("previewTitle")}
               </DialogTitle>
-              {previewMeta && (
-                <p className="mt-0.5 text-sm text-ink-muted">{previewMeta}</p>
+              {metaOf(previewAttachment) && (
+                <p className="mt-0.5 text-sm text-ink-muted">{metaOf(previewAttachment)}</p>
               )}
             </div>
           </div>

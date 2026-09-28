@@ -156,7 +156,7 @@ export function NCDiscussion({
 
   return (
     <>
-      <Card className="flex flex-col lg:sticky lg:top-20 lg:h-[calc(100vh-12rem)]">
+      <Card className="flex flex-col">
         <CardHeader className="space-y-3 border-b border-border">
           <CardTitle className="flex items-center gap-2 text-base">
             <MessageSquare
@@ -211,7 +211,7 @@ export function NCDiscussion({
           )}
         </CardHeader>
 
-        <div className="flex-1 space-y-4 overflow-y-auto p-4">
+        <div className="max-h-[460px] flex-1 space-y-4 overflow-y-auto p-4">
           {visibleMessages.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-8 text-center">
               <div

@@ -2571,7 +2571,12 @@
       "previewTitle": "Aperçu de la capture",
       "user": "Utilisateur",
       "statusTitle": "Statut",
-      "criterionPill": "Critère {identifier}, {name}"
+      "criterionPill": "Critère {identifier}, {name}",
+      "criterionAnnexLink": "Critère {identifier}, voir l’annexe",
+      "annexTitle": "Annexe, critère lié",
+      "infoTitle": "Informations",
+      "reviewLabel": "Relecture",
+      "captureSelectAria": "Choisir une capture"
     },
     "anomaliesNew": {
       "back": "Retour aux non-conformités",

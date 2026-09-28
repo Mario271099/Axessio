@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import type { NCSeverity } from "@/types/domain";
 import { updateNC } from "./actions";
 import type { NCData, PageData } from "./nc-detail-types";
@@ -216,20 +217,35 @@ export function NCDetailsCard({
             </div>
           </form>
         ) : (
-          <div className="space-y-4">
-            <ReadField label={t("description")} value={nc.description} />
-            <ReadField label={t("actualResult")} value={nc.actualResult} />
-            <ReadField
-              label={t("recommendation")}
-              value={nc.recommendation}
-            />
-            <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-muted-foreground">
-              <span>
-                {t("page")}{" "}
-                <span className="text-foreground">
-                  {nc.page?.name ?? t("transversalShort")}
-                </span>
-              </span>
+          <div className="flex flex-col gap-5">
+            {/* Le constat ouvre la fiche, en corps de lecture. */}
+            <div>
+              <h3 className="mb-1.5 text-sm font-extrabold text-muted-foreground">
+                {t("description")}
+              </h3>
+              {nc.description ? (
+                <p className="whitespace-pre-wrap text-[1.05rem] leading-relaxed">
+                  {nc.description}
+                </p>
+              ) : (
+                <p className="text-[0.95rem] italic text-muted-foreground">
+                  {t("notFilled")}
+                </p>
+              )}
+            </div>
+
+            {/* Ce qui ne va pas, et ce qu'il faut faire : cote a cote. */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <ToneField
+                label={t("actualResult")}
+                value={nc.actualResult}
+                tone="problem"
+              />
+              <ToneField
+                label={t("recommendation")}
+                value={nc.recommendation}
+                tone="fix"
+              />
             </div>
           </div>
         )}
@@ -238,23 +254,44 @@ export function NCDetailsCard({
   );
 }
 
-function ReadField({
+/**
+ * Champ posé sur un fond teinté : rouge pale pour ce qui est constaté,
+ * vert pale pour ce qu'il faut faire. Le titre porte le sens, la couleur
+ * ne fait que le redire.
+ */
+function ToneField({
   label,
   value,
+  tone,
 }: {
   label: string;
   value: string | null;
+  tone: "problem" | "fix";
 }) {
   const t = useTranslations("audits.ncDetail");
   return (
-    <div className="space-y-1">
-      <div className="text-sm font-bold text-muted-foreground">
+    <div
+      className={cn(
+        "rounded-[0.875rem] p-4",
+        tone === "problem" ? "bg-severity-critical-bg" : "bg-success/10",
+      )}
+    >
+      <h3
+        className={cn(
+          "mb-1.5 text-sm font-extrabold",
+          tone === "problem" ? "text-severity-critical" : "text-success",
+        )}
+      >
         {label}
-      </div>
+      </h3>
       {value ? (
-        <p className="whitespace-pre-wrap text-sm leading-relaxed">{value}</p>
+        <p className="whitespace-pre-wrap text-[0.95rem] leading-relaxed text-secondary-foreground">
+          {value}
+        </p>
       ) : (
-        <p className="text-sm italic text-muted-foreground">{t("notFilled")}</p>
+        <p className="text-[0.95rem] italic text-muted-foreground">
+          {t("notFilled")}
+        </p>
       )}
     </div>
   );

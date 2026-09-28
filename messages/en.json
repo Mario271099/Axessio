@@ -2571,7 +2571,12 @@
       "previewTitle": "Screenshot preview",
       "user": "User",
       "statusTitle": "Status",
-      "criterionPill": "Criterion {identifier}, {name}"
+      "criterionPill": "Criterion {identifier}, {name}",
+      "criterionAnnexLink": "Criterion {identifier}, see the annex",
+      "annexTitle": "Annex, linked criterion",
+      "infoTitle": "Details",
+      "reviewLabel": "Review",
+      "captureSelectAria": "Choose a screenshot"
     },
     "anomaliesNew": {
       "back": "Back to non-conformities",
