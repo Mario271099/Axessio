@@ -421,6 +421,7 @@
     "loading": "Chargement…",
     "save": "Enregistrer",
     "cancel": "Annuler",
+    "close": "Fermer",
     "delete": "Supprimer",
     "confirmTitle": "Confirmer l'action",
     "edit": "Modifier",
@@ -2240,7 +2241,9 @@
     },
     "statusTransitions": {
       "noTransition": "Aucune transition de statut disponible depuis cet état.",
+      "dialogIntro": "Vérifiez les conditions ci-dessous avant de confirmer.",
       "ready": "Toutes les conditions sont réunies. Confirmez pour appliquer la transition.",
+      "blocked": "Il reste une condition à remplir.",
       "cancel": "Annuler",
       "confirm": "Confirmer la transition",
       "undoToast": {
@@ -2257,6 +2260,7 @@
         "openRemediation": "Ouvrir la remédiation"
       },
       "conditions": {
+        "heading": "Conditions",
         "sample": "Échantillon",
         "sampleValue": "{count, plural, =0 {Aucune page représentative} one {# page représentative} other {# pages représentatives}}",
         "startDate": "Date de début",

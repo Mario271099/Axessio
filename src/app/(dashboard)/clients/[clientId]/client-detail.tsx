@@ -530,7 +530,10 @@ export function ClientDetail({
       {/* Confirmation activation/désactivation client */}
       <AlertDialog open={toggleConfirmOpen} onOpenChange={setToggleConfirmOpen}>
         <AlertDialogContent>
-          <AlertDialogHeader>
+          <AlertDialogHeader
+            icon={<Power aria-hidden="true" />}
+            tone={client.isActive ? "warning" : "success"}
+          >
             <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
               {client.isActive
@@ -556,7 +559,7 @@ export function ClientDetail({
         onOpenChange={(o) => !o && setProjectToDelete(null)}
       >
         <AlertDialogContent>
-          <AlertDialogHeader>
+          <AlertDialogHeader icon={<Trash2 aria-hidden="true" />}>
             <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
               {projectToDelete

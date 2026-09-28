@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -174,8 +175,8 @@ export function AuditContacts({
       )}
 
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
+        <DialogContent size="lg" closeLabel={tCommon("close")}>
+          <DialogHeader icon={<UserPlus aria-hidden="true" />}>
             <DialogTitle>{t("inviteTitle")}</DialogTitle>
             <DialogDescription>{t("inviteDesc")}</DialogDescription>
           </DialogHeader>
@@ -185,8 +186,9 @@ export function AuditContacts({
               e.preventDefault();
               submitInvite(new FormData(e.currentTarget));
             }}
-            className="space-y-4"
+            className="flex min-h-0 flex-1 flex-col"
           >
+            <DialogBody>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="contact-first-name">{t("firstName")} *</Label>
@@ -226,20 +228,22 @@ export function AuditContacts({
               </p>
             </div>
 
+            </DialogBody>
+
             <DialogFooter>
               <Button
                 type="button"
-                variant="ghost"
+                variant="outline"
                 onClick={() => setInviteOpen(false)}
                 disabled={pending}
               >
                 {tCommon("cancel")}
               </Button>
-              <Button type="submit" disabled={pending} className="gap-1.5">
+              <Button type="submit" disabled={pending}>
                 {pending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <Loader2 className="animate-spin" aria-hidden="true" />
                 ) : (
-                  <UserPlus className="h-4 w-4" aria-hidden="true" />
+                  <UserPlus aria-hidden="true" />
                 )}
                 {t("inviteCta")}
               </Button>
@@ -253,7 +257,7 @@ export function AuditContacts({
         onOpenChange={(o) => !o && setRemoveTarget(null)}
       >
         <AlertDialogContent>
-          <AlertDialogHeader>
+          <AlertDialogHeader icon={<UserMinus aria-hidden="true" />}>
             <AlertDialogTitle>{t("removeTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
               {t("removeDesc", {

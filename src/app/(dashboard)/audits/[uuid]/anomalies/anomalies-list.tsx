@@ -592,7 +592,7 @@ export function AnomaliesList({
                   </BulkButton>
                   <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                     <AlertDialogContent>
-                      <AlertDialogHeader>
+                      <AlertDialogHeader icon={<Trash2 aria-hidden="true" />}>
                         <AlertDialogTitle>
                           {tCommon("confirmTitle")}
                         </AlertDialogTitle>

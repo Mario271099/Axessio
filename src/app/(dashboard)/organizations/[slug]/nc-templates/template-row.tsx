@@ -2,12 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2, Pencil, Trash2 } from "lucide-react";
+import { FileText, Loader2, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -117,11 +118,12 @@ export function TemplateRow({ organizationId, template, references }: Props) {
           if (!o) setEditError(null);
         }}
       >
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader>
+        <DialogContent size="xl" closeLabel={t("cancel")}>
+          <DialogHeader icon={<FileText aria-hidden="true" />} tone="ink">
             <DialogTitle>{t("editTitle")}</DialogTitle>
             <DialogDescription>{t("editDesc")}</DialogDescription>
           </DialogHeader>
+          <DialogBody>
           {editError && (
             <p
               role="alert"
@@ -136,23 +138,20 @@ export function TemplateRow({ organizationId, template, references }: Props) {
             initial={template}
             onSubmit={handleEdit}
           />
+          </DialogBody>
+
           <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => setEditOpen(false)}
               disabled={editPending}
             >
               {t("cancel")}
             </Button>
-            <Button
-              type="submit"
-              form={FORM_ID}
-              disabled={editPending}
-              className="gap-2"
-            >
+            <Button type="submit" form={FORM_ID} disabled={editPending}>
               {editPending && (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               {t("save")}
             </Button>
@@ -194,7 +193,7 @@ function DeleteConfirm({
       </Button>
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
-          <AlertDialogHeader>
+          <AlertDialogHeader icon={<Trash2 aria-hidden="true" />}>
             <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
               {t("deleteDesc", { label })}

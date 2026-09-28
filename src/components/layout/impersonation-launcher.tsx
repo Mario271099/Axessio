@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { USER_ROLE_BADGE_VARIANT, USER_ROLE_LABELS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import { enterImpersonation } from "@/app/(dashboard)/admin/impersonation/actions";
 import type { UserRole } from "@/types/domain";
 
@@ -34,6 +36,7 @@ export function ImpersonationLauncher({
   triggerLabel,
 }: ImpersonationLauncherProps) {
   const t = useTranslations("impersonation");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<UserRole | null>(null);
@@ -72,13 +75,14 @@ export function ImpersonationLauncher({
       </Button>
 
       <Dialog open={open} onOpenChange={(v) => !pending && setOpen(v)}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent size="md" closeLabel={tCommon("close")}>
+          <DialogHeader icon={<Eye aria-hidden="true" />} tone="ink">
             <DialogTitle>{t("launcher.dialogTitle")}</DialogTitle>
             <DialogDescription>{t("launcher.dialogDesc")}</DialogDescription>
           </DialogHeader>
 
-          <fieldset className="space-y-2" disabled={pending}>
+          <DialogBody>
+          <fieldset className="flex flex-col gap-2" disabled={pending}>
             <legend className="sr-only">{t("launcher.legend")}</legend>
             {availableRoles.map((role) => {
               const id = `impersonate-${role}`;
@@ -87,7 +91,12 @@ export function ImpersonationLauncher({
                 <Label
                   key={role}
                   htmlFor={id}
-                  className="flex cursor-pointer items-center gap-3 rounded-md border border-border p-3 transition-colors hover:bg-accent/40"
+                  className={cn(
+                    "flex cursor-pointer items-center gap-3 rounded-[0.875rem] border p-3.5 transition-colors",
+                    isSelected
+                      ? "border-primary bg-primary-soft shadow-[inset_0_0_0_1px_hsl(var(--primary))]"
+                      : "border-border hover:border-primary hover:bg-primary-softer",
+                  )}
                   data-selected={isSelected}
                 >
                   <input
@@ -97,10 +106,10 @@ export function ImpersonationLauncher({
                     value={role}
                     checked={isSelected}
                     onChange={() => setSelected(role)}
-                    className="h-4 w-4"
+                    className="size-5 accent-[hsl(var(--primary))]"
                   />
                   <span className="flex flex-1 items-center justify-between gap-2">
-                    <span className="text-sm font-medium">
+                    <span className="text-[0.95rem] font-bold">
                       {USER_ROLE_LABELS[role]}
                     </span>
                     <Badge variant={USER_ROLE_BADGE_VARIANT[role]}>
@@ -113,15 +122,19 @@ export function ImpersonationLauncher({
           </fieldset>
 
           {error && (
-            <p role="alert" className="text-sm text-destructive">
+            <p
+              role="alert"
+              className="rounded-[0.875rem] bg-destructive/10 px-4 py-3 text-[0.95rem] text-destructive"
+            >
               {error}
             </p>
           )}
+          </DialogBody>
 
           <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => setOpen(false)}
               disabled={pending}
             >
@@ -133,10 +146,7 @@ export function ImpersonationLauncher({
               disabled={pending || !selected}
             >
               {pending && (
-                <Loader2
-                  className="mr-2 h-4 w-4 animate-spin"
-                  aria-hidden="true"
-                />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               {t("launcher.confirm")}
             </Button>

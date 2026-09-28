@@ -311,7 +311,7 @@ function PageRowItem({
             </Button>
             <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
               <AlertDialogContent>
-                <AlertDialogHeader>
+                <AlertDialogHeader icon={<Trash2 aria-hidden="true" />}>
                   <AlertDialogTitle>{t("confirmDeleteTitle")}</AlertDialogTitle>
                   <AlertDialogDescription>
                     {t("confirmDelete", { name: page.name })}

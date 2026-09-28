@@ -6,7 +6,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { FileText, Loader2, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +28,7 @@ import {
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { createClient } from "@/lib/supabase/client";
+import { intlLocale } from "@/lib/intl";
 import { addAttachment, deleteAttachment } from "./actions";
 import type { AttachmentData } from "./nc-detail-types";
 
@@ -60,6 +61,7 @@ export function NCAttachmentsCard({
   const router = useRouter();
   const t = useTranslations("audits.ncDetail");
   const tCommon = useTranslations("common");
+  const locale = useLocale();
 
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -68,6 +70,25 @@ export function NCAttachmentsCard({
     useState<AttachmentData | null>(null);
   const [attachmentToDelete, setAttachmentToDelete] =
     useState<AttachmentData | null>(null);
+
+  // Ligne d'information de la visionneuse : type et poids reels du fichier.
+  const previewMeta = (() => {
+    if (!previewAttachment) return null;
+    const parts: string[] = [];
+    const subtype = previewAttachment.mimeType?.split("/")[1];
+    if (subtype) parts.push(subtype.toUpperCase());
+    if (previewAttachment.fileSize) {
+      parts.push(
+        new Intl.NumberFormat(intlLocale(locale), {
+          style: "unit",
+          unit: "kilobyte",
+          unitDisplay: "short",
+          maximumFractionDigits: 0,
+        }).format(previewAttachment.fileSize / 1024),
+      );
+    }
+    return parts.length > 0 ? parts.join(" · ") : null;
+  })();
 
   const handleFilesChange = (selected: File[]) => {
     if (selected.length === 0 || uploading) return;
@@ -289,24 +310,34 @@ export function NCAttachmentsCard({
           if (!open) setPreviewAttachment(null);
         }}
       >
-        <DialogContent className="max-w-5xl gap-2 p-3 sm:p-4">
-          <DialogTitle className="sr-only">
-            {previewAttachment?.fileName ?? t("previewTitle")}
-          </DialogTitle>
-          {previewAttachment?.signedUrl && (
-            /* URL signée Supabase éphémère (1h) - cf. commentaire ci-dessus. */
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={previewAttachment.signedUrl}
-              alt={previewAttachment.fileName ?? t("previewTitle")}
-              className="mx-auto max-h-[80vh] w-auto rounded-md object-contain"
-            />
-          )}
-          {previewAttachment?.fileName && (
-            <p className="text-center text-xs text-muted-foreground">
-              {previewAttachment.fileName}
-            </p>
-          )}
+        {/* Visionneuse : fenetre sombre pleine largeur, la capture au centre. */}
+        <DialogContent
+          className="max-h-[min(94dvh,900px)] border-0 bg-ink text-ink-foreground sm:max-w-[min(1100px,calc(100vw-4rem))]"
+          closeLabel={tCommon("close")}
+          closeClassName="text-ink-muted hover:bg-ink-raised hover:text-ink-foreground"
+        >
+          <div className="flex items-start gap-3 py-[18px] pl-[26px] pr-[68px]">
+            <div className="min-w-0">
+              <DialogTitle className="truncate text-lg font-extrabold">
+                {previewAttachment?.fileName ?? t("previewTitle")}
+              </DialogTitle>
+              {previewMeta && (
+                <p className="mt-0.5 text-sm text-ink-muted">{previewMeta}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex min-h-0 flex-1 items-center justify-center px-6 pb-7">
+            {previewAttachment?.signedUrl && (
+              /* URL signée Supabase éphémère (1h) - cf. commentaire ci-dessus. */
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={previewAttachment.signedUrl}
+                alt={previewAttachment.fileName ?? t("previewTitle")}
+                className="max-h-full w-auto rounded-[0.875rem] object-contain shadow-modal"
+              />
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -316,7 +347,7 @@ export function NCAttachmentsCard({
         onOpenChange={(o) => !o && setAttachmentToDelete(null)}
       >
         <AlertDialogContent>
-          <AlertDialogHeader>
+          <AlertDialogHeader icon={<Trash2 aria-hidden="true" />}>
             <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>{t("confirmDeleteCapture")}</AlertDialogDescription>
           </AlertDialogHeader>

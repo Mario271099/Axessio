@@ -421,6 +421,7 @@
     "loading": "Loading…",
     "save": "Save",
     "cancel": "Cancel",
+    "close": "Close",
     "delete": "Delete",
     "confirmTitle": "Confirm action",
     "edit": "Edit",
@@ -2240,7 +2241,9 @@
     },
     "statusTransitions": {
       "noTransition": "No status transition available from this state.",
+      "dialogIntro": "Check the conditions below before confirming.",
       "ready": "All conditions are met. Confirm to apply the transition.",
+      "blocked": "One condition is still missing.",
       "cancel": "Cancel",
       "confirm": "Confirm transition",
       "undoToast": {
@@ -2257,6 +2260,7 @@
         "openRemediation": "Open remediation"
       },
       "conditions": {
+        "heading": "Conditions",
         "sample": "Sample",
         "sampleValue": "{count, plural, =0 {No representative page} one {# representative page} other {# representative pages}}",
         "startDate": "Start date",

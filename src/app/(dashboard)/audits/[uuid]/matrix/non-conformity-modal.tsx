@@ -3,9 +3,10 @@
 import { useMemo, useState, useTransition } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
-import { Eye, Loader2 } from "lucide-react";
+import { AlertTriangle, Eye, Loader2 } from "lucide-react";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -26,11 +27,27 @@ import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { MethodologyContent } from "@/components/ui/methodology-content";
 import { WcagLevelBadge } from "@/components/ui/wcag-level-badge";
 import { createClient } from "@/lib/supabase/client";
+import { cn, themeColorForIdentifier } from "@/lib/utils";
 import { parseMethodology, localizeProcedure } from "@/lib/methodology";
 import { addAttachment } from "@/app/(dashboard)/audits/[uuid]/anomalies/[ncId]/actions";
 import { requestNCReview } from "@/app/(dashboard)/audits/[uuid]/anomalies/[ncId]/review-actions";
 import { createNonConformity } from "./actions";
 import type { AuditPage, Criterion, NCSeverity } from "@/types/domain";
+
+/** Niveaux de severite, du plus leger au plus grave (ordre des maquettes). */
+const SEVERITIES = ["LOW", "MEDIUM", "HIGH", "CRITICAL"] as const;
+
+/**
+ * Segment choisi : meme couple fond pastel / texte fonce que le badge de
+ * severite, donc des contrastes deja verifies dans les deux themes.
+ */
+const SEVERITY_SEGMENT: Record<NCSeverity, string> = {
+  LOW: "peer-checked:bg-severity-low-bg peer-checked:text-severity-low",
+  MEDIUM: "peer-checked:bg-severity-medium-bg peer-checked:text-severity-medium",
+  HIGH: "peer-checked:bg-severity-high-bg peer-checked:text-severity-high",
+  CRITICAL:
+    "peer-checked:bg-severity-critical-bg peer-checked:text-severity-critical",
+};
 
 const MIME_TO_EXT: Record<string, string> = {
   "image/png": "png",
@@ -249,24 +266,41 @@ export function NonConformityModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
+      <DialogContent size="2xl" closeLabel={tCommon("close")}>
+        <DialogHeader
+          icon={<AlertTriangle aria-hidden="true" />}
+          tone="destructive"
+        >
           <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription className="space-y-1">
-            <span className="block">
-              <span className="font-mono text-xs">
-                {t("criterion", { identifier: criterion.identifier })}
-              </span>
-              <WcagLevelBadge level={criterion.level} className="ml-2" />
-              <span className="ml-2">{criterion.name}</span>
-            </span>
-            <span className="block text-xs">
-              {t("page", { name: page.name })}
-            </span>
+          <DialogDescription>
+            {t("page", { name: page.name })}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <DialogBody>
+            {/* Identite du critere vise, comme sur la maquette : pastille
+                coloree par thematique, question du critere, page. */}
+            <p className="flex flex-wrap items-center gap-2">
+              <span
+                className="inline-flex items-center rounded-md px-2 py-1 text-[0.8rem] font-extrabold tabular text-white"
+                style={{
+                  background: themeColorForIdentifier(
+                    criterion.identifier.split(".")[0] ?? "",
+                  ),
+                }}
+              >
+                {criterion.identifier}
+              </span>
+              <WcagLevelBadge level={criterion.level} />
+              <span className="text-[0.95rem] font-semibold">
+                {criterion.name}
+              </span>
+            </p>
+
           {error && (
             <p
               role="alert"
@@ -403,25 +437,41 @@ export function NonConformityModal({
             />
           </div>
 
+          {/* Severite en segments, comme la maquette : les quatre niveaux
+              restent visibles et le choix se fait en un clic. */}
           <div className="space-y-2">
-            <Label htmlFor="nc-severity">{t("severity")}</Label>
-            <Select
-              name="severity"
-              value={severity}
-              onValueChange={(v) => setSeverity(v as NCSeverity)}
+            <span className="text-sm font-bold" id="nc-severity-label">
+              {t("severity")}
+            </span>
+            <div
+              role="radiogroup"
+              aria-labelledby="nc-severity-label"
+              className="flex gap-1 rounded-xl bg-secondary p-1"
             >
-              <SelectTrigger id="nc-severity">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="LOW">{tSeverity("LOW")}</SelectItem>
-                <SelectItem value="MEDIUM">{tSeverity("MEDIUM")}</SelectItem>
-                <SelectItem value="HIGH">{tSeverity("HIGH")}</SelectItem>
-                <SelectItem value="CRITICAL">
-                  {tSeverity("CRITICAL")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              {SEVERITIES.map((level) => (
+                <label key={level} className="relative flex-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="severity"
+                    value={level}
+                    checked={severity === level}
+                    onChange={() => setSeverity(level)}
+                    className="peer absolute inset-0 m-0 cursor-pointer opacity-0"
+                  />
+                  <span
+                    className={cn(
+                      "flex h-[38px] items-center justify-center rounded-[0.5625rem] text-sm font-extrabold",
+                      "text-secondary-foreground transition-colors",
+                      "peer-hover:bg-card",
+                      "peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-1 peer-focus-visible:outline-primary",
+                      SEVERITY_SEGMENT[level],
+                    )}
+                  >
+                    {tSeverity(level)}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -435,10 +485,12 @@ export function NonConformityModal({
             />
           </div>
 
-          <DialogFooter className="flex-wrap gap-2">
+          </DialogBody>
+
+          <DialogFooter className="flex-wrap">
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
@@ -448,23 +500,22 @@ export function NonConformityModal({
               type="submit"
               variant="outline"
               disabled={isPending}
-              className="gap-2"
               onClick={() => setSubmitMode("create_and_request")}
             >
               {isPending && submitMode === "create_and_request" && (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
-              <Eye className="h-4 w-4" aria-hidden="true" />
+              <Eye aria-hidden="true" />
               {tNew("submitAndRequestReview")}
             </Button>
             <Button
               type="submit"
+              variant="destructive"
               disabled={isPending}
-              className="gap-2"
               onClick={() => setSubmitMode("create")}
             >
               {isPending && submitMode === "create" && (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               {t("submit")}
             </Button>

@@ -22,6 +22,7 @@ import { StatusDot } from "@/components/ui/status-dot";
 import { EmptyState as SharedEmptyState } from "@/components/ui/empty-state";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -363,13 +364,14 @@ function CreateClientDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent size="md" closeLabel={tCommon("close")}>
+        <DialogHeader icon={<Building2 aria-hidden="true" />}>
           <DialogTitle>{t("dialog.createTitle")}</DialogTitle>
           <DialogDescription>{t("dialog.createDesc")}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <DialogBody>
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
@@ -416,10 +418,12 @@ function CreateClientDialog({
             />
           </div>
 
+          </DialogBody>
+
           <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
@@ -427,7 +431,7 @@ function CreateClientDialog({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               {t("dialog.submitCreate")}
             </Button>

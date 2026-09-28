@@ -8,7 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Menu, X } from "lucide-react";
+import { Menu, Plus } from "lucide-react";
 import { Logo } from "@/components/brand";
 import { OrgSwitcher } from "@/components/layout/org-switcher";
 import { NavLink } from "@/components/layout/nav-link";
@@ -52,14 +52,16 @@ export function MobileNavSheet({
       <Dialog.Portal>
         <Dialog.Overlay
           className={cn(
-            "fixed inset-0 z-50 bg-ink/60 backdrop-blur-sm",
+            "fixed inset-0 z-50 bg-overlay/55",
             "data-[state=closed]:animate-out data-[state=closed]:fade-out",
             "data-[state=open]:animate-in data-[state=open]:fade-in",
           )}
         />
         <Dialog.Content
           className={cn(
-            "fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-border bg-card shadow-float",
+            "fixed inset-y-0 left-0 z-50 flex w-[312px] max-w-[calc(100vw-3rem)] flex-col",
+            "rounded-r-[1.5rem] border-r border-border bg-card px-3.5 py-[18px] shadow-modal",
+            "duration-300 ease-lift",
             "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left",
             "data-[state=open]:animate-in data-[state=open]:slide-in-from-left",
           )}
@@ -70,7 +72,7 @@ export function MobileNavSheet({
           </Dialog.Description>
 
           {/* Header : brand + close */}
-          <div className="flex h-[72px] items-center justify-between px-4">
+          <div className="flex items-center justify-between gap-2">
             <Link
               href="/dashboard"
               aria-label={t("brandHomeAria")}
@@ -88,22 +90,31 @@ export function MobileNavSheet({
               )}
             </Link>
             <Dialog.Close
-              className="inline-flex size-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-primary-soft hover:text-primary"
+              className={cn(
+                "inline-flex size-10 items-center justify-center rounded-xl text-secondary-foreground",
+                "transition-[background-color,color,transform] duration-200",
+                "hover:rotate-90 hover:bg-primary-soft hover:text-foreground",
+              )}
               aria-label={t("closeMenu")}
             >
-              <X className="size-4" aria-hidden="true" />
+              {/* Une croix qui redevient un plus au survol. */}
+              <Plus
+                className="size-5 rotate-45"
+                strokeWidth={2.4}
+                aria-hidden="true"
+              />
             </Dialog.Close>
           </div>
 
           {/* OrgSwitcher */}
-          <div className="px-4 pb-3">
+          <div className="pb-1 pt-4">
             <OrgSwitcher current={org.current} available={org.available} />
           </div>
 
           {/* Nav */}
           <nav
             aria-label={t("navAria")}
-            className="flex-1 space-y-5 overflow-y-auto px-4 pb-4"
+            className="flex-1 space-y-5 overflow-y-auto pt-3"
           >
             {SECTIONS.map((section) => {
               const visibleItems = section.items.filter((item) =>

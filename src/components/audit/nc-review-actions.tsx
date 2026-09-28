@@ -7,6 +7,7 @@ import { AlertTriangle, CheckCircle2, Eye, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -38,6 +39,7 @@ export function NCReviewActions({
   userRole,
 }: NCReviewActionsProps) {
   const t = useTranslations("audits.ncReview");
+  const tCommon = useTranslations("common");
   const tErr = useTranslations("audits.ncReview.errors");
   const router = useRouter();
   const [mode, setMode] = useState<DialogMode>(null);
@@ -145,8 +147,29 @@ export function NCReviewActions({
       )}
 
       <Dialog open={mode !== null} onOpenChange={(o) => !o && close()}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent size="lg" closeLabel={tCommon("close")}>
+          <DialogHeader
+            icon={
+              mode === "approve" ? (
+                <CheckCircle2 aria-hidden="true" />
+              ) : mode === "cancel" ? (
+                <X aria-hidden="true" />
+              ) : mode === "changes" ? (
+                <AlertTriangle aria-hidden="true" />
+              ) : (
+                <Eye aria-hidden="true" />
+              )
+            }
+            tone={
+              mode === "approve"
+                ? "success"
+                : mode === "changes"
+                  ? "warning"
+                  : mode === "cancel"
+                    ? "ink"
+                    : "primary"
+            }
+          >
             <DialogTitle>
               {mode === "request" && t("dialog.requestTitle")}
               {mode === "changes" && t("dialog.changesTitle")}
@@ -161,35 +184,42 @@ export function NCReviewActions({
             </DialogDescription>
           </DialogHeader>
 
-          {mode === "changes" && (
-            <div className="space-y-2">
-              <Label htmlFor="nc-review-reason">{t("dialog.reasonLabel")}</Label>
-              <Textarea
-                id="nc-review-reason"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder={t("dialog.reasonPlaceholder")}
-                rows={4}
-                maxLength={2000}
-                disabled={pending}
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                {t("dialog.reasonHint")}
-              </p>
-            </div>
-          )}
+          <DialogBody>
+            {mode === "changes" && (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="nc-review-reason">
+                  {t("dialog.reasonLabel")}
+                </Label>
+                <Textarea
+                  id="nc-review-reason"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder={t("dialog.reasonPlaceholder")}
+                  rows={5}
+                  maxLength={2000}
+                  disabled={pending}
+                  required
+                />
+                <p className="text-[0.8rem] text-muted-foreground">
+                  {t("dialog.reasonHint")}
+                </p>
+              </div>
+            )}
 
-          {serverError && (
-            <p role="alert" className="text-sm text-destructive">
-              {serverError}
-            </p>
-          )}
+            {serverError && (
+              <p
+                role="alert"
+                className="rounded-[0.875rem] bg-destructive/10 px-4 py-3 text-[0.95rem] text-destructive"
+              >
+                {serverError}
+              </p>
+            )}
+          </DialogBody>
 
           <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={close}
               disabled={pending}
             >
@@ -210,10 +240,7 @@ export function NCReviewActions({
               }}
             >
               {pending && (
-                <Loader2
-                  className="mr-2 h-4 w-4 animate-spin"
-                  aria-hidden="true"
-                />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               {t("dialog.confirm")}
             </Button>

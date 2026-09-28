@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -71,6 +72,7 @@ export function AuditProofreaders({
   canManage,
 }: AuditProofreadersProps) {
   const t = useTranslations("audits.proofreaders");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string>("");
@@ -180,32 +182,34 @@ export function AuditProofreaders({
           </Button>
 
           <Dialog open={open} onOpenChange={(v) => !pending && setOpen(v)}>
-            <DialogContent>
-              <DialogHeader>
+            <DialogContent size="md" closeLabel={tCommon("close")}>
+              <DialogHeader icon={<Eye aria-hidden="true" />}>
                 <DialogTitle>{t("dialogTitle")}</DialogTitle>
                 <DialogDescription>{t("dialogDesc")}</DialogDescription>
               </DialogHeader>
 
-              <div className="space-y-2">
-                <Label htmlFor="proofreader-select">{t("selectLabel")}</Label>
-                <Select value={selected} onValueChange={setSelected}>
-                  <SelectTrigger id="proofreader-select">
-                    <SelectValue placeholder={t("selectPlaceholder")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {available.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {fullName(p)} · {USER_ROLE_LABELS[p.role]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <DialogBody>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="proofreader-select">{t("selectLabel")}</Label>
+                  <Select value={selected} onValueChange={setSelected}>
+                    <SelectTrigger id="proofreader-select">
+                      <SelectValue placeholder={t("selectPlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {available.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {fullName(p)} · {USER_ROLE_LABELS[p.role]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </DialogBody>
 
               <DialogFooter>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   onClick={() => setOpen(false)}
                   disabled={pending}
                 >
@@ -217,10 +221,7 @@ export function AuditProofreaders({
                   disabled={pending || !selected}
                 >
                   {pending && (
-                    <Loader2
-                      className="mr-2 h-4 w-4 animate-spin"
-                      aria-hidden="true"
-                    />
+                    <Loader2 className="animate-spin" aria-hidden="true" />
                   )}
                   {t("confirm")}
                 </Button>

@@ -135,6 +135,13 @@
                       0 10px 22px -8px rgb(36 64 200 / 0.9);
   --shadow-btn-danger: 0 6px 16px -8px rgb(200 30 30 / 0.8);
   --shadow-float: 0 30px 60px -30px rgb(22 26 46 / 0.5);
+  /* Fenetres modales : ombre portee longue + filet d'un pixel. */
+  --shadow-modal: 0 40px 80px -30px rgb(22 26 46 / 0.6),
+                  0 0 0 1px rgb(22 26 46 / 0.06);
+
+  /* Voile des fenetres modales. Ne s'eclaircit pas en sombre, au contraire
+     de --ink-surface : un voile doit toujours assombrir ce qu'il recouvre. */
+  --overlay: 230 35% 13%;
 
   /* Mouvement : 150 a 250 ms. Levee souple pour ce qui monte, petit rebond
      pour les icones et les pastilles. */
@@ -219,6 +226,9 @@
   --shadow-md: 0 8px 18px -10px rgb(0 0 0 / 0.55);
   --shadow-lg: 0 18px 34px -18px rgb(0 0 0 / 0.65);
   --shadow-float: 0 30px 60px -30px rgb(0 0 0 / 0.8);
+  --shadow-modal: 0 40px 80px -30px rgb(0 0 0 / 0.85),
+                  0 0 0 1px rgb(255 255 255 / 0.08);
+  --overlay: 230 40% 4%;
 }
 
 @theme inline {
@@ -227,6 +237,7 @@
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
+  --color-overlay: hsl(var(--overlay));
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-primary: hsl(var(--primary));
@@ -329,6 +340,7 @@
   --shadow-btn-hover: var(--shadow-btn-hover);
   --shadow-btn-danger: var(--shadow-btn-danger);
   --shadow-float: var(--shadow-float);
+  --shadow-modal: var(--shadow-modal);
 
   /* Rayons — rounded-sm … rounded-card / rounded-hero */
   --radius-sm: calc(var(--radius) - 4px);

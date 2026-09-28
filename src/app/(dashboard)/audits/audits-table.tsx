@@ -521,7 +521,10 @@ export function AuditsTable({
 
       <AlertDialog open={archiveOpen} onOpenChange={setArchiveOpen}>
         <AlertDialogContent>
-          <AlertDialogHeader>
+          <AlertDialogHeader
+            icon={<Archive aria-hidden="true" />}
+            tone="warning"
+          >
             <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
               {tBulk("archiveConfirm", { count: ids.length })}
@@ -529,7 +532,7 @@ export function AuditsTable({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleBulkArchive}>
+            <AlertDialogAction variant="dark" onClick={handleBulkArchive}>
               {tBulk("archive")}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -538,7 +541,7 @@ export function AuditsTable({
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
-          <AlertDialogHeader>
+          <AlertDialogHeader icon={<Trash2 aria-hidden="true" />}>
             <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
               {tBulk("deleteConfirm", { count: ids.length })}

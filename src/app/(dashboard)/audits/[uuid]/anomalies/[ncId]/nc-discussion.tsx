@@ -377,7 +377,7 @@ export function NCDiscussion({
         onOpenChange={(o) => !o && setMessageToDelete(null)}
       >
         <AlertDialogContent>
-          <AlertDialogHeader>
+          <AlertDialogHeader icon={<Trash2 aria-hidden="true" />}>
             <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>{t("confirmDeleteMessage")}</AlertDialogDescription>
           </AlertDialogHeader>

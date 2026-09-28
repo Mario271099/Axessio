@@ -11,9 +11,10 @@ import {
   SheetContent,
   SheetTitle,
   SheetTrigger,
+  sheetNavLink,
 } from "@/components/ui/sheet";
 
-// Menu de navigation mobile (< sm). Reprend les liens caches sur petit ecran
+// Menu de navigation mobile (< lg). Reprend les liens caches sur petit ecran
 // dans le header + les CTA connexion/inscription, dans un Sheet accessible.
 export function PublicMobileNav() {
   const t = useTranslations("home");
@@ -47,14 +48,11 @@ export function PublicMobileNav() {
       >
         <SheetTitle>{navLabel}</SheetTitle>
         <nav aria-label={navLabel}>
-          <ul className="flex flex-col gap-1 text-sm">
+          <ul className="flex flex-col gap-1">
             {links.map((link) => (
               <li key={link.href}>
                 <SheetClose asChild>
-                  <Link
-                    href={link.href}
-                    className="block rounded-md px-3 py-2 text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
+                  <Link href={link.href} className={sheetNavLink()}>
                     {link.label}
                   </Link>
                 </SheetClose>
