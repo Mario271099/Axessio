@@ -7,15 +7,18 @@
       "features": "Fonctionnalités",
       "standards": "Référentiels",
       "pricing": "Tarifs",
+      "faq": "Questions",
       "login": "Se connecter",
-      "register": "S'inscrire"
+      "register": "S'inscrire",
+      "getStarted": "Démarrer gratuitement"
     },
     "hero": {
       "kicker": "Plateforme d'audit d'accessibilité",
       "title": "Pilotez vos audits d'accessibilité sans tableurs.",
       "subtitle": "Axessyo centralise vos audits d'accessibilité numérique : grille de conformité, non-conformités tracées, rapports PDF prêts à livrer - pour auditeurs et équipes clients.",
-      "primaryCta": "Accéder à mon espace",
-      "secondaryCta": "Voir les fonctionnalités"
+      "primaryCta": "Démarrer gratuitement",
+      "secondaryCta": "Voir les fonctionnalités",
+      "note": "Gratuit pour un audit, sans carte bancaire et sans limite de durée."
     },
     "features": {
       "title": "Tout l'audit d'accessibilité au même endroit",
@@ -49,16 +52,36 @@
     },
     "standards": {
       "title": "Compatible avec les référentiels officiels",
-      "subtitle": "Les référentiels reconnus en France et en Europe pour l'accessibilité numérique."
+      "subtitle": "Les référentiels reconnus en France et en Europe pour l'accessibilité numérique.",
+      "items": {
+        "RGAA": {
+          "name": "RGAA",
+          "desc": "4.1.2, services publics français"
+        },
+        "WCAG": {
+          "name": "WCAG",
+          "desc": "2.2, standard international du W3C"
+        },
+        "RAWeb": {
+          "name": "RAWeb",
+          "desc": "1.1, Belgique et Luxembourg"
+        },
+        "RAAM": {
+          "name": "RAAM",
+          "desc": "1.1, applications mobiles"
+        }
+      }
     },
     "cta": {
-      "title": "Prêt à structurer vos audits ?",
-      "subtitle": "Connectez-vous à votre espace Axessyo pour reprendre vos audits en cours, ou contactez-nous pour ouvrir un compte.",
-      "button": "Accéder à Axessyo"
+      "title": "Votre prochain audit, sans tableur.",
+      "subtitle": "Créez votre espace et lancez votre premier audit.",
+      "button": "Démarrer gratuitement"
     },
     "footer": {
       "tagline": "Plateforme d'audits d'accessibilité numérique.",
       "copyright": "© {year} Axessyo. Tous droits réservés.",
+      "standardsLabel": "Référentiels pris en charge",
+      "a11yStatus": "Conformité partielle au RGAA 4.1",
       "links": {
         "login": "Connexion",
         "register": "S'inscrire",
@@ -69,6 +92,11 @@
         "privacy": "Confidentialité",
         "cookies": "Cookies",
         "accessibility": "Accessibilité"
+      },
+      "groups": {
+        "product": "Produit",
+        "account": "Compte",
+        "info": "Informations"
       }
     },
     "faq": {
@@ -86,6 +114,46 @@
         {
           "q": "Puis-je exporter le rapport en anglais ?",
           "a": "Oui. Chaque rapport PDF se génère au choix en français ou en anglais, avec libellés, badges et métadonnées dans la langue cible."
+        }
+      ],
+      "contact": "Une autre question ?",
+      "contactCta": "Écrivez-nous"
+    },
+    "steps": {
+      "title": "Un audit en trois temps",
+      "items": [
+        {
+          "title": "Créer l'audit",
+          "desc": "Choisissez le référentiel, le client et l'échantillon. Les pages obligatoires sont ajoutées pour vous."
+        },
+        {
+          "title": "Évaluer la grille",
+          "desc": "Testez chaque critère avec sa méthodologie sous les yeux, et rédigez les non-conformités au fil de l'eau."
+        },
+        {
+          "title": "Livrer et suivre",
+          "desc": "Exportez le rapport, puis suivez la correction avec l'équipe du client jusqu'au contre-audit."
+        }
+      ]
+    },
+    "a11yBlock": {
+      "link": "Lire la déclaration d'accessibilité",
+      "items": [
+        {
+          "title": "Navigation au clavier",
+          "desc": "Focus toujours visible"
+        },
+        {
+          "title": "Contrastes vérifiés",
+          "desc": "4,5:1 minimum pour le texte"
+        },
+        {
+          "title": "Lecteurs d'écran",
+          "desc": "Titres, libellés et rôles ARIA"
+        },
+        {
+          "title": "Mouvement réduit",
+          "desc": "Respecte vos réglages système"
         }
       ]
     }
@@ -353,6 +421,7 @@
     "loading": "Chargement…",
     "save": "Enregistrer",
     "cancel": "Annuler",
+    "close": "Fermer",
     "delete": "Supprimer",
     "confirmTitle": "Confirmer l'action",
     "edit": "Modifier",
@@ -364,7 +433,8 @@
     "reset": "Réinitialiser",
     "viewAll": "Voir tout",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "open": "Ouvrir"
   },
   "errors": {
     "notAuthenticated": "Non authentifié.",
@@ -681,7 +751,13 @@
       "webhooksCta": "Webhooks",
       "apiTokensCta": "Tokens API",
       "auditLogsCta": "Journal d'audit",
-      "ncTemplatesCta": "Modèles de NC"
+      "ncTemplatesCta": "Modèles de NC",
+      "nav": {
+        "aria": "Sections des paramètres",
+        "general": "Général"
+      },
+      "memberActive": "Actif",
+      "memberInactive": "Désactivé"
     },
     "invite": {
       "title": "Inviter un membre",
@@ -1046,6 +1122,21 @@
         "criteria": "436 critères pré-importés",
         "reports": "Rapports PDF en un clic",
         "collaboration": "Collaboration en temps réel"
+      },
+      "registerTagline": "Votre premier audit, dès aujourd’hui.",
+      "registerSteps": {
+        "workspace": {
+          "title": "Créez votre espace",
+          "desc": "Votre organisation et son espace de travail."
+        },
+        "team": {
+          "title": "Invitez votre équipe",
+          "desc": "Auditeurs, développeurs et interlocuteurs côté client."
+        },
+        "audit": {
+          "title": "Lancez votre premier audit",
+          "desc": "Choisissez le référentiel, les pages obligatoires sont déjà là."
+        }
       }
     },
     "login": {
@@ -1112,7 +1203,9 @@
         "rateLimited": "Trop de tentatives. Réessayez dans {seconds} s.",
         "server": "La création du compte a échoué. Réessayez dans un instant.",
         "signInFailed": "Votre compte a été créé mais la connexion automatique a échoué. Connectez-vous manuellement."
-      }
+      },
+      "criteriaMet": ", respecté",
+      "criteriaUnmet": ", non respecté"
     },
     "forgotPassword": {
       "title": "Mot de passe oublié",
@@ -1159,7 +1252,9 @@
         "notMet": "Le mot de passe ne respecte pas les critères de sécurité.",
         "mismatch": "Les mots de passe ne correspondent pas.",
         "update": "Échec de la mise à jour : {message}"
-      }
+      },
+      "criteriaMet": ", respecté",
+      "criteriaUnmet": ", non respecté"
     },
     "setupPassword": {
       "title": "Bienvenue !",
@@ -1186,7 +1281,14 @@
         "notMet": "Le mot de passe ne respecte pas les critères requis.",
         "mismatch": "Les deux mots de passe ne correspondent pas.",
         "update": "Erreur : {message}"
-      }
+      },
+      "criteriaMet": ", respecté",
+      "criteriaUnmet": ", non respecté"
+    },
+    "switch": {
+      "aria": "Connexion ou création de compte",
+      "login": "Se connecter",
+      "register": "Créer un compte"
     }
   },
   "dashboard": {
@@ -1249,6 +1351,13 @@
       "greetingFallback": "bienvenue",
       "lastLogin": "Dernière connexion : {date}",
       "newAudit": "Nouvel audit"
+    },
+    "averageScore": {
+      "title": "Conformité moyenne",
+      "ringLabel": "Conformité moyenne : {score} %",
+      "verdict": {
+        "none": "Aucun audit évalué"
+      }
     },
     "kpi": {
       "recentAudits": "Audits récents",
@@ -1379,6 +1488,12 @@
       "contactEmail": "Email du contact",
       "contactEmailPlaceholder": "contact@exemple.fr",
       "submitCreate": "Créer le client"
+    },
+    "sort": {
+      "aria": "Trier les clients",
+      "name": "Nom",
+      "recent": "Ajout récent",
+      "audits": "Nombre d audits"
     }
   },
   "clientDetail": {
@@ -1730,6 +1845,11 @@
       "AUDIT": "Audit avec contre-audit",
       "NO_COUNTER_AUDIT": "Audit sans contre-audit",
       "COMPLIANCE_AUDIT": "Audit de conformité"
+    },
+    "conformityLevel": {
+      "nonCompliant": "Non conforme",
+      "partial": "Partiellement conforme",
+      "full": "Totalement conforme"
     }
   },
   "audits": {
@@ -1812,7 +1932,8 @@
       "sample": "Échantillon",
       "matrix": "Matrice",
       "openNc": "NC ouvertes",
-      "criticalNc": "NC critiques"
+      "criticalNc": "NC critiques",
+      "criteriaEvaluated": "Critères évalués"
     },
     "lifecycle": {
       "eyebrow": "Cycle de vie",
@@ -1843,12 +1964,16 @@
         "online": "Mise en ligne"
       }
     },
+    "header": {
+      "breadcrumbAria": "Fil d'Ariane",
+      "allAudits": "Audits"
+    },
     "tabsNav": {
       "ariaLabel": "Onglets de l'audit",
-      "dashboard": "Dashboard",
+      "dashboard": "Vue d'ensemble",
       "sample": "Échantillon",
       "anomalies": "Non-conformités",
-      "matrix": "Conformité",
+      "matrix": "Matrice",
       "remediation": "Simulateur"
     },
     "interlocutors": {
@@ -1892,6 +2017,11 @@
       "sortBy": "Trier par {column}",
       "sortAriaAsc": "Trier de manière croissante",
       "sortAriaDesc": "Trier de manière décroissante",
+      "view": {
+        "ariaLabel": "Affichage de la liste",
+        "list": "Liste",
+        "cards": "Cartes"
+      },
       "bulk": {
         "selectAllAria": "Tout sélectionner sur cette page",
         "selectRowAria": "Sélectionner l'audit {name}",
@@ -1943,6 +2073,7 @@
           "title": "Référentiel et type de service",
           "description": "Le référentiel détermine la liste des critères à évaluer.",
           "field": "Référentiel d'accessibilité",
+          "versionLabel": "Version {version}",
           "placeholder": "Choisir un référentiel…",
           "helpAria": "Aide sur les référentiels d'accessibilité",
           "help": {
@@ -2063,7 +2194,8 @@
       "proofreadersTitle": "Relecteurs",
       "proofreadersSubtitle": "Membres désignés pour relire et valider le rapport.",
       "contactsTitle": "Contacts client",
-      "contactsDesc": "Personnes côté client invitées à consulter cet audit. Elles voient la matrice, les non-conformités et peuvent commenter le fil client, mais n'ont pas accès au fil de relecture interne."
+      "contactsDesc": "Personnes côté client invitées à consulter cet audit. Elles voient la matrice, les non-conformités et peuvent commenter le fil client, mais n'ont pas accès au fil de relecture interne.",
+      "verdict": "Verdict"
     },
     "contacts": {
       "empty": "Aucun contact client invité pour l'instant.",
@@ -2136,7 +2268,9 @@
     },
     "statusTransitions": {
       "noTransition": "Aucune transition de statut disponible depuis cet état.",
+      "dialogIntro": "Vérifiez les conditions ci-dessous avant de confirmer.",
       "ready": "Toutes les conditions sont réunies. Confirmez pour appliquer la transition.",
+      "blocked": "Il reste une condition à remplir.",
       "cancel": "Annuler",
       "confirm": "Confirmer la transition",
       "undoToast": {
@@ -2153,6 +2287,7 @@
         "openRemediation": "Ouvrir la remédiation"
       },
       "conditions": {
+        "heading": "Conditions",
         "sample": "Échantillon",
         "sampleValue": "{count, plural, =0 {Aucune page représentative} one {# page représentative} other {# pages représentatives}}",
         "startDate": "Date de début",
@@ -2235,7 +2370,16 @@
       "deleteAria": "Supprimer la page {name}",
       "confirmDeleteTitle": "Supprimer cette page ?",
       "confirmDelete": "La page « {name} » sera supprimée définitivement, ainsi que toutes les saisies de matrice et NC associées. Cette action est irréversible.",
-      "errorPrefix": "Erreur : {message}"
+      "errorPrefix": "Erreur : {message}",
+      "groups": {
+        "mandatory": "Pages obligatoires",
+        "mandatoryHint": "Exigées par le référentiel",
+        "representative": "Pages représentatives",
+        "representativeHint": "Choisies selon les services du site",
+        "transversal": "Transversal",
+        "transversalHint": "En-tête, menu, pied de page"
+      },
+      "helpTitle": "Un échantillon représentatif"
     },
     "report": {
       "exportPdf": "Exporter le rapport PDF",
@@ -2316,7 +2460,10 @@
         "compliantAria": "{prefix} : marquer {label}",
         "compliantText": "Conforme",
         "nonCompliantText": "Non conforme",
-        "notApplicableText": "Non applicable"
+        "notApplicableText": "Non applicable",
+        "compliantShort": "C",
+        "nonCompliantShort": "NC",
+        "notApplicableShort": "NA"
       },
       "ncModal": {
         "title": "Créer une non-conformité",
@@ -2331,7 +2478,10 @@
         "creationFailed": "Échec de la création.",
         "captureErrors": "Non-conformité créée, mais {count} capture(s) en erreur : {errors}",
         "submit": "Créer la NC"
-      }
+      },
+      "titleForPage": "Matrice, page {page}",
+      "pageScore": "conformité de la page",
+      "toAssess": "à évaluer"
     },
     "anomalies": {
       "breadcrumb": "Non-conformités",
@@ -2381,7 +2531,16 @@
         "successDelete": "{count, plural, one {# non-conformité supprimée} other {# non-conformités supprimées}}",
         "dismiss": "Fermer",
         "applyAria": "Appliquer l'action en masse"
-      }
+      },
+      "columns": {
+        "criterion": "Critère",
+        "title": "Intitulé",
+        "page": "Page",
+        "severity": "Sévérité",
+        "status": "Statut",
+        "activity": "Activité"
+      },
+      "openAria": "Ouvrir la fiche « {title} »"
     },
     "ncDetail": {
       "breadcrumbDetail": "Détail",
@@ -2437,7 +2596,14 @@
       "deleteMessageAria": "Supprimer le message",
       "confirmDeleteMessage": "Supprimer ce message ?",
       "previewTitle": "Aperçu de la capture",
-      "user": "Utilisateur"
+      "user": "Utilisateur",
+      "statusTitle": "Statut",
+      "criterionPill": "Critère {identifier}, {name}",
+      "criterionAnnexLink": "Critère {identifier}, voir l’annexe",
+      "annexTitle": "Annexe, critère lié",
+      "infoTitle": "Informations",
+      "reviewLabel": "Relecture",
+      "captureSelectAria": "Choisir une capture"
     },
     "anomaliesNew": {
       "back": "Retour aux non-conformités",
@@ -2551,7 +2717,18 @@
         "BY_CRITERION": "Numéro de critère",
         "noThematic": "Sans thématique"
       },
-      "noProjectAccess": "-"
+      "noProjectAccess": "-",
+      "headlineEmpty": "Cochez des critères à corriger",
+      "headline": "+{points} points avec {count, plural, one {# critère corrigé} other {# critères corrigés}}",
+      "summary": "Actuel {initial} %, simulé {simulated} %, sur {total} critères applicables. L'audit officiel ne change pas.",
+      "gaugeAria": "Score simulé {simulated} %, score actuel {initial} %",
+      "thematicTitle": "Effet par thématique",
+      "thematicLegendOpen": "NC ouvertes",
+      "thematicLegendSelected": "cochées",
+      "thematicEmpty": "Aucune non-conformité ouverte.",
+      "thematicNone": "Sans thématique",
+      "thematicBarAria": "{selected} NC cochées sur {total} pour {name}",
+      "gain": "+1 critère"
     }
   }
 }

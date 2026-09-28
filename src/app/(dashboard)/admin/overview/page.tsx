@@ -161,10 +161,14 @@ export default async function AdminOverviewPage({
   ];
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-8 p-6 md:p-8">
+    <div className="container mx-auto max-w-7xl space-y-5 p-4 md:p-6 lg:px-9">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+        <h1 className="text-2xl font-black tracking-[-0.03em] md:text-[2rem]">
+          {t("title")}
+        </h1>
+        <p className="mt-1 text-[0.95rem] text-muted-foreground">
+          {t("subtitle")}
+        </p>
       </header>
 
       {/* KPIs */}
@@ -175,10 +179,10 @@ export default async function AdminOverviewPage({
               className={`flex h-10 w-10 items-center justify-center rounded-lg ${k.tone}`}
               aria-hidden="true"
             >
-              <k.icon className="h-5 w-5" />
+              <k.icon className="size-5" />
             </div>
             <p className="mt-4 text-sm text-muted-foreground">{k.label}</p>
-            <p className="mt-1 text-3xl font-bold tabular-nums tracking-tight">
+            <p className="mt-1 text-[2rem] font-black tabular tracking-[-0.03em]">
               {k.value.toLocaleString("fr-FR")}
             </p>
             {k.note && (
@@ -191,14 +195,14 @@ export default async function AdminOverviewPage({
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Abonnements par plan */}
         <Card className="p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-base font-extrabold">
             {t("subscriptions.title")}
           </h2>
           <table className="mt-4 w-full text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-                <th className="pb-2 font-medium">{t("subscriptions.plan")}</th>
-                <th className="pb-2 text-right font-medium">
+              <tr className="text-left text-[0.8rem] text-muted-foreground">
+                <th className="pb-2 font-bold">{t("subscriptions.plan")}</th>
+                <th className="pb-2 text-right font-bold">
                   {t("subscriptions.count")}
                 </th>
               </tr>
@@ -207,7 +211,7 @@ export default async function AdminOverviewPage({
               {PLAN_ORDER.map((code) => (
                 <tr key={code} className="border-t border-border">
                   <td className="py-2">{PLANS[code].name}</td>
-                  <td className="py-2 text-right tabular-nums">
+                  <td className="py-2 text-right tabular">
                     {planCounts.get(code) ?? 0}
                   </td>
                 </tr>
@@ -218,7 +222,7 @@ export default async function AdminOverviewPage({
 
         {/* Audits par statut */}
         <Card className="p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-base font-extrabold">
             {t("auditsByStatus.title")}
           </h2>
           {statusEntries.length === 0 ? (
@@ -231,7 +235,7 @@ export default async function AdminOverviewPage({
                     <td className="py-2">
                       {AUDIT_STATUS_LABELS[status as AuditStatus] ?? status}
                     </td>
-                    <td className="py-2 text-right tabular-nums">{count}</td>
+                    <td className="py-2 text-right tabular">{count}</td>
                   </tr>
                 ))}
               </tbody>
@@ -242,7 +246,7 @@ export default async function AdminOverviewPage({
 
       {/* Recherche utilisateur */}
       <Card className="p-6">
-        <h2 className="text-lg font-semibold tracking-tight">
+        <h2 className="text-[1.2rem] font-extrabold tracking-[-0.02em]">
           {t("lookup.title")}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">{t("lookup.desc")}</p>
@@ -259,7 +263,7 @@ export default async function AdminOverviewPage({
             />
           </div>
           <Button type="submit" className="gap-2">
-            <Search className="h-4 w-4" aria-hidden="true" />
+            <Search aria-hidden="true" />
             {t("lookup.search")}
           </Button>
         </form>
@@ -296,7 +300,7 @@ export default async function AdminOverviewPage({
                 ) : (
                   <table className="mt-3 w-full text-sm">
                     <thead>
-                      <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
+                      <tr className="text-left text-[0.8rem] text-muted-foreground">
                         <th className="pb-1 font-medium">{t("lookup.colOrg")}</th>
                         <th className="pb-1 font-medium">
                           {t("lookup.colOrgRole")}

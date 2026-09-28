@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Axessyo Pro — Échantillon</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.px{font-family:'Figtree',system-ui,sans-serif;color:#161A2E;-webkit-font-smoothing:antialiased}
+.px .num{font-variant-numeric:tabular-nums}
+.px .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.px a:focus-visible,.px button:focus-visible,.px input:focus-visible,.px select:focus-visible,.px textarea:focus-visible,.px [tabindex]:focus-visible{outline:3px solid #2440C8;outline-offset:2px}
+
+.px-nav{position:relative;display:flex;align-items:center;gap:12px;height:42px;padding:0 12px;border-radius:10px;color:#3F4560;font-size:15px;font-weight:600;text-decoration:none;transition:background-color .18s ease,color .18s ease}
+.px-nav svg{color:#7A8099;transition:color .18s ease,transform .25s cubic-bezier(.3,1.5,.5,1)}
+.px-nav:hover{background:#EEF1FB;color:#161A2E}
+.px-nav:hover svg{color:#2440C8;transform:scale(1.12)}
+.px-nav[aria-current]{background:#2440C8;color:#FFFFFF}
+.px-nav[aria-current] svg{color:#FFFFFF}
+.px-badge{margin-left:auto;min-width:22px;height:22px;padding:0 7px;box-sizing:border-box;border-radius:11px;background:#E7EBFB;color:#2440C8;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.px-nav[aria-current] .px-badge{background:rgba(255,255,255,.2);color:#FFFFFF}
+
+.px-rail a{position:relative;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#7A8099;transition:background-color .15s ease,color .15s ease}
+.px-rail a:hover{background:#EEF1FB;color:#2440C8}
+.px-rail a[aria-current]{background:#2440C8;color:#FFFFFF}
+.px-rail a .tip{position:absolute;left:calc(100% + 12px);top:50%;transform:translate(-4px,-50%);opacity:0;pointer-events:none;white-space:nowrap;background:#161A2E;color:#FFFFFF;font-size:13px;font-weight:700;padding:6px 10px;border-radius:8px;transition:opacity .15s ease,transform .15s ease;z-index:10}
+.px-rail a:hover .tip,.px-rail a:focus-visible .tip{opacity:1;transform:translate(0,-50%)}
+
+.px-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:10px;background:#2440C8;color:#FFFFFF;font:inherit;font-weight:700;font-size:15px;text-decoration:none;border:0;cursor:pointer;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 6px 16px -8px rgba(36,64,200,.8);transition:transform .12s ease,box-shadow .2s ease,background-color .2s ease;white-space:nowrap}
+.px-btn:hover{background:#1C34A8;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 10px 22px -8px rgba(36,64,200,.9)}
+.px-btn:active{transform:scale(.97)}
+.px-btn svg{transition:transform .25s ease}
+.px-btn:hover svg.spin{transform:rotate(90deg)}.px-btn:hover svg.go{transform:translateX(3px)}
+.px-btn.danger{background:#C81E1E;box-shadow:0 6px 16px -8px rgba(200,30,30,.8)}.px-btn.danger:hover{background:#A61B1B}
+.px-btn.dark{background:#161A2E;box-shadow:none}.px-btn.dark:hover{background:#2B3050}
+.px-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border-radius:10px;border:1px solid #D5DAE8;background:#FFFFFF;color:#161A2E;font:inherit;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer;white-space:nowrap;transition:border-color .15s ease,background-color .15s ease}
+.px-ghost:hover{border-color:#2440C8;background:#F4F6FE}
+.px-icon{width:40px;height:40px;border-radius:10px;border:0;background:transparent;color:#3F4560;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.px-icon:hover{background:#EEF1FB;color:#2440C8}
+.px-link{color:#2440C8;font-weight:700;font-size:14px;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.px-link:hover{text-decoration-thickness:2px}
+
+.px-card{background:#FFFFFF;border:1px solid #E4E7F0;border-radius:16px}
+.px-lift{transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease,border-color .2s ease}
+.px-lift:hover,.px-lift:focus-visible{transform:translateY(-3px);border-color:var(--c,#2440C8);box-shadow:0 16px 30px -18px var(--c,#2440C8)}
+
+.px-search{display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;box-sizing:border-box;border-radius:12px;border:1px solid #D5DAE8;background:#FFFFFF;color:#5B6178;transition:border-color .15s ease,box-shadow .2s ease}
+.px-search:hover{border-color:#2440C8;box-shadow:0 0 0 4px #E7EBFB}
+.px-search input{flex:1;min-width:0;border:0;outline:none;background:transparent;font:inherit;font-size:15px;color:#161A2E}
+.px-kbd{font-size:12px;font-weight:700;padding:2px 7px;border-radius:6px;background:#F1F3F9;color:#5B6178}
+
+.px-tab{position:relative;display:flex;align-items:center;gap:8px;height:48px;color:#5B6178;font-weight:700;font-size:15px;text-decoration:none;transition:color .15s ease;white-space:nowrap}
+.px-tab::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:#2440C8;transform:scaleX(0);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.px-tab:hover{color:#161A2E}.px-tab:hover::after{transform:scaleX(.5)}
+.px-tab[aria-current]{color:#2440C8}.px-tab[aria-current]::after{transform:scaleX(1)}
+.px-count{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:10px;background:#EEF0F6;color:#3F4560;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+
+.px-chip{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:18px;border:1px solid #D5DAE8;background:#FFFFFF;font:inherit;font-size:14px;font-weight:700;color:#161A2E;cursor:pointer;white-space:nowrap;transition:border-color .15s ease,background-color .15s ease,color .15s ease}
+.px-chip:hover{border-color:#2440C8}
+.px-chip[aria-pressed="true"]{background:#161A2E;border-color:#161A2E;color:#FFFFFF}
+.px-chip .n{font-size:12px;font-weight:800;opacity:.75}
+
+.px-label{display:block;font-size:14px;font-weight:700;margin-bottom:6px}
+.px-hint{display:block;font-size:13px;color:#5B6178;margin-top:5px}
+.px-input,.px-select,.px-textarea{width:100%;box-sizing:border-box;height:44px;padding:0 14px;border-radius:10px;border:1px solid #7C849C;background:#FFFFFF;font:inherit;font-size:15px;color:#161A2E;transition:border-color .15s ease,box-shadow .2s ease}
+.px-textarea{height:auto;min-height:96px;padding:12px 14px;line-height:1.5;resize:vertical}
+.px-input:hover,.px-select:hover,.px-textarea:hover{border-color:#2440C8}
+.px-input:focus,.px-select:focus,.px-textarea:focus{outline:none;border-color:#2440C8;box-shadow:0 0 0 4px #D9DFF8}
+
+.px-sev{display:inline-flex;align-items:center;gap:6px;justify-self:start;font-size:13px;font-weight:800;padding:4px 10px;border-radius:8px;white-space:nowrap}
+.px-sev.crit{background:#FDE8E8;color:#A61B1B}.px-sev.high{background:#FEF0E6;color:#9A3412}.px-sev.med{background:#FEF6DC;color:#7A5300}.px-sev.low{background:#E7EEFB;color:#1E4E8C}
+.px-st{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;white-space:nowrap}
+.px-st::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+.px-pill{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 12px;border-radius:14px;font-size:13.5px;font-weight:800;white-space:nowrap}
+.px-av{width:28px;height:28px;border-radius:50%;border:2px solid #FFFFFF;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#FFFFFF;flex-shrink:0}
+.px-mono{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:800;font-size:15px;flex-shrink:0;transition:transform .25s cubic-bezier(.3,1.5,.5,1),border-radius .25s ease}
+.px-row{transition:background-color .15s ease,box-shadow .2s ease}
+.px-row:hover,.px-row:focus-visible{background:#F4F6FE;box-shadow:inset 0 0 0 1px #D9DFF8}
+.px-row:hover .px-mono{transform:rotate(-6deg) scale(1.06);border-radius:50%}
+.px-row .chev{opacity:0;transform:translateX(-6px);transition:opacity .15s ease,transform .2s ease;color:#2440C8}
+.px-row:hover .chev,.px-row:focus-visible .chev{opacity:1;transform:none}
+.px-check{width:20px;height:20px;margin:0;accent-color:#2440C8;cursor:pointer}
+
+.px-toggle{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;cursor:pointer}
+.px-toggle input{appearance:none;width:40px;height:24px;flex-shrink:0;border-radius:12px;background:#9AA1B8;position:relative;cursor:pointer;margin:0;transition:background-color .2s ease}
+.px-toggle input::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s cubic-bezier(.3,1.4,.5,1)}
+.px-toggle input:checked{background:#2440C8}
+.px-toggle input:checked::after{transform:translateX(16px)}
+.px-toggle input:focus-visible{outline:3px solid #2440C8;outline-offset:2px}
+
+.px-steps{display:flex;gap:4px}
+.px-steps span{flex:1;height:6px;border-radius:3px;background:#E4E7F0}
+.px-steps span.on{background:#2440C8}
+.px-steps span.cur{background:#2440C8;animation:pxpulse 1.8s ease-in-out infinite}
+@keyframes pxpulse{0%,100%{opacity:1}50%{opacity:.45}}
+.px-fill{transform-origin:left;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion: reduce){.px *{transition:none!important;animation:none!important}}
+
+.sp-row{display:grid;grid-template-columns:22px 40px minmax(0,1fr) 170px 90px 70px 80px;align-items:center;gap:14px;padding:8px 14px;border-radius:12px}
+.sp-row .drag{color:#9AA1B8;opacity:.35;transition:opacity .15s ease,color .15s ease;cursor:grab}
+.sp-row:hover .drag{opacity:1;color:#2440C8}
+.sp-row .acts{display:flex;gap:2px;opacity:0;transition:opacity .15s ease}
+.sp-row:hover .acts,.sp-row:focus-within .acts{opacity:1}
+.sp-kind{display:flex;padding:3px;border-radius:10px;background:#EEF0F6;gap:2px;border:0;margin:0}
+.sp-kind label{position:relative;flex:1;cursor:pointer}
+.sp-kind input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.sp-kind span{display:flex;align-items:center;justify-content:center;height:34px;border-radius:8px;font-weight:700;font-size:13.5px;color:#3F4560;transition:background-color .15s ease,color .15s ease}
+.sp-kind label:hover span{background:#FFFFFF}
+.sp-kind input:checked+span{background:#FFFFFF;color:#2440C8;box-shadow:0 1px 3px rgba(22,26,46,.12)}
+.sp-kind input:focus-visible+span{outline:3px solid #2440C8;outline-offset:1px}
+@keyframes spin{from{background:#E7EBFB}to{background:transparent}}
+.sp-new{animation:spin 1.6s ease-out}
+</style>
+</helmet>
+<div class="px" style="width: 1440px; height: 1024px; display: flex; background: #F5F6FA; overflow: hidden">
+  <nav class="px-rail" aria-label="Navigation principale" style="width: 76px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #E4E7F0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 0">
+    <span style="margin-bottom: 14px"><span aria-hidden="true" style="width: 34px; height: 34px; border-radius: 10px; background: #2440C8; display: grid; grid-template-columns: repeat(2, 9px); gap: 3px; align-content: center; justify-content: center; flex-shrink: 0"><span style="height: 9px; border-radius: 3px; background: #FFFFFF"></span><span style="height: 9px; border-radius: 50%; background: #FFB020"></span><span style="height: 9px; border-radius: 3px; background: #FFFFFF"></span><span style="height: 9px; border-radius: 3px; background: #FFFFFF; opacity: .55"></span></span></span><a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="2"></rect><rect x="14" y="3" width="7" height="5" rx="2"></rect><rect x="14" y="12" width="7" height="9" rx="2"></rect><rect x="3" y="16" width="7" height="5" rx="2"></rect></svg><span class="tip">Tableau de bord</span></a><a href="#" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"></rect><path d="M9 4h6v3H9zM9 13l2 2 4-4"></path></svg><span class="tip">Audits</span></a><a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg><span class="tip">Non-conformités</span></a><a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg><span class="tip">Planning</span></a><a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V5l8-2v18M12 8h8v13"></path></svg><span class="tip">Clients</span></a>
+    <span aria-hidden="true" style="margin-top: auto; width: 38px; height: 38px; border-radius: 50%; background: #FFB020; color: #161A2E; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center">MR</span>
+  </nav>
+  <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+    <header style="background: #FFFFFF; border-bottom: 1px solid #E4E7F0; padding: 16px 36px 0; flex-shrink: 0">
+      <nav aria-label="Fil d'Ariane" style="font-size: 14px; color: #5B6178"><a href="#" style="color: #5B6178; text-underline-offset: 3px">Audits</a> <span aria-hidden="true">/</span> <a href="#" style="color: #5B6178; text-underline-offset: 3px">Mairie de Valmont</a></nav>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 8px">
+        <div style="display: flex; align-items: center; gap: 14px">
+          <span aria-hidden="true" style="width: 46px; height: 46px; border-radius: 14px; background: #1D4ED8; color: #FFFFFF; font-weight: 900; font-size: 17px; display: flex; align-items: center; justify-content: center">MV</span>
+          <div>
+            <div style="display: flex; align-items: center; gap: 12px"><p style="margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -0.03em">Portail usagers</p><span class="px-pill" style="background: #E7EBFB; color: #2440C8"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #2440C8"></span>Audit en cours</span></div>
+            <p style="margin: 2px 0 0; font-size: 14px; color: #5B6178">usagers.valmont.fr, RGAA 4.1.2, score actuel 62 %</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px"><button type="button" class="px-ghost">Exporter</button><a class="px-btn" href="#">Livrer le rapport<svg class="go" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+      </div>
+      <nav aria-label="Sections de l'audit" style="margin-top: 6px"><ul style="list-style: none; margin: 0; padding: 0; display: flex; gap: 28px"><li><a class="px-tab" href="#">Vue d'ensemble</a></li><li><a class="px-tab" href="#" aria-current="page">Échantillon <span class="px-count num">10</span></a></li><li><a class="px-tab" href="#">Matrice</a></li><li><a class="px-tab" href="#">Non-conformités <span class="px-count num">35</span></a></li><li><a class="px-tab" href="#">Simulateur</a></li><li><a class="px-tab" href="#">Rapport</a></li></ul></nav>
+    </header>
+    <main style="flex-grow: 1; padding: 20px 36px 24px; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; min-height: 0">
+      <div style="display: flex; flex-direction: column; gap: 14px; min-height: 0">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between">
+          <div><h1 style="margin: 0; font-size: 26px; font-weight: 900; letter-spacing: -0.03em">Échantillon</h1><p style="margin: 4px 0 0; font-size: 14.5px; color: #5B6178">{{total}} pages auditées. Faites glisser une page pour changer l'ordre du rapport.</p></div>
+          <button type="button" class="px-ghost"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"></path></svg>Importer un plan du site</button>
+        </div>
+        <sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+          <section class="px-card" aria-label="{{g.title}}" style="padding: 12px 10px 8px">
+            <div style="display: flex; align-items: center; gap: 10px; padding: 2px 14px 8px"><h2 style="margin: 0; font-size: 15.5px; font-weight: 800">{{g.title}}</h2><span class="px-count num">{{g.n}}</span><span style="margin-left: auto; font-size: 13px; color: #5B6178">{{g.hint}}</span></div>
+            <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px">
+              <sc-for list="{{g.pages}}" as="p" hint-placeholder-count="3">
+                <li class="{{p.cls}}">
+                  <span class="drag" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="6" r="1"></circle><circle cx="15" cy="6" r="1"></circle><circle cx="9" cy="12" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="9" cy="18" r="1"></circle><circle cx="15" cy="18" r="1"></circle></svg></span>
+                  <span class="px-mono" aria-hidden="true" style="{{p.iconS}}">{{p.ini}}</span>
+                  <span style="display: flex; flex-direction: column; min-width: 0"><a href="#" style="font-weight: 800; font-size: 15px; color: #161A2E; text-decoration: none">{{p.name}}</a><span style="font-size: 13px; color: #5B6178; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.url}}</span></span>
+                  <span style="display: flex; flex-direction: column; gap: 5px"><span style="font-size: 12.5px; font-weight: 700; color: #3F4560">{{p.progText}}</span><span style="display: block; height: 6px; border-radius: 3px; background: #EEF0F6"><span style="{{p.progW}}"></span></span></span>
+                  <span class="num" style="font-size: 13.5px; font-weight: 800; {{p.ncS}}">{{p.nc}}</span>
+                  <span class="num" style="font-weight: 900; font-size: 15px; {{p.scoreS}}">{{p.score}}</span>
+                  <span class="acts"><button type="button" class="px-icon" aria-label="Ouvrir la page {{p.name}} dans la matrice"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button><button type="button" class="px-icon" aria-label="Retirer la page {{p.name}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"></path></svg></button></span>
+                </li>
+              </sc-for>
+            </ul>
+          </section>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <form class="px-card" aria-labelledby="sp-add" style="padding: 20px 22px; display: flex; flex-direction: column; gap: 14px" onSubmit="{{add}}">
+          <h2 id="sp-add" style="margin: 0; font-size: 17px; font-weight: 800">Ajouter une page</h2>
+          <div><label class="px-label" for="sp-name">Nom de la page</label><input id="sp-name" class="px-input" value="{{draftName}}" onChange="{{setName}}" placeholder="Ex. Prise de rendez-vous"></div>
+          <div><label class="px-label" for="sp-url">Adresse</label><input id="sp-url" class="px-input" value="{{draftUrl}}" onChange="{{setUrl}}" placeholder="https://"></div>
+          <div><span class="px-label" id="sp-kt">Type de page</span><div class="sp-kind" role="radiogroup" aria-labelledby="sp-kt">
+            <label><input type="radio" name="sp-k"><span>Obligatoire</span></label>
+            <label><input type="radio" name="sp-k" checked="{{yes}}"><span>Représentative</span></label>
+          </div></div>
+          <button type="submit" class="px-btn"><svg class="spin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Ajouter à l'échantillon</button>
+        </form>
+        <section class="px-card" aria-labelledby="sp-tip" style="padding: 18px 20px; background: #161A2E; border-color: #161A2E; color: #FFFFFF">
+          <h2 id="sp-tip" style="margin: 0; font-size: 15.5px; font-weight: 800">Un échantillon représentatif</h2>
+          <p style="margin: 8px 0 0; font-size: 13.5px; line-height: 1.55; color: #C9CDE0">Le RGAA demande les pages obligatoires, puis des pages couvrant chaque type de contenu et de service du site : formulaires, tableaux, médias, tunnel de paiement.</p>
+          <a href="#" style="display: inline-block; margin-top: 10px; color: #FFFFFF; font-weight: 700; font-size: 13.5px; text-underline-offset: 3px">Voir la méthodologie</a>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1024}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { extra: [], name: 'Prise de rendez-vous', url: 'https://usagers.valmont.fr/rendez-vous' }; }
+  renderVals() {
+    var self = this;
+    function tone(s) { return s === null ? '#5B6178' : s >= 100 ? '#15803D' : s >= 50 ? '#A16207' : '#C81E1E'; }
+    function mk(p, color, fresh) {
+      var pct = Math.round(p[2] / 106 * 100);
+      return {
+        name: p[0], url: p[1], ini: p[0].slice(0, 2), cls: 'sp-row px-row' + (fresh ? ' sp-new' : ''),
+        iconS: 'width: 40px; height: 40px; font-size: 13px; background: ' + color,
+        progText: p[2] === 106 ? 'Évaluée' : pct + ' % évalués',
+        progW: 'display: block; height: 6px; border-radius: 3px; width: ' + pct + '%; background: ' + (pct === 100 ? '#15803D' : '#2440C8'),
+        nc: p[3] === null ? '' : p[3] + ' NC', ncS: 'color: ' + (p[3] ? '#C81E1E' : '#15803D'),
+        score: p[4] === null ? '–' : p[4] + '%', scoreS: 'color: ' + tone(p[4])
+      };
+    }
+    var mand = [['Accueil', 'usagers.valmont.fr/', 106, 6, 71], ['Contact', 'usagers.valmont.fr/contact', 106, 11, 38], ['Mentions légales', 'usagers.valmont.fr/mentions-legales', 106, 2, 88], ['Plan du site', 'usagers.valmont.fr/plan-du-site', 98, 0, 100], ['Accessibilité', 'usagers.valmont.fr/accessibilite', 106, 1, 92]];
+    var rep = [['Démarches', 'usagers.valmont.fr/demarches', 72, 9, 54], ['État civil', 'usagers.valmont.fr/demarches/etat-civil', 40, 4, 66], ['Inscription cantine', 'usagers.valmont.fr/demarches/cantine', 12, 8, 45], ['Paiement en ligne', 'usagers.valmont.fr/paiement', 0, null, null]];
+    var extra = this.state.extra.map(function (e) { return mk([e.name, e.url.replace('https://', ''), 0, null, null], '#0E7490', true); });
+    var groups = [
+      { title: 'Pages obligatoires', n: 5, hint: 'Exigées par le RGAA', pages: mand.map(function (p) { return mk(p, '#2440C8'); }) },
+      { title: 'Pages représentatives', n: 4 + extra.length, hint: 'Choisies selon les services du site', pages: rep.map(function (p) { return mk(p, '#7C3AED'); }).concat(extra) },
+      { title: 'Transversal', n: 1, hint: 'En-tête, menu, pied de page', pages: [mk(['Éléments transversaux', 'Présents sur toutes les pages', 106, 5, 58], '#161A2E')] }
+    ];
+    return {
+      groups: groups, total: 10 + extra.length, yes: true,
+      draftName: this.state.name, draftUrl: this.state.url,
+      setName: function (e) { self.setState({ name: e.target.value }); },
+      setUrl: function (e) { self.setState({ url: e.target.value }); },
+      add: function (e) {
+        if (e && e.preventDefault) e.preventDefault();
+        if (!self.state.name) return;
+        self.setState({ extra: self.state.extra.concat([{ name: self.state.name, url: self.state.url }]), name: '', url: '' });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -26,6 +26,11 @@ interface TopbarProps {
   orgPermissions?: Permission[];
 }
 
+/**
+ * Barre haute du dashboard : recherche a gauche, actions a droite. Elle est
+ * posee sur le fond de l'application (ni bordure ni ombre), comme dans les
+ * maquettes : c'est la sidebar qui porte la separation verticale.
+ */
 export async function Topbar({
   profile,
   counts,
@@ -37,7 +42,7 @@ export async function Topbar({
   const initialNotifications = await fetchNotifications();
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/75 md:px-6">
+    <header className="flex h-[72px] shrink-0 items-center gap-3 px-4 md:px-9">
       <div className="flex items-center gap-2 lg:hidden">
         <MobileNavSheet
           profile={profile}
@@ -49,14 +54,16 @@ export async function Topbar({
         <Link
           href="/dashboard"
           aria-label={tSidebar("brandHomeAria")}
-          className="flex items-center gap-2 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="flex items-center gap-2 rounded-lg px-1"
         >
           <Logo size="md" />
         </Link>
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
-        <CommandPaletteTrigger />
+      <CommandPaletteTrigger className="hidden lg:inline-flex" />
+
+      <div className="ml-auto flex items-center gap-1.5">
+        <CommandPaletteTrigger className="lg:hidden" compact />
         <NotificationsBell initial={initialNotifications} />
 
         <LanguageToggle />

@@ -11,9 +11,11 @@ export interface StatusBreakdown {
   archived: number;
 }
 
+// Palette du design system : le cobalt marque l'activité en cours, les
+// statuts dormants restent neutres. `--muted` serait invisible sur la carte.
 const COLORS = {
-  pending: "hsl(var(--muted))",
-  inProgress: "hsl(var(--warning))",
+  pending: "hsl(var(--border-strong))",
+  inProgress: "hsl(var(--primary))",
   completed: "hsl(var(--success))",
   archived: "hsl(var(--muted-foreground))",
 } as const;

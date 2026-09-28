@@ -2,7 +2,9 @@ import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { orgHasFeature } from "@/lib/billing/server";
 import { loadMyOrgPermissions } from "@/lib/server-permissions";
-import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
+import { AuditPageHeader } from "@/components/audit/audit-page-header";
+import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
+import { loadAuditHeader } from "../audit-header-data";
 import { AnomaliesList, type AnomalyListItem } from "./anomalies-list";
 import { ExportNcButton } from "./export-nc-button";
 
@@ -62,21 +64,29 @@ export default async function AnomaliesPage({
   // Bouton export CSV gated par la feature `export.pdf` (capacité d'export) ;
   // masqué s'il n'y a pas de NC. L'action re-vérifie l'autorisation + la feature.
   const canExportCsv = ncs.length > 0 && (await orgHasFeature("export.pdf"));
+  const header = await loadAuditHeader(uuid);
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <AuditTabsNav auditId={uuid} active="anomalies" />
-      {canExportCsv && (
-        <div className="flex justify-end">
-          <ExportNcButton auditId={uuid} />
-        </div>
+    <>
+      {header && (
+        <AuditPageHeader
+          auditId={uuid}
+          active="anomalies"
+          data={header}
+          titleAs="p"
+          status={<AuditStatusBadge status={header.status} />}
+          actions={canExportCsv ? <ExportNcButton auditId={uuid} /> : undefined}
+        />
       )}
-      <AnomaliesList
-        ncs={ncs}
-        auditId={uuid}
-        role={profile.role}
-        orgPermissions={Array.from(orgPerms)}
-      />
-    </div>
+
+      <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
+        <AnomaliesList
+          ncs={ncs}
+          auditId={uuid}
+          role={profile.role}
+          orgPermissions={Array.from(orgPerms)}
+        />
+      </div>
+    </>
   );
 }

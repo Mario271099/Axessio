@@ -1,107 +1,123 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { AxIcon } from "@/components/brand";
+import { Logo } from "@/components/brand";
+import { StatusDot } from "@/components/ui/status-dot";
+import { SUPPORTED_STANDARDS } from "@/lib/constants";
 import { SITE } from "@/lib/site";
+
+/** Groupes de liens du pied de page, dans l'ordre des maquettes. */
+const GROUPS = [
+  {
+    key: "product",
+    links: [
+      { href: "/#features", labelKey: "features" },
+      { href: "/#standards", labelKey: "standards" },
+      { href: "/pricing", labelKey: "pricing" },
+    ],
+  },
+  {
+    key: "account",
+    links: [
+      { href: "/login", labelKey: "login" },
+      { href: "/register", labelKey: "register" },
+    ],
+  },
+  {
+    key: "info",
+    links: [
+      { href: "/legal", labelKey: "legal" },
+      { href: "/privacy", labelKey: "privacy" },
+      { href: "/cookies", labelKey: "cookies" },
+      { href: "/accessibility", labelKey: "accessibility" },
+    ],
+  },
+] as const;
 
 export function PublicFooter() {
   const t = useTranslations("home");
   const locale = useLocale();
   const year = new Date().getFullYear();
   return (
-    <footer className="border-t border-border bg-background py-12">
-      <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 sm:flex-row">
-        <div className="flex items-center gap-3">
-          <AxIcon size={28} scheme="accent" aria-label="" />
-          <div>
-            <p className="text-sm font-semibold">{SITE.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {t("footer.tagline")}
-            </p>
+    // Surface encre : le pied de page ferme la lecture et se distingue du bloc
+    // d'appel a l'action, qui est un bloc cobalt pose dans la largeur du texte.
+    <footer className="bg-ink pb-10 pt-12 text-ink-foreground">
+      <div className="container mx-auto max-w-7xl px-6 lg:px-9">
+        {/* Bandeau de reassurance : ce que la plateforme couvre, et ou en est
+            sa propre accessibilite. */}
+        <div className="flex flex-wrap items-center gap-x-7 gap-y-4 border-b border-ink-raised pb-7">
+          <h2 className="text-base font-extrabold">
+            {t("footer.standardsLabel")}
+          </h2>
+          <ul className="flex flex-wrap gap-2">
+            {SUPPORTED_STANDARDS.map((standard) => (
+              <li
+                key={standard}
+                className="rounded-full border border-ink-raised px-3.5 py-1 text-sm font-bold tabular-nums text-ink-muted"
+              >
+                {standard}
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 lg:ml-auto">
+            <StatusDot color="hsl(var(--highlight))" className="text-ink-muted">
+              {t("footer.a11yStatus")}
+            </StatusDot>
+            <Link
+              href="/accessibility"
+              className="rounded text-sm font-extrabold underline decoration-1 underline-offset-4 hover:decoration-2"
+            >
+              {t("a11yBlock.link")}
+            </Link>
           </div>
         </div>
 
-        <nav aria-label={locale === "en" ? "Footer" : "Pied de page"}>
-          <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-            <li>
-              <Link
-                href="/login"
-                className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {t("footer.links.login")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/register"
-                className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {t("footer.links.register")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/#features"
-                className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {t("footer.links.features")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/#standards"
-                className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {t("footer.links.standards")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/pricing"
-                className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {t("footer.links.pricing")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/legal"
-                className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {t("footer.links.legal")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/privacy"
-                className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {t("footer.links.privacy")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/cookies"
-                className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {t("footer.links.cookies")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/accessibility"
-                className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {t("footer.links.accessibility")}
-              </Link>
-            </li>
-          </ul>
-        </nav>
+        {/* Colonnes -------------------------------------------------------- */}
+        <div className="mt-9 grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(3,minmax(0,1fr))]">
+          <div className="min-w-0">
+            <Link
+              href="/"
+              className="inline-flex rounded-lg"
+              aria-label={SITE.name}
+            >
+              {/* Variante prevue pour fond sombre (cf. components/brand). */}
+              <Logo variant="light" size="md" />
+            </Link>
+            <p className="mt-3.5 max-w-[32ch] text-sm text-ink-muted">
+              {t("footer.tagline")}
+            </p>
+            <p className="mt-6 text-sm text-ink-muted">
+              {t("footer.copyright", { year })}
+            </p>
+          </div>
 
-        <p className="text-xs text-muted-foreground">
-          {t("footer.copyright", { year })}
-          <span className="ml-1.5 opacity-70">· v1</span>
-        </p>
+          {GROUPS.map((group) => (
+            <nav
+              key={group.key}
+              aria-labelledby={`footer-${group.key}`}
+              className="min-w-0"
+            >
+              <h2 id={`footer-${group.key}`} className="text-base font-extrabold">
+                {t(`footer.groups.${group.key}`)}
+              </h2>
+              <ul className="mt-3 flex flex-col gap-2.5">
+                {group.links.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="rounded text-sm text-ink-muted transition-colors hover:text-ink-foreground hover:underline hover:underline-offset-4"
+                    >
+                      {t(`footer.links.${link.labelKey}`)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
       </div>
+
+      <p className="sr-only">{locale === "en" ? "Footer" : "Pied de page"}</p>
     </footer>
   );
 }

@@ -7,15 +7,18 @@
       "features": "Features",
       "standards": "Standards",
       "pricing": "Pricing",
+      "faq": "Questions",
       "login": "Sign in",
-      "register": "Sign up"
+      "register": "Sign up",
+      "getStarted": "Start for free"
     },
     "hero": {
       "kicker": "Accessibility audit platform",
       "title": "Run your accessibility audits without spreadsheets.",
       "subtitle": "Axessyo centralizes your digital accessibility audits: conformity grid, traceable non-conformities, ready-to-deliver PDF reports - for auditors and client teams.",
-      "primaryCta": "Go to my workspace",
-      "secondaryCta": "See features"
+      "primaryCta": "Start for free",
+      "secondaryCta": "See features",
+      "note": "Free for one audit, no credit card, no time limit."
     },
     "features": {
       "title": "Everything for an accessibility audit, in one place",
@@ -49,16 +52,36 @@
     },
     "standards": {
       "title": "Compatible with official standards",
-      "subtitle": "The reference frameworks recognized in France and Europe for digital accessibility."
+      "subtitle": "The reference frameworks recognized in France and Europe for digital accessibility.",
+      "items": {
+        "RGAA": {
+          "name": "RGAA",
+          "desc": "4.1.2, French public services"
+        },
+        "WCAG": {
+          "name": "WCAG",
+          "desc": "2.2, the W3C international standard"
+        },
+        "RAWeb": {
+          "name": "RAWeb",
+          "desc": "1.1, Belgium and Luxembourg"
+        },
+        "RAAM": {
+          "name": "RAAM",
+          "desc": "1.1, mobile applications"
+        }
+      }
     },
     "cta": {
-      "title": "Ready to structure your audits?",
-      "subtitle": "Sign in to your Axessyo workspace to resume your in-progress audits, or contact us to open an account.",
-      "button": "Open Axessyo"
+      "title": "Your next audit, without a spreadsheet.",
+      "subtitle": "Create your workspace and start your first audit.",
+      "button": "Start for free"
     },
     "footer": {
       "tagline": "Digital accessibility audit platform.",
       "copyright": "© {year} Axessyo. All rights reserved.",
+      "standardsLabel": "Supported standards",
+      "a11yStatus": "Partial conformity with RGAA 4.1",
       "links": {
         "login": "Sign in",
         "register": "Sign up",
@@ -69,6 +92,11 @@
         "privacy": "Privacy",
         "cookies": "Cookies",
         "accessibility": "Accessibility"
+      },
+      "groups": {
+        "product": "Product",
+        "account": "Account",
+        "info": "Information"
       }
     },
     "faq": {
@@ -86,6 +114,46 @@
         {
           "q": "Can I export the report in English?",
           "a": "Yes. Every PDF report can be generated in French or English, with labels, badges and metadata in the target language."
+        }
+      ],
+      "contact": "Another question?",
+      "contactCta": "Write to us"
+    },
+    "steps": {
+      "title": "An audit in three moves",
+      "items": [
+        {
+          "title": "Create the audit",
+          "desc": "Pick the framework, the client and the sample. Mandatory pages are added for you."
+        },
+        {
+          "title": "Assess the grid",
+          "desc": "Test each criterion with its methodology at hand, and write up non-conformities as you go."
+        },
+        {
+          "title": "Deliver and follow up",
+          "desc": "Export the report, then track fixes with the client's team through to the counter-audit."
+        }
+      ]
+    },
+    "a11yBlock": {
+      "link": "Read the accessibility statement",
+      "items": [
+        {
+          "title": "Keyboard navigation",
+          "desc": "Focus always visible"
+        },
+        {
+          "title": "Checked contrasts",
+          "desc": "4.5:1 minimum for text"
+        },
+        {
+          "title": "Screen readers",
+          "desc": "Headings, labels and ARIA roles"
+        },
+        {
+          "title": "Reduced motion",
+          "desc": "Respects your system settings"
         }
       ]
     }
@@ -353,6 +421,7 @@
     "loading": "Loading…",
     "save": "Save",
     "cancel": "Cancel",
+    "close": "Close",
     "delete": "Delete",
     "confirmTitle": "Confirm action",
     "edit": "Edit",
@@ -364,7 +433,8 @@
     "reset": "Reset",
     "viewAll": "View all",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "open": "Open"
   },
   "errors": {
     "notAuthenticated": "Not authenticated.",
@@ -681,7 +751,13 @@
       "webhooksCta": "Webhooks",
       "apiTokensCta": "API tokens",
       "auditLogsCta": "Audit log",
-      "ncTemplatesCta": "NC templates"
+      "ncTemplatesCta": "NC templates",
+      "nav": {
+        "aria": "Settings sections",
+        "general": "General"
+      },
+      "memberActive": "Active",
+      "memberInactive": "Disabled"
     },
     "invite": {
       "title": "Invite a member",
@@ -1046,6 +1122,21 @@
         "criteria": "436 pre-imported criteria",
         "reports": "PDF reports in one click",
         "collaboration": "Real-time collaboration"
+      },
+      "registerTagline": "Your first audit, starting today.",
+      "registerSteps": {
+        "workspace": {
+          "title": "Create your workspace",
+          "desc": "Your organization and its workspace."
+        },
+        "team": {
+          "title": "Invite your team",
+          "desc": "Auditors, developers and client-side contacts."
+        },
+        "audit": {
+          "title": "Start your first audit",
+          "desc": "Pick the standard; the mandatory pages are already there."
+        }
       }
     },
     "login": {
@@ -1112,7 +1203,9 @@
         "rateLimited": "Too many attempts. Try again in {seconds}s.",
         "server": "Account creation failed. Please try again in a moment.",
         "signInFailed": "Your account was created but automatic sign-in failed. Please sign in manually."
-      }
+      },
+      "criteriaMet": ", met",
+      "criteriaUnmet": ", not met"
     },
     "forgotPassword": {
       "title": "Forgot your password?",
@@ -1159,7 +1252,9 @@
         "notMet": "Password doesn't meet the security criteria.",
         "mismatch": "Passwords don't match.",
         "update": "Update failed: {message}"
-      }
+      },
+      "criteriaMet": ", met",
+      "criteriaUnmet": ", not met"
     },
     "setupPassword": {
       "title": "Welcome!",
@@ -1186,7 +1281,14 @@
         "notMet": "Password does not meet the required criteria.",
         "mismatch": "The two passwords do not match.",
         "update": "Error: {message}"
-      }
+      },
+      "criteriaMet": ", met",
+      "criteriaUnmet": ", not met"
+    },
+    "switch": {
+      "aria": "Sign in or create an account",
+      "login": "Sign in",
+      "register": "Create an account"
     }
   },
   "dashboard": {
@@ -1249,6 +1351,13 @@
       "greetingFallback": "welcome",
       "lastLogin": "Last sign-in: {date}",
       "newAudit": "New audit"
+    },
+    "averageScore": {
+      "title": "Average conformity",
+      "ringLabel": "Average conformity: {score}%",
+      "verdict": {
+        "none": "No audit scored yet"
+      }
     },
     "kpi": {
       "recentAudits": "Recent audits",
@@ -1379,6 +1488,12 @@
       "contactEmail": "Contact email",
       "contactEmailPlaceholder": "contact@example.com",
       "submitCreate": "Create client"
+    },
+    "sort": {
+      "aria": "Sort clients",
+      "name": "Name",
+      "recent": "Recently added",
+      "audits": "Number of audits"
     }
   },
   "clientDetail": {
@@ -1730,6 +1845,11 @@
       "AUDIT": "Audit with counter-audit",
       "NO_COUNTER_AUDIT": "Audit without counter-audit",
       "COMPLIANCE_AUDIT": "Compliance audit"
+    },
+    "conformityLevel": {
+      "nonCompliant": "Non-compliant",
+      "partial": "Partially compliant",
+      "full": "Fully compliant"
     }
   },
   "audits": {
@@ -1812,7 +1932,8 @@
       "sample": "Sample",
       "matrix": "Matrix",
       "openNc": "Open NCs",
-      "criticalNc": "Critical NCs"
+      "criticalNc": "Critical NCs",
+      "criteriaEvaluated": "Criteria assessed"
     },
     "lifecycle": {
       "eyebrow": "Lifecycle",
@@ -1843,12 +1964,16 @@
         "online": "Online"
       }
     },
+    "header": {
+      "breadcrumbAria": "Breadcrumb",
+      "allAudits": "Audits"
+    },
     "tabsNav": {
       "ariaLabel": "Audit tabs",
-      "dashboard": "Dashboard",
+      "dashboard": "Overview",
       "sample": "Sample",
       "anomalies": "Non-conformities",
-      "matrix": "Conformity",
+      "matrix": "Matrix",
       "remediation": "Simulator"
     },
     "interlocutors": {
@@ -1892,6 +2017,11 @@
       "sortBy": "Sort by {column}",
       "sortAriaAsc": "Sort ascending",
       "sortAriaDesc": "Sort descending",
+      "view": {
+        "ariaLabel": "List display",
+        "list": "List",
+        "cards": "Cards"
+      },
       "bulk": {
         "selectAllAria": "Select all on this page",
         "selectRowAria": "Select audit {name}",
@@ -1943,6 +2073,7 @@
           "title": "Reference and service type",
           "description": "The reference determines the list of criteria to evaluate.",
           "field": "Accessibility reference",
+          "versionLabel": "Version {version}",
           "placeholder": "Choose a reference…",
           "helpAria": "Help on accessibility reference frameworks",
           "help": {
@@ -2063,7 +2194,8 @@
       "proofreadersTitle": "Proofreaders",
       "proofreadersSubtitle": "Members assigned to review and validate the report.",
       "contactsTitle": "Client contacts",
-      "contactsDesc": "People on the client side invited to consult this audit. They can view the matrix, non-conformities and comment on the client thread, but never access the internal review thread."
+      "contactsDesc": "People on the client side invited to consult this audit. They can view the matrix, non-conformities and comment on the client thread, but never access the internal review thread.",
+      "verdict": "Verdict"
     },
     "contacts": {
       "empty": "No client contact invited yet.",
@@ -2136,7 +2268,9 @@
     },
     "statusTransitions": {
       "noTransition": "No status transition available from this state.",
+      "dialogIntro": "Check the conditions below before confirming.",
       "ready": "All conditions are met. Confirm to apply the transition.",
+      "blocked": "One condition is still missing.",
       "cancel": "Cancel",
       "confirm": "Confirm transition",
       "undoToast": {
@@ -2153,6 +2287,7 @@
         "openRemediation": "Open remediation"
       },
       "conditions": {
+        "heading": "Conditions",
         "sample": "Sample",
         "sampleValue": "{count, plural, =0 {No representative page} one {# representative page} other {# representative pages}}",
         "startDate": "Start date",
@@ -2235,7 +2370,16 @@
       "deleteAria": "Delete page {name}",
       "confirmDeleteTitle": "Delete this page?",
       "confirmDelete": "Page \"{name}\" will be permanently deleted, along with all associated matrix entries and NCs. This action is irreversible.",
-      "errorPrefix": "Error: {message}"
+      "errorPrefix": "Error: {message}",
+      "groups": {
+        "mandatory": "Mandatory pages",
+        "mandatoryHint": "Required by the framework",
+        "representative": "Representative pages",
+        "representativeHint": "Chosen from the site's services",
+        "transversal": "Cross-cutting",
+        "transversalHint": "Header, menu, footer"
+      },
+      "helpTitle": "A representative sample"
     },
     "report": {
       "exportPdf": "Export PDF report",
@@ -2316,7 +2460,10 @@
         "compliantAria": "{prefix}: mark {label}",
         "compliantText": "Compliant",
         "nonCompliantText": "Non-compliant",
-        "notApplicableText": "Not applicable"
+        "notApplicableText": "Not applicable",
+        "compliantShort": "C",
+        "nonCompliantShort": "NC",
+        "notApplicableShort": "NA"
       },
       "ncModal": {
         "title": "Create a non-conformity",
@@ -2331,7 +2478,10 @@
         "creationFailed": "Creation failed.",
         "captureErrors": "Non-conformity created, but {count} capture(s) failed: {errors}",
         "submit": "Create NC"
-      }
+      },
+      "titleForPage": "Matrix, {page} page",
+      "pageScore": "page conformity",
+      "toAssess": "to assess"
     },
     "anomalies": {
       "breadcrumb": "Non-conformities",
@@ -2381,7 +2531,16 @@
         "successDelete": "{count, plural, one {# non-conformity deleted} other {# non-conformities deleted}}",
         "dismiss": "Dismiss",
         "applyAria": "Apply bulk action"
-      }
+      },
+      "columns": {
+        "criterion": "Criterion",
+        "title": "Title",
+        "page": "Page",
+        "severity": "Severity",
+        "status": "Status",
+        "activity": "Activity"
+      },
+      "openAria": "Open the « {title} » record"
     },
     "ncDetail": {
       "breadcrumbDetail": "Detail",
@@ -2437,7 +2596,14 @@
       "deleteMessageAria": "Delete the message",
       "confirmDeleteMessage": "Delete this message?",
       "previewTitle": "Screenshot preview",
-      "user": "User"
+      "user": "User",
+      "statusTitle": "Status",
+      "criterionPill": "Criterion {identifier}, {name}",
+      "criterionAnnexLink": "Criterion {identifier}, see the annex",
+      "annexTitle": "Annex, linked criterion",
+      "infoTitle": "Details",
+      "reviewLabel": "Review",
+      "captureSelectAria": "Choose a screenshot"
     },
     "anomaliesNew": {
       "back": "Back to non-conformities",
@@ -2551,7 +2717,18 @@
         "BY_CRITERION": "Criterion number",
         "noThematic": "No thematic"
       },
-      "noProjectAccess": "-"
+      "noProjectAccess": "-",
+      "headlineEmpty": "Tick the criteria to fix",
+      "headline": "+{points} points with {count, plural, one {# criterion fixed} other {# criteria fixed}}",
+      "summary": "Currently {initial}%, simulated {simulated}%, out of {total} applicable criteria. The official audit is unchanged.",
+      "gaugeAria": "Simulated score {simulated}%, current score {initial}%",
+      "thematicTitle": "Effect by topic",
+      "thematicLegendOpen": "open NCs",
+      "thematicLegendSelected": "ticked",
+      "thematicEmpty": "No open non-conformity.",
+      "thematicNone": "No topic",
+      "thematicBarAria": "{selected} NCs ticked out of {total} for {name}",
+      "gain": "+1 criterion"
     }
   }
 }

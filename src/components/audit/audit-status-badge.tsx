@@ -7,12 +7,16 @@ import { cn } from "@/lib/utils";
 
 const tones = {
   neutral: "bg-secondary text-secondary-foreground",
-  info: "bg-primary/10 text-primary",
-  warning: "bg-warning/10 text-warning",
-  success: "bg-success/10 text-success",
+  info: "bg-primary-muted text-primary",
+  warning: "bg-warning/12 text-warning",
+  success: "bg-success/12 text-success",
   muted: "bg-muted text-muted-foreground",
 } as const;
 
+/**
+ * Statut de l'audit en pastille : point de couleur + libellé. La couleur ne
+ * porte jamais seule l'information, le libellé est toujours présent.
+ */
 export function AuditStatusBadge({
   status,
   className,
@@ -24,11 +28,15 @@ export function AuditStatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium",
+        "inline-flex h-7 items-center gap-2 rounded-full px-3 text-[0.84rem] font-extrabold",
         tones[AUDIT_STATUS_TONE[status]],
         className,
       )}
     >
+      <span
+        aria-hidden="true"
+        className="size-2 shrink-0 rounded-full bg-current"
+      />
       {t(status)}
     </span>
   );

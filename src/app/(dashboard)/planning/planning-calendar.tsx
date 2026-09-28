@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Play, Square, FileText, RefreshCw } from "lucide-react";
+import { StatusDot } from "@/components/ui/status-dot";
 import { cn } from "@/lib/utils";
 
 export type PlanningEventType =
@@ -32,29 +33,29 @@ interface PlanningCalendarProps {
 
 const TYPE_STYLES: Record<
   PlanningEventType,
-  { dot: string; bg: string; text: string; icon: React.ElementType }
+  { color: string; bg: string; text: string; icon: React.ElementType }
 > = {
   start: {
-    dot: "bg-primary",
-    bg: "bg-primary/10",
+    color: "hsl(var(--primary))",
+    bg: "bg-primary-muted",
     text: "text-primary",
     icon: Play,
   },
   end: {
-    dot: "bg-secondary-foreground/70",
+    color: "hsl(var(--secondary-foreground))",
     bg: "bg-secondary",
     text: "text-secondary-foreground",
     icon: Square,
   },
   restitution: {
-    dot: "bg-warning",
-    bg: "bg-warning/10",
+    color: "hsl(var(--warning))",
+    bg: "bg-warning/12",
     text: "text-warning",
     icon: FileText,
   },
   counter_audit: {
-    dot: "bg-success",
-    bg: "bg-success/10",
+    color: "hsl(var(--success))",
+    bg: "bg-success/12",
     text: "text-success",
     icon: RefreshCw,
   },
@@ -127,27 +128,22 @@ export async function PlanningCalendar({
   return (
     <div className="space-y-4">
       {/* Légende */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         {(["start", "end", "restitution", "counter_audit"] as const).map(
-          (type) => {
-            const s = TYPE_STYLES[type];
-            return (
-              <span key={type} className="inline-flex items-center gap-1.5">
-                <span
-                  aria-hidden="true"
-                  className={cn("h-2.5 w-2.5 rounded-full", s.dot)}
-                />
-                <span className="text-muted-foreground">
-                  {t(`eventType.${type}`)}
-                </span>
-              </span>
-            );
-          },
+          (type) => (
+            <StatusDot
+              key={type}
+              color={TYPE_STYLES[type].color}
+              className="text-muted-foreground"
+            >
+              {t(`eventType.${type}`)}
+            </StatusDot>
+          ),
         )}
       </div>
 
       {/* En-tête jours de la semaine */}
-      <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="grid grid-cols-7 gap-1 text-center text-sm font-bold text-muted-foreground">
         {weekdays.map((d) => (
           <div key={d} className="py-1">
             {d}
@@ -167,9 +163,10 @@ export async function PlanningCalendar({
             <div
               key={key}
               className={cn(
-                "flex min-h-[5.5rem] flex-col gap-1 rounded-md border border-border p-1.5 text-xs",
-                inMonth ? "bg-card" : "bg-muted/30",
-                isToday && "ring-2 ring-primary",
+                "flex min-h-[5.5rem] flex-col gap-1 rounded-row border border-border p-1.5 text-xs",
+                inMonth ? "bg-card" : "bg-secondary/60",
+                isToday &&
+                  "border-primary shadow-[inset_0_0_0_2px_hsl(var(--primary))]",
               )}
             >
               <div
@@ -180,8 +177,8 @@ export async function PlanningCalendar({
               >
                 <span
                   className={cn(
-                    "tabular-nums",
-                    isToday && "font-semibold text-primary",
+                    "tabular font-semibold",
+                    isToday && "font-black text-primary",
                   )}
                 >
                   {d.getDate()}
@@ -205,7 +202,7 @@ export async function PlanningCalendar({
                         <Link
                           href={`/audits/${ev.audit.id}`}
                           className={cn(
-                            "group block truncate rounded px-1 py-0.5 text-[10px] font-medium leading-tight",
+                            "group block truncate rounded-md px-1.5 py-1 text-[11px] font-bold leading-tight",
                             s.bg,
                             s.text,
                             "hover:opacity-80",
@@ -242,7 +239,7 @@ export async function PlanningCalendar({
       </div>
 
       {events.length === 0 && (
-        <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+        <p className="rounded-card border border-dashed border-border-strong p-6 text-center text-sm text-muted-foreground">
           {t("emptyMonth")}
         </p>
       )}

@@ -35,13 +35,13 @@ function formatStageDate(stage: LifecycleStage): string | null {
 }
 
 /**
- * Stepper horizontal du cycle de vie de l'audit - pièce maîtresse du
- * dashboard. 7 jalons reliés par des connecteurs. Le connecteur entre deux
- * jalons est vert quand celui de gauche est terminé.
+ * Parcours de l'audit en 7 jalons — pièce maîtresse de la vue d'ensemble.
+ * Chaque jalon porte sa pastille, son libellé et sa date ; le connecteur
+ * passe au cobalt quand le jalon de gauche est franchi.
  *
- *   done     : pastille verte + check
- *   current  : pastille navy + halo + numéro d'étape
- *   upcoming : pastille creuse grise + point central
+ *   done     : pastille cobalt + check
+ *   current  : pastille blanche cerclée de cobalt + halo qui pulse
+ *   upcoming : pastille creuse grise + numéro
  *
  * Server component : aucun état, lit juste les libellés i18n.
  */
@@ -53,13 +53,13 @@ export async function AuditLifecycleStepper({
 
   return (
     <ol
-      className="mt-4 flex min-w-[640px] items-start"
+      className="flex min-w-[680px] items-start"
       aria-label={t("stepperAria")}
     >
       {stages.map((stage, index) => {
-        const prevDone = index > 0 && stages[index - 1]?.state === "done";
         const isDone = stage.state === "done";
         const isCurrent = stage.state === "current";
+        const isLast = index === stages.length - 1;
 
         const sub =
           isCurrent && !stage.date
@@ -69,16 +69,16 @@ export async function AuditLifecycleStepper({
         return (
           <li
             key={stage.key}
-            className="relative flex flex-1 flex-col items-center px-1 text-center"
+            className="relative flex flex-1 flex-col items-start gap-2 pr-2"
             aria-current={isCurrent ? "step" : undefined}
           >
-            {/* Connecteur depuis le jalon précédent (centre à centre). */}
-            {index > 0 && (
+            {/* Connecteur vers le jalon suivant. */}
+            {!isLast && (
               <span
                 aria-hidden="true"
                 className={cn(
-                  "absolute right-1/2 left-[-50%] top-[16px] h-[3px]",
-                  prevDone ? "bg-success" : "bg-border",
+                  "absolute left-[30px] right-0 top-[13.5px] h-[3px] rounded-full",
+                  isDone ? "bg-primary" : "bg-border",
                 )}
               />
             )}
@@ -87,44 +87,36 @@ export async function AuditLifecycleStepper({
             <span
               aria-hidden="true"
               className={cn(
-                "relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold transition-colors",
-                isDone && "bg-success text-success-foreground",
+                "relative z-10 flex size-[30px] shrink-0 items-center justify-center rounded-full text-[0.8rem] font-extrabold",
+                isDone && "bg-primary text-primary-foreground",
                 isCurrent &&
-                  "bg-primary text-primary-foreground shadow-[0_0_0_5px_hsl(var(--primary)/0.13)]",
-                !isDone &&
-                  !isCurrent &&
-                  "border-2 border-border bg-card",
+                  "bg-card text-primary shadow-[inset_0_0_0_3px_hsl(var(--primary))]",
+                !isDone && !isCurrent && "bg-secondary text-muted-foreground",
               )}
             >
-              {isDone ? (
-                <Check className="h-4 w-4" />
-              ) : isCurrent ? (
-                index + 1
-              ) : (
-                <span className="h-[9px] w-[9px] rounded-full bg-muted-foreground/30" />
+              {isCurrent && (
+                <span className="axs-halo absolute -inset-1.5 rounded-full border-2 border-primary" />
               )}
+              {isDone ? <Check className="size-4" strokeWidth={3} /> : index + 1}
             </span>
 
-            {/* Libellé + sous-titre */}
-            <span
-              className={cn(
-                "mt-2 text-[13px] leading-tight",
-                isCurrent
-                  ? "font-bold text-foreground"
-                  : isDone
-                    ? "font-semibold text-foreground"
-                    : "font-semibold text-muted-foreground",
-              )}
-            >
-              {t(`stages.${stage.key}`)}
-            </span>
-            <span
-              className={cn(
-                "mt-0.5 text-xs leading-tight tabular-nums",
-                isCurrent ? "font-bold text-primary" : "text-muted-foreground",
-              )}
-            >
-              {sub}
+            {/* Libellé + date */}
+            <span className="flex min-w-0 flex-col leading-tight">
+              <span
+                className={cn(
+                  "text-sm",
+                  isCurrent
+                    ? "font-black text-primary"
+                    : isDone
+                      ? "font-bold text-foreground"
+                      : "font-semibold text-muted-foreground",
+                )}
+              >
+                {t(`stages.${stage.key}`)}
+              </span>
+              <span className="mt-0.5 text-xs tabular text-muted-foreground">
+                {sub}
+              </span>
             </span>
           </li>
         );

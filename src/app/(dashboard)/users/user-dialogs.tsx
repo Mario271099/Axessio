@@ -7,12 +7,13 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { AlertCircle, Loader2, Plus } from "lucide-react";
+import { AlertCircle, Loader2, Plus, ShieldCheck, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -116,13 +117,14 @@ export function InviteUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent size="lg" closeLabel={tCommon("close")}>
+        <DialogHeader icon={<UserPlus aria-hidden="true" />}>
           <DialogTitle>{t("inviteDialog.title")}</DialogTitle>
           <DialogDescription>{t("inviteDialog.desc")}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <DialogBody>
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
@@ -220,10 +222,12 @@ export function InviteUserDialog({
             </div>
           )}
 
+          </DialogBody>
+
           <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
@@ -231,9 +235,9 @@ export function InviteUserDialog({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               ) : (
-                <Plus className="h-4 w-4" aria-hidden="true" />
+                <Plus data-anim="spin" aria-hidden="true" />
               )}
               {t("inviteDialog.submit")}
             </Button>
@@ -307,13 +311,14 @@ export function EditRoleDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent size="md" closeLabel={tCommon("close")}>
+        <DialogHeader icon={<ShieldCheck aria-hidden="true" />} tone="ink">
           <DialogTitle>{t("editRoleDialog.title")}</DialogTitle>
           <DialogDescription>{t("editRoleDialog.desc")}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <DialogBody>
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
@@ -382,10 +387,12 @@ export function EditRoleDialog({
             </div>
           )}
 
+          </DialogBody>
+
           <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
@@ -393,7 +400,7 @@ export function EditRoleDialog({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               {tCommon("save")}
             </Button>

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { LoginForm } from "./login-form";
@@ -56,19 +55,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <AuthLayout
+      variant="login"
       title={t("title")}
       subtitle={t("subtitle")}
-      footer={
-        <>
-          {t("footer")}{" "}
-          <Link
-            href="/register"
-            className="font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded"
-          >
-            {t("footerCta")}
-          </Link>
-        </>
-      }
     >
       {showResetSuccess && <LoginResetBanner />}
       <LoginForm next={next} />

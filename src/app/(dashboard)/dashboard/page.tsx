@@ -9,9 +9,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
-import { cn } from "@/lib/utils";
+import { monogram, themeColorVar } from "@/lib/utils";
 import Link from "next/link";
+import { ScoreRing } from "@/components/ui/score-ring";
+import { LifecycleSteps } from "@/components/ui/lifecycle-steps";
+import { AverageScoreCard } from "@/components/dashboard/average-score-card";
+import { computeAuditLifecycle } from "@/lib/audit-lifecycle";
+import { getConformityLevel } from "@/lib/score";
 import type { AuditStatus, NCSeverity } from "@/types/domain";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -34,6 +38,9 @@ export default async function DashboardPage() {
   const locale = await getLocale();
   const t = await getTranslations("dashboard");
   const tCommon = await getTranslations("common");
+  const tAvg = await getTranslations("dashboard.averageScore");
+  const tConformity = await getTranslations("constants.conformityLevel");
+  const tLifecycle = await getTranslations("audits.lifecycle");
   const intl = intlLocale(locale);
 
   // Tout est calculé côté Postgres (agrégats + RPCs) pour rester rapide
@@ -190,7 +197,7 @@ export default async function DashboardPage() {
   const recentAudits = auditList;
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+    <div className="space-y-5 px-4 pb-8 md:px-9">
       {/* ============================================================== */}
       {/* Modale d'accueil première connexion                              */}
       {/* ============================================================== */}
@@ -208,47 +215,49 @@ export default async function DashboardPage() {
       <OnboardingChecklist />
 
       {/* ============================================================== */}
-      {/* Hero                                                            */}
+      {/* En-tête : salutation + action principale                        */}
       {/* ============================================================== */}
-      <Card className="relative overflow-hidden border-primary/10 bg-gradient-to-br from-primary/8 via-background to-background dark:from-primary/15">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.15),transparent_50%)]"
-        />
-        <div className="relative flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0 space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-              {t("hero.kicker")}
-            </p>
-            <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-              {t("hero.greeting", {
-                name: profile.firstName || t("hero.greetingFallback"),
-              })}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              <span>{capitalizedToday}</span>
-              {lastLoginLabel && (
-                <>
-                  <span aria-hidden="true"> · </span>
-                  <span>{lastLoginLabel}</span>
-                </>
-              )}
-            </p>
-          </div>
-          <Button asChild size="lg" className="shrink-0">
-            <Link href="/audits/new">
-              <Plus aria-hidden="true" className="h-4 w-4" />
-              {t("hero.newAudit")}
-            </Link>
-          </Button>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-[2.125rem] font-black leading-tight tracking-tight">
+            {t("hero.greeting", {
+              name: profile.firstName || t("hero.greetingFallback"),
+            })}
+          </h1>
+          <p className="mt-1 text-base text-muted-foreground">
+            <span>{capitalizedToday}</span>
+            {lastLoginLabel && (
+              <>
+                <span aria-hidden="true"> · </span>
+                <span>{lastLoginLabel}</span>
+              </>
+            )}
+          </p>
         </div>
-      </Card>
+        <Button asChild>
+          <Link href="/audits/new">
+            <Plus data-anim="spin" aria-hidden="true" />
+            {t("hero.newAudit")}
+          </Link>
+        </Button>
+      </div>
 
       {/* ============================================================== */}
-      {/* KPIs                                                            */}
+      {/* Synthèse : conformité moyenne (carte encre) + 3 tuiles          */}
       {/* ============================================================== */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="fade-in-up" style={{ animationDelay: "0ms" }}>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1.35fr_1fr_1fr_1fr]">
+        <AverageScoreCard
+          score={evaluatedTotal === 0 ? null : avgScore}
+          title={tAvg("title")}
+          verdict={
+            evaluatedTotal === 0
+              ? tAvg("verdict.none")
+              : tConformity(VERDICT_KEY[getConformityLevel(avgScore)])
+          }
+          note={t("kpi.scoreNote", { count: evaluatedTotal })}
+          ringLabel={tAvg("ringLabel", { score: avgScore })}
+        />
+        <div className="fade-in-up" style={{ animationDelay: "75ms" }}>
           <KpiCard
             iconKey="clipboard-list"
             label={t("kpi.recentAudits")}
@@ -256,158 +265,167 @@ export default async function DashboardPage() {
             tone="primary"
             delta={null}
             note={t("kpi.totalSuffix", { total: totalAudits })}
+            href="/audits"
           />
         </div>
-        <div className="fade-in-up" style={{ animationDelay: "75ms" }}>
+        <div className="fade-in-up" style={{ animationDelay: "150ms" }}>
           <KpiCard
             iconKey="clock"
             label={t("kpi.inProgress")}
             value={inProgress}
             tone="warning"
             delta={null}
+            href="/audits?status=IN_PROGRESS"
           />
         </div>
-        <div className="fade-in-up" style={{ animationDelay: "150ms" }}>
+        <div className="fade-in-up" style={{ animationDelay: "225ms" }}>
           <KpiCard
             iconKey="check-circle"
             label={t("kpi.completed")}
             value={completed}
             tone="success"
             delta={null}
-          />
-        </div>
-        <div className="fade-in-up" style={{ animationDelay: "225ms" }}>
-          <KpiCard
-            iconKey="trending-up"
-            label={t("kpi.averageScore")}
-            value={avgScore}
-            tone="violet"
-            delta={null}
-            suffix="%"
-            note={t("kpi.scoreNote", { count: evaluatedTotal })}
+            href="/audits?status=COMPLETED"
           />
         </div>
       </div>
 
       {/* ============================================================== */}
-      {/* Activité + Pie                                                  */}
+      {/* Audits récents + répartition et activité                        */}
       {/* ============================================================== */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <Card className="flex flex-col">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4">
+            <CardTitle>{t("recent.title")}</CardTitle>
+            {recentAudits.length > 0 && (
+              <Link
+                href="/audits"
+                className="text-sm font-bold text-primary underline decoration-1 underline-offset-4 hover:decoration-2"
+              >
+                {tCommon("viewAll")}
+              </Link>
+            )}
+          </CardHeader>
+          <CardContent className="px-2 pb-2">
+            {recentAudits.length === 0 ? (
+              <DashboardEmpty
+                title={t("recent.emptyTitle")}
+                description={t("recent.emptyDesc")}
+                cta={t("recent.createCta")}
+              />
+            ) : (
+              <ul className="flex flex-col gap-0.5">
+                {recentAudits.map((audit) => {
+                  const project = Array.isArray(audit.project)
+                    ? audit.project[0]
+                    : audit.project;
+                  const client = project?.client
+                    ? Array.isArray(project.client)
+                      ? project.client[0]
+                      : project.client
+                    : null;
+                  const score = audit.final_score ?? audit.initial_score;
+                  const clientName = client?.name ?? t("recent.noClient");
+                  const projectName =
+                    project?.name ?? t("recent.unknownProject");
+                  // Parcours dérivé du seul statut : les dates ne sont pas
+                  // chargées ici, elles ne servent qu'à marquer des jalons
+                  // déjà franchis en plus de celui du statut.
+                  const lifecycle = computeAuditLifecycle({
+                    status: audit.status as AuditStatus,
+                    createdAt: null,
+                    expectedStartAt: null,
+                    expectedEndAt: null,
+                    restitutionAt: null,
+                    counterAuditAt: null,
+                    deliveredAt: null,
+                    onlineAt: null,
+                  });
+
+                  return (
+                    <li key={audit.id}>
+                      <Link
+                        href={`/audits/${audit.id}`}
+                        className="axs-row grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-row px-3 py-2.5 lg:grid-cols-[minmax(0,1.6fr)_150px_110px_130px]"
+                      >
+                        <span className="flex min-w-0 items-center gap-3">
+                          <span
+                            aria-hidden="true"
+                            className="axs-mono flex size-10 shrink-0 items-center justify-center rounded-row text-sm font-extrabold text-white"
+                            style={{ background: themeColorVar(clientName) }}
+                          >
+                            {monogram(clientName)}
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block truncate font-bold">
+                              {projectName}
+                            </span>
+                            <span className="block truncate text-sm text-muted-foreground">
+                              {clientName}
+                            </span>
+                          </span>
+                        </span>
+
+                        <span className="hidden min-w-0 lg:block">
+                          <span className="block truncate text-sm font-bold">
+                            {tLifecycle(`stages.${lifecycle.currentKey}`)}
+                          </span>
+                          <LifecycleSteps
+                            currentStep={lifecycle.currentStep}
+                            totalSteps={lifecycle.totalSteps}
+                            label={tLifecycle("stepIndicator", {
+                              step: lifecycle.currentStep,
+                              total: lifecycle.totalSteps,
+                            })}
+                            className="mt-1.5"
+                          />
+                        </span>
+
+                        <span className="flex items-center gap-2">
+                          <ScoreRing
+                            value={score ?? null}
+                            size={34}
+                            hideValue
+                            ariaLabel=""
+                          />
+                          <span className="font-bold tabular">
+                            {score === null || score === undefined
+                              ? "—"
+                              : `${Math.round(score)}%`}
+                          </span>
+                        </span>
+
+                        <span className="hidden text-sm text-muted-foreground lg:block">
+                          {t("recent.updatedOn", {
+                            date: formatShortDate(audit.updated_at),
+                          })}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="flex flex-col gap-4">
+          <StatusPie breakdown={breakdown} />
           <ActivityTimeline events={activityEvents} />
         </div>
-        <StatusPie breakdown={breakdown} />
       </div>
-
-      {/* ============================================================== */}
-      {/* Audits récents                                                  */}
-      {/* ============================================================== */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle>{t("recent.title")}</CardTitle>
-          {auditList.length > 0 && (
-            <Button asChild variant="link" size="sm" className="h-auto p-0">
-              <Link href="/audits">{tCommon("viewAll")}</Link>
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
-          {recentAudits.length === 0 ? (
-            <DashboardEmpty
-              title={t("recent.emptyTitle")}
-              description={t("recent.emptyDesc")}
-              cta={t("recent.createCta")}
-            />
-          ) : (
-            <ul className="-mx-2 divide-y divide-border">
-              {recentAudits.map((audit) => {
-                const project = Array.isArray(audit.project)
-                  ? audit.project[0]
-                  : audit.project;
-                const client = project?.client
-                  ? Array.isArray(project.client)
-                    ? project.client[0]
-                    : project.client
-                  : null;
-                const score = audit.final_score ?? audit.initial_score;
-                const clientName = client?.name ?? t("recent.noClient");
-                const projectName = project?.name ?? t("recent.unknownProject");
-
-                return (
-                  <li key={audit.id}>
-                    <Link
-                      href={`/audits/${audit.id}`}
-                      className="flex items-center gap-4 rounded-md px-2 py-3 transition-colors hover:bg-accent/50"
-                    >
-                      <Avatar name={clientName} />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">
-                          {projectName}
-                        </p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          <span>{clientName}</span>
-                          <span aria-hidden="true"> · </span>
-                          <span>
-                            {t("recent.updatedOn", {
-                              date: formatShortDate(audit.updated_at),
-                            })}
-                          </span>
-                        </p>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-3">
-                        <ScoreText score={score} />
-                        <AuditStatusBadge status={audit.status as AuditStatus} />
-                      </div>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }
 
 /* -------------------------------------------------------------------------- */
 
-function Avatar({ name }: { name: string }) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  const letters =
-    parts.length >= 2
-      ? `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`
-      : (parts[0]?.slice(0, 2) ?? "?");
-  return (
-    <div
-      aria-hidden="true"
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary"
-    >
-      {letters.toUpperCase()}
-    </div>
-  );
-}
-
-function ScoreText({ score }: { score: number | null | undefined }) {
-  if (score === null || score === undefined) {
-    return (
-      <span className="text-lg font-bold tabular-nums text-muted-foreground">
-        -
-      </span>
-    );
-  }
-  const tone =
-    score >= 100
-      ? "text-success"
-      : score >= 50
-        ? "text-warning"
-        : "text-destructive";
-  return (
-    <span className={cn("text-lg font-bold tabular-nums", tone)}>
-      {Math.round(score)}%
-    </span>
-  );
-}
+/** Niveau de conformité → clé i18n du verdict affiché sur la carte encre. */
+const VERDICT_KEY = {
+  "non-compliant": "nonCompliant",
+  partial: "partial",
+  full: "full",
+} as const;
 
 function DashboardEmpty({
   title,
@@ -422,7 +440,7 @@ function DashboardEmpty({
     <EmptyState icon={ClipboardList} title={title} description={description}>
       <Button asChild size="sm">
         <Link href="/audits/new">
-          <Plus aria-hidden="true" className="h-4 w-4" />
+          <Plus aria-hidden="true" />
           {cta}
         </Link>
       </Button>

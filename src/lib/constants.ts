@@ -133,6 +133,16 @@ export const REFERENCE_TYPE_LABELS: Record<ReferenceType, string> = {
   EN_301_549: "EN 301 549",
 };
 
+/** Sigle court, pour les pastilles carrées (choix du référentiel). */
+export const REFERENCE_TYPE_SHORT: Record<ReferenceType, string> = {
+  RGAA: "R",
+  WCAG: "W",
+  RAWeb: "RW",
+  RAAM: "RM",
+  PDF_UA: "PU",
+  EN_301_549: "EN",
+};
+
 /**
  * Libellés français des 4 principes WCAG.
  * Clé = valeur stockée en base (anglais), valeur = libellé affiché (français).
@@ -166,6 +176,21 @@ export const CONFORMITY_STATUS_LABELS: Record<ConformityStatus, string> = {
   NON_COMPLIANT: "Non conforme",
   NOT_APPLICABLE: "Non applicable",
 };
+
+// ============================================================================
+// Référentiels
+// ============================================================================
+/**
+ * Référentiels pris en charge par la plateforme, avec leur version — ceux dont
+ * la grille de critères est réellement importée. Noms propres et numéros de
+ * version : identiques dans toutes les langues, donc hors i18n.
+ */
+export const SUPPORTED_STANDARDS = [
+  "RGAA 4.1.2",
+  "WCAG 2.2",
+  "RAWeb 1.1",
+  "RAAM 1.1",
+] as const;
 
 // ============================================================================
 // Handicaps

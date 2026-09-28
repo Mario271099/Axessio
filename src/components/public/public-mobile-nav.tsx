@@ -4,15 +4,17 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PUBLIC_NAV_LINKS } from "@/components/public/public-nav-links";
 import {
   Sheet,
   SheetClose,
   SheetContent,
   SheetTitle,
   SheetTrigger,
+  sheetNavLink,
 } from "@/components/ui/sheet";
 
-// Menu de navigation mobile (< sm). Reprend les liens caches sur petit ecran
+// Menu de navigation mobile (< lg). Reprend les liens caches sur petit ecran
 // dans le header + les CTA connexion/inscription, dans un Sheet accessible.
 export function PublicMobileNav() {
   const t = useTranslations("home");
@@ -22,11 +24,10 @@ export function PublicMobileNav() {
   const openLabel = isEn ? "Open menu" : "Ouvrir le menu";
   const navLabel = isEn ? "Menu" : "Menu";
 
-  const links = [
-    { href: "/#features", label: t("nav.features") },
-    { href: "/#standards", label: t("nav.standards") },
-    { href: "/pricing", label: t("nav.pricing") },
-  ];
+  const links = PUBLIC_NAV_LINKS.map((link) => ({
+    href: link.href,
+    label: t(`nav.${link.key}`),
+  }));
 
   return (
     <Sheet>
@@ -35,7 +36,7 @@ export function PublicMobileNav() {
           type="button"
           size="icon"
           variant="ghost"
-          className="sm:hidden"
+          className="lg:hidden"
           aria-label={openLabel}
         >
           <Menu className="h-5 w-5" aria-hidden="true" />
@@ -47,14 +48,11 @@ export function PublicMobileNav() {
       >
         <SheetTitle>{navLabel}</SheetTitle>
         <nav aria-label={navLabel}>
-          <ul className="flex flex-col gap-1 text-sm">
+          <ul className="flex flex-col gap-1">
             {links.map((link) => (
               <li key={link.href}>
                 <SheetClose asChild>
-                  <Link
-                    href={link.href}
-                    className="block rounded-md px-3 py-2 text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
+                  <Link href={link.href} className={sheetNavLink()}>
                     {link.label}
                   </Link>
                 </SheetClose>
@@ -71,7 +69,7 @@ export function PublicMobileNav() {
           </SheetClose>
           <SheetClose asChild>
             <Button asChild>
-              <Link href="/register">{t("nav.register")}</Link>
+              <Link href="/register">{t("nav.getStarted")}</Link>
             </Button>
           </SheetClose>
         </div>

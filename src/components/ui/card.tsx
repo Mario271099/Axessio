@@ -3,19 +3,32 @@ import { cn } from "@/lib/utils";
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
-   * Active le hover « lift » : ombre plus marquée + translation verticale
-   * subtile. À réserver aux cartes effectivement cliquables (lien, action).
+   * Active le hover « lift » : la carte monte de 3 px et prend la couleur du
+   * contexte (variable CSS `--lift-color`, cobalt par defaut).
+   * A reserver aux cartes effectivement cliquables (lien, action).
    */
   interactive?: boolean;
+  /**
+   * `ink` : carte sombre des blocs de synthese (score moyen, plan, astuce).
+   * Le texte secondaire s'y ecrit en `text-ink-muted`.
+   */
+  tone?: "default" | "ink";
 }
 
-export function Card({ className, interactive, ...props }: CardProps) {
+export function Card({
+  className,
+  interactive,
+  tone = "default",
+  ...props
+}: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-lg border border-border bg-card text-card-foreground shadow-sm",
-        interactive &&
-          "cursor-pointer transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md",
+        "rounded-card border",
+        tone === "ink"
+          ? "border-ink bg-ink text-ink-foreground"
+          : "border-border bg-card text-card-foreground",
+        interactive && "axs-lift cursor-pointer",
         className,
       )}
       {...props}
@@ -29,7 +42,7 @@ export function CardHeader({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("flex flex-col space-y-1.5 p-6 pb-4", className)}
+      className={cn("flex flex-col space-y-1 p-5 pb-3", className)}
       {...props}
     />
   );
@@ -42,7 +55,7 @@ export function CardTitle({
   return (
     <h3
       className={cn(
-        "text-lg font-semibold leading-none tracking-tight",
+        "text-lg font-extrabold leading-tight tracking-tight",
         className,
       )}
       {...props}
@@ -63,7 +76,7 @@ export function CardContent({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("p-6 pt-0", className)} {...props} />;
+  return <div className={cn("p-5 pt-0", className)} {...props} />;
 }
 
 export function CardFooter({
@@ -71,6 +84,6 @@ export function CardFooter({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("flex items-center p-6 pt-0", className)} {...props} />
+    <div className={cn("flex items-center p-5 pt-0", className)} {...props} />
   );
 }

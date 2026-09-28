@@ -13,6 +13,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   Building2,
+  Power,
   RotateCcw,
   Search,
   ShieldCheck,
@@ -360,7 +361,10 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
         onOpenChange={(o) => !o && setToggleTarget(null)}
       >
         <AlertDialogContent>
-          <AlertDialogHeader>
+          <AlertDialogHeader
+            icon={<Power aria-hidden="true" />}
+            tone={toggleTarget?.isActive ? "warning" : "success"}
+          >
             <AlertDialogTitle>{tCommon("confirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
               {toggleTarget

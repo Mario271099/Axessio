@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { canAny } from "@/lib/permissions";
@@ -69,28 +69,22 @@ export default async function NewAuditPage() {
   }));
 
   return (
-    <div className="container mx-auto max-w-5xl space-y-6 p-6 md:p-8">
-      <nav
-        aria-label="Breadcrumb"
-        className="flex items-center gap-1 text-xs text-muted-foreground"
-      >
+    <div className="container mx-auto max-w-7xl space-y-5 p-4 md:p-6 lg:px-9">
+      {/* Retour a la liste, puis le titre : meme entree que les maquettes. */}
+      <header>
         <Link
           href="/audits"
-          className="rounded px-1 py-0.5 hover:bg-accent hover:text-foreground"
+          className="inline-flex items-center gap-1.5 rounded-lg text-sm font-bold text-muted-foreground transition-colors hover:text-primary"
         >
+          <ChevronLeft className="size-4" aria-hidden="true" />
           {t("breadcrumbBack")}
         </Link>
-        <ChevronRight className="h-3 w-3" aria-hidden="true" />
-        <span className="rounded px-1 py-0.5 font-medium text-foreground">
-          {t("breadcrumbCurrent")}
-        </span>
-      </nav>
-
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+        <h1 className="mt-1.5 text-2xl font-black leading-[1.1] tracking-[-0.03em] md:text-[2.125rem]">
           {t("title")}
         </h1>
-        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+        <p className="mt-1 text-[0.95rem] text-muted-foreground">
+          {t("subtitle")}
+        </p>
       </header>
 
       <AuditForm projects={projects} references={references} />

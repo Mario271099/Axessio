@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { RotateCcw, Search, User } from "lucide-react";
+import { LayoutGrid, List, RotateCcw, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -15,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { AuditStatus, PlatformType } from "@/types/domain";
+import type { AuditsView } from "./audits-table";
 
 const ALL = "ALL";
 const SEARCH_DEBOUNCE_MS = 300;
@@ -31,6 +33,17 @@ const STATUSES: AuditStatus[] = [
   "ARCHIVED",
 ];
 
+/**
+ * Statuts proposés en accès direct sous forme de pilules, comme dans les
+ * maquettes. Les autres restent accessibles par la liste déroulante.
+ */
+const QUICK_STATUSES: AuditStatus[] = [
+  "IN_PROGRESS",
+  "REMEDIATION",
+  "COUNTER_AUDIT",
+  "COMPLETED",
+];
+
 const PLATFORMS: PlatformType[] = ["WEB", "MOBILE"];
 
 interface Props {
@@ -40,6 +53,7 @@ interface Props {
   initialMine: boolean;
   /** Si false, on n'affiche pas le toggle « Mes audits » (non-staff). */
   canSeeMine: boolean;
+  initialView: AuditsView;
 }
 
 export function AuditsFilters({
@@ -48,6 +62,7 @@ export function AuditsFilters({
   initialPlatform,
   initialMine,
   canSeeMine,
+  initialView,
 }: Props) {
   const t = useTranslations("audits.list");
   const tStatus = useTranslations("constants.auditStatus");
@@ -105,7 +120,12 @@ export function AuditsFilters({
     setStatus(ALL);
     setPlatform(ALL);
     setMine(false);
-    router.replace(pathname);
+    // La vue choisie (liste / cartes) est une préférence d'affichage :
+    // elle survit à la remise à zéro des filtres.
+    const next = new URLSearchParams();
+    if (initialView !== "list") next.set("view", initialView);
+    const search = next.toString();
+    router.replace(search ? `${pathname}?${search}` : pathname);
   };
 
   const toggleMine = () => {
@@ -114,93 +134,170 @@ export function AuditsFilters({
     pushParams({ mine: next ? "1" : null });
   };
 
+  const pickStatus = (value: string) => {
+    setStatus(value);
+    pushParams({ status: value === ALL ? null : value });
+  };
+
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-      <div className="relative flex-1">
-        <Search
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-          aria-hidden="true"
-        />
-        <Input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("searchPlaceholder")}
-          aria-label={t("searchAria")}
-          className="pl-9"
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative sm:w-80">
+          <Search
+            className="pointer-events-none absolute left-3.5 top-1/2 size-[18px] -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <Input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("searchPlaceholder")}
+            aria-label={t("searchAria")}
+            className="rounded-row pl-11"
+          />
+        </div>
+
+        <div
+          role="group"
+          aria-label={t("filterStatusAria")}
+          className="flex flex-wrap items-center gap-2"
+        >
+          <FilterChip
+            label={t("filterAllStatuses")}
+            pressed={status === ALL}
+            onClick={() => pickStatus(ALL)}
+          />
+          {QUICK_STATUSES.map((s) => (
+            <FilterChip
+              key={s}
+              label={tStatus(s)}
+              pressed={status === s}
+              onClick={() => pickStatus(s)}
+            />
+          ))}
+        </div>
+
+        <ViewToggle
+          view={initialView}
+          listLabel={t("view.list")}
+          cardsLabel={t("view.cards")}
+          groupLabel={t("view.ariaLabel")}
+          onChange={(next) =>
+            pushParams({ view: next === "list" ? null : next })
+          }
+          className="sm:ml-auto"
         />
       </div>
 
-      <Select
-        value={status}
-        onValueChange={(v) => {
-          setStatus(v);
-          pushParams({ status: v === ALL ? null : v });
-        }}
-      >
-        <SelectTrigger className="sm:w-48" aria-label={t("filterStatusAria")}>
-          <SelectValue placeholder={t("filterStatusPlaceholder")} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>{t("filterAllStatuses")}</SelectItem>
-          {STATUSES.map((s) => (
-            <SelectItem key={s} value={s}>
-              {tStatus(s)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex flex-wrap items-center gap-2">
+        <Select value={status} onValueChange={pickStatus}>
+          <SelectTrigger
+            className="h-9 w-48 rounded-full text-sm font-bold"
+            aria-label={t("filterStatusAria")}
+          >
+            <SelectValue placeholder={t("filterStatusPlaceholder")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>{t("filterAllStatuses")}</SelectItem>
+            {STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {tStatus(s)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      <Select
-        value={platform}
-        onValueChange={(v) => {
-          setPlatform(v);
-          pushParams({ platform: v === ALL ? null : v });
-        }}
-      >
-        <SelectTrigger className="sm:w-40" aria-label={t("filterPlatformAria")}>
-          <SelectValue placeholder={t("filterPlatformPlaceholder")} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>{t("filterAllPlatforms")}</SelectItem>
-          {PLATFORMS.map((p) => (
-            <SelectItem key={p} value={p}>
-              {tPlatform(p)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {canSeeMine && (
-        <Button
-          type="button"
-          variant={mine ? "default" : "outline"}
-          size="sm"
-          onClick={toggleMine}
-          aria-pressed={mine}
-          aria-label={t("filterMineAria")}
-          className={cn(
-            "gap-1.5",
-            mine && "bg-primary text-primary-foreground",
-          )}
+        <Select
+          value={platform}
+          onValueChange={(v) => {
+            setPlatform(v);
+            pushParams({ platform: v === ALL ? null : v });
+          }}
         >
-          <User className="h-3.5 w-3.5" aria-hidden="true" />
-          {t("filterMine")}
-        </Button>
-      )}
+          <SelectTrigger
+            className="h-9 w-44 rounded-full text-sm font-bold"
+            aria-label={t("filterPlatformAria")}
+          >
+            <SelectValue placeholder={t("filterPlatformPlaceholder")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>{t("filterAllPlatforms")}</SelectItem>
+            {PLATFORMS.map((p) => (
+              <SelectItem key={p} value={p}>
+                {tPlatform(p)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      {filtersActive && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={reset}
-          className="gap-1.5"
-        >
-          <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-          {t("resetFilters")}
-        </Button>
+        {canSeeMine && (
+          <FilterChip
+            label={t("filterMine")}
+            pressed={mine}
+            onClick={toggleMine}
+            aria-label={t("filterMineAria")}
+            icon={<User className="size-3.5" aria-hidden="true" />}
+          />
+        )}
+
+        {filtersActive && (
+          <Button type="button" variant="ghost" size="sm" onClick={reset}>
+            <RotateCcw aria-hidden="true" />
+            {t("resetFilters")}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+
+/** Bascule liste / cartes. */
+function ViewToggle({
+  view,
+  listLabel,
+  cardsLabel,
+  groupLabel,
+  onChange,
+  className,
+}: {
+  view: AuditsView;
+  listLabel: string;
+  cardsLabel: string;
+  groupLabel: string;
+  onChange: (view: AuditsView) => void;
+  className?: string;
+}) {
+  const button =
+    "flex h-9 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-150 hover:text-foreground aria-pressed:bg-card aria-pressed:text-primary aria-pressed:shadow-sm";
+  return (
+    <div
+      role="group"
+      aria-label={groupLabel}
+      className={cn(
+        "flex shrink-0 items-center gap-1 rounded-row bg-secondary p-[3px]",
+        className,
       )}
+    >
+      <button
+        type="button"
+        aria-pressed={view === "list"}
+        aria-label={listLabel}
+        onClick={() => onChange("list")}
+        className={button}
+      >
+        <List className="size-[18px]" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        aria-pressed={view === "cards"}
+        aria-label={cardsLabel}
+        onClick={() => onChange("cards")}
+        className={button}
+      >
+        <LayoutGrid className="size-[18px]" aria-hidden="true" />
+      </button>
     </div>
   );
 }

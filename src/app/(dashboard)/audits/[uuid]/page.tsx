@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -12,7 +12,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   AuditAssignees,
   type AssigneeEntry,
@@ -27,26 +26,21 @@ import { AuditContacts } from "@/components/audit/audit-contacts";
 import type { AvailableStatusTransition } from "@/components/audit/audit-status-actions";
 import { AuditNextStepButton } from "@/components/audit/audit-next-step-button";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
-import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
+import { AuditScoreCard } from "@/components/audit/audit-score-card";
+import { AuditPageHeader } from "@/components/audit/audit-page-header";
 import { AuditNextAction } from "@/components/audit/audit-next-action";
 import { AuditDeadlines } from "@/components/audit/audit-deadlines";
-import { AuditKpiBar } from "@/components/audit/audit-kpi-bar";
 import { AuditLifecycleStepper } from "@/components/audit/audit-lifecycle-stepper";
 import type { AuditLifecycleSnapshot } from "@/lib/audit-status";
 import { availableManualTransitions } from "@/lib/audit-status";
 import { computeAuditLifecycle } from "@/lib/audit-lifecycle";
-import { MiniDonut } from "@/components/ui/mini-donut";
-import { cn } from "@/lib/utils";
 import { REFERENCE_TYPE_LABELS } from "@/lib/constants";
 import {
   canAssignProofreader,
   canAny,
 } from "@/lib/permissions";
 import { loadMyOrgPermissions } from "@/lib/server-permissions";
-import {
-  getConformityLabel,
-  getConformityLevel,
-} from "@/lib/score";
+
 import type {
   AuditStatus,
   PlatformType,
@@ -163,7 +157,6 @@ export default async function AuditDetailPage({ params }: PageProps) {
     liveScore ??
     (audit.initial_score as number | null) ??
     0;
-  const level = getConformityLevel(score);
 
   const lifecycleRow = Array.isArray(lifecycleRpc.data)
     ? lifecycleRpc.data[0]
@@ -363,15 +356,6 @@ export default async function AuditDetailPage({ params }: PageProps) {
     ? `${REFERENCE_TYPE_LABELS[ref.type as ReferenceType]} ${ref.version}`
     : t("unknownReference");
 
-  // Couleur d'accent du hero, dérivée du score (rouge/jaune/vert).
-  // Donne un signal visuel immédiat sur la santé de l'audit sans nécessiter
-  // de lecture du chiffre.
-  const heroAccent =
-    level === "non-compliant"
-      ? "from-destructive/15 via-destructive/5 to-transparent"
-      : level === "partial"
-        ? "from-warning/15 via-warning/5 to-transparent"
-        : "from-success/15 via-success/5 to-transparent";
 
   // Un utilisateur "actif" sur l'audit = staff + a accès. Pour les boutons
   // CTA du Next Action ; la RLS + permissions bloqueraient de toute façon.
@@ -392,155 +376,82 @@ export default async function AuditDetailPage({ params }: PageProps) {
   const tLifecycle = await getTranslations("audits.lifecycle");
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-5 p-6 md:p-8">
-      {/* Breadcrumb minimaliste */}
-      <nav aria-label="Breadcrumb">
-        <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
-          <Link href="/audits">
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-            {t("back")}
-          </Link>
-        </Button>
-      </nav>
+    <>
+      <AuditPageHeader
+        auditId={uuid}
+        active="dashboard"
+        data={{
+          title: siteName ?? t("noProjectTitle"),
+          clientName: client?.name ?? null,
+          siteUrl,
+          urlIsLink: !isMobileAudit,
+          referenceLabel,
+          platformLabel: tPlatform(audit.platform as PlatformType),
+          serviceTypeLabel: tServiceType(audit.service_type as ServiceType),
+          status: currentStatus,
+          counts: { sample: pageCount ?? 0, anomalies: ncCount ?? 0 },
+        }}
+        status={<AuditStatusBadge status={currentStatus} />}
+        actions={
+          <>
+            {canExportReport && (
+              <ExportMenu
+                auditId={uuid}
+                projectName={project?.name ?? "audit"}
+                variant="outline"
+              />
+            )}
+            {canEdit && (
+              <Button asChild variant="outline">
+                <Link href={`/audits/${uuid}/edit`}>
+                  <Pencil aria-hidden="true" />
+                  {t("edit")}
+                </Link>
+              </Button>
+            )}
+          </>
+        }
+      />
 
-      {/* Onglets de navigation (Dashboard / Échantillon / NC / ...) */}
-      <AuditTabsNav auditId={uuid} active="dashboard" />
-
+      <div className="container mx-auto max-w-7xl space-y-4 p-4 md:p-6 lg:px-9">
       {/* ──────────────────────────────────────────────────────────────────
-          HERO ADAPTATIF : gradient dérivé du score + identité + KPIs
-          ────────────────────────────────────────────────────────────────
-          Le contraste de teinte donne le pouls de l'audit au premier regard.
-          À gauche : projet, client, tags. À droite : score donut prominent.
+          PARCOURS DE L'AUDIT : 7 jalons, du cadrage a la mise en ligne.
       ────────────────────────────────────────────────────────────────── */}
-      <Card className="overflow-hidden border-0 shadow-sm ring-1 ring-border">
-        <div
-          className={cn(
-            "bg-gradient-to-br p-6 md:p-7",
-            heroAccent,
-          )}
-        >
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            {/* Identité projet */}
-            <div className="min-w-0 flex-1 space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="default" className="rounded-full">
-                  {client?.name ?? "—"}
-                </Badge>
-                <Badge variant="outline" className="rounded-full">
-                  {tPlatform(audit.platform as PlatformType)}
-                </Badge>
-                <AuditStatusBadge status={currentStatus} className="rounded-full" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                  {project?.name ?? t("noProjectTitle")}
-                </p>
-                <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                  {siteName ?? t("noProjectTitle")}
-                </h1>
-              </div>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                {siteUrl &&
-                  (isMobileAudit ? (
-                    <span className="break-all font-mono text-xs text-foreground/80">
-                      {siteUrl}
-                    </span>
-                  ) : (
-                    <a
-                      href={siteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="break-all text-primary underline-offset-2 hover:underline"
-                    >
-                      {siteUrl}
-                    </a>
-                  ))}
-                {siteUrl && <span aria-hidden="true">·</span>}
-                <span>{referenceLabel}</span>
-                <span aria-hidden="true">·</span>
-                <span>{tServiceType(audit.service_type as ServiceType)}</span>
-              </div>
+      <Card id="lifecycle" className="scroll-mt-24 p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 className="text-lg font-extrabold">{t("lifecycleTitle")}</h2>
+          <p className="text-sm text-muted-foreground">
+            {tLifecycle("stepIndicator", {
+              step: lifecycle.currentStep,
+              total: lifecycle.totalSteps,
+            })}{" "}
+            ·{" "}
+            <span className="font-bold text-primary">
+              {tLifecycle(`stages.${lifecycle.currentKey}`)}
+            </span>
+          </p>
+        </div>
 
-              {/* Actions header - boutons compacts, rangés en pills */}
-              <div className="flex flex-wrap items-center gap-2 pt-2">
-                {canExportReport && (
-                  <ExportMenu
-                    auditId={uuid}
-                    projectName={project?.name ?? "audit"}
-                    variant="outline"
-                  />
-                )}
-                {canEdit && (
-                  <Button asChild variant="outline" className="gap-2 rounded-full">
-                    <Link href={`/audits/${uuid}/edit`}>
-                      <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-                      {t("edit")}
-                    </Link>
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Score donut prominent */}
-            <div className="flex shrink-0 items-center gap-4 md:flex-col md:items-end md:text-right">
-              <MiniDonut value={score} size={130} tone="score" />
-              <div>
-                <p
-                  className={cn(
-                    "text-sm font-semibold",
-                    level === "non-compliant" && "text-destructive",
-                    level === "partial" && "text-warning",
-                    level === "full" && "text-success",
-                  )}
-                >
-                  {getConformityLabel(score)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("conformityRate")}
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="mt-4 overflow-x-auto pb-1">
+          <AuditLifecycleStepper lifecycle={lifecycle} />
         </div>
       </Card>
 
       {/* ──────────────────────────────────────────────────────────────────
-          HERO : CYCLE DE VIE - pièce maîtresse du dashboard.
-          Stepper horizontal en 7 jalons + prochaine action + transitions.
+          Conformite (anneau + compteurs) et prochaine action.
       ────────────────────────────────────────────────────────────────── */}
-      <Card id="lifecycle" className="scroll-mt-24">
-        <CardContent className="space-y-5 p-6 md:p-7">
-          {/* En-tête : titre + indicateur d'étape */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <div className="space-y-0.5">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                {tLifecycle("eyebrow")}
-              </p>
-              <h2 className="text-lg font-bold tracking-tight text-foreground md:text-xl">
-                {t("lifecycleTitle")}
-              </h2>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {tLifecycle("stepIndicator", {
-                step: lifecycle.currentStep,
-                total: lifecycle.totalSteps,
-              })}{" "}
-              ·{" "}
-              <span className="font-bold text-primary">
-                {tLifecycle(`stages.${lifecycle.currentKey}`)}
-              </span>
-            </p>
-          </div>
+      <div className="grid gap-4 lg:grid-cols-[340px_minmax(0,1fr)]">
+        <AuditScoreCard
+          score={score}
+          matrixFilled={statusSnapshot.matrixFilled}
+          matrixTotal={statusSnapshot.matrixTotal}
+          openNcCount={ncCount ?? 0}
+          criticalNcCount={criticalNcCount ?? 0}
+          sampleCount={pageCount ?? 0}
+          simulatorHref={`/audits/${uuid}/simulator`}
+        />
 
-          {/* Stepper horizontal (scrollable sur mobile) */}
-          <div className="overflow-x-auto pb-1">
-            <AuditLifecycleStepper lifecycle={lifecycle} />
-          </div>
-
-          {/* Prochaine action (ex-carte "Prochaine étape", repliée ici).
-              Quand l'étape suivante est une transition de statut, le bouton
-              « Passer à l'étape suivante » s'affiche directement dans le
-              callout. */}
+        <Card className="p-5">
           <AuditNextAction
             auditId={uuid}
             status={currentStatus}
@@ -556,24 +467,13 @@ export default async function AuditDetailPage({ params }: PageProps) {
               />
             }
           />
-        </CardContent>
-      </Card>
-
-      {/* ──────────────────────────────────────────────────────────────────
-          KPI BAR : 4 indicateurs opérationnels en bandeau scanable.
-      ────────────────────────────────────────────────────────────────── */}
-      <AuditKpiBar
-        sampleCount={pageCount ?? 0}
-        matrixFilled={statusSnapshot.matrixFilled}
-        matrixTotal={statusSnapshot.matrixTotal}
-        openNcCount={ncCount ?? 0}
-        criticalNcCount={criticalNcCount ?? 0}
-      />
+        </Card>
+      </div>
 
       {/* ──────────────────────────────────────────────────────────────────
           Bas de page : Échéances · Auditeurs · Relecteurs · Contacts client
       ────────────────────────────────────────────────────────────────── */}
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{t("timelineTitle")}</CardTitle>
@@ -635,7 +535,8 @@ export default async function AuditDetailPage({ params }: PageProps) {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

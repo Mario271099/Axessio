@@ -24,14 +24,14 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border py-12 px-6 text-center",
+        "flex flex-col items-center justify-center gap-3 rounded-card border border-dashed border-border-strong py-12 px-6 text-center",
         className,
       )}
     >
       {Icon && (
         <div
           aria-hidden="true"
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
+          className="flex size-12 items-center justify-center rounded-full bg-primary-soft text-primary"
         >
           <Icon className="h-6 w-6" />
         </div>
@@ -39,7 +39,7 @@ export function EmptyState({
       <div className="space-y-1">
         <p className="text-sm font-medium">{title}</p>
         {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
+          <p className="text-sm text-muted-foreground">{description}</p>
         )}
       </div>
       {children && <div className="mt-2 flex flex-wrap items-center justify-center gap-2">{children}</div>}

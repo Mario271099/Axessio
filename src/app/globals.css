@@ -3,69 +3,100 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ============================================================================
-   Design System "Accessible Premium SaaS" — inspiré Linear / Stripe / Vercel.
-   Palette indigo neutre, contraste vérifié WCAG AA sur les couples texte/fond.
+   Axessyo — Design system « Pro H » (sept. 2026)
+   Une seule couleur de marque : le cobalt #2440C8. L'ambre #FFB020 reste
+   strictement graphique (anneaux de score, avatars), jamais du texte.
+   Contrastes vérifiés : texte >= 4.5:1, bordures de champ et focus >= 3:1.
+   Les noms de variables sont ceux des composants shadcn du projet : tous les
+   composants existants héritent automatiquement du thème.
    ========================================================================== */
 :root {
   /* Surfaces */
-  --background: 210 40% 98%;          /* slate-50 #f8fafc */
-  --foreground: 222 47% 11%;          /* slate-900 #0f172a */
-
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-
+  --background: 228 33% 97%;          /* #F5F6FA  fond de l'application */
+  --foreground: 230 35% 13%;          /* #161A2E  encre */
+  --card: 0 0% 100%;                  /* #FFFFFF  cartes */
+  --card-foreground: 230 35% 13%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
+  --popover-foreground: 230 35% 13%;
 
-  /* Rôles — primary = navy de marque */
-  --primary: 210 59% 25%;             /* navy-700 #1a4066 */
+  /* Marque */
+  --primary: 230 69% 46%;             /* #2440C8  cobalt, 7.9:1 avec du texte blanc */
   --primary-foreground: 0 0% 100%;
+  --primary-hover: 230 71% 38%;       /* #1C34A8 */
+  --primary-soft: 226 62% 96%;        /* #EEF1FB  survol de menu, fonds legers */
+  --primary-softer: 228 83% 98%;      /* #F4F6FE  survol de ligne */
+  --primary-muted: 228 71% 95%;       /* #E7EBFB  pastilles, compteurs, halo de survol */
+  --highlight: 39 100% 56%;           /* #FFB020  accent graphique uniquement */
 
-  --secondary: 210 40% 96%;           /* slate-100 */
-  --secondary-foreground: 222 47% 11%;
+  /* Grands aplats de marque (panneau de connexion, bloc d'appel a l'action).
+     Contrairement a --primary, ce token reste sombre en theme sombre : un
+     aplat plein ecran ne doit pas s'eclaircir avec le bouton. */
+  --cobalt-surface: 230 69% 46%;
+  --cobalt-surface-foreground: 0 0% 100%;
 
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 19% 42%;    /* slate-600+ — ≥5:1 sur le fond #f8fafc */
+  /* Lavis d ambre des formes decoratives : franc sur fond clair, presque
+     efface en sombre, ou il virerait au brun. */
+  --highlight-wash: hsl(var(--highlight) / 0.18);
 
-  --accent: 210 40% 96%;
-  --accent-foreground: 222 47% 11%;
+  /* Cartes sombres des blocs de synthese (score moyen, plan, astuces) */
+  --ink-surface: 230 35% 13%;             /* #161A2E */
+  --ink-surface-foreground: 0 0% 100%;
+  --ink-surface-muted: 230 27% 83%;       /* #C9CDE0  texte secondaire sur encre */
+  --ink-surface-raised: 230 30% 19%;      /* #22273F  bloc pose sur l'encre */
+  --ink-positive: 152 71% 67%;            /* #6EE7A0  vert lisible sur l'encre */
 
-  /* Foreground colors — utilisées comme `text-*` sur fonds tintés clairs
-     (`bg-*\/10`). Choisies pour passer WCAG AA (>= 4.5:1) sur fond clair. */
-  --destructive: 0 72% 45%;           /* red-700 — 5.4:1 sur blanc */
+  --secondary: 225 31% 95%;           /* #EEF0F6  pistes de barres, chips neutres */
+  --secondary-foreground: 229 21% 31%;/* #3F4560 */
+  --muted: 225 31% 95%;
+  --muted-foreground: 228 14% 41%;    /* #5B6178  texte secondaire, 5.7:1 */
+  --accent: 226 62% 96%;
+  --accent-foreground: 230 35% 13%;
+
+  /* Statuts */
+  --success: 142 72% 29%;             /* #15803D */
+  --success-foreground: 0 0% 100%;
+  --warning: 35 92% 33%;              /* #A16207 */
+  --warning-foreground: 0 0% 100%;
+  --destructive: 0 74% 45%;           /* #C81E1E */
   --destructive-foreground: 0 0% 100%;
 
-  --success: 142 72% 27%;             /* emerald-800 — 5.4:1 sur la tuile bg-success/10 en text-on-tint (l'emerald-600 d'origine échouait à 3.0:1) */
-  --success-foreground: 0 0% 100%;
+  /* Lignes et champs */
+  --border: 225 29% 92%;              /* #E4E7F0  bordures decoratives */
+  --border-strong: 224 29% 87%;       /* #D5DAE8  boutons secondaires, separateurs */
+  --input: 225 14% 55%;               /* #7C849C  bord des champs, 3.7:1 (WCAG 1.4.11) */
+  --ring: 230 69% 46%;                /* focus cobalt 3 px */
 
-  --warning: 31 80% 30%;              /* amber-800 — >= 4.5:1 en text-on-tint (l'amber-700 d'origine tombait à 4.4:1 sur bg-warning/10) */
-  --warning-foreground: 0 0% 100%;
+  /* Severites : couleur de texte + fond de badge */
+  --severity-critical: 0 72% 38%;     /* #A61B1B sur #FDE8E8 */
+  --severity-high: 15 79% 34%;        /* #9A3412 sur #FEF0E6 */
+  --severity-medium: 41 100% 24%;     /* #7A5300 sur #FEF6DC */
+  --severity-low: 214 65% 33%;        /* #1E4E8C sur #E7EEFB */
+  --severity-critical-bg: 0 86% 95%;
+  --severity-high-bg: 25 94% 95%;
+  --severity-medium-bg: 45 93% 93%;
+  --severity-low-bg: 219 74% 95%;
 
-  --border: 214 32% 91%;              /* slate-200 #e2e8f0 */
-  --input: 214 32% 91%;
-  --ring: 211 57% 38%;                /* navy-500 #2a6099 — focus */
+  /* Score de conformite */
+  --score-non-compliant: 0 74% 45%;
+  --score-partial: 35 92% 33%;
+  --score-compliant: 142 72% 29%;
 
-  /* Rayons (10 px → un cran plus moderne que le legacy 8 px) */
-  --radius: 0.625rem;
+  /* Couleur par thematique RGAA (1 a 13) — toujours avec du texte blanc */
+  --theme-1: #C2410C;  --theme-2: #7C3AED;  --theme-3: #BE185D;  --theme-4: #B91C1C;
+  --theme-5: #0F766E;  --theme-6: #1D4ED8;  --theme-7: #4D7C0F;  --theme-8: #A16207;
+  --theme-9: #0E7490;  --theme-10: #9333EA; --theme-11: #BE123C; --theme-12: #15803D;
+  --theme-13: #475569;
+
+  /* Rayons : la hierarchie se lit aussi dans les arrondis */
+  --radius: 0.625rem;                 /* 10 px : boutons, champs */
+  --radius-row: 0.75rem;              /* 12 px : lignes de liste */
+  --radius-card: 1rem;                /* 16 px : cartes */
+  --radius-hero: 1.375rem;            /* 22 px : blocs de la page publique */
 
   /* ===========================================================
-     Tokens métier — badges de sévérité et score de conformité.
-     Valeurs choisies pour passer WCAG AA en text-on-tint
-     (text-[hsl(var(--severity-X))] sur bg-[hsl(var(--severity-X)/0.12)]).
-     ========================================================= */
-  --severity-low: 239 65% 50%;        /* indigo plus profond, 5.4:1 sur blanc */
-  --severity-medium: 31 80% 30%;      /* amber-800 (aligné --warning) */
-  --severity-high: 22 90% 33%;        /* orange-800, >= 4.5:1 en text-on-tint (l'orange-700 d'origine tombait à 4.4:1) */
-  --severity-critical: 0 72% 45%;     /* red-700 (aligné --destructive) */
-
-  --score-non-compliant: 0 72% 45%;   /* aligné destructive */
-  --score-partial: 22 90% 33%;
-  --score-compliant: 142 72% 27%;
-
-  /* ===========================================================
-     Tokens de marque Axessyo (logo system, identité visuelle)
-     Indépendants du DS générique : les <Wordmark> / <AxIcon> y
-     pointent directement.
+     Tokens de marque Axessyo (logo system, identite visuelle).
+     NE PAS MODIFIER : les <Logo> / <Wordmark> / <AxIcon> y
+     pointent directement et restent inchanges par la refonte.
      ========================================================= */
   --brand-navy:          210 59% 25%;   /* #1a4066 — fond du monogramme */
   --brand-navy-deep:     216 49% 15%;   /* #132238 — hover / variantes sombres */
@@ -81,8 +112,7 @@
   --brand-text-muted:    215 16% 47%;   /* #64748b — slate-500 */
 
   /* ===========================================================
-     Échelle typographique (15 px de corps = un cran plus lisible
-     que les 14 px shadcn par défaut).
+     Echelle typographique (15 px de corps).
      ========================================================= */
   --font-size-xs:   0.75rem;     /* 12 px */
   --font-size-sm:   0.875rem;    /* 14 px */
@@ -93,99 +123,137 @@
   --font-size-3xl:  1.875rem;    /* 30 px */
 
   /* ===========================================================
-     Ombres « Linear » — multi-layered, basées sur l'ombre dure
-     du dessus + l'ombre douce du dessous.
+     Ombres : uniquement au survol, ou pour ce qui flotte.
      ========================================================= */
-  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.07),
-               0 1px 2px -1px rgb(0 0 0 / 0.04);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07),
-               0 2px 4px -2px rgb(0 0 0 / 0.04);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08),
-               0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-xs: 0 1px 2px 0 rgb(22 26 46 / 0.04);
+  --shadow-sm: 0 1px 2px 0 rgb(22 26 46 / 0.05);
+  --shadow-md: 0 8px 18px -10px rgb(22 26 46 / 0.22);
+  --shadow-lg: 0 18px 34px -18px rgb(22 26 46 / 0.30);
+  --shadow-btn: 0 1px 0 rgb(255 255 255 / 0.25) inset,
+                0 6px 16px -8px rgb(36 64 200 / 0.8);
+  --shadow-btn-hover: 0 1px 0 rgb(255 255 255 / 0.25) inset,
+                      0 10px 22px -8px rgb(36 64 200 / 0.9);
+  --shadow-btn-danger: 0 6px 16px -8px rgb(200 30 30 / 0.8);
+  --shadow-float: 0 30px 60px -30px rgb(22 26 46 / 0.5);
+  /* Fenetres modales : ombre portee longue + filet d'un pixel. */
+  --shadow-modal: 0 40px 80px -30px rgb(22 26 46 / 0.6),
+                  0 0 0 1px rgb(22 26 46 / 0.06);
+
+  /* Voile des fenetres modales. Ne s'eclaircit pas en sombre, au contraire
+     de --ink-surface : un voile doit toujours assombrir ce qu'il recouvre. */
+  --overlay: 230 35% 13%;
+
+  /* Mouvement : 150 a 250 ms. Levee souple pour ce qui monte, petit rebond
+     pour les icones et les pastilles. */
+  --ease-lift: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.3, 1.5, 0.5, 1);
 }
 
+/* ============================================================================
+   Mode sombre — derive des memes tokens (etape 8, sans maquette).
+   Hierarchie des surfaces : fond 10 % < carte 14 % < carte encre 17 % <
+   bloc pose 23 %. En sombre l'emphase se fait donc par eclaircissement.
+   Les 13 couleurs de thematique ne sont PAS eclaircies : elles portent du
+   texte blanc, qui passerait sous 4,5:1 si on montait leur luminosite.
+   Tous les couples texte/fond sont mesures a >= 4,5:1 et les bords de champ
+   a >= 3:1 (scripts de verification dans le rapport d'etape).
+   ========================================================================== */
 .dark {
-  /* Surfaces — bleu nuit de marque (navy-900) plutôt que noir neutre */
-  --background: 216 60% 10%;          /* navy-900 #0a1628 */
-  --foreground: 207 57% 96%;          /* navy-50 #f0f6fb */
+  --background: 230 30% 10%;          /* #12141F */
+  --foreground: 228 33% 97%;
+  --card: 230 28% 14%;
+  --card-foreground: 228 33% 97%;
+  --popover: 230 28% 14%;
+  --popover-foreground: 228 33% 97%;
 
-  --card: 214 45% 19%;                /* #1a2d45 */
-  --card-foreground: 207 57% 96%;
+  --primary: 228 80% 72%;             /* cobalt eclairci — lisible sur fond sombre */
+  --primary-foreground: 230 35% 13%;
+  --primary-hover: 228 80% 80%;
+  --primary-soft: 230 28% 21%;
+  --primary-softer: 230 28% 17%;
+  --primary-muted: 230 32% 19%;
+  --highlight: 39 100% 62%;
+  --cobalt-surface: 230 62% 34%;
+  --highlight-wash: hsl(var(--highlight) / 0.06);
+  --cobalt-surface-foreground: 0 0% 100%;
 
-  --popover: 214 45% 19%;
-  --popover-foreground: 207 57% 96%;
+  --ink-surface: 230 28% 17%;
+  --ink-surface-foreground: 228 33% 97%;
+  --ink-surface-muted: 230 20% 75%;
+  --ink-surface-raised: 230 26% 23%;
+  --ink-positive: 152 71% 67%;
 
-  /* Navy clair (navy-300 #7aaed4) en dark : lisible aussi bien comme fond de
-     bouton (texte foncé) que comme texte sur card (≥ 4.5:1). */
-  --primary: 205 51% 65%;             /* navy-300 #7aaed4 */
-  --primary-foreground: 216 60% 10%;  /* navy-900 #0a1628 */
+  --secondary: 230 25% 20%;
+  --secondary-foreground: 228 25% 86%;
+  --muted: 230 25% 20%;
+  --muted-foreground: 228 16% 68%;
+  --accent: 230 28% 21%;
+  --accent-foreground: 228 33% 97%;
 
-  --secondary: 216 49% 15%;           /* navy-800 #132238 */
-  --secondary-foreground: 207 57% 96%;
-
-  --muted: 216 49% 15%;
-  --muted-foreground: 215 20% 65%;    /* slate-400 — neutre, distinct du primary */
-
-  --accent: 216 49% 15%;
-  --accent-foreground: 207 57% 96%;
-
-  /* En dark mode, ces couleurs servent à la fois comme bg solide
-     (text-foreground blanc dessus) et comme text-* sur fond tinté
-     (bg-*\/10). Valeurs relevées pour passer WCAG AA dans le second cas. */
-  --destructive: 0 91% 71%;           /* rouge clair — text-destructive lisible sur card (≥4.5:1) */
-  --destructive-foreground: 222 47% 11%; /* texte foncé sur bouton destructif clair */
-
-  --success: 142 71% 55%;
-  --success-foreground: 222 47% 11%;
-
+  --success: 142 66% 55%;
+  --success-foreground: 230 35% 13%;
   --warning: 38 92% 60%;
-  --warning-foreground: 222 47% 11%;
+  --warning-foreground: 230 35% 13%;
+  --destructive: 0 86% 70%;
+  --destructive-foreground: 230 35% 13%;
 
-  --border: 212 50% 24%;              /* #1e3a5a */
-  --input: 212 50% 24%;
-  --ring: 205 51% 65%;                /* navy-300 #7aaed4 — aligné sur primary */
+  --border: 230 22% 24%;
+  --border-strong: 230 20% 32%;
+  --input: 230 15% 58%;
+  --ring: 228 80% 72%;
 
-  /* Tokens de marque — relevés en dark pour rester visibles sur navy. */
+  --severity-critical: 0 88% 74%;
+  --severity-high: 22 88% 66%;
+  --severity-medium: 38 92% 62%;
+  --severity-low: 219 90% 78%;
+  --severity-critical-bg: 0 40% 18%;
+  --severity-high-bg: 22 45% 17%;
+  --severity-medium-bg: 38 45% 16%;
+  --severity-low-bg: 224 40% 20%;
+
+  --score-non-compliant: 0 88% 74%;
+  --score-partial: 38 92% 62%;
+  --score-compliant: 142 66% 55%;
+
+  /* Tokens de marque — releves en dark pour rester visibles (logo inchange). */
   --brand-navy:   209 62% 31%;        /* navy-600 #1e5080 */
   --brand-accent: 209 48% 52%;        /* navy-400 #4a88c0 */
   --brand-teal:   188 86% 53%;        /* teal-400 #22d3ee */
   --brand-text:   207 57% 96%;        /* navy-50 — wordmark lisible en dark */
 
-  /* Sévérités/Score (ajustées pour la lisibilité sur fond sombre).
-     L'opacité 0.12 du badge mélange faiblement avec le fond presque noir,
-     donc on garde des valeurs claires. severity-critical relevé de 51%
-     à 62% pour passer WCAG AA (4.05:1 → 4.7:1). */
-  --severity-low: 234 89% 74%;
-  --severity-medium: 38 92% 60%;
-  --severity-high: 22 88% 62%;
-  --severity-critical: 0 88% 70%;     /* relevé pour passer sur card en dark */
-
-  --score-non-compliant: 0 88% 70%;
-  --score-partial: 22 88% 62%;
-  --score-compliant: 142 71% 55%;
-
-  /* Ombres : presque invisibles en dark — on s'appuie sur les bordures.
-     On garde une élévation perceptible sans noyer la surface. */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.25);
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.35),
-               0 1px 2px -1px rgb(0 0 0 / 0.20);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.40),
-               0 2px 4px -2px rgb(0 0 0 / 0.25);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.50),
-               0 4px 6px -4px rgb(0 0 0 / 0.30);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.35);
+  --shadow-md: 0 8px 18px -10px rgb(0 0 0 / 0.55);
+  --shadow-lg: 0 18px 34px -18px rgb(0 0 0 / 0.65);
+  --shadow-float: 0 30px 60px -30px rgb(0 0 0 / 0.8);
+  --shadow-modal: 0 40px 80px -30px rgb(0 0 0 / 0.85),
+                  0 0 0 1px rgb(255 255 255 / 0.08);
+  --overlay: 230 40% 4%;
 }
 
 @theme inline {
-  /* Couleurs — exposées en classes Tailwind (bg-primary, text-foreground…) */
+  /* Couleurs — exposees en classes Tailwind (bg-primary, text-foreground…) */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
+  --color-overlay: hsl(var(--overlay));
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-hover: hsl(var(--primary-hover));
+  --color-primary-soft: hsl(var(--primary-soft));
+  --color-primary-softer: hsl(var(--primary-softer));
+  --color-primary-muted: hsl(var(--primary-muted));
+  --color-highlight: hsl(var(--highlight));
+  --color-cobalt: hsl(var(--cobalt-surface));
+  --color-cobalt-foreground: hsl(var(--cobalt-surface-foreground));
+  --color-ink: hsl(var(--ink-surface));
+  --color-ink-foreground: hsl(var(--ink-surface-foreground));
+  --color-ink-muted: hsl(var(--ink-surface-muted));
+  --color-ink-raised: hsl(var(--ink-surface-raised));
+  --color-ink-positive: hsl(var(--ink-positive));
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-muted: hsl(var(--muted));
@@ -199,8 +267,37 @@
   --color-warning: hsl(var(--warning));
   --color-warning-foreground: hsl(var(--warning-foreground));
   --color-border: hsl(var(--border));
+  --color-border-strong: hsl(var(--border-strong));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+
+  /* Severites et score — bg-severity-critical, text-severity-critical… */
+  --color-severity-critical: hsl(var(--severity-critical));
+  --color-severity-high: hsl(var(--severity-high));
+  --color-severity-medium: hsl(var(--severity-medium));
+  --color-severity-low: hsl(var(--severity-low));
+  --color-severity-critical-bg: hsl(var(--severity-critical-bg));
+  --color-severity-high-bg: hsl(var(--severity-high-bg));
+  --color-severity-medium-bg: hsl(var(--severity-medium-bg));
+  --color-severity-low-bg: hsl(var(--severity-low-bg));
+  --color-score-non-compliant: hsl(var(--score-non-compliant));
+  --color-score-partial: hsl(var(--score-partial));
+  --color-score-compliant: hsl(var(--score-compliant));
+
+  /* Thematiques RGAA — bg-theme-1 … bg-theme-13 */
+  --color-theme-1: var(--theme-1);
+  --color-theme-2: var(--theme-2);
+  --color-theme-3: var(--theme-3);
+  --color-theme-4: var(--theme-4);
+  --color-theme-5: var(--theme-5);
+  --color-theme-6: var(--theme-6);
+  --color-theme-7: var(--theme-7);
+  --color-theme-8: var(--theme-8);
+  --color-theme-9: var(--theme-9);
+  --color-theme-10: var(--theme-10);
+  --color-theme-11: var(--theme-11);
+  --color-theme-12: var(--theme-12);
+  --color-theme-13: var(--theme-13);
 
   /* Brand tokens (logo) — bg-brand-accent, text-brand-teal, etc. */
   --color-brand-accent:       hsl(var(--brand-accent));
@@ -216,51 +313,15 @@
   --color-brand-navy:         hsl(var(--brand-navy));
   --color-brand-navy-deep:    hsl(var(--brand-navy-deep));
 
-  /* ===========================================================
-     Échelles de marque Axessyo — navy / teal / slate.
-     Exposées en utilitaires (bg-navy-700, text-teal-500, …).
-     Valeurs HEX, source de vérité de la palette de marque.
-     ========================================================= */
-  --color-navy-950: #050d1a;
-  --color-navy-900: #0a1628;
-  --color-navy-800: #132238;
-  --color-navy-700: #1a4066;
-  --color-navy-600: #1e5080;
-  --color-navy-500: #2a6099;
-  --color-navy-400: #4a88c0;
-  --color-navy-300: #7aaed4;
-  --color-navy-200: #b8d4e8;
-  --color-navy-100: #dceaf4;
-  --color-navy-50:  #f0f6fb;
-
-  --color-teal-600: #0891b2;
-  --color-teal-500: #06b6d4;
-  --color-teal-400: #22d3ee;
-  --color-teal-100: #cffafe;
-  --color-teal-50:  #ecfeff;
-
-  --color-slate-950: #020617;
-  --color-slate-900: #0f172a;
-  --color-slate-800: #1e293b;
-  --color-slate-700: #334155;
-  --color-slate-600: #475569;
-  --color-slate-500: #64748b;
-  --color-slate-400: #94a3b8;
-  --color-slate-300: #cbd5e1;
-  --color-slate-200: #e2e8f0;
-  --color-slate-100: #f1f5f9;
-  --color-slate-50:  #f8fafc;
-
-  /* Fontes */
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+  /* Fontes — Figtree pour l'interface, DM Sans reserve au logo. */
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-brand-sans: var(--font-dm-sans, "DM Sans"), ui-sans-serif, system-ui,
     -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-brand-mono: var(--font-dm-mono, "DM Mono"), ui-monospace, "SF Mono",
     Menlo, monospace;
 
-  /* Échelle typographique — utilisable en `text-base`, `text-xl`, etc.
-     Tailwind expose nos valeurs personnalisées plutôt que ses défauts. */
+  /* Echelle typographique — utilisable en `text-base`, `text-xl`, etc. */
   --text-xs:   var(--font-size-xs);
   --text-sm:   var(--font-size-sm);
   --text-base: var(--font-size-base);
@@ -269,22 +330,34 @@
   --text-2xl:  var(--font-size-2xl);
   --text-3xl:  var(--font-size-3xl);
 
-  /* Ombres — shadow-xs, shadow-sm, shadow, shadow-md, shadow-lg */
+  /* Ombres — shadow-xs, shadow-sm, shadow, shadow-md, shadow-lg, shadow-btn… */
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
   --shadow:    var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
+  --shadow-btn: var(--shadow-btn);
+  --shadow-btn-hover: var(--shadow-btn-hover);
+  --shadow-btn-danger: var(--shadow-btn-danger);
+  --shadow-float: var(--shadow-float);
+  --shadow-modal: var(--shadow-modal);
 
-  /* Rayons */
+  /* Rayons — rounded-sm … rounded-card / rounded-hero */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-row: var(--radius-row);
+  --radius-xl: var(--radius-row);
+  --radius-card: var(--radius-card);
+  --radius-hero: var(--radius-hero);
+
+  /* Courbes d'animation — ease-lift / ease-bounce */
+  --ease-lift: var(--ease-lift);
+  --ease-bounce: var(--ease-bounce);
 }
 
 /* ============================================================================
-   Reset & accessibilité
+   Reset & accessibilite
    ========================================================================== */
 * {
   border-color: hsl(var(--border));
@@ -292,27 +365,54 @@
 
 html {
   scroll-behavior: smooth;
+  /* L'en-tete public est colle en haut (80 px) : sans cette marge, une cible
+     d'ancre (#features, #standards, #faq) se place dessous. */
+  scroll-padding-top: 5.5rem;
 }
 
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+  font-family: var(--font-figtree), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: var(--font-size-base);
   line-height: 1.6;
-  /* Ligatures contextuelles + features Geist par défaut. */
-  font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1, "cv11" 1;
+  font-feature-settings: "rlig" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Focus visible (WCAG 2.4.7) — anneau indigo de 2 px avec offset 2 px */
+/* Titres : lettrage serre, comme les maquettes. */
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.03em;
+}
+
+/* Chiffres alignes en colonne (tableaux, scores, compteurs). */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Focus visible (WCAG 2.4.7) — anneau cobalt de 3 px, offset 2 px */
 *:focus-visible {
-  outline: 2px solid hsl(var(--ring));
+  outline: 3px solid hsl(var(--ring));
   outline-offset: 2px;
-  border-radius: 2px;
+}
+
+/* Sur les grands aplats sombres (encre, cobalt), l'anneau cobalt tombe a
+   2,15:1 contre le fond : il n'est plus discernable. On passe alors a la
+   couleur de texte de la surface (WCAG 2.4.11 demande >= 3:1). */
+.bg-ink:focus-visible,
+.bg-ink *:focus-visible {
+  outline-color: hsl(var(--ink-surface-foreground));
+}
+
+.bg-cobalt:focus-visible,
+.bg-cobalt *:focus-visible {
+  outline-color: hsl(var(--cobalt-surface-foreground));
 }
 
 /* Skip link (WCAG 2.4.1) */
@@ -335,10 +435,10 @@ body {
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
   border-radius: var(--radius);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.95rem;
-  /* Ombre prononcée pour ressortir au premier focus, indépendamment du
-     thème (light / dark) et même sur les fonds chargés. */
+  /* Ombre prononcee pour ressortir au premier focus, independamment du
+     theme (light / dark) et meme sur les fonds charges. */
   box-shadow:
     0 0 0 2px hsl(var(--background)),
     0 0 0 4px hsl(var(--ring)),
@@ -346,7 +446,7 @@ body {
   outline: none;
 }
 
-/* Réduit les animations si l'utilisateur le préfère (WCAG 2.3.3) */
+/* Reduit les animations si l'utilisateur le prefere (WCAG 2.3.3) */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -369,8 +469,57 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.4); }
 
 /* ============================================================================
-   Animations d'apparition — utilisées par le dashboard (stagger sur les KPIs).
-   Respectent prefers-reduced-motion via la règle plus haut.
+   Micro-interactions « Pro H » — helpers reutilises par les primitives.
+   Tout est coupe par la regle prefers-reduced-motion ci-dessus.
+   ========================================================================== */
+
+/* Boutons : l'icone « + » pivote, la fleche glisse. */
+.axs-btn svg {
+  transition: transform 250ms ease;
+}
+.axs-btn:hover svg[data-anim="spin"] {
+  transform: rotate(90deg);
+}
+.axs-btn:hover svg[data-anim="go"] {
+  transform: translateX(3px);
+}
+
+/* Carte cliquable : monte de 3 px, prend la couleur du contexte (--lift-color). */
+.axs-lift {
+  transition:
+    transform 200ms var(--ease-lift),
+    box-shadow 250ms ease,
+    border-color 200ms ease;
+}
+.axs-lift:hover,
+.axs-lift:focus-visible,
+.axs-lift:focus-within {
+  transform: translateY(-3px);
+  border-color: var(--lift-color, hsl(var(--primary)));
+  box-shadow: 0 16px 30px -18px var(--lift-color, hsl(var(--primary)));
+}
+
+/* Ligne de liste survolee. */
+.axs-row {
+  transition: background-color 150ms ease, box-shadow 200ms ease;
+}
+.axs-row:hover,
+.axs-row:focus-visible,
+.axs-row:focus-within {
+  background-color: hsl(var(--primary-softer));
+  box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.18);
+}
+.axs-row:hover .axs-mono,
+.axs-row:focus-within .axs-mono {
+  transform: rotate(-6deg) scale(1.06);
+  border-radius: 50%;
+}
+.axs-mono {
+  transition: transform 250ms var(--ease-bounce), border-radius 250ms ease;
+}
+
+/* ============================================================================
+   Animations d'apparition — utilisees par le dashboard (stagger sur les KPIs).
    ========================================================================== */
 @keyframes axessio-fade-in-up {
   from { opacity: 0; transform: translateY(8px); }
@@ -381,10 +530,51 @@ body {
   animation: axessio-fade-in-up 400ms ease-out both;
 }
 
+/* Anneau de conformite : se remplit au chargement. Les deux variables sont
+   posees en style inline par <ScoreRing />. */
+@keyframes axessio-ring-fill {
+  from { stroke-dashoffset: var(--ring-circumference); }
+  to   { stroke-dashoffset: var(--ring-offset); }
+}
+
+.axs-ring {
+  animation: axessio-ring-fill 1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Halo de l'etape en cours d'un parcours : un anneau qui s'ecarte et s'efface. */
+@keyframes axessio-halo-ring {
+  0%   { transform: scale(0.8); opacity: 0.9; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+.axs-halo {
+  animation: axessio-halo-ring 1.8s ease-out infinite;
+}
+
+/* Barre d'actions groupees : arrive du bas quand une ligne est cochee. */
+@keyframes axessio-bulk-up {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+.axs-bulk {
+  animation: axessio-bulk-up 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Etape en cours d'un parcours (barre qui pulse). */
+@keyframes axessio-pulse-step {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+
+.axs-step-current {
+  animation: axessio-pulse-step 1.8s ease-in-out infinite;
+}
+
 /* ============================================================================
-   Loader de marque — AxIcon qui « respire » (scale + opacité), accompagné
+   Loader de marque — AxIcon qui « respire » (scale + opacite), accompagne
    d'un halo qui pulse en contre-temps pour donner du mouvement sans tourner.
-   Respecte prefers-reduced-motion via la règle plus haut.
+   Respecte prefers-reduced-motion via la regle plus haut.
    ========================================================================== */
 @keyframes axessio-breathe {
   0%, 100% { transform: scale(1);    opacity: 1;   }

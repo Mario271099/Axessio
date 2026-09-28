@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Axessyo Pro — Page d'un audit</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.px{font-family:'Figtree',system-ui,sans-serif;color:#161A2E;-webkit-font-smoothing:antialiased}
+.px .num{font-variant-numeric:tabular-nums}
+.px .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.px a:focus-visible,.px button:focus-visible{outline:3px solid #2440C8;outline-offset:2px}
+
+.px-rail a{position:relative;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#7A8099;transition:background-color .15s ease,color .15s ease}
+.px-rail a:hover{background:#EEF1FB;color:#2440C8}
+.px-rail a[aria-current]{background:#2440C8;color:#FFFFFF}
+.px-rail a .tip{position:absolute;left:calc(100% + 12px);top:50%;transform:translate(-4px,-50%);opacity:0;pointer-events:none;white-space:nowrap;background:#161A2E;color:#FFFFFF;font-size:13px;font-weight:700;padding:6px 10px;border-radius:8px;transition:opacity .15s ease,transform .15s ease;z-index:10}
+.px-rail a:hover .tip,.px-rail a:focus-visible .tip{opacity:1;transform:translate(0,-50%)}
+
+.px-btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;border-radius:10px;background:#2440C8;color:#FFFFFF;font-weight:700;font-size:15px;text-decoration:none;border:0;cursor:pointer;box-shadow:0 6px 16px -8px rgba(36,64,200,.8);transition:transform .12s ease,box-shadow .2s ease,background-color .2s ease}
+.px-btn:hover{background:#1C34A8;box-shadow:0 10px 22px -8px rgba(36,64,200,.9)}
+.px-btn:active{transform:scale(.97)}
+.px-btn svg{transition:transform .25s ease}.px-btn:hover svg{transform:translateX(3px)}
+.px-ghost{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:10px;border:1px solid #D5DAE8;background:#FFFFFF;color:#161A2E;font:inherit;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer;transition:border-color .15s ease,background-color .15s ease}
+.px-ghost:hover{border-color:#2440C8;background:#F4F6FE}
+
+.px-tab{position:relative;display:flex;align-items:center;gap:8px;height:48px;color:#5B6178;font-weight:700;font-size:15px;text-decoration:none;transition:color .15s ease}
+.px-tab::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:#2440C8;transform:scaleX(0);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.px-tab:hover{color:#161A2E}.px-tab:hover::after{transform:scaleX(.5)}
+.px-tab[aria-current]{color:#2440C8}.px-tab[aria-current]::after{transform:scaleX(1)}
+.px-count{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:10px;background:#EEF0F6;color:#3F4560;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+
+.px-card{background:#FFFFFF;border:1px solid #E4E7F0;border-radius:16px}
+.px-step{position:relative;flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:8px;cursor:default}
+.px-step .dot{position:relative;z-index:1;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;transition:transform .2s cubic-bezier(.3,1.5,.5,1)}
+.px-step:hover .dot{transform:scale(1.15)}
+.px-step .line{position:absolute;left:30px;right:0;top:14px;height:3px;border-radius:2px}
+.px-step .halo{position:absolute;inset:-6px;border-radius:50%;border:2px solid #2440C8;animation:pxhalo 1.8s ease-out infinite}
+@keyframes pxhalo{0%{transform:scale(.8);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+
+.px-theme{position:relative;display:flex;flex-direction:column;gap:8px;padding:12px 12px 12px;border-radius:14px;border:1px solid #E4E7F0;background:#FFFFFF;text-decoration:none;color:#161A2E;transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease,border-color .2s ease}
+.px-theme:hover,.px-theme:focus-visible{transform:translateY(-3px);border-color:var(--c);box-shadow:0 14px 26px -16px var(--c)}
+.px-theme .g{width:30px;height:30px;border-radius:9px;background:var(--c);color:#FFFFFF;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;transition:transform .25s cubic-bezier(.3,1.5,.5,1),border-radius .25s ease}
+.px-theme:hover .g{transform:rotate(-8deg);border-radius:50%}
+.px-theme .track{height:6px;border-radius:3px;background:#EEF0F6;overflow:hidden}
+.px-theme .fill{height:100%;border-radius:3px;background:var(--c);transform-origin:left;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+
+.px-nc{display:grid;grid-template-columns:62px minmax(0,1fr) 120px 110px 120px 36px;align-items:center;gap:14px;padding:11px 16px;border-top:1px solid #EEF0F6;text-decoration:none;color:#161A2E;transition:background-color .15s ease}
+.px-nc:hover,.px-nc:focus-visible{background:#F4F6FE}
+.px-nc .chev{opacity:0;transform:translateX(-6px);transition:opacity .15s ease,transform .2s ease;color:#2440C8}
+.px-nc:hover .chev,.px-nc:focus-visible .chev{opacity:1;transform:none}
+.px-ref{font-weight:800;font-size:13px;border-radius:7px;padding:3px 8px;background:var(--c);color:#FFFFFF;justify-self:start}
+
+.px-sim{position:relative;height:12px;border-radius:6px;background:#EEF0F6;overflow:hidden}
+.px-sim span{position:absolute;left:0;top:0;bottom:0;border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.px-toggle{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;cursor:pointer}
+.px-toggle input{appearance:none;width:40px;height:24px;border-radius:12px;background:#C9CFE0;position:relative;cursor:pointer;margin:0;transition:background-color .2s ease}
+.px-toggle input::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s cubic-bezier(.3,1.4,.5,1)}
+.px-toggle input:checked{background:#2440C8}
+.px-toggle input:checked::after{transform:translateX(16px)}
+.px-toggle input:focus-visible{outline:3px solid #2440C8;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.px *{transition:none!important;animation:none!important}}
+</style>
+</helmet>
+<div class="px" style="width: 1440px; height: 1024px; display: flex; background: #F5F6FA; overflow: hidden">
+
+  <nav class="px-rail" aria-label="Navigation principale" style="width: 76px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #E4E7F0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 0">
+    <span aria-hidden="true" style="width: 38px; height: 38px; border-radius: 11px; background: #2440C8; display: grid; grid-template-columns: repeat(2, 10px); gap: 3px; align-content: center; justify-content: center; margin-bottom: 14px"><span style="height: 10px; border-radius: 3px; background: #FFFFFF"></span><span style="height: 10px; border-radius: 50%; background: #FFB020"></span><span style="height: 10px; border-radius: 3px; background: #FFFFFF"></span><span style="height: 10px; border-radius: 3px; background: #FFFFFF; opacity: .55"></span></span>
+    <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="2"></rect><rect x="14" y="3" width="7" height="5" rx="2"></rect><rect x="14" y="12" width="7" height="9" rx="2"></rect><rect x="3" y="16" width="7" height="5" rx="2"></rect></svg><span class="tip">Tableau de bord</span></a>
+    <a href="#" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"></rect><path d="M9 4h6v3H9zM9 13l2 2 4-4"></path></svg><span class="tip">Audits</span></a>
+    <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg><span class="tip">Non-conformités</span></a>
+    <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg><span class="tip">Planning</span></a>
+    <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 21V5l8-2v18M12 8h8v13"></path></svg><span class="tip">Clients</span></a>
+    <span aria-hidden="true" style="margin-top: auto; width: 38px; height: 38px; border-radius: 50%; background: #FFB020; color: #161A2E; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center">MR</span>
+  </nav>
+
+  <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+    <header style="background: #FFFFFF; border-bottom: 1px solid #E4E7F0; padding: 18px 36px 0">
+      <nav aria-label="Fil d'Ariane" style="font-size: 14px; color: #5B6178"><a href="#" style="color: #5B6178; text-underline-offset: 3px">Audits</a> <span aria-hidden="true">/</span> <a href="#" style="color: #5B6178; text-underline-offset: 3px">Mairie de Valmont</a></nav>
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-top: 8px">
+        <div style="display: flex; align-items: center; gap: 16px">
+          <span aria-hidden="true" style="width: 52px; height: 52px; border-radius: 15px; background: #1D4ED8; color: #FFFFFF; font-weight: 900; font-size: 19px; display: flex; align-items: center; justify-content: center">MV</span>
+          <div>
+            <div style="display: flex; align-items: center; gap: 12px">
+              <h1 style="margin: 0; font-size: 30px; font-weight: 900; letter-spacing: -0.03em">Portail usagers</h1>
+              <span style="display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 12px; border-radius: 14px; background: #E7EBFB; color: #2440C8; font-size: 13.5px; font-weight: 800"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #2440C8"></span>Audit en cours</span>
+            </div>
+            <p style="margin: 4px 0 0; font-size: 14.5px; color: #5B6178">usagers.valmont.fr, RGAA 4.1.2, 10 pages, audit complet</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px">
+          <button type="button" class="px-ghost">Partager</button>
+          <button type="button" class="px-ghost">Exporter</button>
+          <a class="px-btn" href="#">Livrer le rapport<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+        </div>
+      </div>
+      <nav aria-label="Sections de l'audit" style="margin-top: 10px">
+        <ul style="list-style: none; margin: 0; padding: 0; display: flex; gap: 28px">
+          <li><a class="px-tab" href="#" aria-current="page">Vue d'ensemble</a></li>
+          <li><a class="px-tab" href="#">Échantillon <span class="px-count num">10</span></a></li>
+          <li><a class="px-tab" href="#">Matrice</a></li>
+          <li><a class="px-tab" href="#">Non-conformités <span class="px-count num">35</span></a></li>
+          <li><a class="px-tab" href="#">Simulateur</a></li>
+          <li><a class="px-tab" href="#">Rapport</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main style="flex-grow: 1; padding: 20px 36px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; min-height: 0">
+      <section class="px-card" aria-labelledby="px-life" style="padding: 16px 22px 14px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline">
+          <h2 id="px-life" style="margin: 0; font-size: 16px; font-weight: 800">Parcours de l'audit</h2>
+          <p style="margin: 0; font-size: 13.5px; color: #5B6178">Étape 2 sur 7, livraison prévue vendredi 26 septembre</p>
+        </div>
+        <ol style="list-style: none; margin: 14px 0 0; padding: 0; display: flex">
+          <sc-for list="{{steps}}" as="s" hint-placeholder-count="7">
+            <li class="px-step">
+              <span class="line" aria-hidden="true" style="{{s.line}}"></span>
+              <span class="dot" style="{{s.dot}}"><sc-if value="{{s.cur}}" hint-placeholder-val="{{false}}"><span class="halo" aria-hidden="true"></span></sc-if><span aria-hidden="true">{{s.glyph}}</span></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.25"><span style="{{s.labelStyle}}">{{s.label}}</span><span style="font-size: 12.5px; color: #5B6178">{{s.date}}</span></span>
+              <span class="sr">{{s.sr}}</span>
+            </li>
+          </sc-for>
+        </ol>
+      </section>
+
+      <div style="display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px">
+        <section class="px-card" aria-labelledby="px-score" style="padding: 20px 22px; display: flex; flex-direction: column; gap: 14px">
+          <h2 id="px-score" style="margin: 0; font-size: 16px; font-weight: 800">Taux de conformité</h2>
+          <div style="display: flex; align-items: center; gap: 18px">
+            <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#EEF0F6" stroke-width="13"></circle>
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#C7D2FE" stroke-width="13" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="{{simOffset}}" transform="rotate(-90 60 60)" style="transition: stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)"></circle>
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#2440C8" stroke-width="13" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="{{curOffset}}" transform="rotate(-90 60 60)" style="transition: stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)"></circle>
+              <text x="60" y="67" text-anchor="middle" fill="#161A2E" style="font: 900 26px Figtree, sans-serif">{{shown}}%</text>
+            </svg>
+            <dl style="margin: 0; display: grid; grid-template-columns: auto auto; gap: 6px 14px; font-size: 14px" aria-live="polite">
+              <dt style="color: #5B6178">Conformes</dt><dd class="num" style="margin: 0; font-weight: 800; color: #15803D">58</dd>
+              <dt style="color: #5B6178">Non conformes</dt><dd class="num" style="margin: 0; font-weight: 800; color: #C81E1E">35</dd>
+              <dt style="color: #5B6178">Non applicables</dt><dd class="num" style="margin: 0; font-weight: 800">13</dd>
+              <dt style="color: #5B6178">Verdict</dt><dd style="margin: 0; font-weight: 800; color: #A16207">{{verdict}}</dd>
+            </dl>
+          </div>
+          <div style="border-radius: 12px; background: #F4F6FE; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px">
+            <label class="px-toggle"><input type="checkbox" checked="{{sim}}" onChange="{{toggleSim}}">Simuler la correction des 14 NC critiques</label>
+            <p style="margin: 0; font-size: 13px; color: #3F4560">{{simText}}</p>
+          </div>
+        </section>
+
+        <section class="px-card" aria-labelledby="px-th" style="padding: 18px 20px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline">
+            <h2 id="px-th" style="margin: 0; font-size: 16px; font-weight: 800">Résultats par thématique</h2>
+            <p style="margin: 0; font-size: 13.5px; color: #5B6178">Part de critères conformes, et non-conformités ouvertes</p>
+          </div>
+          <ul style="list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px">
+            <sc-for list="{{themes}}" as="t" hint-placeholder-count="13">
+              <li><a class="px-theme" href="#" style="{{t.var}}">
+                <span style="display: flex; align-items: center; justify-content: space-between"><span class="g num" aria-hidden="true">{{t.n}}</span><span class="num" style="{{t.ncStyle}}">{{t.ncText}}</span></span>
+                <span style="font-size: 13.5px; font-weight: 700; line-height: 1.2; min-height: 32px">{{t.name}}</span>
+                <span class="track" aria-hidden="true"><span class="fill" style="{{t.fill}}; display: block"></span></span>
+                <span class="sr">{{t.sr}}</span>
+              </a></li>
+            </sc-for>
+            <li style="display: flex; align-items: center; justify-content: center; border: 1px dashed #D5DAE8; border-radius: 14px; font-size: 13px; color: #5B6178; text-align: center; padding: 8px">106 critères</li>
+          </ul>
+        </section>
+      </div>
+
+      <section class="px-card" aria-labelledby="px-ncs" style="flex-grow: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px 10px">
+          <h2 id="px-ncs" style="margin: 0; font-size: 16px; font-weight: 800">Non-conformités prioritaires</h2>
+          <a href="#" style="color: #2440C8; font-weight: 700; font-size: 14px; text-underline-offset: 4px">Voir les 35</a>
+        </div>
+        <div aria-hidden="true" style="display: grid; grid-template-columns: 62px minmax(0,1fr) 120px 110px 120px 36px; gap: 14px; padding: 6px 16px; font-size: 12.5px; font-weight: 700; color: #5B6178; background: #F8F9FC"><span>Critère</span><span>Intitulé</span><span>Page</span><span>Sévérité</span><span>Assignée à</span><span></span></div>
+        <ul style="list-style: none; margin: 0; padding: 0">
+          <sc-for list="{{ncs}}" as="n" hint-placeholder-count="4">
+            <li><a class="px-nc" href="#">
+              <span class="px-ref num" style="{{n.var}}">{{n.ref}}</span>
+              <span style="font-weight: 700; font-size: 14.5px">{{n.title}}</span>
+              <span style="font-size: 14px; color: #3F4560">{{n.page}}</span>
+              <span style="{{n.sevStyle}}">{{n.sev}}</span>
+              <span style="display: flex; align-items: center; gap: 8px; font-size: 14px"><span aria-hidden="true" style="{{n.av}}">{{n.ini}}</span>{{n.who}}</span>
+              <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+            </a></li>
+          </sc-for>
+        </ul>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1024}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { mounted: false, sim: false }; }
+  componentDidMount() { var self = this; setTimeout(function () { self.setState({ mounted: true }); }, 80); }
+  renderVals() {
+    var self = this, m = this.state.mounted, sim = this.state.sim;
+    var stepsRaw = [['Planifié', '2 sept.'], ['Audit en cours', 'depuis le 15 sept.'], ['Livré', 'prévu le 26 sept.'], ['Remédiation', ''], ['Contre-audit', ''], ['En ligne', ''], ['Terminé', '']];
+    var cur = 1;
+    var steps = stepsRaw.map(function (s, i) {
+      var done = i < cur, isCur = i === cur, last = i === stepsRaw.length - 1;
+      return {
+        label: s[0], date: s[1] || ' ', cur: isCur,
+        glyph: done ? '✓' : String(i + 1),
+        dot: done ? 'background: #2440C8; color: #FFFFFF' : isCur ? 'background: #FFFFFF; color: #2440C8; box-shadow: inset 0 0 0 3px #2440C8' : 'background: #EEF0F6; color: #5B6178',
+        line: last ? 'display: none' : 'background: ' + (done ? '#2440C8' : '#E4E7F0'),
+        labelStyle: 'font-size: 14px; font-weight: ' + (isCur ? '900; color: #2440C8' : done ? '700' : '600; color: #5B6178'),
+        sr: done ? 'terminée' : isCur ? 'étape en cours' : 'à venir'
+      };
+    });
+    var th = [
+      [1, 'Images', 9, 6, 2, '#C2410C'], [2, 'Cadres', 2, 2, 0, '#7C3AED'], [3, 'Couleurs', 3, 1, 2, '#BE185D'], [4, 'Multimédia', 13, 4, 5, '#B91C1C'],
+      [5, 'Tableaux', 8, 5, 1, '#0F766E'], [6, 'Liens', 2, 1, 1, '#1D4ED8'], [7, 'Scripts', 5, 3, 2, '#4D7C0F'], [8, 'Éléments obligatoires', 10, 7, 2, '#A16207'],
+      [9, 'Structuration', 4, 3, 1, '#0E7490'], [10, 'Présentation', 14, 7, 6, '#9333EA'], [11, 'Formulaires', 13, 5, 7, '#BE123C'], [12, 'Navigation', 11, 8, 3, '#15803D'], [13, 'Consultation', 12, 6, 3, '#475569']
+    ];
+    var themes = th.map(function (t) {
+      var appl = t[3] + t[4], pct = appl ? t[3] / appl : 1;
+      return {
+        n: t[0], name: t[1], var: '--c: ' + t[5],
+        ncText: t[4] ? t[4] + ' NC' : 'OK',
+        ncStyle: 'font-size: 12.5px; font-weight: 800; color: ' + (t[4] ? '#C81E1E' : '#15803D'),
+        fill: 'transform: scaleX(' + (m ? pct : 0) + ')',
+        sr: t[3] + ' critères conformes sur ' + appl + ' applicables, ' + t[4] + ' non conformes'
+      };
+    });
+    var cur62 = 62, simScore = 76;
+    var shown = sim ? simScore : cur62;
+    var sev = { Critique: 'background: #FDE8E8; color: #A61B1B', Haute: 'background: #FEF0E6; color: #9A3412', Moyenne: 'background: #FEF6DC; color: #7A5300' };
+    var avs = { MR: '#2440C8', LM: '#BE185D', DV: '#0F766E' };
+    var ncs = [
+      ['11.1', 'Champs du formulaire de contact sans étiquette', 'Contact', 'Critique', 'LM', 'Léa M.', '#BE123C'],
+      ['1.4', 'Captcha sans alternative', 'Contact', 'Critique', 'DV', 'Dev Valmont', '#C2410C'],
+      ['12.9', 'Piège au clavier dans la modale de paiement', 'Paiement', 'Critique', 'DV', 'Dev Valmont', '#15803D'],
+      ['4.3', 'Vidéo de présentation sans sous-titres', 'Démarches', 'Haute', 'LM', 'Léa M.', '#B91C1C']
+    ].map(function (n) {
+      return {
+        ref: n[0], title: n[1], page: n[2], sev: n[3], ini: n[4], who: n[5], var: '--c: ' + n[6],
+        sevStyle: 'justify-self: start; font-size: 13px; font-weight: 800; padding: 4px 10px; border-radius: 8px; ' + sev[n[3]],
+        av: 'width: 26px; height: 26px; border-radius: 50%; background: ' + avs[n[4]] + '; color: #FFFFFF; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center'
+      };
+    });
+    return {
+      steps: steps, themes: themes, ncs: ncs, sim: sim, shown: shown,
+      verdict: shown >= 100 ? 'Conforme' : 'Partiel',
+      curOffset: String(m ? Math.round(314 - 314 * cur62 / 100) : 314),
+      simOffset: String(m && sim ? Math.round(314 - 314 * simScore / 100) : 314),
+      simText: sim ? 'Le score passerait de 62 % à 76 %. L’audit officiel ne change pas.' : 'Voir l’effet des corrections sur le score, sans modifier l’audit.',
+      toggleSim: function () { self.setState({ sim: !self.state.sim }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { cn, formatDate, formatScore, initials } from "./utils";
+import {
+  cn,
+  formatDate,
+  formatScore,
+  initials,
+  monogram,
+  themeColorVar,
+} from "./utils";
 
 // ============================================================================
 // cn() - wrapper clsx + tailwind-merge
@@ -131,5 +138,41 @@ describe("initials", () => {
 
   it("gère un seul nom (initiale unique)", () => {
     expect(initials("Anne", "")).toBe("A");
+  });
+});
+
+// ============================================================================
+// monogram() / themeColorVar() - identité visuelle des clients (DS « Pro H »)
+// ============================================================================
+describe("monogram", () => {
+  it("prend les initiales du premier et du dernier mot", () => {
+    expect(monogram("Mairie de Valmont")).toBe("MV");
+  });
+
+  it("prend les deux premières lettres d'un nom en un seul mot", () => {
+    expect(monogram("Ipedis")).toBe("IP");
+  });
+
+  it("renvoie « ? » pour un nom vide ou absent", () => {
+    expect(monogram("")).toBe("?");
+    expect(monogram(null)).toBe("?");
+  });
+});
+
+describe("themeColorVar", () => {
+  it("renvoie toujours la même couleur pour la même chaîne", () => {
+    expect(themeColorVar("Mairie de Valmont")).toBe(
+      themeColorVar("Mairie de Valmont"),
+    );
+  });
+
+  it("reste dans les 13 thématiques du design system", () => {
+    for (const name of ["a", "Ipedis", "Banque des Îles", "", "Groupe Norvel"]) {
+      const match = /^var\(--theme-(\d{1,2})\)$/.exec(themeColorVar(name));
+      expect(match).not.toBeNull();
+      const index = Number(match?.[1]);
+      expect(index).toBeGreaterThanOrEqual(1);
+      expect(index).toBeLessThanOrEqual(13);
+    }
   });
 });

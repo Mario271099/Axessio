@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { RegisterForm } from "./register-form";
@@ -58,19 +57,11 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 
   return (
     <AuthLayout
+      variant="register"
       title={t("title")}
       subtitle={t("subtitle")}
-      footer={
-        <>
-          {t("footer")}{" "}
-          <Link
-            href={loginHref}
-            className="font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded"
-          >
-            {t("footerCta")}
-          </Link>
-        </>
-      }
+      loginHref={loginHref}
+      registerHref={plan ? `/register?plan=${plan}` : "/register"}
     >
       <RegisterForm plan={plan} />
     </AuthLayout>

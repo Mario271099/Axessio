@@ -19,6 +19,7 @@ import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
+  AlertDialogBody,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -335,14 +336,15 @@ export function MfaSection({ initialEnabled, initialFactorId }: Props) {
 
       <AlertDialog open={disableOpen} onOpenChange={setDisableOpen}>
         <AlertDialogContent>
-          <AlertDialogHeader>
+          <AlertDialogHeader icon={<ShieldOff aria-hidden="true" />} tone="ink">
             <AlertDialogTitle>{t("disableDialogTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
               {t("disableDialogDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <div className="space-y-1.5">
+          <AlertDialogBody>
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="mfa-disable-code">{t("codeLabel")}</Label>
             <Input
               id="mfa-disable-code"
@@ -359,6 +361,7 @@ export function MfaSection({ initialEnabled, initialFactorId }: Props) {
               disabled={pending}
             />
           </div>
+          </AlertDialogBody>
 
           <AlertDialogFooter>
             <AlertDialogCancel disabled={pending}>
@@ -373,10 +376,7 @@ export function MfaSection({ initialEnabled, initialFactorId }: Props) {
               disabled={pending || disableCode.length !== 6}
             >
               {pending && (
-                <Loader2
-                  className="h-4 w-4 animate-spin"
-                  aria-hidden="true"
-                />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               {t("disableConfirm")}
             </AlertDialogAction>

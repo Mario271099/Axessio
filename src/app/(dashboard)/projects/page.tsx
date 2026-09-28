@@ -4,6 +4,7 @@ import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { monogram, themeColorVar } from "@/lib/utils";
 
 export default async function ProjectsPage() {
   await requireProfile();
@@ -25,28 +26,40 @@ export default async function ProjectsPage() {
   const { data: projects } = await projectsQuery;
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+    <div className="container mx-auto max-w-7xl space-y-5 p-4 md:p-6 lg:px-9">
+      <h1 className="text-2xl font-black tracking-[-0.03em] md:text-[2rem]">
+        {t("title")}
+      </h1>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{t("yours")}</CardTitle>
+          <CardTitle className="text-base font-extrabold">
+            {t("yours")}
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className="flex flex-col gap-1.5">
           {(projects ?? []).map((p) => {
             const client = Array.isArray(p.client) ? p.client[0] : p.client;
             return (
               <div
                 key={p.id}
-                className="flex items-center justify-between rounded-md border border-border p-3"
+                className="axs-row flex items-center gap-3.5 rounded-row px-3 py-2.5"
               >
-                <div>
-                  <p className="font-medium">{p.name}</p>
-                  <p className="text-xs text-muted-foreground">
+                {/* Monogramme coloré par le client, comme la liste clients. */}
+                <span
+                  aria-hidden="true"
+                  className="axs-mono flex size-10 shrink-0 items-center justify-center rounded-row text-sm font-extrabold text-white"
+                  style={{ background: themeColorVar(client?.name ?? p.name) }}
+                >
+                  {monogram(p.name)}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate font-bold">{p.name}</span>
+                  <span className="block truncate text-[0.85rem] text-muted-foreground">
                     {client?.name ?? "—"}
                     {p.url && <> · {p.url}</>}
-                  </p>
-                </div>
+                  </span>
+                </span>
               </div>
             );
           })}

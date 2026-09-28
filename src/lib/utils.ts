@@ -39,3 +39,43 @@ export function formatScore(score: number | null | undefined): string {
 export function initials(firstName: string, lastName: string): string {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 }
+
+/**
+ * Monogramme d'une entité (client, organisation, projet) : deux lettres au
+ * plus. « Mairie de Valmont » → « MV », « Ipedis » → « IP ».
+ */
+export function monogram(name: string | null | undefined): string {
+  const words = (name ?? "").trim().split(/\s+/).filter(Boolean);
+  const first = words[0];
+  const last = words[words.length - 1];
+  if (!first || !last) return "?";
+  if (words.length === 1) return first.slice(0, 2).toUpperCase();
+  return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase();
+}
+
+/**
+ * Couleur de thématique (1 à 13) dérivée d'une chaîne, sous forme de
+ * référence CSS. Un même client garde ainsi la même couleur de monogramme
+ * d'un écran à l'autre, sans stocker quoi que ce soit en base.
+ */
+export function themeColorVar(seed: string | null | undefined): string {
+  const value = seed ?? "";
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash * 31 + value.charCodeAt(i)) % 104729;
+  }
+  return `var(--theme-${(hash % 13) + 1})`;
+}
+
+/**
+ * Couleur de la thématique RGAA portant cet identifiant (« 1 », « 11 »…).
+ * Les référentiels qui ne numérotent pas leurs thématiques retombent sur la
+ * couleur dérivée du libellé.
+ */
+export function themeColorForIdentifier(identifier: string): string {
+  const index = Number.parseInt(identifier, 10);
+  if (Number.isInteger(index) && index >= 1 && index <= 13) {
+    return `var(--theme-${index})`;
+  }
+  return themeColorVar(identifier);
+}

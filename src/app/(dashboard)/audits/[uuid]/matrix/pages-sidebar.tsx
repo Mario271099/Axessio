@@ -3,10 +3,9 @@
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { MiniDonut } from "@/components/ui/mini-donut";
+import { ScoreRing } from "@/components/ui/score-ring";
 import { cn } from "@/lib/utils";
-import type { AuditPage, ConformityStatus, PageType } from "@/types/domain";
+import type { AuditPage, ConformityStatus } from "@/types/domain";
 
 interface Props {
   pages: AuditPage[];
@@ -14,23 +13,27 @@ interface Props {
   totalCriteria: number;
   currentPageId: string;
   onPageChange: (pageId: string) => void;
+  /** Score de conformité de l'audit entier. */
+  auditScore: number;
+  /** false quand aucune saisie n'existe encore : le score n'a pas de sens. */
+  hasAnyEntry: boolean;
 }
 
-const PAGE_TYPE_BADGE: Record<PageType, "secondary" | "muted" | "outline"> = {
-  MANDATORY: "secondary",
-  REPRESENTATIVE: "outline",
-  TRANSVERSAL: "muted",
-};
-
+/**
+ * Colonne de gauche de la matrice : l'échantillon, page par page, avec sa
+ * part de critères saisis. La page ouverte passe en cobalt plein.
+ */
 export function PagesSidebar({
   pages,
   conformityMap,
   totalCriteria,
   currentPageId,
   onPageChange,
+  auditScore,
+  hasAnyEntry,
 }: Props) {
   const t = useTranslations("audits.matrix.sidebar");
-  const tPageType = useTranslations("constants.pageType");
+  const tMatrix = useTranslations("audits.matrix");
 
   const pageCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -65,25 +68,21 @@ export function PagesSidebar({
   return (
     <aside
       aria-label={t("aria")}
-      className="w-full shrink-0 px-4 py-4 lg:sticky lg:top-0 lg:max-h-[calc(100vh-4rem)] lg:w-72 lg:overflow-y-auto"
+      className="w-full shrink-0 px-4 py-4 lg:sticky lg:top-0 lg:max-h-screen lg:w-[264px] lg:overflow-y-auto"
     >
-      <Card className="flex flex-col shadow-sm">
-        <div className="border-b border-border p-4">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("title")}
-          </h2>
-          <p className="mt-1 text-sm font-medium tabular-nums">
+      <Card className="flex flex-col p-2.5">
+        <div className="px-2 pb-2 pt-1">
+          <h2 className="text-base font-extrabold">{t("title")}</h2>
+          <p className="mt-0.5 text-sm tabular text-muted-foreground">
             {t("pagesSaisi", { filled: fullySaisiCount, total: pages.length })}
           </p>
         </div>
 
-        <ul role="list" className="flex-1 space-y-1 p-2">
+        <ul role="list" className="flex flex-1 flex-col gap-0.5">
           {pages.map((page) => {
             const count = pageCounts.get(page.id) ?? 0;
             const percent =
-              totalCriteria > 0
-                ? Math.round((count / totalCriteria) * 100)
-                : 0;
+              totalCriteria > 0 ? Math.round((count / totalCriteria) * 100) : 0;
             const isActive = page.id === currentPageId;
             return (
               <li key={page.id}>
@@ -92,69 +91,90 @@ export function PagesSidebar({
                   onClick={() => onPageChange(page.id)}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "relative flex w-full flex-col items-start gap-2 rounded-md p-3 text-left transition-colors duration-150",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                    "flex w-full flex-col items-stretch gap-1.5 rounded-lg px-2.5 py-2 text-left",
+                    "transition-colors duration-150",
                     isActive
-                      ? "bg-primary/10 text-foreground"
-                      : "hover:bg-accent",
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-primary-soft",
                   )}
                 >
-                  {isActive && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-primary"
-                    />
-                  )}
-                  <div className="flex w-full items-center justify-between gap-2">
-                    <span className="truncate text-sm font-medium">
+                  <span className="flex items-baseline justify-between gap-2">
+                    <span className="truncate text-sm font-bold">
                       {page.name}
                     </span>
-                    <Badge
-                      variant={PAGE_TYPE_BADGE[page.pageType]}
-                      className="shrink-0 text-[10px]"
+                    <span
+                      className={cn(
+                        "shrink-0 text-xs font-semibold tabular",
+                        isActive
+                          ? "text-primary-foreground/80"
+                          : "text-muted-foreground",
+                      )}
                     >
-                      {tPageType(page.pageType)}
-                    </Badge>
-                  </div>
-                  <div
-                    className="h-1.5 w-full overflow-hidden rounded-full bg-secondary"
+                      {percent}%
+                    </span>
+                  </span>
+                  <span
+                    className={cn(
+                      "h-1 overflow-hidden rounded-full",
+                      isActive ? "bg-primary-foreground/25" : "bg-border",
+                    )}
                     role="progressbar"
                     aria-valuemin={0}
                     aria-valuemax={100}
                     aria-valuenow={percent}
                     aria-label={t("progressAria", { percent })}
                   >
-                    <div
-                      className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
+                    <span
+                      className={cn(
+                        "block h-full rounded-full transition-[width] duration-300 ease-out",
+                        isActive ? "bg-primary-foreground" : "bg-primary",
+                      )}
                       style={{ width: `${percent}%` }}
                     />
-                  </div>
-                  <p className="text-xs tabular-nums text-muted-foreground">
-                    {t("criteriaCount", { filled: count, total: totalCriteria })}
-                  </p>
+                  </span>
                 </button>
               </li>
             );
           })}
         </ul>
 
-        <div className="border-t border-border p-4">
-          <Card className="flex items-center gap-3 bg-secondary/40 p-3 shadow-none">
-            <MiniDonut
+        <div className="mt-2 flex flex-col gap-3 rounded-row bg-secondary p-3">
+          <div className="flex items-center gap-3">
+            <ScoreRing
               value={globalPercent}
               size={48}
               tone="primary"
+              trackColor="hsl(var(--card))"
               ariaLabel={t("globalAria", { percent: globalPercent })}
             />
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t("globalProgress")}
-              </p>
-              <p className="mt-0.5 truncate text-sm font-medium tabular-nums">
+              <p className="text-sm font-bold">{t("globalProgress")}</p>
+              <p className="mt-0.5 truncate text-sm tabular text-muted-foreground">
                 {t("criteriaCount", { filled: globalCount, total: globalTotal })}
               </p>
             </div>
-          </Card>
+          </div>
+
+          <div className="flex items-center gap-3 border-t border-border pt-3">
+            <ScoreRing
+              value={hasAnyEntry ? auditScore : null}
+              size={48}
+              trackColor="hsl(var(--card))"
+              ariaLabel={
+                hasAnyEntry
+                  ? tMatrix("globalScoreAria", {
+                      score: Math.round(auditScore),
+                    })
+                  : tMatrix("noScoreAria")
+              }
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-bold">{tMatrix("globalScore")}</p>
+              <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                {hasAnyEntry ? tMatrix("auditInProgress") : tMatrix("noEntry")}
+              </p>
+            </div>
+          </div>
         </div>
       </Card>
     </aside>

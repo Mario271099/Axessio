@@ -4,13 +4,15 @@ import { useTranslations } from "next-intl";
 import type { NCSeverity } from "@/types/domain";
 import { cn } from "@/lib/utils";
 
+/**
+ * Sévérité d'une non-conformité : fond pastel + texte foncé du même ton,
+ * contrastes vérifiés. Le libellé accompagne toujours la couleur.
+ */
 const styles: Record<NCSeverity, string> = {
-  LOW: "bg-[hsl(var(--severity-low)/0.12)] text-[hsl(var(--severity-low))]",
-  MEDIUM:
-    "bg-[hsl(var(--severity-medium)/0.12)] text-[hsl(var(--severity-medium))]",
-  HIGH: "bg-[hsl(var(--severity-high)/0.12)] text-[hsl(var(--severity-high))]",
-  CRITICAL:
-    "bg-[hsl(var(--severity-critical)/0.15)] text-[hsl(var(--severity-critical))]",
+  LOW: "bg-severity-low-bg text-severity-low",
+  MEDIUM: "bg-severity-medium-bg text-severity-medium",
+  HIGH: "bg-severity-high-bg text-severity-high",
+  CRITICAL: "bg-severity-critical-bg text-severity-critical",
 };
 
 interface SeverityBadgeProps {
@@ -23,7 +25,7 @@ export function SeverityBadge({ severity, className }: SeverityBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center whitespace-nowrap rounded-lg px-2.5 py-1 text-[0.82rem] font-extrabold",
         styles[severity],
         className,
       )}

@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
+  DialogFooterHint,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -49,6 +51,7 @@ export function AuditStatusActions({
   available,
 }: AuditStatusActionsProps) {
   const t = useTranslations("audits.statusTransitions");
+  const tCommon = useTranslations("common");
   const tErr = useTranslations("audits.statusTransitions.errors");
   const tStatus = useTranslations("constants.auditStatus");
   const router = useRouter();
@@ -220,55 +223,101 @@ export function AuditStatusActions({
       )}
 
       <Dialog open={target !== null} onOpenChange={(o) => !o && close()}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent size="lg" closeLabel={tCommon("close")}>
+          <DialogHeader icon={<ArrowRight aria-hidden="true" />}>
             <DialogTitle>
               {target ? t(`cta.${target.ctaKey}`) : ""}
             </DialogTitle>
-            <DialogDescription>
-              {target ? (
-                <span className="flex flex-wrap items-center gap-2">
-                  <AuditStatusBadge status={currentStatus} />
-                  <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                  <AuditStatusBadge status={target.to} />
-                </span>
-              ) : null}
-            </DialogDescription>
+            <DialogDescription>{t("dialogIntro")}</DialogDescription>
           </DialogHeader>
 
-          {target &&
-            (() => {
-              const r = readinessByTarget.get(target.to);
-              if (r?.ready) {
-                return (
-                  <p className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">
-                    {t("ready")}
-                  </p>
-                );
-              }
-              if (r?.errorCode) {
+          <DialogBody>
+            {/* Le pas franchi, lu d'un coup d'oeil. */}
+            {target && (
+              <p className="flex flex-wrap items-center gap-3 rounded-[0.875rem] bg-primary-softer px-4 py-3.5">
+                <AuditStatusBadge status={currentStatus} />
+                <ArrowRight
+                  className="size-[18px] text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <AuditStatusBadge status={target.to} />
+              </p>
+            )}
+
+            {/* Conditions reelles de la transition (lib/audit-status.ts). */}
+            <div>
+              <h3 className="mb-2 text-base font-extrabold">
+                {t("conditions.heading")}
+              </h3>
+              <ul className="flex flex-col gap-2">
+                <DialogCondition
+                  label={t("conditions.sample")}
+                  ok={snapshot.representativeCount >= 1}
+                  value={t("conditions.sampleValue", {
+                    count: snapshot.representativeCount,
+                  })}
+                />
+                <DialogCondition
+                  label={t("conditions.startDate")}
+                  ok={snapshot.startDateReached}
+                  value={
+                    snapshot.startDateSet
+                      ? snapshot.startDateReached
+                        ? t("conditions.startDateReached")
+                        : t("conditions.startDateFuture")
+                      : t("conditions.startDateMissing")
+                  }
+                />
+                <DialogCondition
+                  label={t("conditions.matrix")}
+                  ok={
+                    snapshot.matrixTotal > 0 &&
+                    snapshot.matrixFilled === snapshot.matrixTotal
+                  }
+                  value={t("conditions.matrixValue", {
+                    filled: snapshot.matrixFilled,
+                    total: snapshot.matrixTotal,
+                    percent: snapshot.matrixPercent,
+                  })}
+                />
+              </ul>
+            </div>
+
+            {target &&
+              (() => {
+                const r = readinessByTarget.get(target.to);
+                if (r?.ready || !r?.errorCode) return null;
                 return (
                   <p
                     role="alert"
-                    className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                    className="rounded-[0.875rem] bg-destructive/10 px-4 py-3 text-[0.95rem] text-destructive"
                   >
                     {reasonLabel(r.errorCode)}
                   </p>
                 );
-              }
-              return null;
-            })()}
+              })()}
 
-          {serverError && (
-            <p role="alert" className="text-sm text-destructive">
-              {serverError}
-            </p>
-          )}
+            {serverError && (
+              <p
+                role="alert"
+                className="rounded-[0.875rem] bg-destructive/10 px-4 py-3 text-[0.95rem] text-destructive"
+              >
+                {serverError}
+              </p>
+            )}
+          </DialogBody>
 
           <DialogFooter>
+            <DialogFooterHint aria-live="polite">
+              {target
+                ? readinessByTarget.get(target.to)?.ready
+                  ? t("ready")
+                  : t("blocked")
+                : ""}
+            </DialogFooterHint>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={close}
               disabled={pending}
             >
@@ -284,10 +333,7 @@ export function AuditStatusActions({
               }
             >
               {pending && (
-                <Loader2
-                  className="mr-2 h-4 w-4 animate-spin"
-                  aria-hidden="true"
-                />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               {t("confirm")}
             </Button>
@@ -295,6 +341,41 @@ export function AuditStatusActions({
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+/** Condition de transition, presentation de la fenetre modale. */
+function DialogCondition({
+  label,
+  ok,
+  value,
+}: {
+  label: string;
+  ok: boolean;
+  value: string;
+}) {
+  return (
+    <li className="flex items-center gap-3 text-[0.95rem]">
+      <span
+        aria-hidden="true"
+        className={cn(
+          "flex size-[26px] shrink-0 items-center justify-center rounded-full",
+          ok
+            ? "bg-success text-success-foreground"
+            : "bg-warning text-warning-foreground",
+        )}
+      >
+        {ok ? (
+          <CheckCircle2 className="size-3.5" strokeWidth={3} />
+        ) : (
+          <XCircle className="size-3.5" strokeWidth={3} />
+        )}
+      </span>
+      <span className="min-w-0 flex-1">
+        <strong className="font-bold">{label}</strong>{" "}
+        <span className="tabular-nums text-muted-foreground">{value}</span>
+      </span>
+    </li>
   );
 }
 

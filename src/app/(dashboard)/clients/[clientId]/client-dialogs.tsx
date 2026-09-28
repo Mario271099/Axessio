@@ -6,12 +6,13 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Building2, FolderPlus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -79,13 +80,14 @@ export function EditClientDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent size="md" closeLabel={tCommon("close")}>
+        <DialogHeader icon={<Building2 aria-hidden="true" />}>
           <DialogTitle>{t("editClient.title")}</DialogTitle>
           <DialogDescription>{t("editClient.desc")}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <DialogBody>
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
@@ -137,10 +139,12 @@ export function EditClientDialog({
             />
           </div>
 
+          </DialogBody>
+
           <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
@@ -148,7 +152,7 @@ export function EditClientDialog({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               {tCommon("save")}
             </Button>
@@ -205,13 +209,14 @@ export function CreateProjectDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent size="md" closeLabel={tCommon("close")}>
+        <DialogHeader icon={<FolderPlus aria-hidden="true" />}>
           <DialogTitle>{t("createProject.title")}</DialogTitle>
           <DialogDescription>{t("createProject.desc")}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <DialogBody>
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
@@ -230,10 +235,12 @@ export function CreateProjectDialog({
             </p>
           </div>
 
+          </DialogBody>
+
           <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
@@ -241,7 +248,7 @@ export function CreateProjectDialog({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               {t("createProject.submit")}
             </Button>
@@ -302,13 +309,14 @@ export function EditProjectDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent size="md" closeLabel={tCommon("close")}>
+        <DialogHeader icon={<FolderPlus aria-hidden="true" />}>
           <DialogTitle>{t("editProject.title")}</DialogTitle>
           <DialogDescription>{t("editProject.desc")}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <DialogBody>
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
@@ -335,10 +343,12 @@ export function EditProjectDialog({
             />
           </div>
 
+          </DialogBody>
+
           <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
@@ -346,7 +356,7 @@ export function EditProjectDialog({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               {tCommon("save")}
             </Button>

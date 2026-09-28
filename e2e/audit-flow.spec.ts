@@ -40,8 +40,14 @@ test.describe("Flux audit", () => {
       .click({ timeout: 30_000 });
 
     // ---- Étape 2 : référentiel (défauts Web + Audit) -----------------------
-    await page.getByLabel(/référentiel d.accessibilité/i).click();
-    await page.getByRole("option").first().click();
+    // Le référentiel se choisit en cartes radio (refonte « Pro H ») : on clique
+    // la carte, comme un utilisateur. L input radio est volontairement masqué
+    // (il reste focusable et pilotable au clavier), donc on ne le cible pas
+    // directement.
+    await page
+      .locator("label:has(input[name=\"reference-choice\"])")
+      .first()
+      .click();
     // Champs requis de l'étape 2 (sinon "Suivant" reste désactivé). Ciblés par
     // id stable plutôt que par label, qui change selon plateforme/langue.
     await page.locator("#site-name").fill("Site E2E");
@@ -75,9 +81,9 @@ test.describe("Flux audit", () => {
     await expect(heading).toBeVisible({ timeout: 30_000 });
     await expect(heading).not.toHaveText("");
 
-    // L'onglet "Conformité" de l'audit pointe vers /audits/.../matrix.
+    // L'onglet "Matrice" de l'audit pointe vers /audits/.../matrix.
     await expect(
-      page.getByRole("link", { name: "Conformité", exact: true }),
+      page.getByRole("link", { name: "Matrice", exact: true }),
     ).toBeVisible();
   });
 
@@ -90,9 +96,9 @@ test.describe("Flux audit", () => {
     await expect(firstAuditLink).toBeVisible({ timeout: 30_000 });
     await firstAuditLink.click({ timeout: 30_000 });
 
-    // Sur le détail, on bascule vers la matrice via l'onglet "Conformité".
+    // Sur le détail, on bascule vers la matrice via l'onglet "Matrice".
     await page
-      .getByRole("link", { name: "Conformité", exact: true })
+      .getByRole("link", { name: "Matrice", exact: true })
       .click({ timeout: 30_000 });
 
     // Indicateur d'arrivée : le footer sticky avec "Sauvegarder tout" est

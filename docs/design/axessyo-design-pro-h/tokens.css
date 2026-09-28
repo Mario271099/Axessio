@@ -1,0 +1,93 @@
+/* ============================================================================
+   Axessyo — Design system « Pro H » (sept. 2026)
+   À coller dans src/app/globals.css à la place des blocs :root / .dark actuels.
+   Les NOMS de variables sont ceux déjà utilisés par les composants shadcn du
+   projet : tous les composants existants héritent automatiquement du thème.
+   IMPORTANT : ne pas supprimer ni modifier les variables --brand-* existantes
+   (elles servent au logo, qui reste inchangé). Les ajouter telles quelles
+   à côté de ce bloc.
+   Contrastes vérifiés : texte ≥ 4.5:1, bordures de champ et focus ≥ 3:1.
+   ========================================================================== */
+:root {
+  /* Surfaces */
+  --background: 228 33% 97%;          /* #F5F6FA  fond de l'application */
+  --foreground: 230 35% 13%;          /* #161A2E  encre */
+  --card: 0 0% 100%;                  /* #FFFFFF  cartes */
+  --card-foreground: 230 35% 13%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 230 35% 13%;
+
+  /* Marque */
+  --primary: 230 69% 46%;             /* #2440C8  bleu cobalt, 7.9:1 texte blanc */
+  --primary-foreground: 0 0% 100%;
+  --primary-hover: 230 71% 38%;       /* #1C34A8 */
+  --primary-soft: 226 62% 96%;        /* #EEF1FB  survol menu, fonds légers */
+  --primary-softer: 228 83% 98%;      /* #F4F6FE  survol lignes */
+  --highlight: 39 100% 56%;           /* #FFB020  accent (anneau de score, avatar) — jamais pour du texte sur blanc */
+  --ink-surface: 230 35% 13%;         /* #161A2E  cartes sombres (score, plan, astuce) */
+
+  --secondary: 225 31% 95%;           /* #EEF0F6  pistes de barres, chips neutres */
+  --secondary-foreground: 229 21% 31%;/* #3F4560 */
+  --muted: 225 31% 95%;
+  --muted-foreground: 228 14% 41%;    /* #5B6178  texte secondaire, 5.7:1 sur fond */
+  --accent: 226 62% 96%;
+  --accent-foreground: 230 35% 13%;
+
+  /* Statuts */
+  --success: 142 72% 29%;             /* #15803D */
+  --success-foreground: 0 0% 100%;
+  --warning: 35 92% 33%;              /* #A16207 */
+  --warning-foreground: 0 0% 100%;
+  --destructive: 0 74% 45%;           /* #C81E1E */
+  --destructive-foreground: 0 0% 100%;
+
+  /* Lignes et champs */
+  --border: 225 29% 92%;              /* #E4E7F0  bordures décoratives */
+  --input: 225 14% 55%;               /* #7C849C  bord des champs, 3.7:1 (WCAG 1.4.11) */
+  --ring: 230 69% 46%;                /* focus cobalt 3 px */
+
+  /* Sévérités (texte) + fonds de badge */
+  --severity-critical: 0 72% 38%;     /* #A61B1B sur #FDE8E8 */
+  --severity-high: 15 79% 34%;        /* #9A3412 sur #FEF0E6 */
+  --severity-medium: 41 100% 24%;     /* #7A5300 sur #FEF6DC */
+  --severity-low: 214 65% 33%;        /* #1E4E8C sur #E7EEFB */
+  --severity-critical-bg: 0 86% 95%;
+  --severity-high-bg: 25 94% 95%;
+  --severity-medium-bg: 45 93% 93%;
+  --severity-low-bg: 219 74% 95%;
+
+  /* Score de conformité */
+  --score-non-compliant: 0 74% 45%;
+  --score-partial: 35 92% 33%;
+  --score-compliant: 142 72% 29%;
+
+  /* Couleur par thématique RGAA (1 à 13) — toujours avec texte blanc */
+  --theme-1: #C2410C;  --theme-2: #7C3AED;  --theme-3: #BE185D;  --theme-4: #B91C1C;
+  --theme-5: #0F766E;  --theme-6: #1D4ED8;  --theme-7: #4D7C0F;  --theme-8: #A16207;
+  --theme-9: #0E7490;  --theme-10: #9333EA; --theme-11: #BE123C; --theme-12: #15803D;
+  --theme-13: #475569;
+
+  /* Rayons : la hiérarchie se lit aussi dans les arrondis */
+  --radius: 0.625rem;                 /* 10 px : boutons, champs */
+  --radius-row: 0.75rem;              /* 12 px : lignes de liste */
+  --radius-card: 1rem;                /* 16 px : cartes */
+  --radius-hero: 1.375rem;            /* 22 px : blocs de la page publique */
+
+  /* Ombres : uniquement au survol ou pour ce qui flotte */
+  --shadow-primary: 0 1px 0 rgb(255 255 255 / .25) inset, 0 6px 16px -8px rgb(36 64 200 / .8);
+  --shadow-primary-hover: 0 1px 0 rgb(255 255 255 / .25) inset, 0 10px 22px -8px rgb(36 64 200 / .9);
+  --shadow-lift: 0 16px 30px -18px var(--lift-color, rgb(36 64 200));
+  --shadow-float: 0 30px 60px -30px rgb(22 26 46 / .5);
+}
+
+/* Police : Figtree (Google Fonts), graisses 400 à 900.
+   next/font : import { Figtree } from "next/font/google";
+   const figtree = Figtree({ subsets: ["latin", "latin-ext"], variable: "--font-figtree", display: "swap" });
+   Le logo garde DM Sans et son composant actuel : ne pas y toucher. */
+
+/* Mouvement : 150 à 250 ms, courbe cubic-bezier(.2,.8,.2,1) pour les levées,
+   cubic-bezier(.3,1.5,.5,1) pour les petits rebonds (icônes, pastilles).
+   Tout est coupé sous prefers-reduced-motion: reduce. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

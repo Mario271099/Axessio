@@ -87,10 +87,14 @@ export default async function PermissionsDebugPage() {
   const t = await getTranslations("users.permissions");
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-6 p-6 md:p-8">
+    <div className="container mx-auto max-w-7xl space-y-5 p-4 md:p-6 lg:px-9">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+        <h1 className="text-2xl font-black tracking-[-0.03em] md:text-[2rem]">
+          {t("title")}
+        </h1>
+        <p className="mt-1 text-[0.95rem] text-muted-foreground">
+          {t("subtitle")}
+        </p>
       </header>
 
       {/* Totals par rôle */}
@@ -139,7 +143,7 @@ export default async function PermissionsDebugPage() {
                   {t("title")} - {t(`groups.${group.key}`)}
                 </caption>
                 <thead className="border-b border-border bg-muted/40">
-                  <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr className="text-left text-[0.8rem] text-muted-foreground">
                     <th scope="col" className="px-4 py-2 font-medium">
                       Permission
                     </th>
@@ -184,14 +188,14 @@ export default async function PermissionsDebugPage() {
                             {allowed ? (
                               <Check
                                 className={cn(
-                                  "inline-block h-4 w-4",
+                                  "inline-block size-4",
                                   "text-success",
                                 )}
                                 aria-hidden="true"
                               />
                             ) : (
                               <X
-                                className="inline-block h-4 w-4 text-muted-foreground/40"
+                                className="inline-block size-4 text-muted-foreground/40"
                                 aria-hidden="true"
                               />
                             )}

@@ -2,10 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2, Plus } from "lucide-react";
+import { FileText, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -54,11 +55,12 @@ export function NewTemplateDialog({ organizationId, references }: Props) {
           {t("newCta")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-xl">
-        <DialogHeader>
+      <DialogContent size="xl" closeLabel={t("cancel")}>
+        <DialogHeader icon={<FileText aria-hidden="true" />} tone="ink">
           <DialogTitle>{t("newTitle")}</DialogTitle>
           <DialogDescription>{t("newDesc")}</DialogDescription>
         </DialogHeader>
+        <DialogBody>
         {error && (
           <p
             role="alert"
@@ -72,18 +74,20 @@ export function NewTemplateDialog({ organizationId, references }: Props) {
           references={references}
           onSubmit={submit}
         />
+        </DialogBody>
+
         <DialogFooter>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             onClick={() => setOpen(false)}
             disabled={pending}
           >
             {t("cancel")}
           </Button>
-          <Button type="submit" form={FORM_ID} disabled={pending} className="gap-2">
+          <Button type="submit" form={FORM_ID} disabled={pending}>
             {pending && (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              <Loader2 className="animate-spin" aria-hidden="true" />
             )}
             {t("create")}
           </Button>

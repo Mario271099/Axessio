@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { canAny } from "@/lib/permissions";
 import { loadMyOrgPermissions } from "@/lib/server-permissions";
@@ -18,6 +18,7 @@ import { AuditsFilters } from "./audits-filters";
 import { AuditsPagination } from "./audits-pagination";
 import {
   AuditsTable,
+  type AuditsView,
   type AuditTableRow,
   type SortColumn,
 } from "./audits-table";
@@ -46,6 +47,8 @@ const ALLOWED_STATUSES: ReadonlySet<AuditStatus> = new Set([
 
 const ALLOWED_PLATFORMS: ReadonlySet<PlatformType> = new Set(["WEB", "MOBILE"]);
 
+const ALLOWED_VIEWS: ReadonlySet<AuditsView> = new Set(["list", "cards"]);
+
 const ALLOWED_SORT_COLUMNS: ReadonlySet<SortColumn> = new Set([
   "updated_at",
   "status",
@@ -61,6 +64,7 @@ interface PageProps {
     sort?: string;
     dir?: string;
     page?: string;
+    view?: string;
   }>;
 }
 
@@ -93,6 +97,11 @@ export default async function AuditsPage({ searchParams }: PageProps) {
   // (RLS) est déjà étroit. On l'ignore silencieusement.
   const canEditAudits = canAny(profile.role, orgPerms, "audit.edit");
   const mineFilter = canEditAudits && sp.mine === "1";
+
+  const view: AuditsView =
+    sp.view && ALLOWED_VIEWS.has(sp.view as AuditsView)
+      ? (sp.view as AuditsView)
+      : "list";
 
   const sortColumn: SortColumn =
     sp.sort && ALLOWED_SORT_COLUMNS.has(sp.sort as SortColumn)
@@ -180,6 +189,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
   if (mineFilter) baseParams.set("mine", "1");
   if (sortColumn !== "updated_at") baseParams.set("sort", sortColumn);
   if (sortDir !== "desc") baseParams.set("dir", sortDir);
+  if (view !== "list") baseParams.set("view", view);
 
   // Aplatit les jointures Supabase (`reference` et `project.client` peuvent
   // arriver sous forme de tableau selon le résolveur) pour passer une shape
@@ -213,11 +223,13 @@ export default async function AuditsPage({ searchParams }: PageProps) {
   });
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+    <div className="space-y-5 px-4 pb-8 md:px-9">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-[2.125rem] font-black leading-tight tracking-tight">
+            {t("title")}
+          </h1>
+          <p className="mt-1 text-base text-muted-foreground">
             {t("subtitle", { count: total })}
           </p>
         </div>
@@ -225,7 +237,7 @@ export default async function AuditsPage({ searchParams }: PageProps) {
         {canCreateAudit && (
           <Button asChild>
             <Link href="/audits/new">
-              <Plus className="h-4 w-4" aria-hidden="true" />
+              <Plus data-anim="spin" aria-hidden="true" />
               {t("newAudit")}
             </Link>
           </Button>
@@ -238,69 +250,84 @@ export default async function AuditsPage({ searchParams }: PageProps) {
         initialPlatform={platformFilter ?? ""}
         initialMine={mineFilter}
         canSeeMine={canEditAudits}
+        initialView={view}
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("cardTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          {error ? (
-            <div
-              role="alert"
-              className="m-4 rounded-md border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive"
-            >
-              {error.message}
-            </div>
-          ) : audits.length === 0 ? (
-            <div className="p-6">
-              <EmptyState
-                icon={ClipboardCheck}
-                title={
-                  total === 0 && !query && !statusFilter && !platformFilter
-                    ? t("empty")
-                    : t("noResults")
-                }
-                className="border-0"
-              >
-                {canCreateAudit &&
-                  total === 0 &&
-                  !query &&
-                  !statusFilter &&
-                  !platformFilter && (
-                    <Button asChild size="sm">
-                      <Link href="/audits/new">
-                        <Plus className="h-4 w-4" aria-hidden="true" />
-                        {t("newAudit")}
-                      </Link>
-                    </Button>
-                  )}
-              </EmptyState>
-            </div>
-          ) : (
-            <AuditsTable
-              audits={rows}
-              sortColumn={sortColumn}
-              sortDir={sortDir}
-              baseParamsStr={baseParams.toString()}
-              canEditAudits={canEditAudits}
-              canDeleteAudits={profile.isPlatformAdmin}
-            />
-          )}
-
-          {total > 0 && (
-            <AuditsPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              total={total}
-              from={from}
-              to={to}
-              baseParams={baseParams}
-              pathname="/audits"
-            />
-          )}
-        </CardContent>
-      </Card>
+      {error ? (
+        <div
+          role="alert"
+          className="rounded-card border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive"
+        >
+          {error.message}
+        </div>
+      ) : audits.length === 0 ? (
+        <Card className="p-6">
+          <EmptyState
+            icon={ClipboardCheck}
+            title={
+              total === 0 && !query && !statusFilter && !platformFilter
+                ? t("empty")
+                : t("noResults")
+            }
+            className="border-0"
+          >
+            {canCreateAudit &&
+              total === 0 &&
+              !query &&
+              !statusFilter &&
+              !platformFilter && (
+                <Button asChild size="sm">
+                  <Link href="/audits/new">
+                    <Plus aria-hidden="true" />
+                    {t("newAudit")}
+                  </Link>
+                </Button>
+              )}
+          </EmptyState>
+        </Card>
+      ) : view === "cards" ? (
+        <div className="space-y-4">
+          <AuditsTable
+            audits={rows}
+            sortColumn={sortColumn}
+            sortDir={sortDir}
+            baseParamsStr={baseParams.toString()}
+            canEditAudits={canEditAudits}
+            canDeleteAudits={profile.isPlatformAdmin}
+            view={view}
+          />
+          <AuditsPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            total={total}
+            from={from}
+            to={to}
+            baseParams={baseParams}
+            pathname="/audits"
+          />
+        </div>
+      ) : (
+        <Card className="p-2">
+          <AuditsTable
+            audits={rows}
+            sortColumn={sortColumn}
+            sortDir={sortDir}
+            baseParamsStr={baseParams.toString()}
+            canEditAudits={canEditAudits}
+            canDeleteAudits={profile.isPlatformAdmin}
+            view={view}
+          />
+          <AuditsPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            total={total}
+            from={from}
+            to={to}
+            baseParams={baseParams}
+            pathname="/audits"
+          />
+        </Card>
+      )}
     </div>
   );
 }

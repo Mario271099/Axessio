@@ -20,8 +20,6 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { MiniDonut } from "@/components/ui/mini-donut";
 import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
 import { PagesSidebar } from "./pages-sidebar";
 import { PageMatrixContent } from "./page-matrix-content";
@@ -79,6 +77,7 @@ export function ConformityMatrixLayout({
   const router = useRouter();
   const t = useTranslations("audits.matrix");
   const tSave = useTranslations("audits.matrix.save");
+  const tCell = useTranslations("audits.matrix.cell");
   const [isPending, startTransition] = useTransition();
 
   const [conformityMap, setConformityMap] = useState<
@@ -439,6 +438,32 @@ export function ConformityMatrixLayout({
 
   const hasAnyEntry = useMemo(() => conformityMap.size > 0, [conformityMap]);
 
+  // Compteurs de la page ouverte, lus dans la saisie deja chargee : ils
+  // alimentent le bandeau de l'en-tete (C / NC / NA / a evaluer).
+  const pageStats = useMemo(() => {
+    let compliant = 0;
+    let nonCompliant = 0;
+    let notApplicable = 0;
+    const pageId = currentPage?.id;
+    if (pageId) {
+      for (const c of criteria) {
+        const status = conformityMap.get(conformityKey(pageId, c.id));
+        if (status === "COMPLIANT") compliant += 1;
+        else if (status === "NON_COMPLIANT") nonCompliant += 1;
+        else if (status === "NOT_APPLICABLE") notApplicable += 1;
+      }
+    }
+    const filled = compliant + nonCompliant + notApplicable;
+    return {
+      compliant,
+      nonCompliant,
+      notApplicable,
+      pending: Math.max(0, totalCriteria - filled),
+      score: calculateScore({ compliant, notApplicable, totalCriteria }),
+      hasEntry: filled > 0,
+    };
+  }, [criteria, conformityMap, currentPage, totalCriteria]);
+
   const indicatorMessage =
     saveStatus === "saving"
       ? tSave("saving")
@@ -455,14 +480,24 @@ export function ConformityMatrixLayout({
   return (
     <div className="flex min-h-[calc(100vh-4rem)] flex-col">
       {/* En-tête : onglets audit + titre + score global ------------------ */}
-      <div className="border-b border-border bg-card/50 px-4 pt-2 pb-4 md:px-8">
-        <AuditTabsNav auditId={auditId} active="matrix" className="border-0" />
+      <div className="border-b border-border bg-card px-4 pt-2 md:px-9">
+        <AuditTabsNav auditId={auditId} active="matrix" />
 
-        <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">
+            <h1 className="text-2xl font-black leading-tight tracking-tight">
+              {currentPage
+                ? t("titleForPage", { page: currentPage.name })
+                : t("title")}
+            </h1>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {currentPage?.url && (
+                <>
+                  <span className="break-all">{currentPage.url}</span>
+                  <span aria-hidden="true"> · </span>
+                </>
+              )}
+              <span className="font-semibold text-foreground">
                 {referenceName}
               </span>
               <span aria-hidden="true"> · </span>
@@ -476,26 +511,44 @@ export function ConformityMatrixLayout({
             </p>
           </div>
 
-          <Card className="flex items-center gap-3 p-3 shadow-sm">
-            <MiniDonut
-              value={hasAnyEntry ? auditScore : null}
-              size={64}
-              tone="score"
-              ariaLabel={
-                hasAnyEntry
-                  ? t("globalScoreAria", { score: Math.round(auditScore) })
-                  : t("noScoreAria")
-              }
-            />
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t("globalScore")}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {hasAnyEntry ? t("auditInProgress") : t("noEntry")}
-              </p>
-            </div>
-          </Card>
+          <div
+            aria-live="polite"
+            className="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2"
+          >
+            <p className="flex flex-col sm:items-end">
+              <span
+                className={cn(
+                  "text-[1.75rem] font-black leading-none tabular",
+                  !pageStats.hasEntry
+                    ? "text-muted-foreground"
+                    : pageStats.score >= 100
+                      ? "text-score-compliant"
+                      : pageStats.score >= 50
+                        ? "text-score-partial"
+                        : "text-score-non-compliant",
+                )}
+              >
+                {pageStats.hasEntry ? `${Math.round(pageStats.score)}%` : "—"}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {t("pageScore")}
+              </span>
+            </p>
+            <p className="flex flex-wrap gap-x-3.5 gap-y-1 text-sm font-bold tabular">
+              <span className="text-score-compliant">
+                {pageStats.compliant} {tCell("compliantShort")}
+              </span>
+              <span className="text-score-non-compliant">
+                {pageStats.nonCompliant} {tCell("nonCompliantShort")}
+              </span>
+              <span className="text-theme-13">
+                {pageStats.notApplicable} {tCell("notApplicableShort")}
+              </span>
+              <span className="text-muted-foreground">
+                {pageStats.pending} {t("toAssess")}
+              </span>
+            </p>
+          </div>
         </div>
       </div>
 
@@ -551,12 +604,13 @@ export function ConformityMatrixLayout({
           totalCriteria={totalCriteria}
           currentPageId={currentPageId}
           onPageChange={handlePageChange}
+          auditScore={auditScore}
+          hasAnyEntry={hasAnyEntry}
         />
 
         <main className="min-w-0 flex-1 px-4 pb-24 pt-6 md:px-6 lg:px-8">
           {currentPage ? (
             <PageMatrixContent
-              page={currentPage}
               thematics={thematics}
               criteria={criteria}
               conformityMap={conformityMap}

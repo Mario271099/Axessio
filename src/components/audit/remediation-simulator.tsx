@@ -2,14 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  CheckCircle2,
-  FileText,
-  AlertTriangle,
-  ListFilter,
-  Search,
-  RotateCcw,
-} from "lucide-react";
+import { FileText, AlertTriangle, Search, RotateCcw } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -17,10 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -29,14 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SeverityBadge } from "@/components/audit/severity-badge";
-import {
-  calculateScore,
-  getConformityLabel,
-  getConformityLevel,
-  getScoreColorVar,
-} from "@/lib/score";
+import { calculateScore } from "@/lib/score";
 import { NC_SEVERITY_ORDER } from "@/lib/constants";
-import { cn, formatScore } from "@/lib/utils";
+import { cn, themeColorForIdentifier } from "@/lib/utils";
 import type { NCSeverity, NCStatus } from "@/types/domain";
 
 export interface SimulatorNC {
@@ -188,7 +175,43 @@ export function RemediationSimulator({
   );
 
   const delta = +(simulatedScore - initialScore).toFixed(2);
-  const conformityLevel = getConformityLevel(simulatedScore);
+
+  // Effet de la simulation par thematique : sur les NC ouvertes de chaque
+  // thematique, combien sont cochees comme corrigees.
+  const thematicEffect = useMemo(() => {
+    const rows = new Map<
+      string,
+      {
+        key: string;
+        identifier: string;
+        name: string;
+        color: string;
+        total: number;
+        selected: number;
+      }
+    >();
+    for (const nc of allNCs) {
+      if (nc.isFixed) continue;
+      const key = nc.thematic?.id ?? "none";
+      const identifier = nc.thematic?.identifier ?? "?";
+      const existing = rows.get(key) ?? {
+        key,
+        identifier,
+        name: nc.thematic?.name ?? tSort("noThematic"),
+        color: nc.thematic
+          ? themeColorForIdentifier(identifier)
+          : "hsl(var(--muted-foreground))",
+        total: 0,
+        selected: 0,
+      };
+      existing.total += 1;
+      if (checked.has(nc.id)) existing.selected += 1;
+      rows.set(key, existing);
+    }
+    return Array.from(rows.values()).sort(
+      (a, b) => b.selected - a.selected || b.total - a.total,
+    );
+  }, [allNCs, checked, tSort]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -331,113 +354,103 @@ export function RemediationSimulator({
     thematicFilter !== "ALL";
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_2fr]">
-      <div className="space-y-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription>{t("initialScore")}</CardDescription>
-            <CardTitle className="text-3xl tabular-nums">
-              {formatScore(initialScore)}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">
-              {t("criteriaCompliant", {
-                compliant: compliantCount,
-                total: denominator,
-              })}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card
-          aria-live="polite"
-          className="border-primary/40 ring-1 ring-primary/20"
+    <div className="flex flex-col gap-4">
+      {/* Synthese : jauge, gain et selections rapides --------------------- */}
+      <section
+        aria-live="polite"
+        className="grid gap-6 rounded-card bg-ink p-5 text-ink-foreground sm:grid-cols-[220px_minmax(0,1fr)] sm:items-center"
+      >
+        <svg
+          width="220"
+          height="130"
+          viewBox="0 0 220 130"
+          role="img"
+          aria-label={t("gaugeAria", {
+            simulated: Math.round(simulatedScore),
+            initial: Math.round(initialScore),
+          })}
+          className="mx-auto"
         >
-          <CardHeader className="pb-3">
-            <CardDescription className="text-primary">
-              {t("simulatedScore")}
-            </CardDescription>
-            <CardTitle
-              className="text-4xl font-bold tabular-nums"
-              style={{ color: `hsl(${getScoreColorVar(simulatedScore)})` }}
-            >
-              {formatScore(simulatedScore)}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Progress
-              value={simulatedScore}
-              fillColor={getScoreColorVar(simulatedScore)}
-              aria-label={t("simulatedAria", { score: simulatedScore })}
-            />
-            <div className="flex items-center justify-between text-xs">
-              <span
-                className={cn(
-                  "font-medium",
-                  conformityLevel === "non-compliant" && "text-destructive",
-                  conformityLevel === "partial" && "text-warning",
-                  conformityLevel === "full" && "text-success",
-                )}
-              >
-                {getConformityLabel(simulatedScore)}
-              </span>
-              <span
-                className={cn(
-                  "tabular-nums font-medium",
-                  delta > 0 && "text-success",
-                  delta < 0 && "text-destructive",
-                )}
-              >
-                {delta > 0 ? "+" : ""}
-                {delta.toFixed(2)} pts
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-              <span>{t("extraCompliant", { count: fixedCells })}</span>
-            </div>
-          </CardContent>
-        </Card>
+          <path
+            d="M20 118 A90 90 0 0 1 200 118"
+            fill="none"
+            stroke="hsl(var(--ink-surface-raised))"
+            strokeWidth="18"
+            strokeLinecap="round"
+          />
+          <path
+            d="M20 118 A90 90 0 0 1 200 118"
+            fill="none"
+            stroke="hsl(var(--ink-positive))"
+            strokeWidth="18"
+            strokeLinecap="round"
+            pathLength={100}
+            strokeDasharray={100}
+            strokeDashoffset={100 - Math.round(simulatedScore)}
+            style={{
+              transition: "stroke-dashoffset 600ms cubic-bezier(.2,.8,.2,1)",
+            }}
+          />
+          <path
+            d="M20 118 A90 90 0 0 1 200 118"
+            fill="none"
+            stroke="hsl(var(--highlight))"
+            strokeWidth="18"
+            strokeLinecap="round"
+            pathLength={100}
+            strokeDasharray={100}
+            strokeDashoffset={100 - Math.round(initialScore)}
+          />
+          <text
+            x="110"
+            y="112"
+            textAnchor="middle"
+            fill="currentColor"
+            style={{ font: "900 38px Figtree, sans-serif" }}
+          >
+            {Math.round(simulatedScore)}%
+          </text>
+        </svg>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-sm font-medium">
-              <ListFilter className="h-4 w-4" aria-hidden="true" />
-              {t("quickSelect")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-2">
-            <Button onClick={checkAllOpen} variant="outline" size="sm">
-              {t("checkAll", { count: allNCs.length })}
-            </Button>
-            <Button
-              onClick={() => checkBySeverity("CRITICAL")}
-              variant="outline"
-              size="sm"
-            >
+        <div className="min-w-0">
+          <p className="text-base font-semibold text-ink-muted">
+            {t("title")}
+          </p>
+          <p className="mt-1.5 text-2xl font-black leading-tight tracking-tight md:text-[1.875rem]">
+            {checked.size === 0
+              ? t("headlineEmpty")
+              : t("headline", {
+                  points: delta.toFixed(delta % 1 === 0 ? 0 : 2),
+                  count: fixedCells,
+                })}
+          </p>
+          <p className="mt-2 text-sm text-ink-muted">
+            {t("summary", {
+              initial: Math.round(initialScore),
+              simulated: Math.round(simulatedScore),
+              total: denominator,
+            })}
+          </p>
+
+          <div className="mt-3.5 flex flex-wrap gap-2">
+            <InkChip onClick={() => checkBySeverity("CRITICAL")}>
               {t("criticalOnly")}
-            </Button>
-            <Button
-              onClick={() => checkBySeverity("HIGH")}
-              variant="outline"
-              size="sm"
-            >
+            </InkChip>
+            <InkChip onClick={() => checkBySeverity("HIGH")}>
               {t("highOnly")}
-            </Button>
-            <Button
-              onClick={resetSimulation}
-              variant="ghost"
-              size="sm"
-              className="gap-2"
-            >
-              <RotateCcw className="h-4 w-4" aria-hidden="true" />
+            </InkChip>
+            <InkChip onClick={checkAllOpen}>
+              {t("checkAll", { count: allNCs.length })}
+            </InkChip>
+            <InkChip onClick={resetSimulation}>
+              <RotateCcw className="size-3.5" aria-hidden="true" />
               {t("reset")}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+            </InkChip>
+          </div>
+        </div>
+      </section>
 
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -605,7 +618,92 @@ export function RemediationSimulator({
           )}
         </CardContent>
       </Card>
+
+      <aside className="flex flex-col gap-3 rounded-card border border-border bg-card p-5">
+        <h2 className="text-base font-extrabold">{t("thematicTitle")}</h2>
+        <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className="h-2 w-3 rounded-full bg-border-strong"
+            />
+            {t("thematicLegendOpen")}
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className="h-2 w-3 rounded-full bg-success"
+            />
+            {t("thematicLegendSelected")}
+          </span>
+        </p>
+
+        {thematicEffect.length === 0 ? (
+          <p className="text-sm italic text-muted-foreground">
+            {t("thematicEmpty")}
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-1">
+            {thematicEffect.map((row) => (
+              <li
+                key={row.key}
+                className="grid grid-cols-[26px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-lg px-1 py-1.5 transition-colors hover:bg-primary-softer"
+              >
+                <span
+                  aria-hidden="true"
+                  className="flex size-[26px] items-center justify-center rounded-lg text-[0.7rem] font-black tabular text-white"
+                  style={{ background: row.color }}
+                >
+                  {row.identifier}
+                </span>
+                <span className="flex min-w-0 flex-col gap-1">
+                  <span className="truncate text-sm font-bold">{row.name}</span>
+                  <span
+                    role="img"
+                    aria-label={t("thematicBarAria", {
+                      selected: row.selected,
+                      total: row.total,
+                      name: row.name,
+                    })}
+                    className="block h-2 overflow-hidden rounded-full bg-border-strong"
+                  >
+                    <span
+                      className="block h-full rounded-full bg-success transition-[width] duration-500"
+                      style={{
+                        width: `${Math.round((row.selected / row.total) * 100)}%`,
+                      }}
+                    />
+                  </span>
+                </span>
+                <span className="text-sm font-extrabold tabular">
+                  {row.selected} / {row.total}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </aside>
+      </div>
     </div>
+  );
+}
+
+/** Pilule d'action posee sur une carte encre. */
+function InkChip({
+  onClick,
+  children,
+}: {
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex h-9 items-center gap-2 rounded-full border border-ink-raised px-3.5 text-sm font-bold text-ink-foreground transition-colors duration-150 hover:bg-ink-raised"
+    >
+      {children}
+    </button>
   );
 }
 
@@ -620,75 +718,75 @@ function NCRow({
 }) {
   const t = useTranslations("audits.simulator");
   const isFixed = nc.isFixed;
+  const thematicColor = nc.thematic
+    ? themeColorForIdentifier(nc.thematic.identifier)
+    : "hsl(var(--muted-foreground))";
+
   return (
     <label
       className={cn(
-        "group flex cursor-pointer items-start gap-3 rounded-md border border-border p-3 transition-colors",
-        isFixed && "bg-muted/40 text-muted-foreground",
-        !isFixed && isChecked && "border-success/40 bg-success/5",
-        !isFixed && !isChecked && "hover:bg-accent/50",
+        "group grid cursor-pointer grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-3.5 rounded-row px-3.5 py-2.5",
+        "transition-colors duration-150",
+        isFixed && "text-muted-foreground",
+        !isFixed && isChecked && "bg-success/8",
+        !isFixed && !isChecked && "hover:bg-primary-softer",
       )}
     >
-      <Checkbox
+      <Switch
         checked={isChecked}
-        onCheckedChange={onToggle}
+        onChange={onToggle}
         aria-label={t("simulateAria", {
           identifier: nc.criterion.identifier,
           title: nc.title,
         })}
       />
-      <div className="flex flex-1 flex-col gap-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span
-            className={cn(
-              "rounded bg-muted px-1.5 py-0.5 font-mono text-xs",
-              isFixed ? "text-muted-foreground" : "text-muted-foreground",
-            )}
-          >
-            {nc.criterion.identifier}
-          </span>
-          <SeverityBadge severity={nc.severity} />
-          {isFixed && (
-            <span className="rounded bg-success/10 px-1.5 py-0.5 text-xs font-medium text-success">
-              {t("alreadyFixed")}
-            </span>
+
+      <span
+        className="inline-flex items-center rounded-md px-2 py-1 text-xs font-extrabold tabular text-white"
+        style={{ background: thematicColor }}
+      >
+        {nc.criterion.identifier}
+      </span>
+
+      <span className="min-w-0">
+        <span
+          className={cn(
+            "block truncate font-bold",
+            isFixed && "line-through",
+            !isFixed && isChecked && "text-muted-foreground line-through",
           )}
-          <span
-            className={cn(
-              "ml-auto flex items-center gap-1 text-xs",
-              isFixed ? "text-muted-foreground/80" : "text-muted-foreground",
-            )}
-          >
+        >
+          {nc.title}
+        </span>
+        <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-1">
             {nc.page ? (
               <>
-                <FileText className="h-3 w-3" aria-hidden="true" />
+                <FileText className="size-3.5 shrink-0" aria-hidden="true" />
                 {nc.page.name}
               </>
             ) : (
               t("transversal")
             )}
           </span>
-        </div>
-        <p
+          {isFixed && (
+            <span className="font-bold text-success">{t("alreadyFixed")}</span>
+          )}
+        </span>
+      </span>
+
+      <span className="flex shrink-0 items-center gap-3">
+        <SeverityBadge severity={nc.severity} />
+        <span
+          aria-hidden="true"
           className={cn(
-            "text-sm",
-            isFixed && "line-through",
-            !isFixed && isChecked && "text-muted-foreground line-through",
+            "hidden w-20 text-right text-sm font-extrabold text-success transition-opacity duration-200 sm:block",
+            isChecked && !isFixed ? "opacity-100" : "opacity-0",
           )}
         >
-          {nc.title}
-        </p>
-        {nc.description && (
-          <p
-            className={cn(
-              "line-clamp-2 text-xs",
-              isFixed ? "text-muted-foreground/80" : "text-muted-foreground",
-            )}
-          >
-            {nc.description}
-          </p>
-        )}
-      </div>
+          {t("gain")}
+        </span>
+      </span>
     </label>
   );
 }

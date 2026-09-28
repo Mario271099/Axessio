@@ -2,7 +2,6 @@
 
 import { memo } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Minus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ConformityStatus } from "@/types/domain";
 
@@ -15,11 +14,17 @@ interface Props {
   ariaLabelPrefix: string;
 }
 
+/**
+ * Sélecteur C / NC / NA du design system « Pro H » : un segmenté posé sur
+ * une piste grise. Le libellé court reste visible, le libellé complet est
+ * porté par l'`aria-label` de chaque bouton.
+ */
 const baseBtn =
-  "inline-flex h-9 items-center justify-center gap-1.5 border px-2 text-xs font-medium " +
-  "transition-all duration-150 active:scale-95 " +
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 " +
+  "inline-flex h-[30px] min-w-11 items-center justify-center rounded-md px-2 text-xs font-extrabold " +
+  "transition-[background-color,color,transform] duration-150 " +
   "disabled:cursor-not-allowed disabled:opacity-50";
+
+const idleBtn = "text-muted-foreground hover:bg-card hover:text-foreground";
 
 const ConformityCellInner = ({
   current,
@@ -35,7 +40,7 @@ const ConformityCellInner = ({
     <div
       role="group"
       aria-label={t("groupAria", { prefix: ariaLabelPrefix })}
-      className="inline-flex items-stretch overflow-hidden rounded-md shadow-xs"
+      className="inline-flex shrink-0 items-center gap-0.5 rounded-lg bg-secondary p-[3px]"
     >
       <button
         type="button"
@@ -48,14 +53,12 @@ const ConformityCellInner = ({
         disabled={disabled}
         className={cn(
           baseBtn,
-          "rounded-l-md border-r-0",
           current === "COMPLIANT"
-            ? "border-success bg-success text-success-foreground hover:bg-success/90"
-            : "border-input bg-background text-success hover:bg-success/10",
+            ? "scale-[1.04] bg-success text-success-foreground"
+            : idleBtn,
         )}
       >
-        <Check className="h-3.5 w-3.5" aria-hidden="true" />
-        <span className="hidden sm:inline">{t("compliantText")}</span>
+        {t("compliantShort")}
       </button>
       <button
         type="button"
@@ -68,14 +71,12 @@ const ConformityCellInner = ({
         disabled={disabled}
         className={cn(
           baseBtn,
-          "border-r-0",
           current === "NON_COMPLIANT"
-            ? "border-destructive bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            : "border-input bg-background text-destructive hover:bg-destructive/10",
+            ? "scale-[1.04] bg-destructive text-destructive-foreground"
+            : idleBtn,
         )}
       >
-        <X className="h-3.5 w-3.5" aria-hidden="true" />
-        <span className="hidden sm:inline">{t("nonCompliantText")}</span>
+        {t("nonCompliantShort")}
       </button>
       <button
         type="button"
@@ -88,14 +89,12 @@ const ConformityCellInner = ({
         disabled={disabled}
         className={cn(
           baseBtn,
-          "rounded-r-md",
           current === "NOT_APPLICABLE"
-            ? "border-muted-foreground bg-muted-foreground text-background hover:bg-muted-foreground/90"
-            : "border-input bg-background text-muted-foreground hover:bg-muted hover:text-foreground",
+            ? "scale-[1.04] bg-theme-13 text-white"
+            : idleBtn,
         )}
       >
-        <Minus className="h-3.5 w-3.5" aria-hidden="true" />
-        <span className="hidden sm:inline">{t("notApplicableText")}</span>
+        {t("notApplicableShort")}
       </button>
     </div>
   );

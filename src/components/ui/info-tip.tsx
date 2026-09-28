@@ -39,7 +39,7 @@ export function InfoTip({
             type="button"
             aria-label={label ?? "Aide"}
             className={cn(
-              "inline-flex shrink-0 items-center justify-center rounded-full text-muted-foreground/60 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+              "inline-flex shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-primary",
               className,
             )}
           >

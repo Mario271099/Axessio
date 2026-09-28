@@ -10,6 +10,7 @@ import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
+  AlertDialogBody,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -66,15 +67,16 @@ export function DeleteAccountForm({ email }: Props) {
       </Button>
 
       <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
+        <AlertDialogContent className="sm:max-w-[560px]">
+          <AlertDialogHeader icon={<Trash2 aria-hidden="true" />}>
             <AlertDialogTitle>{t("dialogTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
               {t("dialogDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <div className="space-y-1.5">
+          <AlertDialogBody>
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="delete-account-confirm">
               {t("confirmLabel", { email })}
             </Label>
@@ -94,15 +96,13 @@ export function DeleteAccountForm({ email }: Props) {
           {error && (
             <p
               role="alert"
-              className="inline-flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+              className="inline-flex items-start gap-2 rounded-[0.875rem] bg-destructive/10 p-3.5 text-[0.95rem] text-destructive"
             >
-              <AlertCircle
-                className="mt-0.5 h-4 w-4 shrink-0"
-                aria-hidden="true"
-              />
+              <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <span>{error}</span>
             </p>
           )}
+          </AlertDialogBody>
 
           <AlertDialogFooter>
             <AlertDialogCancel disabled={pending}>
@@ -120,12 +120,9 @@ export function DeleteAccountForm({ email }: Props) {
               disabled={!matches || pending}
             >
               {pending ? (
-                <Loader2
-                  className="h-4 w-4 animate-spin"
-                  aria-hidden="true"
-                />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               ) : (
-                <Trash2 className="h-4 w-4" aria-hidden="true" />
+                <Trash2 aria-hidden="true" />
               )}
               {t("confirmCta")}
             </AlertDialogAction>

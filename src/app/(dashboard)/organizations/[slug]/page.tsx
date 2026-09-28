@@ -1,21 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Building2, ChevronLeft, CreditCard, FileText, History, Key, Layers, Mail, Palette, User as UserIcon, Webhook } from "lucide-react";
+import { ChevronLeft, Mail } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { StatusDot } from "@/components/ui/status-dot";
+import { monogram, themeColorVar } from "@/lib/utils";
 import { InviteMemberForm } from "./members/invite-member-form";
+import { OrgSettingsNav } from "./org-settings-nav";
 import type { OrgRole, OrgType } from "@/types/domain";
 
 export async function generateMetadata({
@@ -132,148 +127,96 @@ export default async function OrganizationDetailPage({
     profile.isPlatformAdmin || myRole === "owner" || myRole === "admin";
 
   return (
-    <div className="container mx-auto max-w-4xl space-y-6 p-6 md:p-8">
-      <Button asChild variant="ghost" size="sm" className="gap-1 -ml-3">
-        <Link href="/organizations">
-          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+    <div className="space-y-5 px-4 pb-8 md:px-9">
+      <div>
+        <Link
+          href="/organizations"
+          className="inline-flex items-center gap-1.5 rounded-lg text-sm font-bold text-muted-foreground transition-colors hover:text-primary"
+        >
+          <ChevronLeft className="size-4" aria-hidden="true" />
           {t("back")}
         </Link>
-      </Button>
-
-      {/* Header org */}
-      <Card>
-        <CardHeader className="flex flex-row items-start gap-4 space-y-0">
-          <div
-            aria-hidden="true"
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
-          >
-            <Building2 className="h-6 w-6" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <CardTitle className="text-xl">{org.name}</CardTitle>
-            <CardDescription className="flex flex-wrap items-center gap-2 mt-1">
-              <span className="font-mono text-xs">{org.slug}</span>
-              <span aria-hidden="true">·</span>
-              <Badge variant="outline">
-                {TYPE_LABEL[org.type as OrgType] ?? org.type}
-              </Badge>
-              <span aria-hidden="true">·</span>
-              <span className="uppercase text-[10px] tracking-wide">
-                {org.data_residency}
-              </span>
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent className="flex flex-wrap items-center justify-between gap-3 text-sm">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Mail className="h-4 w-4" aria-hidden="true" />
-            <span>{org.billing_email}</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link href={`/organizations/${org.slug}/billing`}>
-                <CreditCard className="h-4 w-4" aria-hidden="true" />
-                {t("billingCta")}
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link href={`/organizations/${org.slug}/branding`}>
-                <Palette className="h-4 w-4" aria-hidden="true" />
-                {t("brandingCta")}
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link href={`/organizations/${org.slug}/workspaces`}>
-                <Layers className="h-4 w-4" aria-hidden="true" />
-                {t("workspacesCta")}
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link href={`/organizations/${org.slug}/webhooks`}>
-                <Webhook className="h-4 w-4" aria-hidden="true" />
-                {t("webhooksCta")}
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link href={`/organizations/${org.slug}/api-tokens`}>
-                <Key className="h-4 w-4" aria-hidden="true" />
-                {t("apiTokensCta")}
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link href={`/organizations/${org.slug}/audit-logs`}>
-                <History className="h-4 w-4" aria-hidden="true" />
-                {t("auditLogsCta")}
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link href={`/organizations/${org.slug}/nc-templates`}>
-                <FileText className="h-4 w-4" aria-hidden="true" />
-                {t("ncTemplatesCta")}
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Membres */}
-      <section className="space-y-3">
-        <header className="flex items-baseline justify-between">
-          <h2 className="text-lg font-semibold tracking-tight">
-            {t("membersTitle")}
-          </h2>
-          <span className="text-sm text-muted-foreground tabular-nums">
-            {t("membersCount", { count: members.length })}
+        <h1 className="mt-2 text-[2.125rem] font-black leading-tight tracking-tight">
+          {org.name}
+        </h1>
+        <p className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-base text-muted-foreground">
+          <span>{TYPE_LABEL[org.type as OrgType] ?? org.type}</span>
+          <span aria-hidden="true">·</span>
+          <span className="tabular">{org.slug}</span>
+          <span aria-hidden="true">·</span>
+          <span className="inline-flex items-center gap-1.5">
+            <Mail className="size-4 shrink-0" aria-hidden="true" />
+            {org.billing_email}
           </span>
-        </header>
+        </p>
+      </div>
 
-        <Card>
-          <CardContent className="p-0">
-            <ul className="divide-y divide-border">
+      <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <OrgSettingsNav slug={org.slug} active="general" />
+
+        <div className="flex min-w-0 flex-col gap-4">
+          {/* Membres ---------------------------------------------------- */}
+          <Card className="p-2.5">
+            <div className="flex items-baseline justify-between gap-3 px-3 pb-2 pt-1.5">
+              <h2 className="text-lg font-extrabold">{t("membersTitle")}</h2>
+              <span className="text-sm tabular text-muted-foreground">
+                {t("membersCount", { count: members.length })}
+              </span>
+            </div>
+
+            <ul className="flex flex-col gap-0.5">
               {members.map((m) => (
                 <li
                   key={m.id}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3",
-                    !m.isActive && "opacity-60",
-                  )}
+                  className="axs-row grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-row px-3 py-2"
                 >
-                  <div
+                  <span
                     aria-hidden="true"
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground"
+                    className="flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-white"
+                    style={{ background: themeColorVar(m.name) }}
                   >
-                    <UserIcon className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{m.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">
+                    {monogram(m.name)}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate font-bold">{m.name}</span>
+                    <span className="block truncate text-sm text-muted-foreground">
                       {m.email ?? "—"}
-                    </p>
-                  </div>
-                  <Badge variant={ROLE_TONE[m.role]} className="shrink-0">
-                    {tRole(m.role)}
-                  </Badge>
+                    </span>
+                  </span>
+                  <span className="flex shrink-0 items-center gap-3">
+                    <StatusDot
+                      color={
+                        m.isActive
+                          ? "hsl(var(--success))"
+                          : "hsl(var(--muted-foreground))"
+                      }
+                      className="hidden text-muted-foreground sm:inline-flex"
+                    >
+                      {m.isActive ? t("memberActive") : t("memberInactive")}
+                    </StatusDot>
+                    <Badge variant={ROLE_TONE[m.role]} size="sm">
+                      {tRole(m.role)}
+                    </Badge>
+                  </span>
                 </li>
               ))}
             </ul>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Inviter un membre - owner/admin de l'org uniquement */}
-      {canInvite && (
-        <section id="invite" className="space-y-3 scroll-mt-24">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">{tInvite("title")}</CardTitle>
-              <CardDescription>{tInvite("subtitle")}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <InviteMemberForm orgId={org.id} />
-            </CardContent>
           </Card>
-        </section>
-      )}
+
+          {/* Inviter un membre - owner/admin de l'org uniquement -------- */}
+          {canInvite && (
+            <Card id="invite" className="scroll-mt-24 p-5">
+              <h2 className="text-lg font-extrabold">{tInvite("title")}</h2>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {tInvite("subtitle")}
+              </p>
+              <div className="mt-3.5">
+                <InviteMemberForm orgId={org.id} />
+              </div>
+            </Card>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

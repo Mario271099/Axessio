@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Axessyo Pro — Matrice de conformité</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.px{font-family:'Figtree',system-ui,sans-serif;color:#161A2E;-webkit-font-smoothing:antialiased}
+.px .num{font-variant-numeric:tabular-nums}
+.px .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.px a:focus-visible,.px button:focus-visible{outline:3px solid #2440C8;outline-offset:2px}
+
+.px-page{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:0;border-radius:10px;background:transparent;font:inherit;text-align:left;color:#161A2E;cursor:pointer;transition:background-color .15s ease}
+.px-page:hover{background:#EEF1FB}
+.px-page[aria-current="true"]{background:#2440C8;color:#FFFFFF}
+.px-page[aria-current="true"] .sub{color:#DCE2FB}
+.px-page .pbar{height:4px;border-radius:2px;background:#E4E7F0;overflow:hidden;margin-top:5px}
+.px-page[aria-current="true"] .pbar{background:rgba(255,255,255,.25)}
+.px-page .pbar span{display:block;height:100%;background:#2440C8;border-radius:2px}
+.px-page[aria-current="true"] .pbar span{background:#FFFFFF}
+
+.px-chip{display:inline-flex;align-items:center;gap:7px;height:36px;min-width:36px;padding:0 5px;border-radius:17px;border:1px solid #E4E7F0;background:#FFFFFF;font:inherit;font-size:13.5px;font-weight:700;color:#161A2E;cursor:pointer;white-space:nowrap;transition:border-color .15s ease,background-color .15s ease,transform .15s ease}
+.px-chip .g{width:24px;height:24px;border-radius:12px;background:var(--c);color:#FFFFFF;font-size:11.5px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.px-chip:hover{border-color:var(--c);transform:translateY(-1px)}
+.px-chip[aria-pressed="true"]{padding-right:14px;border-color:var(--c);background:var(--c);color:#FFFFFF}
+.px-chip[aria-pressed="true"] .g{background:#FFFFFF;color:var(--c)}
+
+.px-crit{display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:14px;padding:12px 14px;border-radius:12px;border:1px solid transparent;cursor:pointer;transition:background-color .15s ease,border-color .15s ease}
+.px-crit:hover{background:#F4F6FE}
+.px-crit.sel{background:#F4F6FE;border-color:#B9C4F4}
+.px-crit .ref{font-weight:900;font-size:14px;color:var(--c)}
+.px-crit .ttl{font-size:14.5px;font-weight:600;line-height:1.35;background:transparent;border:0;padding:0;text-align:left;font-family:inherit;color:#161A2E;cursor:pointer}
+
+.px-seg{display:flex;padding:3px;border-radius:10px;background:#EEF0F6;gap:2px;border:0;margin:0}
+.px-seg legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.px-seg label{position:relative;cursor:pointer}
+.px-seg input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.px-seg span{display:flex;align-items:center;justify-content:center;min-width:44px;height:30px;padding:0 8px;box-sizing:border-box;border-radius:8px;font-size:12.5px;font-weight:800;color:#5B6178;transition:background-color .18s ease,color .18s ease,transform .15s cubic-bezier(.3,1.5,.5,1)}
+.px-seg label:hover span{color:#161A2E;background:#FFFFFF}
+.px-seg input:checked + span{transform:scale(1.04)}
+.px-seg input.c:checked + span{background:#15803D;color:#FFFFFF}
+.px-seg input.nc:checked + span{background:#C81E1E;color:#FFFFFF}
+.px-seg input.na:checked + span{background:#475569;color:#FFFFFF}
+.px-seg input:focus-visible + span{outline:3px solid #2440C8;outline-offset:1px}
+
+.px-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:10px;background:#C81E1E;color:#FFFFFF;font-weight:700;font-size:15px;text-decoration:none;border:0;cursor:pointer;box-shadow:0 6px 16px -8px rgba(200,30,30,.8);transition:transform .12s ease,background-color .2s ease}
+.px-btn:hover{background:#A61B1B}
+.px-btn:active{transform:scale(.97)}
+.px-ghost{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:10px;border:1px solid #D5DAE8;background:#FFFFFF;color:#161A2E;font:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:border-color .15s ease,background-color .15s ease}
+.px-ghost:hover{border-color:#2440C8;background:#F4F6FE}
+.px-meth li{padding:8px 10px;border-radius:8px;transition:background-color .15s ease}
+.px-meth li:hover{background:#F4F6FE}
+.px-sum{transition:color .3s ease}
+@media (prefers-reduced-motion: reduce){.px *{transition:none!important;animation:none!important}}
+</style>
+</helmet>
+<div class="px" style="width: 1440px; height: 1024px; display: flex; background: #F5F6FA; overflow: hidden">
+
+  <aside aria-labelledby="px-pages" style="width: 264px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #E4E7F0; padding: 18px 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+    <a href="#" style="display: flex; align-items: center; gap: 8px; color: #5B6178; font-size: 14px; font-weight: 700; text-decoration: none; padding: 0 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>Portail usagers</a>
+    <h2 id="px-pages" style="margin: 6px 6px 0; font-size: 16px; font-weight: 800">Échantillon</h2>
+    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px">
+      <sc-for list="{{pages}}" as="p" hint-placeholder-count="10">
+        <li><button type="button" class="px-page" aria-current="{{p.cur}}">
+          <span style="flex: 1; min-width: 0"><span style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 700"><span>{{p.name}}</span><span class="num sub" style="font-weight: 600; font-size: 12.5px; color: #5B6178">{{p.done}}</span></span><span class="pbar" aria-hidden="true" style="display: block"><span style="{{p.w}}"></span></span></span>
+        </button></li>
+      </sc-for>
+    </ul>
+  </aside>
+
+  <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+    <header style="background: #FFFFFF; border-bottom: 1px solid #E4E7F0; padding: 16px 28px 14px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px">
+        <div>
+          <h1 style="margin: 0; font-size: 26px; font-weight: 900; letter-spacing: -0.03em">Matrice, page Contact</h1>
+          <p style="margin: 3px 0 0; font-size: 14px; color: #5B6178">usagers.valmont.fr/contact, RGAA 4.1.2</p>
+        </div>
+        <div aria-live="polite" style="display: flex; align-items: center; gap: 22px">
+          <span style="display: flex; flex-direction: column; align-items: flex-end"><span class="num px-sum" style="font-size: 28px; font-weight: 900; letter-spacing: -0.02em; line-height: 1; {{scoreColor}}">{{score}}%</span><span style="font-size: 12.5px; color: #5B6178">conformité de la page</span></span>
+          <span style="display: flex; gap: 14px; font-size: 13.5px; font-weight: 700">
+            <span style="color: #15803D"><span class="num">{{c}}</span> C</span>
+            <span style="color: #C81E1E"><span class="num">{{nc}}</span> NC</span>
+            <span style="color: #475569"><span class="num">{{na}}</span> NA</span>
+            <span style="color: #5B6178"><span class="num">{{todo}}</span> à évaluer</span>
+          </span>
+        </div>
+      </div>
+      <div role="group" aria-label="Thématiques RGAA" style="display: flex; gap: 8px; overflow: hidden">
+        <sc-for list="{{chips}}" as="t" hint-placeholder-count="13">
+          <button type="button" class="px-chip" style="{{t.var}}" aria-pressed="{{t.pressed}}" aria-label="{{t.aria}}" title="{{t.name}}" onClick="{{t.pick}}"><span class="g num" aria-hidden="true">{{t.n}}</span><sc-if value="{{t.showName}}" hint-placeholder-val="{{false}}"><span aria-hidden="true">{{t.name}}</span></sc-if></button>
+        </sc-for>
+      </div>
+    </header>
+
+    <div style="flex-grow: 1; display: grid; grid-template-columns: minmax(0, 1fr) 400px; min-height: 0">
+      <section aria-labelledby="px-crits" style="padding: 18px 24px; display: flex; flex-direction: column; gap: 6px; min-height: 0">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 4px 6px">
+          <h2 id="px-crits" style="margin: 0; font-size: 17px; font-weight: 800">{{themeTitle}}</h2>
+          <button type="button" class="px-ghost" onClick="{{allC}}">Tout marquer conforme</button>
+        </div>
+        <sc-for list="{{crits}}" as="k" hint-placeholder-count="8">
+          <div class="{{k.cls}}" style="{{k.var}}" onClick="{{k.select}}">
+            <span class="ref num">{{k.ref}}</span>
+            <button type="button" class="ttl" onClick="{{k.select}}">{{k.title}}</button>
+            <fieldset class="px-seg">
+              <legend>Statut du critère {{k.ref}}</legend>
+              <label><input type="radio" class="c" name="{{k.name}}" checked="{{k.isC}}" onChange="{{k.setC}}"><span>C</span><span class="sr">Conforme</span></label>
+              <label><input type="radio" class="nc" name="{{k.name}}" checked="{{k.isNC}}" onChange="{{k.setNC}}"><span>NC</span><span class="sr">Non conforme</span></label>
+              <label><input type="radio" class="na" name="{{k.name}}" checked="{{k.isNA}}" onChange="{{k.setNA}}"><span>NA</span><span class="sr">Non applicable</span></label>
+            </fieldset>
+          </div>
+        </sc-for>
+      </section>
+
+      <aside aria-labelledby="px-det" style="background: #FFFFFF; border-left: 1px solid #E4E7F0; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; min-height: 0">
+        <span style="{{det.badge}}">Critère {{det.ref}}</span>
+        <h2 id="px-det" style="margin: 0; font-size: 20px; font-weight: 800; line-height: 1.3; letter-spacing: -0.01em">{{det.title}}</h2>
+        <p style="margin: 0; font-size: 14px; color: #5B6178">Niveau A, correspondance WCAG 1.3.1, 4.1.2</p>
+        <div style="border-radius: 14px; background: #F8F9FC; border: 1px solid #EEF0F6; padding: 14px 14px 8px">
+          <h3 style="margin: 0 0 6px; font-size: 14.5px; font-weight: 800">Méthodologie de test</h3>
+          <ol class="px-meth" style="margin: 0; padding: 0 0 0 18px; font-size: 13.5px; line-height: 1.5; color: #3F4560">
+            <li>Repérer chaque champ de formulaire de la page.</li>
+            <li>Vérifier qu'il possède une étiquette : balise label liée, aria-labelledby, aria-label ou title.</li>
+            <li>Si c'est le cas pour chaque champ, le critère est validé.</li>
+          </ol>
+        </div>
+        <div style="{{det.stateBox}}">
+          <p style="margin: 0; font-size: 14px; font-weight: 800">{{det.stateTitle}}</p>
+          <p style="margin: 4px 0 0; font-size: 13.5px; color: #3F4560">{{det.stateText}}</p>
+        </div>
+        <sc-if value="{{det.isNC}}" hint-placeholder-val="{{true}}">
+          <a class="px-btn" href="#">Rédiger la non-conformité</a>
+        </sc-if>
+        <div style="margin-top: auto; border-top: 1px solid #EEF0F6; padding-top: 12px; display: flex; gap: 10px">
+          <span aria-hidden="true" style="width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%; background: #BE185D; color: #FFFFFF; font-size: 11.5px; font-weight: 800; display: flex; align-items: center; justify-content: center">LM</span>
+          <p style="margin: 0; font-size: 13.5px; line-height: 1.45"><strong>Léa M.</strong> <span style="color: #5B6178">hier</span><br>Le champ téléphone a été corrigé en recette, à revérifier.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1024}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      theme: 11, sel: '11.1',
+      st: { '11.1': 'NC', '11.2': 'C', '11.3': 'C', '11.4': 'NC', '11.5': 'NC', '11.6': 'NA', '11.7': 'NA', '11.9': 'C', '11.10': 'NC', '11.13': '', '3.1': 'C', '3.2': 'NC', '3.3': 'C' }
+    };
+  }
+  renderVals() {
+    var self = this, st = this.state.st;
+    var themes = [[1, 'Images', '#C2410C'], [2, 'Cadres', '#7C3AED'], [3, 'Couleurs', '#BE185D'], [4, 'Multimédia', '#B91C1C'], [5, 'Tableaux', '#0F766E'], [6, 'Liens', '#1D4ED8'], [7, 'Scripts', '#4D7C0F'], [8, 'Obligatoires', '#A16207'], [9, 'Structure', '#0E7490'], [10, 'Présentation', '#9333EA'], [11, 'Formulaires', '#BE123C'], [12, 'Navigation', '#15803D'], [13, 'Consultation', '#475569']];
+    var data = {
+      11: [['11.1', 'Chaque champ de formulaire a-t-il une étiquette ?'], ['11.2', 'Chaque étiquette associée à un champ de formulaire est-elle pertinente ?'], ['11.3', 'Les étiquettes d’un même champ répété sont-elles cohérentes ?'], ['11.4', 'Chaque étiquette et son champ associé sont-ils accolés ?'], ['11.5', 'Les champs de même nature sont-ils regroupés, si nécessaire ?'], ['11.6', 'Chaque regroupement de champs a-t-il une légende ?'], ['11.7', 'Chaque légende de regroupement est-elle pertinente ?'], ['11.9', 'Chaque intitulé de bouton est-il pertinent ?'], ['11.10', 'Le contrôle de saisie est-il utilisé de manière pertinente ?'], ['11.13', 'La finalité d’un champ de saisie peut-elle être déduite ?']],
+      3: [['3.1', 'L’information n’est-elle pas donnée uniquement par la couleur ?'], ['3.2', 'Le contraste entre le texte et son arrière-plan est-il suffisamment élevé ?'], ['3.3', 'Les couleurs des composants d’interface et éléments graphiques sont-elles suffisamment contrastées ?']]
+    };
+    var theme = this.state.theme;
+    var color = themes.filter(function (t) { return t[0] === theme; })[0][2];
+    var list = data[theme] || [];
+    function set(ref, v) { return function () { var n = Object.assign({}, self.state.st); n[ref] = v; self.setState({ st: n, sel: ref }); }; }
+    var crits = list.map(function (k) {
+      var v = st[k[0]] || '';
+      return {
+        ref: k[0], title: k[1], name: 'crit-' + k[0].replace('.', '-'), var: '--c: ' + color,
+        cls: 'px-crit' + (self.state.sel === k[0] ? ' sel' : ''),
+        isC: v === 'C', isNC: v === 'NC', isNA: v === 'NA',
+        setC: set(k[0], 'C'), setNC: set(k[0], 'NC'), setNA: set(k[0], 'NA'),
+        select: function () { self.setState({ sel: k[0] }); }
+      };
+    });
+    var c = 40, nc = 9, na = 10, todo = 0;
+    Object.keys(st).forEach(function (r) { var v = st[r]; if (v === 'C') c++; else if (v === 'NC') nc++; else if (v === 'NA') na++; else todo++; });
+    todo += 106 - (c + nc + na + todo);
+    var score = Math.round(c / (c + nc) * 100);
+    var chips = themes.map(function (t) {
+      return { n: t[0], name: t[1], aria: t[0] + ', ' + t[1], showName: t[0] === theme, var: '--c: ' + t[2], pressed: t[0] === theme ? 'true' : 'false', pick: function () { if (data[t[0]]) self.setState({ theme: t[0], sel: data[t[0]][0][0] }); } };
+    });
+    var selRef = this.state.sel;
+    var all = (data[11]).concat(data[3]);
+    var selItem = all.filter(function (k) { return k[0] === selRef; })[0] || all[0];
+    var sv = st[selItem[0]] || '';
+    var box = { C: ['#E8F5EC', '#15803D', 'Conforme', 'Tous les champs testés possèdent une étiquette.'], NC: ['#FDECEC', '#C81E1E', 'Non conforme', 'Au moins un champ ne passe pas le test. Décrivez le problème dans une non-conformité.'], NA: ['#EEF0F6', '#475569', 'Non applicable', 'Aucun élément concerné sur cette page.'], '': ['#F4F6FE', '#2440C8', 'À évaluer', 'Choisissez C, NC ou NA pour ce critère.'] }[sv];
+    var pages = [['Accueil', 106, 106], ['Contact', 106 - todo, 106], ['Mentions légales', 106, 106], ['Plan du site', 98, 106], ['Accessibilité', 106, 106], ['Démarches', 72, 106], ['État civil', 40, 106], ['Inscription cantine', 12, 106], ['Paiement en ligne', 0, 106], ['Transversal', 106, 106]].map(function (p) {
+      return { name: p[0], done: Math.round(p[1] / p[2] * 100) + '%', w: 'width: ' + (p[1] / p[2] * 100) + '%', cur: p[0] === 'Contact' ? 'true' : 'false' };
+    });
+    return {
+      pages: pages, chips: chips, crits: crits, c: c, nc: nc, na: na, todo: todo, score: score,
+      scoreColor: 'color: ' + (score >= 100 ? '#15803D' : score >= 50 ? '#A16207' : '#C81E1E'),
+      themeTitle: 'Thématique ' + theme + ', ' + themes.filter(function (t) { return t[0] === theme; })[0][1],
+      allC: function () { var n = Object.assign({}, self.state.st); list.forEach(function (k) { n[k[0]] = 'C'; }); self.setState({ st: n }); },
+      det: {
+        ref: selItem[0], title: selItem[1], isNC: sv === 'NC',
+        badge: 'align-self: flex-start; font-size: 13px; font-weight: 900; padding: 4px 10px; border-radius: 8px; color: #FFFFFF; background: ' + color,
+        stateBox: 'border-radius: 14px; padding: 12px 14px; background: ' + box[0] + '; border: 1px solid ' + box[1],
+        stateTitle: box[2], stateText: box[3]
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

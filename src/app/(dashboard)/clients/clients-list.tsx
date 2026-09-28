@@ -5,12 +5,9 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   AlertCircle,
+  ArrowRight,
   Building2,
-  CheckCircle2,
-  ClipboardCheck,
-  ClipboardList,
   ExternalLink,
-  FolderKanban,
   Loader2,
   Plus,
   RotateCcw,
@@ -19,11 +16,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { StatusDot } from "@/components/ui/status-dot";
 import { EmptyState as SharedEmptyState } from "@/components/ui/empty-state";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -37,7 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { monogram, themeColorVar } from "@/lib/utils";
 import { createClient } from "./actions";
 
 export interface ClientListItem {
@@ -53,6 +52,17 @@ export interface ClientListItem {
 
 type StatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
 
+const STATUS_FILTERS: Array<{ value: StatusFilter; labelKey: string }> = [
+  { value: "ALL", labelKey: "filterAll" },
+  { value: "ACTIVE", labelKey: "filterActive" },
+  { value: "INACTIVE", labelKey: "filterInactive" },
+];
+
+/** Tri de la grille — purement côté client, sur les clients déjà chargés. */
+type SortMode = "name" | "recent" | "audits";
+
+const SORT_MODES: SortMode[] = ["name", "recent", "audits"];
+
 interface ClientsListProps {
   clients: ClientListItem[];
 }
@@ -62,18 +72,24 @@ export function ClientsList({ clients }: ClientsListProps) {
   const tCommon = useTranslations("common");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const [sort, setSort] = useState<SortMode>("name");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return clients.filter((c) => {
+    const rows = clients.filter((c) => {
       if (statusFilter === "ACTIVE" && !c.isActive) return false;
       if (statusFilter === "INACTIVE" && c.isActive) return false;
       if (!q) return true;
       const haystack = [c.name, c.contactEmail ?? ""].join(" ").toLowerCase();
       return haystack.includes(q);
     });
-  }, [clients, search, statusFilter]);
+    return rows.sort((a, b) => {
+      if (sort === "recent") return b.createdAt.localeCompare(a.createdAt);
+      if (sort === "audits") return b.auditCount - a.auditCount;
+      return a.name.localeCompare(b.name);
+    });
+  }, [clients, search, statusFilter, sort]);
 
   const totals = useMemo(() => {
     let active = 0;
@@ -92,90 +108,87 @@ export function ClientsList({ clients }: ClientsListProps) {
   };
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-6 p-6 md:p-8">
-      {/* Header --------------------------------------------------------- */}
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground">
+    <div className="space-y-5 px-4 pb-8 md:px-9">
+      {/* En-tête ------------------------------------------------------- */}
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-[2.125rem] font-black leading-tight tracking-tight">
+            {t("title")}
+          </h1>
+          <p className="mt-1 text-base text-muted-foreground">
             {t("subtitle", { count: clients.length })}
+            <span aria-hidden="true"> · </span>
+            {t("auditCount", { count: totals.audits })}
           </p>
         </div>
         <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4" aria-hidden="true" />
+          <Plus data-anim="spin" aria-hidden="true" />
           {t("newClient")}
         </Button>
       </header>
 
-      {/* KPIs ----------------------------------------------------------- */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <KpiCard
-          icon={Building2}
-          tone="primary"
-          label={t("kpi.total")}
-          value={clients.length}
-        />
-        <KpiCard
-          icon={CheckCircle2}
-          tone="success"
-          label={t("kpi.active")}
-          value={totals.active}
-        />
-        <KpiCard
-          icon={ClipboardCheck}
-          tone="violet"
-          label={t("kpi.audits")}
-          value={totals.audits}
-        />
-      </div>
+      {/* Filtres ------------------------------------------------------- */}
+      <div className="flex flex-wrap items-center gap-2.5">
+        <div className="relative w-full sm:w-72">
+          <Search
+            className="pointer-events-none absolute left-3.5 top-1/2 size-[18px] -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <Input
+            type="search"
+            placeholder={t("searchPlaceholder")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="rounded-row pl-11"
+            aria-label={t("searchAria")}
+          />
+        </div>
 
-      {/* Barre de filtres ---------------------------------------------- */}
-      <Card className="sticky top-0 z-10 shadow-sm">
-        <CardContent className="grid gap-3 p-4 sm:grid-cols-[1fr_220px]">
-          <div className="relative">
-            <Search
-              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
+        <div
+          role="group"
+          aria-label={t("filterStatusAria")}
+          className="flex flex-wrap items-center gap-2"
+        >
+          {STATUS_FILTERS.map((option) => (
+            <FilterChip
+              key={option.value}
+              label={t(option.labelKey)}
+              pressed={statusFilter === option.value}
+              count={
+                option.value === "ALL"
+                  ? clients.length
+                  : option.value === "ACTIVE"
+                    ? totals.active
+                    : clients.length - totals.active
+              }
+              onClick={() => setStatusFilter(option.value)}
             />
-            <Input
-              type="search"
-              placeholder={t("searchPlaceholder")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-              aria-label={t("searchAria")}
-            />
-          </div>
+          ))}
+        </div>
 
-          <Select
-            value={statusFilter}
-            onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+        <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
+          <SelectTrigger
+            className="h-9 w-52 rounded-full text-sm font-bold sm:ml-auto"
+            aria-label={t("sort.aria")}
           >
-            <SelectTrigger aria-label={t("filterStatusAria")}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">{t("filterAll")}</SelectItem>
-              <SelectItem value="ACTIVE">{t("filterActive")}</SelectItem>
-              <SelectItem value="INACTIVE">{t("filterInactive")}</SelectItem>
-            </SelectContent>
-          </Select>
-        </CardContent>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {SORT_MODES.map((mode) => (
+              <SelectItem key={mode} value={mode}>
+                {t("sort." + mode)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         {filtersActive && (
-          <div className="flex justify-end border-t border-border px-4 py-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={resetFilters}
-              className="gap-1.5"
-            >
-              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-              {tCommon("reset")}
-            </Button>
-          </div>
+          <Button type="button" variant="ghost" size="sm" onClick={resetFilters}>
+            <RotateCcw aria-hidden="true" />
+            {tCommon("reset")}
+          </Button>
         )}
-      </Card>
+      </div>
 
       {/* Grille ou empty ----------------------------------------------- */}
       {clients.length === 0 ? (
@@ -218,108 +231,78 @@ export function ClientsList({ clients }: ClientsListProps) {
 
 /* -------------------------------------------------------------------------- */
 
-const toneClasses = {
-  primary: "bg-primary/10 text-primary",
-  success: "bg-success/10 text-success",
-  violet: "bg-violet-500/10 text-violet-500",
-} as const;
-
-function KpiCard({
-  icon: Icon,
-  tone,
-  label,
-  value,
-}: {
-  icon: React.ElementType;
-  tone: keyof typeof toneClasses;
-  label: string;
-  value: number;
-}) {
-  return (
-    <Card className="p-6 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md">
-      <div
-        className={cn(
-          "flex h-10 w-10 items-center justify-center rounded-lg",
-          toneClasses[tone],
-        )}
-        aria-hidden="true"
-      >
-        <Icon className="h-5 w-5" />
-      </div>
-      <p className="mt-4 text-sm text-muted-foreground">{label}</p>
-      <p className="mt-1 text-3xl font-bold tabular-nums tracking-tight">
-        {value}
-      </p>
-    </Card>
-  );
-}
-
-function clientInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`.toUpperCase();
-  }
-  return (parts[0]?.slice(0, 2) ?? "?").toUpperCase();
-}
-
 function ClientCard({ client }: { client: ClientListItem }) {
   const t = useTranslations("clients");
+  const color = themeColorVar(client.name);
   return (
     <Link
-      href={`/clients/${client.id}`}
-      className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      href={"/clients/" + client.id}
       aria-label={t("viewClient", { name: client.name })}
+      className="axs-lift group flex h-full flex-col gap-3.5 rounded-card border border-border bg-card p-4"
+      style={{ "--lift-color": color } as React.CSSProperties}
     >
-      <Card
-        interactive
-        className="flex h-full flex-col gap-4 p-5"
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div
+      <span className="flex items-start justify-between gap-3">
+        <span className="flex min-w-0 items-center gap-3">
+          <span
             aria-hidden="true"
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-base font-bold text-primary"
+            className="axs-mono flex size-10 shrink-0 items-center justify-center rounded-row text-sm font-extrabold text-white"
+            style={{ background: color }}
           >
-            {clientInitials(client.name)}
-          </div>
-          <Badge variant={client.isActive ? "success" : "muted"}>
-            {client.isActive ? t("active") : t("inactive")}
-          </Badge>
-        </div>
-
-        <div className="space-y-1">
-          <p className="truncate text-lg font-bold tracking-tight">
-            {client.name}
-          </p>
-          {client.contactEmail && (
-            <p className="truncate text-sm text-muted-foreground">
-              {client.contactEmail}
-            </p>
-          )}
-          {client.website && (
-            <span className="inline-flex max-w-full items-center gap-1 truncate text-xs text-primary">
-              <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
-              <span className="truncate">{client.website}</span>
-            </span>
-          )}
-        </div>
-
-        <div className="mt-auto border-t border-border pt-3">
-          <div className="flex items-center justify-between gap-4 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <FolderKanban className="h-4 w-4" aria-hidden="true" />
-              <span className="tabular-nums">
-                {t("projectCount", { count: client.projectCount })}
+            {monogram(client.name)}
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate font-bold">{client.name}</span>
+            {client.contactEmail && (
+              <span className="block truncate text-sm text-muted-foreground">
+                {client.contactEmail}
               </span>
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <ClipboardList className="h-4 w-4" aria-hidden="true" />
-              <span className="tabular-nums">
-                {t("auditCount", { count: client.auditCount })}
-              </span>
-            </span>
-          </div>
-        </div>
-      </Card>
+            )}
+          </span>
+        </span>
+        <span
+          aria-hidden="true"
+          className="flex size-[30px] shrink-0 items-center justify-center rounded-full bg-secondary text-foreground transition-transform duration-200 group-hover:-rotate-45"
+        >
+          <ArrowRight className="size-[15px]" />
+        </span>
+      </span>
+
+      {client.website && (
+        <span className="inline-flex min-w-0 items-center gap-1.5 text-sm text-primary">
+          <ExternalLink className="size-3.5 shrink-0" aria-hidden="true" />
+          <span className="truncate">{client.website}</span>
+        </span>
+      )}
+
+      <span className="mt-auto grid grid-cols-2 gap-3 border-t border-border pt-3">
+        <span className="flex flex-col">
+          <span className="text-xl font-black tabular">
+            {client.projectCount}
+          </span>
+          <span className="text-sm text-muted-foreground">
+            {t("projectCount", { count: client.projectCount })}
+          </span>
+        </span>
+        <span className="flex flex-col">
+          <span className="text-xl font-black tabular">
+            {client.auditCount}
+          </span>
+          <span className="text-sm text-muted-foreground">
+            {t("auditCount", { count: client.auditCount })}
+          </span>
+        </span>
+      </span>
+
+      <StatusDot
+        color={
+          client.isActive
+            ? "hsl(var(--success))"
+            : "hsl(var(--muted-foreground))"
+        }
+        className="text-muted-foreground"
+      >
+        {client.isActive ? t("active") : t("inactive")}
+      </StatusDot>
     </Link>
   );
 }
@@ -381,13 +364,14 @@ function CreateClientDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent size="md" closeLabel={tCommon("close")}>
+        <DialogHeader icon={<Building2 aria-hidden="true" />}>
           <DialogTitle>{t("dialog.createTitle")}</DialogTitle>
           <DialogDescription>{t("dialog.createDesc")}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <DialogBody>
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
@@ -434,10 +418,12 @@ function CreateClientDialog({
             />
           </div>
 
+          </DialogBody>
+
           <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
@@ -445,7 +431,7 @@ function CreateClientDialog({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               {t("dialog.submitCreate")}
             </Button>
