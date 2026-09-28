@@ -1122,6 +1122,21 @@
         "criteria": "436 critères pré-importés",
         "reports": "Rapports PDF en un clic",
         "collaboration": "Collaboration en temps réel"
+      },
+      "registerTagline": "Votre premier audit, dès aujourd’hui.",
+      "registerSteps": {
+        "workspace": {
+          "title": "Créez votre espace",
+          "desc": "Votre organisation et son espace de travail."
+        },
+        "team": {
+          "title": "Invitez votre équipe",
+          "desc": "Auditeurs, développeurs et interlocuteurs côté client."
+        },
+        "audit": {
+          "title": "Lancez votre premier audit",
+          "desc": "Choisissez le référentiel, les pages obligatoires sont déjà là."
+        }
       }
     },
     "login": {
@@ -1188,7 +1203,9 @@
         "rateLimited": "Trop de tentatives. Réessayez dans {seconds} s.",
         "server": "La création du compte a échoué. Réessayez dans un instant.",
         "signInFailed": "Votre compte a été créé mais la connexion automatique a échoué. Connectez-vous manuellement."
-      }
+      },
+      "criteriaMet": ", respecté",
+      "criteriaUnmet": ", non respecté"
     },
     "forgotPassword": {
       "title": "Mot de passe oublié",
@@ -1235,7 +1252,9 @@
         "notMet": "Le mot de passe ne respecte pas les critères de sécurité.",
         "mismatch": "Les mots de passe ne correspondent pas.",
         "update": "Échec de la mise à jour : {message}"
-      }
+      },
+      "criteriaMet": ", respecté",
+      "criteriaUnmet": ", non respecté"
     },
     "setupPassword": {
       "title": "Bienvenue !",
@@ -1262,7 +1281,14 @@
         "notMet": "Le mot de passe ne respecte pas les critères requis.",
         "mismatch": "Les deux mots de passe ne correspondent pas.",
         "update": "Erreur : {message}"
-      }
+      },
+      "criteriaMet": ", respecté",
+      "criteriaUnmet": ", non respecté"
+    },
+    "switch": {
+      "aria": "Connexion ou création de compte",
+      "login": "Se connecter",
+      "register": "Créer un compte"
     }
   },
   "dashboard": {

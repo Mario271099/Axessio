@@ -3,44 +3,18 @@
 import { useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import {
-  AlertCircle,
-  Building2,
-  Check,
-  Eye,
-  EyeOff,
-  Loader2,
-  Lock,
-  Mail,
-  User,
-} from "lucide-react";
+import { AlertCircle, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { PasswordField } from "@/components/auth/password-field";
+import {
+  PASSWORD_STRENGTH_KEYS,
+  PasswordStrength,
+  evaluatePassword,
+  passwordScore,
+} from "@/components/auth/password-strength";
 import { createClient } from "@/lib/supabase/client";
-
-interface PasswordCriteria {
-  minLength: boolean;
-  hasUppercase: boolean;
-  hasDigit: boolean;
-}
-
-function evaluatePassword(password: string): PasswordCriteria {
-  return {
-    minLength: password.length >= 8,
-    hasUppercase: /[A-Z]/.test(password),
-    hasDigit: /[0-9]/.test(password),
-  };
-}
-
-const STRENGTH_KEYS = ["tooShort", "weak", "medium", "strong"] as const;
-const STRENGTH_COLORS = [
-  "bg-muted-foreground/30",
-  "bg-destructive",
-  "bg-warning",
-  "bg-success",
-] as const;
 
 // Codes d'erreur renvoyés par /api/auth/register → clés i18n auth.register.errors.
 const ERROR_CODES = new Set([
@@ -56,17 +30,12 @@ export function RegisterForm({ plan }: { plan?: string }) {
   const t = useTranslations("auth.register");
 
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   const criteria = useMemo(() => evaluatePassword(password), [password]);
-  const strength =
-    Number(criteria.minLength) +
-    Number(criteria.hasUppercase) +
-    Number(criteria.hasDigit);
-  const strengthKey = STRENGTH_KEYS[strength] ?? STRENGTH_KEYS[0];
-  const strengthColor = STRENGTH_COLORS[strength] ?? STRENGTH_COLORS[0];
+  const strength = passwordScore(criteria);
+  const strengthKey = PASSWORD_STRENGTH_KEYS[strength] ?? PASSWORD_STRENGTH_KEYS[0];
   const allCriteriaMet =
     criteria.minLength && criteria.hasUppercase && criteria.hasDigit;
 
@@ -152,199 +121,128 @@ export function RegisterForm({ plan }: { plan?: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3.5" noValidate>
       {error && (
         <p
           id="form-error"
           role="alert"
-          className="inline-flex w-full items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+          className="flex w-full items-start gap-2.5 rounded-row bg-severity-critical-bg px-3.5 py-3 text-[0.95rem] leading-snug text-severity-critical"
         >
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          <AlertCircle className="mt-0.5 size-[18px] shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </p>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
           <Label htmlFor="firstName">{t("firstName")}</Label>
-          <div className="relative">
-            <User
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              id="firstName"
-              name="firstName"
-              type="text"
-              autoComplete="given-name"
-              required
-              aria-required="true"
-              placeholder={t("firstNamePlaceholder")}
-              className="pl-9"
-              disabled={pending}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="lastName">{t("lastName")}</Label>
-          <div className="relative">
-            <User
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              id="lastName"
-              name="lastName"
-              type="text"
-              autoComplete="family-name"
-              required
-              aria-required="true"
-              placeholder={t("lastNamePlaceholder")}
-              className="pl-9"
-              disabled={pending}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="organization">{t("organization")}</Label>
-        <div className="relative">
-          <Building2
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
           <Input
-            id="organization"
-            name="organization"
+            id="firstName"
+            name="firstName"
             type="text"
-            autoComplete="organization"
+            autoComplete="given-name"
             required
             aria-required="true"
-            aria-describedby="organization-hint"
-            placeholder={t("organizationPlaceholder")}
-            className="pl-9"
+            placeholder={t("firstNamePlaceholder")}
             disabled={pending}
           />
         </div>
-        <p id="organization-hint" className="text-xs text-muted-foreground">
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="lastName">{t("lastName")}</Label>
+          <Input
+            id="lastName"
+            name="lastName"
+            type="text"
+            autoComplete="family-name"
+            required
+            aria-required="true"
+            placeholder={t("lastNamePlaceholder")}
+            disabled={pending}
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="organization">{t("organization")}</Label>
+        <Input
+          id="organization"
+          name="organization"
+          type="text"
+          autoComplete="organization"
+          required
+          aria-required="true"
+          aria-describedby="organization-hint"
+          placeholder={t("organizationPlaceholder")}
+          disabled={pending}
+        />
+        <p id="organization-hint" className="text-[0.8rem] text-muted-foreground">
           {t("organizationHint")}
         </p>
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-1.5">
         <Label htmlFor="email">{t("email")}</Label>
-        <div className="relative">
-          <Mail
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            aria-required="true"
-            placeholder={t("emailPlaceholder")}
-            className="pl-9"
-            disabled={pending}
-          />
-        </div>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          aria-required="true"
+          placeholder={t("emailPlaceholder")}
+          disabled={pending}
+        />
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-1.5">
         <Label htmlFor="password">{t("password")}</Label>
-        <div className="relative">
-          <Lock
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
-            id="password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            autoComplete="new-password"
-            required
-            aria-required="true"
-            aria-describedby="password-strength password-criteria"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            className="pl-9 pr-10"
-            disabled={pending}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={showPassword ? t("hidePassword") : t("showPassword")}
-            aria-pressed={showPassword}
-          >
-            {showPassword ? (
-              <EyeOff className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <Eye className="h-4 w-4" aria-hidden="true" />
-            )}
-          </button>
-        </div>
-
-        {/* Indicateur de force */}
-        <div id="password-strength" className="space-y-1">
-          <div className="flex gap-1" aria-hidden="true">
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                className={cn(
-                  "h-1.5 flex-1 rounded-full transition-colors",
-                  i < strength ? strengthColor : "bg-muted",
-                )}
-              />
-            ))}
-          </div>
-          <p
-            className={cn(
-              "text-xs tabular-nums",
-              strength === 0 && "text-muted-foreground",
-              strength === 1 && "text-destructive",
-              strength === 2 && "text-warning",
-              strength === 3 && "text-success",
-            )}
-            aria-live="polite"
-          >
-            {t("strength", { label: t(`strengthLevels.${strengthKey}`) })}
-          </p>
-        </div>
-
-        {/* Critères */}
-        <ul
-          id="password-criteria"
-          className="space-y-1 pt-1 text-xs text-muted-foreground"
-        >
-          <Criterion ok={criteria.minLength}>{t("criteria.minLength")}</Criterion>
-          <Criterion ok={criteria.hasUppercase}>{t("criteria.uppercase")}</Criterion>
-          <Criterion ok={criteria.hasDigit}>{t("criteria.digit")}</Criterion>
-        </ul>
+        <PasswordField
+          id="password"
+          name="password"
+          autoComplete="new-password"
+          required
+          aria-required="true"
+          aria-describedby="password-strength"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="••••••••"
+          disabled={pending}
+          showLabel={t("showPassword")}
+          hideLabel={t("hidePassword")}
+        />
+        <PasswordStrength
+          id="password-strength"
+          criteria={criteria}
+          score={strength}
+          strengthLabel={t("strength", {
+            label: t(`strengthLevels.${strengthKey}`),
+          })}
+          criteriaLabels={[
+            t("criteria.minLength"),
+            t("criteria.uppercase"),
+            t("criteria.digit"),
+          ]}
+          metLabel={t("criteriaMet")}
+          unmetLabel={t("criteriaUnmet")}
+        />
       </div>
 
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full"
-        disabled={pending}
-      >
+      <Button type="submit" size="lg" className="mt-1 w-full" disabled={pending}>
         {pending ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            <Loader2 className="animate-spin" aria-hidden="true" />
             {t("submitting")}
           </>
         ) : (
-          t("submit")
+          <>
+            {t("submit")}
+            <ArrowRight data-anim="go" aria-hidden="true" />
+          </>
         )}
       </Button>
 
-      <p className="text-center text-xs text-muted-foreground">
+      <p className="text-[0.8rem] text-muted-foreground">
         {t.rich("terms", {
           terms: (chunks) => (
             <Link
@@ -368,30 +266,3 @@ export function RegisterForm({ plan }: { plan?: string }) {
   );
 }
 
-function Criterion({
-  ok,
-  children,
-}: {
-  ok: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <li
-      className={cn(
-        "flex items-center gap-1.5 transition-colors",
-        ok && "text-success",
-      )}
-    >
-      <span
-        className={cn(
-          "flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full",
-          ok ? "bg-success/15 text-success" : "bg-muted text-muted-foreground",
-        )}
-        aria-hidden="true"
-      >
-        <Check className="h-2.5 w-2.5" />
-      </span>
-      <span>{children}</span>
-    </li>
-  );
-}

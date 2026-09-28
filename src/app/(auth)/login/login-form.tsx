@@ -3,17 +3,17 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { AlertCircle, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
+import { AlertCircle, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordField } from "@/components/auth/password-field";
 import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm({ next }: { next?: string }) {
   const t = useTranslations("auth.login");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -90,100 +90,69 @@ export function LoginForm({ next }: { next?: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
       {error && (
         <p
           id="form-error"
           role="alert"
-          className="inline-flex w-full items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+          className="flex w-full items-start gap-2.5 rounded-row bg-severity-critical-bg px-3.5 py-3 text-[0.95rem] leading-snug text-severity-critical"
         >
-          <AlertCircle
-            className="mt-0.5 h-4 w-4 shrink-0"
-            aria-hidden="true"
-          />
+          <AlertCircle className="mt-0.5 size-[18px] shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </p>
       )}
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-1.5">
         <Label htmlFor="email">{t("email")}</Label>
-        <div className="relative">
-          <Mail
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            aria-required="true"
-            aria-invalid={error ? "true" : undefined}
-            aria-describedby={error ? "form-error" : undefined}
-            placeholder={t("emailPlaceholder")}
-            className="pl-9"
-            disabled={pending}
-          />
-        </div>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          aria-required="true"
+          aria-invalid={error ? "true" : undefined}
+          aria-describedby={error ? "form-error" : undefined}
+          placeholder={t("emailPlaceholder")}
+          disabled={pending}
+        />
       </div>
 
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-baseline justify-between gap-3">
           <Label htmlFor="password">{t("password")}</Label>
           <Link
             href="/forgot-password"
-            className="text-xs text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded"
+            className="rounded text-[0.84rem] font-bold text-primary underline decoration-1 underline-offset-4 hover:decoration-2"
           >
             {t("forgotPassword")}
           </Link>
         </div>
-        <div className="relative">
-          <Lock
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
-            id="password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            autoComplete="current-password"
-            required
-            aria-required="true"
-            aria-describedby={error ? "form-error" : undefined}
-            placeholder="••••••••"
-            className="pl-9 pr-10"
-            disabled={pending}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={showPassword ? t("hidePassword") : t("showPassword")}
-            aria-pressed={showPassword}
-          >
-            {showPassword ? (
-              <EyeOff className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <Eye className="h-4 w-4" aria-hidden="true" />
-            )}
-          </button>
-        </div>
+        <PasswordField
+          id="password"
+          name="password"
+          autoComplete="current-password"
+          required
+          aria-required="true"
+          aria-describedby={error ? "form-error" : undefined}
+          placeholder="••••••••"
+          disabled={pending}
+          showLabel={t("showPassword")}
+          hideLabel={t("hidePassword")}
+        />
       </div>
 
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full"
-        disabled={pending}
-      >
+      <Button type="submit" size="lg" className="mt-1 w-full" disabled={pending}>
         {pending ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            <Loader2 className="animate-spin" aria-hidden="true" />
             {t("submitting")}
           </>
         ) : (
-          t("submit")
+          <>
+            {t("submit")}
+            <ArrowRight data-anim="go" aria-hidden="true" />
+          </>
         )}
       </Button>
     </form>

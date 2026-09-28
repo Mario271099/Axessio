@@ -1122,6 +1122,21 @@
         "criteria": "436 pre-imported criteria",
         "reports": "PDF reports in one click",
         "collaboration": "Real-time collaboration"
+      },
+      "registerTagline": "Your first audit, starting today.",
+      "registerSteps": {
+        "workspace": {
+          "title": "Create your workspace",
+          "desc": "Your organization and its workspace."
+        },
+        "team": {
+          "title": "Invite your team",
+          "desc": "Auditors, developers and client-side contacts."
+        },
+        "audit": {
+          "title": "Start your first audit",
+          "desc": "Pick the standard; the mandatory pages are already there."
+        }
       }
     },
     "login": {
@@ -1188,7 +1203,9 @@
         "rateLimited": "Too many attempts. Try again in {seconds}s.",
         "server": "Account creation failed. Please try again in a moment.",
         "signInFailed": "Your account was created but automatic sign-in failed. Please sign in manually."
-      }
+      },
+      "criteriaMet": ", met",
+      "criteriaUnmet": ", not met"
     },
     "forgotPassword": {
       "title": "Forgot your password?",
@@ -1235,7 +1252,9 @@
         "notMet": "Password doesn't meet the security criteria.",
         "mismatch": "Passwords don't match.",
         "update": "Update failed: {message}"
-      }
+      },
+      "criteriaMet": ", met",
+      "criteriaUnmet": ", not met"
     },
     "setupPassword": {
       "title": "Welcome!",
@@ -1262,7 +1281,14 @@
         "notMet": "Password does not meet the required criteria.",
         "mismatch": "The two passwords do not match.",
         "update": "Error: {message}"
-      }
+      },
+      "criteriaMet": ", met",
+      "criteriaUnmet": ", not met"
+    },
+    "switch": {
+      "aria": "Sign in or create an account",
+      "login": "Sign in",
+      "register": "Create an account"
     }
   },
   "dashboard": {
