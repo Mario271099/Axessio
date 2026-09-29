@@ -1,5 +1,64 @@
 import type { MetadataRoute } from "next";
-import { IS_PRODUCTION_DEPLOYMENT, SITE, siteUrl } from "@/lib/site";
+import { IS_PRODUCTION_DEPLOYMENT, siteUrl } from "@/lib/site";
+
+// Pages publiques indexables (alignées sur le sitemap). Le `/` couvre déjà
+// tout, mais on liste explicitement pour documenter l'intention. /login et
+// /register sont volontairement absents : ils sont en noindex et hors sitemap
+// (pages utilitaires sans intérêt SEO).
+const PUBLIC_PAGES = [
+  "/",
+  "/pricing",
+  "/legal",
+  "/privacy",
+  "/cookies",
+  "/accessibility",
+];
+
+// Tout ce qui est derrière auth est explicitement exclu pour ne pas gaspiller
+// le crawl-budget des moteurs et éviter d'indexer du contenu utilisateur (qui
+// de toute façon retournerait 401/redirect).
+const PRIVATE_PATHS = [
+  "/dashboard",
+  "/dashboard/",
+  "/admin/",
+  "/audits",
+  "/audits/",
+  "/clients",
+  "/clients/",
+  "/projects",
+  "/projects/",
+  "/users",
+  "/users/",
+  "/settings",
+  "/settings/",
+  "/notifications",
+  "/notifications/",
+  "/organizations/",
+  "/planning",
+  "/onboarding/",
+  "/auth/",
+  "/api/",
+  "/setup-password",
+];
+
+// Robots qui récupèrent une page pour répondre à une question (recherche IA).
+const AI_SEARCH_BOTS = [
+  "OAI-SearchBot",
+  "ChatGPT-User",
+  "Claude-SearchBot",
+  "Claude-User",
+  "PerplexityBot",
+  "Perplexity-User",
+];
+
+// Robots qui aspirent le web pour entraîner des modèles.
+const AI_TRAINING_BOTS = [
+  "GPTBot",
+  "ClaudeBot",
+  "anthropic-ai",
+  "CCBot",
+  "Google-Extended",
+];
 
 export default function robots(): MetadataRoute.Robots {
   // Staging / previews : interdiction totale de crawl (doublé par le header
@@ -11,59 +70,25 @@ export default function robots(): MetadataRoute.Robots {
     };
   }
 
-  // Hôte canonique nu (sans schéma ni slash) - la directive `host` attend un
-  // nom de domaine, pas une URL. Dérivé de SITE.url pour rester cohérent.
-  const host = new URL(SITE.url).host;
-
   return {
     rules: [
       {
         userAgent: "*",
-        // Pages publiques indexables (alignées sur le sitemap). Le `/` couvre
-        // déjà tout, mais on liste explicitement pour documenter l'intention.
-        // /login et /register sont volontairement absents : ils sont en noindex
-        // et hors sitemap (pages utilitaires sans intérêt SEO).
-        allow: [
-          "/",
-          "/pricing",
-          "/legal",
-          "/privacy",
-          "/cookies",
-          "/accessibility",
-        ],
-        // Tout ce qui est derrière auth est explicitement exclu pour ne pas
-        // gaspiller le crawl-budget des moteurs et éviter d'indexer du
-        // contenu utilisateur (qui de toute façon retournerait 401/redirect).
-        disallow: [
-          "/dashboard",
-          "/dashboard/",
-          "/audits",
-          "/audits/",
-          "/clients",
-          "/clients/",
-          "/projects",
-          "/projects/",
-          "/users",
-          "/users/",
-          "/settings",
-          "/settings/",
-          "/notifications",
-          "/notifications/",
-          "/auth/",
-          "/api/",
-          "/setup-password",
-        ],
+        allow: PUBLIC_PAGES,
+        disallow: PRIVATE_PATHS,
       },
-      // AI crawlers - on autorise les crawlers de marketing recherche,
-      // pas ceux qui aspirent pour entraîner des modèles.
-      { userAgent: "GPTBot", disallow: "/" },
-      { userAgent: "ChatGPT-User", disallow: "/" },
-      { userAgent: "anthropic-ai", disallow: "/" },
-      { userAgent: "ClaudeBot", disallow: "/" },
-      { userAgent: "CCBot", disallow: "/" },
-      { userAgent: "Google-Extended", disallow: "/" },
+      // Robots de recherche IA (ChatGPT, Claude, Perplexity) : autorisés sur
+      // les pages publiques pour qu'Axessyo puisse être cité dans leurs
+      // réponses. Même périmètre que `*` (un groupe nommé remplace `*`).
+      {
+        userAgent: AI_SEARCH_BOTS,
+        allow: PUBLIC_PAGES,
+        disallow: PRIVATE_PATHS,
+      },
+      // Robots d'entraînement de modèles : bloqués, ils n'apportent aucune
+      // visibilité.
+      { userAgent: AI_TRAINING_BOTS, disallow: "/" },
     ],
     sitemap: siteUrl("/sitemap.xml"),
-    host,
   };
 }
