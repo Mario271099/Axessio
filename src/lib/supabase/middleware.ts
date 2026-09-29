@@ -48,34 +48,14 @@ export async function updateSession(request: NextRequest) {
     return response;
   }
 
-  // Pas connecté : routes publiques autorisées (marketing + auth + pages
-  // légales). Toute nouvelle page indexable côté SEO doit être ajoutée ici.
-  const PUBLIC_PATHS = new Set([
-    "/",
-    "/login",
-    "/register",
-    "/forgot-password",
-    "/reset-password",
-    "/setup-password",
-    "/pricing",
-    "/legal",
-    "/privacy",
-    "/cookies",
-    "/accessibility",
-  ]);
-  const isPublicRoute =
-    PUBLIC_PATHS.has(pathname) ||
-    pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/webhooks") ||
-    pathname.startsWith("/api/v1") ||
-    // Crons (Vercel Cron + GitHub Actions) : appelés sans cookie de session,
-    // ils s'authentifient par `Bearer <CRON_SECRET>` dans leur route handler.
-    // Sans cette ligne, le proxy les redirige vers /login (307) avant le handler.
-    pathname.startsWith("/api/cron") ||
-    pathname.startsWith("/_next") ||
-    pathname.includes(".");
-
-  if (isPublicRoute) {
+  // Pas connecté : seuls les espaces privés redirigent vers /login. Tout le
+  // reste passe (pages marketing/légales, auth, images OG générées sans
+  // extension comme /opengraph-image, et URL inconnues qui doivent tomber sur
+  // la page 404 plutôt que sur /login - sinon Google y voit des "soft 404").
+  // Les layouts privés re-vérifient la session via requireProfile() : ce
+  // proxy n'est qu'un premier filtre. Tout nouvel espace privé doit être
+  // ajouté ici.
+  if (!isPrivateRoute(pathname)) {
     return response;
   }
 
@@ -83,4 +63,27 @@ export async function updateSession(request: NextRequest) {
   const url = request.nextUrl.clone();
   url.pathname = "/login";
   return NextResponse.redirect(url);
+}
+
+const PRIVATE_PREFIXES = [
+  "/dashboard",
+  "/admin",
+  "/audits",
+  "/clients",
+  "/projects",
+  "/users",
+  "/settings",
+  "/notifications",
+  "/organizations",
+  "/planning",
+  "/onboarding",
+  // Les crons, webhooks et /api/v1 s'authentifient par Bearer dans leur
+  // handler : ils ne doivent jamais être redirigés (cf. CLAUDE.md #10).
+  "/api/audits",
+];
+
+export function isPrivateRoute(pathname: string): boolean {
+  return PRIVATE_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
 }

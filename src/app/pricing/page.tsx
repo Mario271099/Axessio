@@ -91,11 +91,15 @@ export async function generateMetadata(): Promise<Metadata> {
       description: t("metaDescription"),
       url: `${SITE.url}/pricing`,
       locale: locale === "en" ? SITE.locale.en : SITE.locale.fr,
+      // Un `openGraph` défini ici remplace celui du layout : sans cette ligne,
+      // l'image générée par app/opengraph-image.tsx est perdue.
+      images: [siteUrl("/opengraph-image")],
     },
     twitter: {
       card: "summary_large_image",
       title: `${t("metaTitle")} · ${SITE.name}`,
       description: t("metaDescription"),
+      images: [siteUrl("/twitter-image")],
     },
   };
 }
