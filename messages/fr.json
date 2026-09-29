@@ -575,7 +575,7 @@
     "vatNote": "Tarifs hors taxes. La TVA est ajoutée à la facturation selon votre pays.",
     "questionsLead": "Une question sur votre cas d'usage ?",
     "faq": {
-      "title": "Questions fréquentes",
+      "title": "Questions sur les tarifs",
       "subtitle": "Tout ce qu'il faut savoir avant de choisir un plan.",
       "items": {
         "free": {
@@ -611,6 +611,112 @@
           "answer": "Axessyo prend en charge le RGAA (4.1.2), les WCAG 2.2, le RAWeb et le RAAM. Les référentiels sont préchargés avec leurs critères et méthodologies de test : vous créez un audit et la grille est prête."
         }
       }
+    },
+    "guarantees": {
+      "noCard": "Sans carte pour le plan {plan}",
+      "noCommitment": "Sans engagement en mensuel",
+      "stripe": "Paiement sécurisé par Stripe"
+    },
+    "intervalNote": {
+      "monthly": "Mensuel : sans engagement",
+      "yearly": "{months, plural, =0 {Annuel : payé d'avance} one {Annuel : # mois offert, payé d'avance} other {Annuel : # mois offerts, payé d'avance}}"
+    },
+    "plansLabel": "Plans",
+    "price": {
+      "amount": "{amount} €",
+      "unit": "HT / mois",
+      "short": "{amount} € HT / mois",
+      "monthlyNote": "Facturé chaque mois, sans engagement",
+      "yearlyNote": "Facturé {amount} € HT par an"
+    },
+    "unlimited": "Illimités",
+    "limitTiles": {
+      "max_active_audits": "{count, plural, one {audit actif} other {audits actifs}}",
+      "max_members": "{count, plural, one {membre} other {membres}}",
+      "max_clients": "{count, plural, one {client} other {clients}}",
+      "max_audits_per_month": "{count, plural, one {audit / mois} other {audits / mois}}"
+    },
+    "everythingIn": "Tout le plan {plan}",
+    "matchBadge": "Correspond à vos besoins",
+    "finder": {
+      "title": "Quel plan pour vous ?",
+      "subtitle": "Indiquez votre volume : le plan correspondant s'affiche et se met en évidence plus haut.",
+      "audits": {
+        "label": "Audits actifs en même temps",
+        "decrease": "Un audit de moins",
+        "increase": "Un audit de plus"
+      },
+      "members": {
+        "label": "Personnes dans l'équipe",
+        "decrease": "Une personne de moins",
+        "increase": "Une personne de plus"
+      },
+      "needsLegend": "J'ai aussi besoin de",
+      "needs": {
+        "pdf": "Exporter les rapports en PDF",
+        "review": "Faire relire les NC, travailler à plusieurs",
+        "sso": "SSO, SCIM ou accès API"
+      },
+      "availability": "{isLast, select, true {{plan} uniquement} other {{plan} et plus}}",
+      "resultLabel": "Plan conseillé",
+      "resultPrice": {
+        "free": "Gratuit",
+        "contact": "Sur devis",
+        "monthly": "{amount} € HT par mois",
+        "yearly": "{amount} € HT par mois, facturé à l'année"
+      },
+      "reason": {
+        "base": "Le plan {plan} couvre ce volume : {audits}, {members}.",
+        "feature": "{feature} : inclus à partir du plan {plan}.",
+        "limits": "Votre volume dépasse les limites du plan {previous} : {audits}, {members}."
+      },
+      "cta": "Choisir {plan}"
+    },
+    "compare": {
+      "title": "Comparer les plans en détail",
+      "subtitle": "Ce qui est inclus dans chaque plan, ligne par ligne.",
+      "caption": "Comparaison des fonctionnalités et des limites des plans {plans}",
+      "featureColumn": "Fonctionnalité",
+      "included": "Inclus",
+      "notIncluded": "Non inclus",
+      "scrollHint": "Faites défiler le tableau horizontalement pour voir tous les plans.",
+      "groups": {
+        "limits": "Limites",
+        "audit": "Audit",
+        "team": "Travail en équipe",
+        "security": "Sécurité et intégrations",
+        "support": "Accompagnement"
+      },
+      "rows": {
+        "activeAudits": "Audits actifs en même temps",
+        "auditsPerMonth": "Audits créés par mois",
+        "members": "Membres de l'équipe",
+        "clients": "Clients",
+        "standards": "Référentiels {standards}",
+        "matrix": "Matrice de conformité et score officiel",
+        "nonConformities": "Non-conformités avec captures et échanges",
+        "exportPdf": "Export PDF du rapport",
+        "simulator": "Simulateur de remédiation",
+        "proofreading": "Relecture des non-conformités",
+        "collaboration": "Plusieurs auditeurs sur un même audit",
+        "dataIsolation": "Données cloisonnées par organisation",
+        "auditLogsExport": "Export du journal d'activité",
+        "webhooks": "Webhooks sortants",
+        "api": "Accès API",
+        "sso": "Authentification unique SSO SAML et OIDC",
+        "scim": "Provisionnement des comptes SCIM",
+        "branding": "Marque personnalisée",
+        "support": "Support prioritaire"
+      }
+    },
+    "enterprise": {
+      "title": "Une grande organisation ou un besoin précis ?",
+      "body": "Connexion avec votre annuaire, accès API et accompagnement dédié. Le tarif est établi selon votre volume.",
+      "featuresLabel": "Ce que le plan {plan} ajoute"
+    },
+    "faqContact": {
+      "lead": "Une autre question ?",
+      "link": "Écrivez-nous"
     }
   },
   "onboarding": {

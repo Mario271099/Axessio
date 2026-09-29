@@ -33,7 +33,10 @@ const GROUPS = [
   },
 ] as const;
 
-export function PublicFooter() {
+/**
+ * `currentHref` : lien de la page courante, marqué `aria-current="page"`.
+ */
+export function PublicFooter({ currentHref }: { currentHref?: string } = {}) {
   const t = useTranslations("home");
   const locale = useLocale();
   const year = new Date().getFullYear();
@@ -105,7 +108,10 @@ export function PublicFooter() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="rounded text-sm text-ink-muted transition-colors hover:text-ink-foreground hover:underline hover:underline-offset-4"
+                      aria-current={
+                        link.href === currentHref ? "page" : undefined
+                      }
+                      className="rounded text-sm text-ink-muted transition-colors hover:text-ink-foreground hover:underline hover:underline-offset-4 aria-[current=page]:font-bold aria-[current=page]:text-ink-foreground"
                     >
                       {t(`footer.links.${link.labelKey}`)}
                     </Link>

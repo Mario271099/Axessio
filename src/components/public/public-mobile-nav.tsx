@@ -16,7 +16,11 @@ import {
 
 // Menu de navigation mobile (< lg). Reprend les liens caches sur petit ecran
 // dans le header + les CTA connexion/inscription, dans un Sheet accessible.
-export function PublicMobileNav() {
+export function PublicMobileNav({
+  currentHref,
+}: {
+  currentHref?: string;
+} = {}) {
   const t = useTranslations("home");
   const locale = useLocale();
   const isEn = locale === "en";
@@ -52,7 +56,13 @@ export function PublicMobileNav() {
             {links.map((link) => (
               <li key={link.href}>
                 <SheetClose asChild>
-                  <Link href={link.href} className={sheetNavLink()}>
+                  <Link
+                    href={link.href}
+                    className={sheetNavLink(link.href === currentHref)}
+                    aria-current={
+                      link.href === currentHref ? "page" : undefined
+                    }
+                  >
                     {link.label}
                   </Link>
                 </SheetClose>

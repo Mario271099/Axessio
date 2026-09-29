@@ -575,7 +575,7 @@
     "vatNote": "Prices excluding tax. VAT is added at billing based on your country.",
     "questionsLead": "Have a question about your use case?",
     "faq": {
-      "title": "Frequently asked questions",
+      "title": "Pricing questions",
       "subtitle": "Everything you need to know before choosing a plan.",
       "items": {
         "free": {
@@ -611,6 +611,112 @@
           "answer": "Axessyo supports RGAA (4.1.2), WCAG 2.2, RAWeb and RAAM. Standards come preloaded with their criteria and test methodologies: create an audit and the grid is ready."
         }
       }
+    },
+    "guarantees": {
+      "noCard": "No card required for the {plan} plan",
+      "noCommitment": "No commitment on monthly billing",
+      "stripe": "Secure payment with Stripe"
+    },
+    "intervalNote": {
+      "monthly": "Monthly: no commitment",
+      "yearly": "{months, plural, =0 {Yearly: paid upfront} one {Yearly: # month free, paid upfront} other {Yearly: # months free, paid upfront}}"
+    },
+    "plansLabel": "Plans",
+    "price": {
+      "amount": "€{amount}",
+      "unit": "excl. VAT / month",
+      "short": "€{amount} excl. VAT / month",
+      "monthlyNote": "Billed monthly, no commitment",
+      "yearlyNote": "Billed €{amount} excl. VAT per year"
+    },
+    "unlimited": "Unlimited",
+    "limitTiles": {
+      "max_active_audits": "{count, plural, one {active audit} other {active audits}}",
+      "max_members": "{count, plural, one {member} other {members}}",
+      "max_clients": "{count, plural, one {client} other {clients}}",
+      "max_audits_per_month": "{count, plural, one {audit / month} other {audits / month}}"
+    },
+    "everythingIn": "Everything in {plan}",
+    "matchBadge": "Matches your needs",
+    "finder": {
+      "title": "Which plan is right for you?",
+      "subtitle": "Enter your volume: the matching plan shows up here and is highlighted above.",
+      "audits": {
+        "label": "Active audits at the same time",
+        "decrease": "One audit fewer",
+        "increase": "One audit more"
+      },
+      "members": {
+        "label": "People in the team",
+        "decrease": "One person fewer",
+        "increase": "One person more"
+      },
+      "needsLegend": "I also need",
+      "needs": {
+        "pdf": "Export reports as PDF",
+        "review": "Review non-conformities, work as a team",
+        "sso": "SSO, SCIM or API access"
+      },
+      "availability": "{isLast, select, true {{plan} only} other {{plan} and above}}",
+      "resultLabel": "Recommended plan",
+      "resultPrice": {
+        "free": "Free",
+        "contact": "Custom pricing",
+        "monthly": "€{amount} excl. VAT per month",
+        "yearly": "€{amount} excl. VAT per month, billed yearly"
+      },
+      "reason": {
+        "base": "The {plan} plan covers this volume: {audits}, {members}.",
+        "feature": "{feature}: included from the {plan} plan.",
+        "limits": "Your volume exceeds the limits of the {previous} plan: {audits}, {members}."
+      },
+      "cta": "Choose {plan}"
+    },
+    "compare": {
+      "title": "Compare plans in detail",
+      "subtitle": "What each plan includes, line by line.",
+      "caption": "Comparison of features and limits for the {plans} plans",
+      "featureColumn": "Feature",
+      "included": "Included",
+      "notIncluded": "Not included",
+      "scrollHint": "Scroll the table horizontally to see all plans.",
+      "groups": {
+        "limits": "Limits",
+        "audit": "Audit",
+        "team": "Teamwork",
+        "security": "Security and integrations",
+        "support": "Support"
+      },
+      "rows": {
+        "activeAudits": "Active audits at the same time",
+        "auditsPerMonth": "Audits created per month",
+        "members": "Team members",
+        "clients": "Clients",
+        "standards": "Standards {standards}",
+        "matrix": "Conformity matrix and official score",
+        "nonConformities": "Non-conformities with screenshots and discussion",
+        "exportPdf": "PDF report export",
+        "simulator": "Remediation simulator",
+        "proofreading": "Non-conformity review",
+        "collaboration": "Several auditors on one audit",
+        "dataIsolation": "Data isolated per organization",
+        "auditLogsExport": "Activity log export",
+        "webhooks": "Outgoing webhooks",
+        "api": "API access",
+        "sso": "Single sign-on with SAML and OIDC",
+        "scim": "SCIM account provisioning",
+        "branding": "Custom branding",
+        "support": "Priority support"
+      }
+    },
+    "enterprise": {
+      "title": "A large organization or a specific need?",
+      "body": "Directory sign-in, API access and dedicated support. Pricing is set according to your volume.",
+      "featuresLabel": "What the {plan} plan adds"
+    },
+    "faqContact": {
+      "lead": "Another question?",
+      "link": "Write to us"
     }
   },
   "onboarding": {
