@@ -146,6 +146,12 @@ export function planHasFeature(
   return PLANS[plan].features.includes(feature);
 }
 
+/** Plan qui précède `plan` dans `PLAN_ORDER` ; null pour le premier. */
+export function previousPlan(plan: PlanCode): PlanCode | null {
+  const index = PLAN_ORDER.indexOf(plan);
+  return index > 0 ? (PLAN_ORDER[index - 1] ?? null) : null;
+}
+
 /** Limite numérique d'un plan ; null = illimité. */
 export function planLimit(plan: PlanCode, limit: LimitCode): number | null {
   return PLANS[plan].limits[limit];

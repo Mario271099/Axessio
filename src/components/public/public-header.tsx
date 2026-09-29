@@ -11,9 +11,13 @@ import { SITE } from "@/lib/site";
 const navLink =
   "relative inline-flex items-center py-1.5 text-base font-bold text-secondary-foreground transition-colors duration-150 " +
   "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:origin-bottom after:scale-x-0 after:rounded-full after:bg-primary after:transition-transform after:duration-200 " +
-  "hover:text-foreground hover:after:scale-x-100";
+  "hover:text-foreground hover:after:scale-x-100 " +
+  "aria-[current=page]:text-foreground aria-[current=page]:after:scale-x-100";
 
-export function PublicHeader() {
+/**
+ * `currentHref` : lien de la page courante, marqué `aria-current="page"`.
+ */
+export function PublicHeader({ currentHref }: { currentHref?: string } = {}) {
   const t = useTranslations("home");
   const locale = useLocale();
   return (
@@ -34,7 +38,11 @@ export function PublicHeader() {
           <ul className="flex items-center gap-6 xl:gap-8">
             {PUBLIC_NAV_LINKS.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className={navLink}>
+                <Link
+                  href={link.href}
+                  className={navLink}
+                  aria-current={link.href === currentHref ? "page" : undefined}
+                >
                   {t(`nav.${link.key}`)}
                 </Link>
               </li>
@@ -50,7 +58,7 @@ export function PublicHeader() {
           <Button asChild className="hidden lg:inline-flex">
             <Link href="/register">{t("nav.getStarted")}</Link>
           </Button>
-          <PublicMobileNav />
+          <PublicMobileNav currentHref={currentHref} />
         </div>
       </div>
     </header>
