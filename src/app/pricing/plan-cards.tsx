@@ -214,7 +214,7 @@ function FeatureItem({
         strokeWidth={2.6}
         className={cn(
           "mt-px size-4.5 shrink-0",
-          onInk ? "text-ink-positive" : "text-success",
+          onInk ? "text-ink-positive" : "text-success-text",
         )}
       />
       <span>{children}</span>

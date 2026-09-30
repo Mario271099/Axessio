@@ -50,8 +50,8 @@ const FILL = [
 const TEXT = [
   "text-muted-foreground",
   "text-destructive",
-  "text-warning",
-  "text-success",
+  "text-warning-text",
+  "text-success-text",
 ] as const;
 
 interface PasswordStrengthProps {
@@ -104,7 +104,7 @@ export function PasswordStrength({
               key={label}
               className={cn(
                 "flex items-center gap-2 text-[0.84rem] transition-colors",
-                ok ? "font-bold text-success" : "text-muted-foreground",
+                ok ? "font-bold text-success-text" : "text-muted-foreground",
               )}
             >
               <span

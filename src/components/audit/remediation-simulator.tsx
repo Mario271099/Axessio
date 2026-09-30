@@ -454,7 +454,7 @@ export function RemediationSimulator({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <AlertTriangle className="h-4 w-4 text-warning" aria-hidden="true" />
+            <AlertTriangle className="h-4 w-4 text-warning-text" aria-hidden="true" />
             {t("ncsTitle")}
           </CardTitle>
           <CardDescription>
@@ -770,7 +770,7 @@ function NCRow({
             )}
           </span>
           {isFixed && (
-            <span className="font-bold text-success">{t("alreadyFixed")}</span>
+            <span className="font-bold text-success-text">{t("alreadyFixed")}</span>
           )}
         </span>
       </span>
@@ -780,7 +780,7 @@ function NCRow({
         <span
           aria-hidden="true"
           className={cn(
-            "hidden w-20 text-right text-sm font-extrabold text-success transition-opacity duration-200 sm:block",
+            "hidden w-20 text-right text-sm font-extrabold text-success-text transition-opacity duration-200 sm:block",
             isChecked && !isFixed ? "opacity-100" : "opacity-0",
           )}
         >

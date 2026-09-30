@@ -279,7 +279,7 @@ function ToneField({
       <h3
         className={cn(
           "mb-1.5 text-sm font-extrabold",
-          tone === "problem" ? "text-severity-critical" : "text-success",
+          tone === "problem" ? "text-severity-critical" : "text-success-text",
         )}
       >
         {label}

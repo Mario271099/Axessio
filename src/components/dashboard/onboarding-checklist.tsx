@@ -161,7 +161,7 @@ export async function OnboardingChecklist() {
                 {item.done ? (
                   <span
                     aria-hidden="true"
-                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success/15 text-success"
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success/15 text-success-text"
                   >
                     <Check className="h-3.5 w-3.5" />
                   </span>

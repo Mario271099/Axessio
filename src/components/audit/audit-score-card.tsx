@@ -55,12 +55,12 @@ export async function AuditScoreCard({
     {
       label: tKpi("openNc"),
       value: String(openNcCount),
-      className: openNcCount > 0 ? "text-warning" : "text-success",
+      className: openNcCount > 0 ? "text-warning-text" : "text-success-text",
     },
     {
       label: tKpi("criticalNc"),
       value: String(criticalNcCount),
-      className: criticalNcCount > 0 ? "text-destructive" : "text-success",
+      className: criticalNcCount > 0 ? "text-destructive" : "text-success-text",
     },
     { label: tKpi("sample"), value: String(sampleCount) },
   ];

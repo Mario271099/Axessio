@@ -58,7 +58,7 @@ export async function LoginActivity({
             <Icon
               className={cn(
                 "mt-0.5 h-4 w-4 shrink-0",
-                isSuccess ? "text-success" : "text-destructive",
+                isSuccess ? "text-success-text" : "text-destructive",
               )}
               aria-hidden="true"
             />

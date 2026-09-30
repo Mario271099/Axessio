@@ -76,6 +76,13 @@
   --severity-medium-bg: 45 93% 93%;
   --severity-low-bg: 219 74% 95%;
 
+  /* Pastilles succes / avertissement : texte fonce sur fond pastel opaque.
+     --success / --warning sur leur teinte a 12 % tombaient a 4.0-4.3:1. */
+  --success-text: 142 72% 24%;        /* #116931 sur #E3F0E8 */
+  --success-bg: 142 32% 92%;
+  --warning-text: 35 92% 26%;         /* #7F4C05 sur #F6EEE3 */
+  --warning-bg: 35 55% 93%;
+
   /* Score de conformite */
   --score-non-compliant: 0 74% 45%;
   --score-partial: 35 92% 33%;
@@ -211,6 +218,11 @@
   --severity-medium-bg: 38 45% 16%;
   --severity-low-bg: 224 40% 20%;
 
+  --success-text: 142 66% 60%;
+  --success-bg: 142 35% 16%;
+  --warning-text: 38 92% 62%;
+  --warning-bg: 38 45% 16%;
+
   --score-non-compliant: 0 88% 74%;
   --score-partial: 38 92% 62%;
   --score-compliant: 142 66% 55%;
@@ -280,6 +292,10 @@
   --color-severity-high-bg: hsl(var(--severity-high-bg));
   --color-severity-medium-bg: hsl(var(--severity-medium-bg));
   --color-severity-low-bg: hsl(var(--severity-low-bg));
+  --color-success-text: hsl(var(--success-text));
+  --color-success-bg: hsl(var(--success-bg));
+  --color-warning-text: hsl(var(--warning-text));
+  --color-warning-bg: hsl(var(--warning-bg));
   --color-score-non-compliant: hsl(var(--score-non-compliant));
   --color-score-partial: hsl(var(--score-partial));
   --color-score-compliant: hsl(var(--score-compliant));

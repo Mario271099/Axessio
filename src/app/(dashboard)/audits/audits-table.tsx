@@ -221,7 +221,7 @@ export function AuditsTable({
             "rounded-row border px-4 py-3 text-sm font-semibold",
             feedback.kind === "error"
               ? "border-destructive/40 bg-destructive/5 text-destructive"
-              : "border-success/40 bg-success/5 text-success",
+              : "border-success/40 bg-success/5 text-success-text",
           )}
         >
           <div className="flex items-center justify-between gap-3">

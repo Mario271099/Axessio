@@ -89,7 +89,7 @@ export function UserRow({
             <Button
               variant="outline"
               size="sm"
-              className="hidden h-7 gap-1.5 border-warning/40 text-warning hover:bg-warning/10 hover:text-warning xl:inline-flex"
+              className="hidden h-7 gap-1.5 border-warning/40 text-warning-text hover:bg-warning/10 hover:text-warning-text xl:inline-flex"
               onClick={onResend}
               disabled={isPending}
             >
@@ -134,7 +134,7 @@ export function UserRow({
                 <>
                   <DropdownMenuItem
                     onSelect={onResend}
-                    className="gap-2 font-medium text-warning focus:bg-warning/10 focus:text-warning"
+                    className="gap-2 font-medium text-warning-text focus:bg-warning/10 focus:text-warning-text"
                   >
                     <Send className="h-4 w-4" aria-hidden="true" />
                     {t("resendInvite")}

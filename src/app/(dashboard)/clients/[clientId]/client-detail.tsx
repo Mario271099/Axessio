@@ -588,7 +588,7 @@ export function ClientDetail({
 
 const statToneClasses = {
   primary: "bg-primary/10 text-primary",
-  warning: "bg-warning/10 text-warning",
+  warning: "bg-warning/10 text-warning-text",
   violet: "bg-violet-500/10 text-violet-500",
 } as const;
 

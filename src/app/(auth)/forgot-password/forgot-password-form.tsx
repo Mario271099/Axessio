@@ -56,7 +56,7 @@ export function ForgotPasswordForm() {
       <div className="flex flex-col gap-4">
         <div
           role="status"
-          className="flex w-full items-start gap-3 rounded-row bg-success/10 p-4 text-[0.95rem] text-success"
+          className="flex w-full items-start gap-3 rounded-row bg-success/10 p-4 text-[0.95rem] text-success-text"
         >
           <Check className="mt-0.5 size-[18px] shrink-0" aria-hidden="true" />
           <div className="flex flex-col gap-1">

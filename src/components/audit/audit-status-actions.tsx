@@ -393,7 +393,7 @@ function ConditionRow({
       <span className="flex items-center gap-2 text-muted-foreground">
         {ok ? (
           <CheckCircle2
-            className="h-3.5 w-3.5 text-success"
+            className="h-3.5 w-3.5 text-success-text"
             aria-hidden="true"
           />
         ) : (

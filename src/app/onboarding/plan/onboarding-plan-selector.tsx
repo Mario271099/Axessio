@@ -98,7 +98,7 @@ export function OnboardingPlanSelector({
       {!stripeReady && (
         <p
           role="status"
-          className="mx-auto mt-8 max-w-xl rounded-row bg-warning/10 px-4 py-3 text-center text-[0.95rem] font-semibold text-warning"
+          className="mx-auto mt-8 max-w-xl rounded-row bg-warning/10 px-4 py-3 text-center text-[0.95rem] font-semibold text-warning-text"
         >
           {t("stripeUnavailable")}
         </p>
@@ -133,7 +133,7 @@ export function OnboardingPlanSelector({
                     "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-extrabold",
                     interval === value
                       ? "bg-primary-muted text-primary"
-                      : "bg-success/12 text-success",
+                      : "bg-success-bg text-success-text",
                   )}
                 >
                   <Sparkles className="size-3" aria-hidden="true" />
@@ -297,7 +297,7 @@ function FeatureItem({ text, onInk }: { text: string; onInk: boolean }) {
         strokeWidth={3}
         className={cn(
           "mt-0.5 size-4 shrink-0",
-          onInk ? "text-ink-positive" : "text-success",
+          onInk ? "text-ink-positive" : "text-success-text",
         )}
       />
       <span className="leading-snug">{text}</span>

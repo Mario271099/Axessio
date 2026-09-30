@@ -2,8 +2,8 @@
 // niveau (référentiels non-WCAG : RGAA, RAWeb, RAAM). Code couleur :
 // A = vert (base), AA = ambre (légal), AAA = violet (renforcé).
 const LEVEL_STYLES: Record<string, string> = {
-  A: "bg-success/15 text-success",
-  AA: "bg-warning/15 text-warning",
+  A: "bg-success/15 text-success-text",
+  AA: "bg-warning/15 text-warning-text",
   AAA: "bg-primary/15 text-primary",
 };
 

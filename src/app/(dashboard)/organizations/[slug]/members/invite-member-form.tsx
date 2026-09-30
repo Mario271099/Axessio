@@ -68,7 +68,7 @@ export function InviteMemberForm({ orgId }: { orgId: string }) {
           role="status"
           className="space-y-2 rounded-md border border-success/40 bg-success/10 p-3 text-sm"
         >
-          <p className="inline-flex items-start gap-2 text-success">
+          <p className="inline-flex items-start gap-2 text-success-text">
             <CheckCircle2
               className="mt-0.5 h-4 w-4 shrink-0"
               aria-hidden="true"

@@ -473,7 +473,7 @@ export function NewNCForm({
       {(noPages || noCriteria) && (
         <p
           role="alert"
-          className="rounded-md bg-warning/10 p-3 text-sm text-warning"
+          className="rounded-md bg-warning/10 p-3 text-sm text-warning-text"
         >
           {noPages ? t("noPages") : t("noCriteria")}
         </p>
@@ -563,7 +563,7 @@ export function NewNCForm({
         {warning && (
           <p
             role="alert"
-            className="rounded-md bg-warning/10 p-3 text-sm text-warning"
+            className="rounded-md bg-warning/10 p-3 text-sm text-warning-text"
           >
             {warning}
           </p>

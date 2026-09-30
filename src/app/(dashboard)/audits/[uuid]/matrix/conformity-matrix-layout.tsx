@@ -561,7 +561,7 @@ export function ConformityMatrixLayout({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex min-w-0 items-start gap-2 text-sm">
               <RotateCcw
-                className="mt-0.5 h-4 w-4 shrink-0 text-warning"
+                className="mt-0.5 h-4 w-4 shrink-0 text-warning-text"
                 aria-hidden="true"
               />
               <div className="min-w-0">
@@ -695,8 +695,8 @@ export function ConformityMatrixLayout({
             className={cn(
               "inline-flex items-center gap-2 text-sm font-medium",
               saveStatus === "error" && "text-destructive",
-              saveStatus !== "error" && hasPending && "text-warning",
-              saveStatus !== "error" && !hasPending && "text-success",
+              saveStatus !== "error" && hasPending && "text-warning-text",
+              saveStatus !== "error" && !hasPending && "text-success-text",
             )}
           >
             {saveStatus === "saving" ? (

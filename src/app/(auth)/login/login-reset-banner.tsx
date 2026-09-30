@@ -16,7 +16,7 @@ export function LoginResetBanner() {
   return (
     <div
       role="status"
-      className="mb-4 flex items-start gap-3 rounded-md border border-success/40 bg-success/10 p-3 text-sm text-success"
+      className="mb-4 flex items-start gap-3 rounded-md border border-success/40 bg-success/10 p-3 text-sm text-success-text"
     >
       <Check className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
       <p className="flex-1">{t("resetSuccess")}</p>

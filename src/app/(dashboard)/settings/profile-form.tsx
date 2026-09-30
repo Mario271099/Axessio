@@ -107,7 +107,7 @@ export function ProfileForm({
           className={
             feedback.kind === "error"
               ? "inline-flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-              : "inline-flex items-start gap-2 rounded-md bg-success/10 p-3 text-sm text-success"
+              : "inline-flex items-start gap-2 rounded-md bg-success/10 p-3 text-sm text-success-text"
           }
         >
           {feedback.kind === "error" ? (

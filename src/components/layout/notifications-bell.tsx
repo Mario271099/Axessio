@@ -81,9 +81,9 @@ const TYPE_TONE: Record<string, "primary" | "warning" | "destructive" | "success
 
 const TONE_BUBBLE: Record<string, string> = {
   primary: "bg-primary/15 text-primary",
-  warning: "bg-warning/15 text-warning",
+  warning: "bg-warning/15 text-warning-text",
   destructive: "bg-destructive/15 text-destructive",
-  success: "bg-success/15 text-success",
+  success: "bg-success/15 text-success-text",
 };
 
 // ------------------------------------------------------------------
