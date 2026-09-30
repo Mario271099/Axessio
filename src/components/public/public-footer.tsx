@@ -48,9 +48,9 @@ export function PublicFooter({ currentHref }: { currentHref?: string } = {}) {
         {/* Bandeau de reassurance : ce que la plateforme couvre, et ou en est
             sa propre accessibilite. */}
         <div className="flex flex-wrap items-center gap-x-7 gap-y-4 border-b border-ink-raised pb-7">
-          <h2 className="text-base font-extrabold">
+          <p className="text-base font-extrabold">
             {t("footer.standardsLabel")}
-          </h2>
+          </p>
           <ul className="flex flex-wrap gap-2">
             {SUPPORTED_STANDARDS.map((standard) => (
               <li
@@ -100,9 +100,9 @@ export function PublicFooter({ currentHref }: { currentHref?: string } = {}) {
               aria-labelledby={`footer-${group.key}`}
               className="min-w-0"
             >
-              <h2 id={`footer-${group.key}`} className="text-base font-extrabold">
+              <p id={`footer-${group.key}`} className="text-base font-extrabold">
                 {t(`footer.groups.${group.key}`)}
-              </h2>
+              </p>
               <ul className="mt-3 flex flex-col gap-2.5">
                 {group.links.map((link) => (
                   <li key={link.href}>
