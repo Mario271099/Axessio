@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { LegalSection, LegalShell } from "@/components/public/legal-shell";
 import { intlLocale } from "@/lib/intl";
-import { SITE } from "@/lib/site";
+import { SITE, siteUrl } from "@/lib/site";
 
 const LAST_UPDATED_ISO = "2026-07-20";
 
@@ -37,6 +37,9 @@ export async function generateMetadata(): Promise<Metadata> {
       title: t("metaTitle"),
       description: t("metaDescription"),
       url: `${SITE.url}/cookies`,
+      // Un `openGraph` défini ici remplace celui du layout : sans cette ligne,
+      // l'image générée par app/opengraph-image.tsx est perdue.
+      images: [siteUrl("/opengraph-image")],
     },
   };
 }
