@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
-import { orgHasFeature } from "@/lib/billing/server";
+import {
+  checkAuditExportAccess,
+  loadAuditExportContext,
+} from "@/lib/audit-export-access";
 import { resolveOutputBranding } from "@/lib/branding/server";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import { generatePDF, DEFAULT_FOOTER_TEMPLATE } from "@/lib/pdf";
@@ -67,36 +70,18 @@ export async function GET(req: Request, { params }: RouteParams) {
   }
 
   // ------------------------------------------------------------------
-  // 1.bis Feature gate : `export.pdf` (Starter+).
-  // Le check est server-side parce que l'URL `/api/audits/[uuid]/report`
-  // peut être appelée directement (curl, automatisation) - il ne suffit
-  // pas de masquer le bouton côté UI.
-  // ------------------------------------------------------------------
-  const hasExportFeature = await orgHasFeature("export.pdf");
-  if (!hasExportFeature) {
-    return NextResponse.json(
-      {
-        error:
-          "L'export PDF est inclus à partir du plan Starter. Mettez à jour votre abonnement pour l'activer.",
-      },
-      { status: 402 },
-    );
-  }
-
-  // ------------------------------------------------------------------
   // 2. Chargement de l'audit + project + client + reference
   // ------------------------------------------------------------------
+  // La lecture de l'audit passe par la RLS : elle prouve que le visiteur y a
+  // accès. Le client n'est joint que pour le contrôle client_admin (un
+  // contact ne lit pas `clients` - il obtient null ici, c'est attendu).
   const { data: auditRow, error: auditError } = await supabase
     .from("audits")
     .select(
       `
-      id, status, platform, service_type, initial_score, final_score,
+      id, organization_id, status, platform, service_type, initial_score, final_score,
       delivered_at, online_at, notes, created_at, updated_at,
-      reference:references(id, type, version),
-      project:projects(
-        id, name, url,
-        client:clients(id, name, website)
-      )
+      project:projects(client_id)
     `,
     )
     .eq("id", auditId)
@@ -109,37 +94,44 @@ export async function GET(req: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Audit introuvable." }, { status: 404 });
   }
 
-  const project = Array.isArray(auditRow.project)
+  const rlsProject = Array.isArray(auditRow.project)
     ? auditRow.project[0]
     : auditRow.project;
-  const client = project?.client
-    ? Array.isArray(project.client)
-      ? project.client[0]
-      : project.client
-    : null;
-  const reference = Array.isArray(auditRow.reference)
-    ? auditRow.reference[0]
-    : auditRow.reference;
 
-  if (!project || !client || !reference) {
+  // ------------------------------------------------------------------
+  // 3. Autorisation + feature gate `export.pdf` (staff, client_admin du
+  // client, ou contact invité sur l'audit ; plan du visiteur OU de l'org
+  // de l'audit) - cf. lib/audit-export-access.ts.
+  // ------------------------------------------------------------------
+  const access = await checkAuditExportAccess(supabase, {
+    auditId,
+    auditOrganizationId: auditRow.organization_id as string | null,
+    clientId: (rlsProject?.client_id as string | undefined) ?? null,
+    profile,
+  });
+  if (access === "forbidden") {
+    return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
+  }
+  if (access === "plan_required") {
+    return NextResponse.json(
+      {
+        error:
+          "L'export PDF est inclus à partir du plan Starter. Mettez à jour votre abonnement pour l'activer.",
+      },
+      { status: 402 },
+    );
+  }
+
+  // En-tête du rapport (projet, client, référentiel, auditeurs), chargé
+  // après le contrôle d'accès pour fonctionner aussi pour un contact client.
+  const exportContext = await loadAuditExportContext(auditId);
+  if (!exportContext) {
     return NextResponse.json(
       { error: "Audit incomplet (project/client/reference manquant)." },
       { status: 500 },
     );
   }
-
-  // ------------------------------------------------------------------
-  // 3. Autorisation : admin/auditor OU client_admin du client de l'audit
-  // ------------------------------------------------------------------
-  const isAuthorized =
-    profile.is_platform_admin === true ||
-    profile.role === "admin" ||
-    profile.role === "auditor" ||
-    (profile.role === "client_admin" && profile.client_id === client.id);
-
-  if (!isAuthorized) {
-    return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
-  }
+  const { project, client, reference } = exportContext;
 
   // ------------------------------------------------------------------
   // 3.bis Anti-DoS : le rendu PDF lance Chromium (Puppeteer), ~512 Mo et
@@ -263,13 +255,23 @@ export async function GET(req: Request, { params }: RouteParams) {
   // ------------------------------------------------------------------
   // 6. Construction du ReportData
   // ------------------------------------------------------------------
-  const auditorName =
+  // « Réalisé par » : le staff qui exporte signe le rapport (comportement
+  // historique) ; pour un client (contact / client_admin), ce sont les
+  // auditeurs assignés à l'audit, pas la personne qui télécharge.
+  const isStaffDownloader =
+    profile.is_platform_admin === true ||
+    profile.role === "admin" ||
+    profile.role === "auditor";
+  const downloaderName =
     [profile.first_name, profile.last_name]
       .filter((p): p is string => typeof p === "string" && p.trim().length > 0)
       .join(" ")
       .trim() ||
     (profile.email as string | null) ||
     "—";
+  const auditorName = isStaffDownloader
+    ? downloaderName
+    : exportContext.auditorNames.join(", ") || "—";
 
   // Branding white-label : 1 client legacy = 1 organization (id préservé).
   const branding = await resolveOutputBranding(client.id as string | null);
