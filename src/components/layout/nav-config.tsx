@@ -100,7 +100,6 @@ export const SECTIONS: NavSection[] = [
     sectionKey: "management",
     items: [
       { href: "/clients", itemKey: "clients", iconKey: "clients", permission: "project.manage", orgScoped: true },
-      { href: "/references", itemKey: "references", iconKey: "references", permission: "project.manage" },
     ],
   },
   {
