@@ -6,6 +6,11 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePermission } from "@/lib/server-permissions";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
+import { render } from "@react-email/components";
+import { InvitationEmail } from "@/emails/invitation-email";
+import { resend, FROM_EMAIL } from "@/lib/resend";
+import { resolveOutputBranding } from "@/lib/branding/server";
+import { buildInviteUrl, buildMagicLinkUrl } from "@/lib/invite-link";
 
 export interface ContactActionResult {
   error: string | null;
@@ -14,11 +19,6 @@ export interface ContactActionResult {
 
 const INVITE_LIMIT = 20;
 const INVITE_WINDOW_MS = 60 * 60 * 1000;
-
-function buildRedirectUrl(auditId: string): string {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  return `${base.replace(/\/$/, "")}/auth/callback?next=/audits/${auditId}`;
-}
 
 // ============================================================================
 // Inviter un contact client sur un audit (Porte 2)
@@ -68,33 +68,35 @@ export async function inviteContact(
     .eq("email", email)
     .maybeSingle();
 
-  let profileId: string;
+  // 2) Lien de l'email : invitation (choix du mot de passe) pour un nouveau
+  //    compte, connexion directe pour un compte existant. Dans les deux cas
+  //    on arrive sur l'audit. Le trigger handle_new_user crée la ligne
+  //    profiles d'un nouveau compte à partir du raw_user_meta_data.
+  const admin = createAdminClient();
+  const auditPath = `/audits/${auditId}`;
+  let existingAccount = Boolean(existing?.id);
 
-  if (existing?.id) {
-    profileId = existing.id as string;
-  } else {
-    // 2) Sinon invitation Supabase Auth - handle_new_user trigger créera
-    //    automatiquement la ligne profiles à partir du raw_user_meta_data.
-    const admin = createAdminClient();
-    const { data: linkData, error: linkError } =
-      await admin.auth.admin.generateLink({
+  let link = existingAccount
+    ? null
+    : await admin.auth.admin.generateLink({
         type: "invite",
         email,
         options: {
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-            role: "client",
-          },
-          redirectTo: buildRedirectUrl(auditId),
+          data: { first_name: firstName, last_name: lastName, role: "client" },
         },
       });
-
-    if (linkError || !linkData?.user?.id) {
-      return { error: linkError?.message ?? t("invitationLinkFailed") };
-    }
-    profileId = linkData.user.id;
+  if (!link || link.error || !link.data?.properties?.hashed_token) {
+    // Compte existant (éventuellement invisible via la RLS) → magic link.
+    link = await admin.auth.admin.generateLink({ type: "magiclink", email });
+    existingAccount = true;
   }
+  if (link.error || !link.data?.user?.id || !link.data.properties?.hashed_token) {
+    return { error: link.error?.message ?? t("invitationLinkFailed") };
+  }
+  const profileId = (existing?.id as string | undefined) ?? link.data.user.id;
+  const linkUrl = existingAccount
+    ? buildMagicLinkUrl(link.data.properties.hashed_token, auditPath)
+    : buildInviteUrl(link.data.properties.hashed_token, auditPath);
 
   // 3) Insertion audit_assignees avec rôle 'contact' (idempotent).
   const { error: insertError } = await supabase
@@ -119,7 +121,82 @@ export async function inviteContact(
   });
 
   revalidatePath(`/audits/${auditId}`);
+
+  // 5) Email (Resend). L'accès est déjà accordé : en cas d'échec, l'admin
+  //    peut relancer l'invitation (idempotent, renvoie un lien neuf).
+  const sendError = await sendContactInvitationEmail({
+    auditId,
+    to: email,
+    recipientName: `${firstName} ${lastName}`.trim(),
+    inviterId: guard.userId,
+    invitationUrl: linkUrl,
+    existingAccount,
+  });
+  if (sendError) {
+    return { error: t("contactEmailFailed", { message: sendError }) };
+  }
   return { error: null, success: true };
+}
+
+async function sendContactInvitationEmail(params: {
+  auditId: string;
+  to: string;
+  recipientName: string;
+  inviterId: string;
+  invitationUrl: string;
+  existingAccount: boolean;
+}): Promise<string | null> {
+  const admin = createAdminClient();
+  const [{ data: audit }, { data: inviter }] = await Promise.all([
+    admin
+      .from("audits")
+      .select(
+        "organization_id, site_name, project:projects(name, client:clients(name))",
+      )
+      .eq("id", params.auditId)
+      .maybeSingle(),
+    admin
+      .from("profiles")
+      .select("first_name, last_name")
+      .eq("id", params.inviterId)
+      .maybeSingle(),
+  ]);
+  const project = Array.isArray(audit?.project) ? audit.project[0] : audit?.project;
+  const client = Array.isArray(project?.client) ? project.client[0] : project?.client;
+
+  try {
+    const branding = await resolveOutputBranding(
+      (audit?.organization_id as string | null | undefined) ?? null,
+    );
+    const html = await render(
+      InvitationEmail({
+        recipientName: params.recipientName,
+        inviterName: [inviter?.first_name, inviter?.last_name]
+          .filter(Boolean)
+          .join(" "),
+        role: "client",
+        clientName: (client?.name as string | undefined) ?? null,
+        auditName:
+          (audit?.site_name as string | null | undefined) ??
+          (project?.name as string | undefined) ??
+          null,
+        invitationUrl: params.invitationUrl,
+        existingAccount: params.existingAccount,
+        branding,
+      }),
+    );
+    const tEmails = await getTranslations("emails");
+    const { error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: params.to,
+      subject: tEmails("invitationSubject"),
+      html,
+      ...(branding.supportEmail ? { replyTo: branding.supportEmail } : {}),
+    });
+    return error ? (error.message ?? "erreur inconnue") : null;
+  } catch (err) {
+    return err instanceof Error ? err.message : "erreur inconnue";
+  }
 }
 
 // ============================================================================

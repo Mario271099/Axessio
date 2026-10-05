@@ -25,6 +25,16 @@ export interface InvitationEmailProps {
   clientName: string | null;
   invitationUrl: string;
   branding?: OutputBranding;
+  /**
+   * Invitation à consulter un audit précis (contact client) : le texte cite
+   * l'audit plutôt que la plateforme entière.
+   */
+  auditName?: string | null;
+  /**
+   * Le destinataire a déjà un compte : lien de connexion directe, pas de
+   * mot de passe à définir.
+   */
+  existingAccount?: boolean;
 }
 
 export function InvitationEmail({
@@ -34,6 +44,8 @@ export function InvitationEmail({
   clientName,
   invitationUrl,
   branding = AXESSIO_DEFAULT_OUTPUT_BRANDING,
+  auditName = null,
+  existingAccount = false,
 }: InvitationEmailProps) {
   const roleLabel = USER_ROLE_LABELS[role];
   const greeting = recipientName.trim()
@@ -72,21 +84,50 @@ export function InvitationEmail({
 
             <Text style={paragraph}>{greeting}</Text>
 
-            <Text style={paragraph}>
-              <strong>{inviterName}</strong> vous invite à rejoindre {brandName}{" "}
-              en tant que <strong>{roleLabel}</strong>
-              {clientName ? (
-                <>
-                  {" "}
-                  pour le client <strong>{clientName}</strong>
-                </>
-              ) : null}
-              .
-            </Text>
+            {auditName ? (
+              <Text style={paragraph}>
+                {inviterName.trim() ? (
+                  <>
+                    <strong>{inviterName}</strong> vous invite
+                  </>
+                ) : (
+                  "Vous êtes invité·e"
+                )}{" "}
+                à consulter l&apos;audit d&apos;accessibilité{" "}
+                <strong>{auditName}</strong>
+                {clientName ? (
+                  <>
+                    {" "}
+                    pour <strong>{clientName}</strong>
+                  </>
+                ) : null}{" "}
+                sur {brandName} : résultats, non-conformités et rapports
+                téléchargeables.
+              </Text>
+            ) : (
+              <Text style={paragraph}>
+                {inviterName.trim() ? (
+                  <>
+                    <strong>{inviterName}</strong> vous invite
+                  </>
+                ) : (
+                  "Vous êtes invité·e"
+                )}{" "}
+                à rejoindre {brandName} en tant que <strong>{roleLabel}</strong>
+                {clientName ? (
+                  <>
+                    {" "}
+                    pour le client <strong>{clientName}</strong>
+                  </>
+                ) : null}
+                .
+              </Text>
+            )}
 
             <Text style={paragraph}>
-              Cliquez sur le bouton ci-dessous pour accepter l&apos;invitation
-              et définir votre mot de passe.
+              {existingAccount
+                ? "Cliquez sur le bouton ci-dessous pour vous connecter et y accéder directement."
+                : "Cliquez sur le bouton ci-dessous pour accepter l'invitation et définir votre mot de passe."}
             </Text>
 
             <Section style={ctaSection}>
@@ -94,7 +135,11 @@ export function InvitationEmail({
                 href={invitationUrl}
                 style={{ ...ctaButton, backgroundColor: branding.primaryColor }}
               >
-                Accepter l&apos;invitation
+                {existingAccount
+                  ? auditName
+                    ? "Accéder à l'audit"
+                    : "Se connecter"
+                  : "Accepter l'invitation"}
               </Button>
             </Section>
 

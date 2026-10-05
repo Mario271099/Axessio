@@ -341,7 +341,6 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
       <InviteUserDialog
         open={inviteOpen}
         onOpenChange={setInviteOpen}
-        clients={clients}
         onSuccess={() => router.refresh()}
       />
 

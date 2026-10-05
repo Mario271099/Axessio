@@ -46,28 +46,23 @@ function FormError({ message }: { message: string }) {
 export function InviteUserDialog({
   open,
   onOpenChange,
-  clients,
   onSuccess,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  clients: ClientOption[];
   onSuccess: () => void;
 }) {
   const t = useTranslations("users");
   const tCommon = useTranslations("common");
   const [error, setError] = useState<string | null>(null);
-  const [role, setRole] = useState<UserRole>("client");
-  const [clientId, setClientId] = useState<string>("");
+  // Invitation réservée à l'équipe (admin/auditor). Les clients passent par
+  // « Inviter un contact » sur l'audit (cf. inviteUser côté serveur).
+  const [role, setRole] = useState<UserRole>("auditor");
   const [isPending, startTransition] = useTransition();
-
-  // Les staff plateforme (admin/auditor) ne sont rattachés à aucun client.
-  const needsClient = role !== "auditor" && role !== "admin";
 
   const reset = () => {
     setError(null);
-    setRole("client");
-    setClientId("");
+    setRole("auditor");
   };
 
   const handleClose = (next: boolean) => {
@@ -92,13 +87,7 @@ export function InviteUserDialog({
       setError(t("inviteDialog.lastNameRequired"));
       return;
     }
-    if (needsClient && !clientId) {
-      setError(t("inviteDialog.clientRequired"));
-      return;
-    }
-
     formData.set("role", role);
-    formData.set("client_id", needsClient ? clientId : "");
     setError(null);
 
     startTransition(async () => {
@@ -166,13 +155,7 @@ export function InviteUserDialog({
 
           <div className="space-y-2">
             <Label htmlFor="invite-role">{t("inviteDialog.role")} *</Label>
-            <Select
-              value={role}
-              onValueChange={(v) => {
-                setRole(v as UserRole);
-                if (v === "auditor" || v === "admin") setClientId("");
-              }}
-            >
+            <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
               <SelectTrigger id="invite-role" aria-label={t("inviteDialog.role")}>
                 <SelectValue />
               </SelectTrigger>
@@ -183,44 +166,13 @@ export function InviteUserDialog({
                 <SelectItem value="auditor">
                   {t("rolesOption.auditor")}
                 </SelectItem>
-                <SelectItem value="client_admin">
-                  {t("rolesOption.client_admin")}
-                </SelectItem>
-                <SelectItem value="client">
-                  {t("rolesOption.client")}
-                </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {needsClient && (
-            <div className="space-y-2">
-              <Label htmlFor="invite-client">
-                {t("inviteDialog.client")} *
-              </Label>
-              <Select value={clientId} onValueChange={setClientId}>
-                <SelectTrigger
-                  id="invite-client"
-                  aria-label={t("inviteDialog.client")}
-                >
-                  <SelectValue placeholder={t("inviteDialog.clientPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.length === 0 ? (
-                    <div className="px-3 py-2 text-sm text-muted-foreground">
-                      {t("inviteDialog.noClients")}
-                    </div>
-                  ) : (
-                    clients.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          <p className="text-sm text-muted-foreground">
+            {t("inviteDialog.clientHint")}
+          </p>
 
           </DialogBody>
 

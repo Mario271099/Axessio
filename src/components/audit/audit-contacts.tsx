@@ -152,7 +152,7 @@ export function AuditContacts({
         </ul>
       )}
 
-      {error && (
+      {error && !inviteOpen && (
         <p
           role="alert"
           className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
@@ -189,6 +189,16 @@ export function AuditContacts({
             className="flex min-h-0 flex-1 flex-col"
           >
             <DialogBody>
+            {/* Erreur affichée DANS la fenêtre : celle de la carte est
+                masquée par la modale tant qu'elle est ouverte. */}
+            {error && inviteOpen && (
+              <p
+                role="alert"
+                className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+              >
+                {error}
+              </p>
+            )}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="contact-first-name">{t("firstName")} *</Label>

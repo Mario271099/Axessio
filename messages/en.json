@@ -504,6 +504,7 @@
     "updateAuditOnlyAuditor": "Only auditors can edit an audit.",
     "defaultInviterName": "An Axessyo auditor",
     "userCreatedEmailFailed": "User created but the email could not be sent: {message}. Use \"Resend invitation\" to try again.",
+    "contactEmailFailed": "Contact added to the audit, but the email could not be sent: {message}. Send the invitation again to retry.",
     "auditNotFound": "Audit not found.",
     "impersonationTargetDenied": "You cannot impersonate this role.",
     "userInactive": "This user is disabled.",
@@ -1757,6 +1758,7 @@
     "errorPrefix": "Error: {message}",
     "resendSuccess": "Invitation resent to {email}.",
     "inviteDialog": {
+      "clientHint": "To give a client access, open the relevant audit and use “Invite a contact”: they will be able to view the audit and download the reports.",
       "title": "Invite a user",
       "desc": "The user will receive an email with a link to activate their account.",
       "emailRequired": "Email is required.",
