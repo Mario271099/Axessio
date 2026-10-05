@@ -163,7 +163,7 @@ function Cell({ code, row }: { code: PlanCode; row: ComparisonRow }) {
       <>
         <span
           aria-hidden="true"
-          className="inline-flex size-7 items-center justify-center rounded-full bg-success/15 text-success transition-transform duration-200 ease-bounce group-hover/row:scale-110"
+          className="inline-flex size-7 items-center justify-center rounded-full bg-success/15 text-success-text transition-transform duration-200 ease-bounce group-hover/row:scale-110"
         >
           <Check className="size-[0.9375rem]" strokeWidth={3} />
         </span>

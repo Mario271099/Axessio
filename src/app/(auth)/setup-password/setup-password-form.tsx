@@ -16,9 +16,11 @@ import { createClient } from "@/lib/supabase/client";
 
 interface SetupPasswordFormProps {
   email: string;
+  /** Chemin interne déjà validé côté serveur (page.tsx). */
+  next: string;
 }
 
-export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
+export function SetupPasswordForm({ email, next }: SetupPasswordFormProps) {
   void email; // affiché dans le footer parent
   const t = useTranslations("auth.setupPassword");
   const tLogin = useTranslations("auth.login");
@@ -63,7 +65,7 @@ export function SetupPasswordForm({ email }: SetupPasswordFormProps) {
       return;
     }
 
-    window.location.href = "/dashboard";
+    window.location.href = next;
   }
 
   return (

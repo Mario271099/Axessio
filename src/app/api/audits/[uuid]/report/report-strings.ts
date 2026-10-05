@@ -26,6 +26,8 @@ export type Dict = {
   synthScoreAria: string;
   synthGlobalRate: string;
   synthFormula: string;
+  synthAverageRate: string;
+  synthPendingNote: string;
   synthSrDivBy: string;
   synthSrMinus: string;
   synthSrTimes: string;
@@ -113,7 +115,10 @@ const STRINGS_FR: Dict = {
   synthScoreAria: "Score global de conformité",
   synthGlobalRate: "Taux de conformité global",
   synthFormula:
-    "Formule : conformes / (total − non applicables) × 100",
+    "Méthode RGAA : critères conformes / critères applicables sur l’ensemble de l’échantillon (un critère non conforme sur une page est non conforme pour tout l’échantillon).",
+  synthAverageRate: "Taux moyen (moyenne des taux par page)",
+  synthPendingNote:
+    "Taux provisoire : {count} critère(s) encore à évaluer sur au moins une page.",
   synthSrDivBy: " divisé par ",
   synthSrMinus: " moins ",
   synthSrTimes: " multiplié par ",
@@ -230,7 +235,10 @@ const STRINGS_EN: Dict = {
   synthScoreAria: "Global conformity score",
   synthGlobalRate: "Global conformity rate",
   synthFormula:
-    "Formula: compliant / (total − not applicable) × 100",
+    "RGAA method: compliant criteria / applicable criteria across the whole sample (a criterion failing on one page is non-compliant for the whole sample).",
+  synthAverageRate: "Average rate (mean of page rates)",
+  synthPendingNote:
+    "Provisional rate: {count} criterion/criteria still to be assessed on at least one page.",
   synthSrDivBy: " divided by ",
   synthSrMinus: " minus ",
   synthSrTimes: " multiplied by ",

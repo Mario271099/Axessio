@@ -9,6 +9,7 @@ import { resend, FROM_EMAIL } from "@/lib/resend";
 import { InvitationEmail } from "@/emails/invitation-email";
 import { isValidEmail } from "@/lib/validation";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
+import { buildInviteUrl } from "@/lib/invite-link";
 import { resolveOutputBranding } from "@/lib/branding/server";
 import { PLANS, planLimit, type PlanCode } from "@/lib/billing/plans";
 import { countMembersInOrg } from "@/lib/billing/usage";
@@ -28,11 +29,6 @@ const INVITABLE_ORG_ROLES: readonly OrgRole[] = ["admin", "auditor", "viewer"];
 
 const INVITE_LIMIT = 30;
 const INVITE_WINDOW_MS = 60 * 60 * 1000;
-
-function buildRedirectUrl() {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  return `${base.replace(/\/$/, "")}/auth/callback?next=/dashboard`;
-}
 
 // Libellé legacy purement cosmétique pour l'email d'invitation (le composant
 // InvitationEmail attend un UserRole). N'a AUCUN impact sur les droits réels :
@@ -146,15 +142,14 @@ export async function inviteOrgMember(
           last_name: lastName,
           role: "client",
         },
-        redirectTo: buildRedirectUrl(),
       },
     });
 
-  if (linkError || !linkData?.properties?.action_link || !linkData.user) {
+  if (linkError || !linkData?.properties?.hashed_token || !linkData.user) {
     return { error: linkError?.message ?? t("invitationLinkFailed") };
   }
 
-  const invitationUrl = linkData.properties.action_link;
+  const invitationUrl = buildInviteUrl(linkData.properties.hashed_token);
   const newUserId = linkData.user.id;
 
   // 2. Membership d'org + org active pointée sur l'org rejointe.

@@ -145,7 +145,7 @@ export function AvatarUpload({ initialAvatarUrl, initials }: Props) {
             "inline-flex items-start gap-2 rounded-md p-3 text-sm",
             feedback.kind === "error"
               ? "bg-destructive/10 text-destructive"
-              : "bg-success/10 text-success",
+              : "bg-success/10 text-success-text",
           )}
         >
           {feedback.kind === "error" && (

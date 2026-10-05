@@ -504,6 +504,7 @@
     "updateAuditOnlyAuditor": "Seuls les auditeurs peuvent modifier un audit.",
     "defaultInviterName": "Un auditeur Axessyo",
     "userCreatedEmailFailed": "Utilisateur créé mais l'email n'a pas pu être envoyé : {message}. Utilisez \"Renvoyer l'invitation\" pour réessayer.",
+    "contactEmailFailed": "Contact ajouté à l'audit, mais l'email n'a pas pu être envoyé : {message}. Renvoyez l'invitation pour réessayer.",
     "auditNotFound": "Audit introuvable.",
     "impersonationTargetDenied": "Vous ne pouvez pas emprunter ce rôle.",
     "userInactive": "Cet utilisateur est désactivé.",
@@ -1757,6 +1758,7 @@
     "errorPrefix": "Erreur : {message}",
     "resendSuccess": "Invitation renvoyée à {email}.",
     "inviteDialog": {
+      "clientHint": "Pour donner accès à un client, ouvrez l'audit concerné puis « Inviter un contact » : il pourra consulter l'audit et télécharger les rapports.",
       "title": "Inviter un utilisateur",
       "desc": "L'utilisateur recevra un email avec un lien pour activer son compte.",
       "emailRequired": "L'email est requis.",

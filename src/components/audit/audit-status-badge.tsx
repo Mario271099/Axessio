@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 const tones = {
   neutral: "bg-secondary text-secondary-foreground",
   info: "bg-primary-muted text-primary",
-  warning: "bg-warning/12 text-warning",
-  success: "bg-success/12 text-success",
+  warning: "bg-warning-bg text-warning-text",
+  success: "bg-success-bg text-success-text",
   muted: "bg-muted text-muted-foreground",
 } as const;
 

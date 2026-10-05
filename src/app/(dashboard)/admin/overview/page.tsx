@@ -156,8 +156,8 @@ export default async function AdminOverviewPage({
   const kpis = [
     { icon: Users, label: t("kpi.users"), value: usersCount, note: t("kpi.usersNote", { active: activeUsers }), tone: "bg-primary/10 text-primary" },
     { icon: Building2, label: t("kpi.organizations"), value: orgsTotal.count ?? 0, note: null, tone: "bg-violet-500/10 text-violet-500" },
-    { icon: ClipboardCheck, label: t("kpi.audits"), value: auditsTotal.count ?? 0, note: null, tone: "bg-success/10 text-success" },
-    { icon: AlertTriangle, label: t("kpi.nonConformities"), value: ncTotal.count ?? 0, note: null, tone: "bg-warning/10 text-warning" },
+    { icon: ClipboardCheck, label: t("kpi.audits"), value: auditsTotal.count ?? 0, note: null, tone: "bg-success/10 text-success-text" },
+    { icon: AlertTriangle, label: t("kpi.nonConformities"), value: ncTotal.count ?? 0, note: null, tone: "bg-warning/10 text-warning-text" },
   ];
 
   return (

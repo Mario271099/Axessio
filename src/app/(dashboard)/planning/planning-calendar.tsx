@@ -49,14 +49,14 @@ const TYPE_STYLES: Record<
   },
   restitution: {
     color: "hsl(var(--warning))",
-    bg: "bg-warning/12",
-    text: "text-warning",
+    bg: "bg-warning-bg",
+    text: "text-warning-text",
     icon: FileText,
   },
   counter_audit: {
     color: "hsl(var(--success))",
-    bg: "bg-success/12",
-    text: "text-success",
+    bg: "bg-success-bg",
+    text: "text-success-text",
     icon: RefreshCw,
   },
 };

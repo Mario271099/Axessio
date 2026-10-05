@@ -1,6 +1,6 @@
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { orgHasFeature } from "@/lib/billing/server";
+import { checkAuditExportAccess } from "@/lib/audit-export-access";
 import { loadMyOrgPermissions } from "@/lib/server-permissions";
 import { AuditPageHeader } from "@/components/audit/audit-page-header";
 import { AuditStatusBadge } from "@/components/audit/audit-status-badge";
@@ -61,9 +61,32 @@ export default async function AnomaliesPage({
     };
   });
 
-  // Bouton export CSV gated par la feature `export.pdf` (capacité d'export) ;
-  // masqué s'il n'y a pas de NC. L'action re-vérifie l'autorisation + la feature.
-  const canExportCsv = ncs.length > 0 && (await orgHasFeature("export.pdf"));
+  // Bouton export CSV : même garde que l'action (staff, client_admin, contact
+  // de l'audit + feature `export.pdf` du visiteur OU de l'org de l'audit) ;
+  // masqué s'il n'y a pas de NC. L'action re-vérifie côté serveur.
+  let canExportCsv = false;
+  if (ncs.length > 0) {
+    const { data: auditRow } = await supabase
+      .from("audits")
+      .select("organization_id, project:projects(client_id)")
+      .eq("id", uuid)
+      .maybeSingle();
+    const project = Array.isArray(auditRow?.project)
+      ? auditRow.project[0]
+      : auditRow?.project;
+    canExportCsv =
+      auditRow !== null &&
+      (await checkAuditExportAccess(supabase, {
+        auditId: uuid,
+        auditOrganizationId: auditRow.organization_id as string | null,
+        clientId: (project?.client_id as string | undefined) ?? null,
+        profile: {
+          role: profile.role,
+          client_id: profile.clientId ?? null,
+          is_platform_admin: profile.isPlatformAdmin,
+        },
+      })) === "ok";
+  }
   const header = await loadAuditHeader(uuid);
 
   return (

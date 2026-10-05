@@ -4,7 +4,7 @@ import { Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { orgHasFeature } from "@/lib/billing/server";
+import { checkAuditExportAccess } from "@/lib/audit-export-access";
 import {
   Card,
   CardContent,
@@ -97,18 +97,22 @@ export default async function AuditDetailPage({ params }: PageProps) {
     ? audit.reference[0]
     : audit.reference;
 
-  // Export PDF : staff plateforme (admin/auditor) OU client_admin du client
-  // propriétaire de l'audit. Les clients simples passent par leur admin.
-  // Le check de feature `export.pdf` est ajouté en AND : sans Starter+,
-  // le bouton ne s'affiche pas (l'API renvoie 402 si on bypass).
-  const canExportRole =
-    profile.isPlatformAdmin ||
-    profile.role === "auditor" ||
-    (profile.role === "client_admin" &&
-      client?.id != null &&
-      profile.clientId === client.id);
-  const hasExportFeature = await orgHasFeature("export.pdf");
-  const canExportReport = canExportRole && hasExportFeature;
+  // Exports (PDF, matrice) : staff plateforme (admin/auditor), client_admin
+  // du client propriétaire de l'audit, OU contact client invité sur l'audit.
+  // Le check de feature `export.pdf` est ajouté en AND (plan du visiteur OU
+  // de l'org de l'audit) : sans Starter+, le bouton ne s'affiche pas (l'API
+  // renvoie 402 si on bypass) - cf. lib/audit-export-access.ts.
+  const canExportReport =
+    (await checkAuditExportAccess(supabase, {
+      auditId: uuid,
+      auditOrganizationId: audit.organization_id as string | null,
+      clientId: (client?.id as string | undefined) ?? null,
+      profile: {
+        role: profile.role,
+        client_id: profile.clientId ?? null,
+        is_platform_admin: profile.isPlatformAdmin,
+      },
+    })) === "ok";
 
   // Édition des métadonnées audit : legacy OU permission d'org `audit.edit`.
   const orgPerms = await loadMyOrgPermissions();

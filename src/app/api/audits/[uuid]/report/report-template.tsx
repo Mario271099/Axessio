@@ -7,7 +7,7 @@
 //   - report-nc-section.ts (section non-conformités)
 // Ici : page de garde, synthèse, détail par page, assemblage du document.
 
-import { getConformityLabel } from "@/lib/score";
+import { computeRgaaRates, getConformityLabel } from "@/lib/score";
 import type { ConformityStatus, NCSeverity, WCAGLevel } from "@/types/domain";
 import {
   COLORS,
@@ -79,42 +79,45 @@ function renderCover(data: ReportData, locale: ReportLocale, d: Dict): string {
 function renderSynthesis(data: ReportData, d: Dict): string {
   const { pageConformities, thematics, criteria, pages, nonConformities } = data;
 
-  const global = emptyCounts();
-  for (const conf of pageConformities) addStatus(global, conf.status);
-  const globalScore = rate(global);
+  // Méthode officielle RGAA : taux global raisonné par critère sur tout
+  // l'échantillon (cf. lib/score.ts), taux moyen = moyenne des pages.
+  const cellStatus = new Map<string, ConformityStatus>();
+  for (const conf of pageConformities) {
+    cellStatus.set(`${conf.pageId}:${conf.criteriaId}`, conf.status);
+  }
+  const pageIds = pages.map((p) => p.id);
+  const ratesFor = (criterionIds: string[]) =>
+    computeRgaaRates({
+      pageIds,
+      criterionIds,
+      statusOf: (pageId, criterionId) =>
+        cellStatus.get(`${pageId}:${criterionId}`),
+    });
+  const globalRates = ratesFor(criteria.map((c) => c.id));
+  const global = globalRates.criteria;
+  const globalScore = globalRates.globalRate ?? 0;
   const globalColor = colorForScore(globalScore);
   const globalLabel = getConformityLabel(globalScore);
+  const unevaluatedCell = `<span aria-hidden="true">—</span><span class="sr-only">${esc(d.unevaluated)}</span>`;
 
-  const criteriaById = new Map(criteria.map((c) => [c.id, c]));
-  const perThematic = new Map<string, ConformityCounts>(
-    thematics.map((t) => [t.id, emptyCounts()]),
-  );
-  for (const conf of pageConformities) {
-    const crit = criteriaById.get(conf.criteriaId);
-    if (!crit) continue;
-    const counts = perThematic.get(crit.thematicId);
-    if (!counts) continue;
-    addStatus(counts, conf.status);
-  }
   const thematicRows = thematics
     .slice()
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((t) => {
-      const counts = perThematic.get(t.id) ?? emptyCounts();
-      const score = rate(counts);
+      const { criteria: counts, globalRate } = ratesFor(
+        criteria.filter((c) => c.thematicId === t.id).map((c) => c.id),
+      );
+      const evaluated =
+        counts.compliant + counts.nonCompliant + counts.notApplicable;
       return `
         <tr>
           <td>${esc(t.identifier)} - ${esc(t.name)}</td>
-          <td class="num">${counts.total}</td>
+          <td class="num">${evaluated}</td>
           <td class="num">${counts.compliant}</td>
           <td class="num">${counts.nonCompliant}</td>
           <td class="num">${counts.notApplicable}</td>
-          <td class="num" style="color: ${colorForScore(score)}; font-weight: 600;">
-            ${
-              counts.total === 0
-                ? `<span aria-hidden="true">—</span><span class="sr-only">${esc(d.unevaluated)}</span>`
-                : esc(formatRate(score))
-            }
+          <td class="num" style="color: ${colorForScore(globalRate ?? 0)}; font-weight: 600;">
+            ${globalRate === null ? unevaluatedCell : esc(formatRate(globalRate))}
           </td>
         </tr>`;
     })
@@ -174,13 +177,23 @@ function renderSynthesis(data: ReportData, d: Dict): string {
             ${esc(globalLabel)}
           </p>
           <p class="sub">${esc(d.synthFormula)}</p>
+          ${
+            globalRates.averageRate === null
+              ? ""
+              : `<p class="sub">${esc(d.synthAverageRate)} : ${esc(formatRate(globalRates.averageRate))}</p>`
+          }
+          ${
+            global.pending > 0
+              ? `<p class="sub">${esc(fmt(d.synthPendingNote, { count: global.pending }))}</p>`
+              : ""
+          }
         </div>
       </div>
 
       <dl class="stats-grid">
         <div class="stat">
           <dt class="name">${esc(d.synthEvaluated)}</dt>
-          <dd class="value">${global.total}</dd>
+          <dd class="value">${global.compliant + global.nonCompliant + global.notApplicable}</dd>
         </div>
         <div class="stat">
           <dt class="name">${esc(d.synthCompliant)}</dt>

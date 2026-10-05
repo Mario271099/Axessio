@@ -60,9 +60,12 @@ Deux niveaux indépendants :
 
 ### Score d'accessibilité
 
-Formule officielle RGAA dans `src/lib/score.ts` :
-`score = (compliant / (totalCriteria - notApplicable)) * 100`
+Méthode officielle DINUM (https://accessibilite.numerique.gouv.fr/obligations/evaluation-conformite/), implémentée dans `computeRgaaRates()` (`src/lib/score.ts`) et, à l'identique, dans la RPC `audit_current_score` (migration 84) :
 
+- **Taux global (valeur légale)** = critères validés / critères applicables, raisonné **par critère sur tout l'échantillon** : un critère est non conforme dès qu'il échoue sur une page, validé s'il l'est sur toutes les pages, non applicable seulement s'il l'est sur toutes les pages.
+- **Taux par page** = conformes / (conformes + non conformes) de la page. **Taux moyen** = moyenne des taux par page.
+- Audit en cours : un critère sans échec mais pas encore saisi sur toutes les pages est exclu (taux « provisoire »).
+- Ne **jamais** recompter des cases page × critère pour le taux global (ancienne erreur : 92 % affiché au lieu de 50 %).
 - 0–49 : non conforme · 50–99 : partielle · 100 : totale
 
 ### Pages obligatoires d'audit

@@ -11,8 +11,8 @@ interface SectionHeaderProps {
 
 const TONE_CLASSES = {
   primary: "bg-primary/10 text-primary",
-  warning: "bg-warning/10 text-warning",
-  success: "bg-success/10 text-success",
+  warning: "bg-warning/10 text-warning-text",
+  success: "bg-success/10 text-success-text",
   muted: "bg-muted text-muted-foreground",
 } as const;
 

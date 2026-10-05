@@ -189,7 +189,7 @@ export default async function PermissionsDebugPage() {
                               <Check
                                 className={cn(
                                   "inline-block size-4",
-                                  "text-success",
+                                  "text-success-text",
                                 )}
                                 aria-hidden="true"
                               />

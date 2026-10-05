@@ -313,7 +313,7 @@ export function NonConformityModal({
           {warning && (
             <p
               role="alert"
-              className="rounded-md bg-warning/10 p-3 text-sm text-warning"
+              className="rounded-md bg-warning/10 p-3 text-sm text-warning-text"
             >
               {warning}
             </p>

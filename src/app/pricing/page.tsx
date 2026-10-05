@@ -217,7 +217,7 @@ export default async function PricingPage() {
                         <Check
                           aria-hidden="true"
                           strokeWidth={2.6}
-                          className="size-4.5 shrink-0 text-success"
+                          className="size-4.5 shrink-0 text-success-text"
                         />
                         {text}
                       </li>

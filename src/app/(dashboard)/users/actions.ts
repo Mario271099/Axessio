@@ -8,6 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { resend, FROM_EMAIL } from "@/lib/resend";
 import { InvitationEmail } from "@/emails/invitation-email";
 import { isValidEmail, isValidUuid } from "@/lib/validation";
+import { buildInviteUrl, buildMagicLinkUrl } from "@/lib/invite-link";
 import { rateLimit, retryAfterSeconds } from "@/lib/rate-limit";
 import { canManageUsers } from "@/lib/permissions";
 import { PLANS, planLimit, type PlanCode } from "@/lib/billing/plans";
@@ -35,6 +36,12 @@ const ALLOWED_ROLES: readonly UserRole[] = [
   "client_admin",
   "client",
 ];
+
+// Invitation depuis /users : équipe uniquement. Un compte client créé ici
+// n'avait accès à rien (ni membre d'org, ni contact d'audit - cf. migration
+// 72). Côté client, deux portes : « Inviter un contact » sur l'audit
+// (lecture + exports) ou l'inscription en libre-service (propriétaire d'org).
+const INVITE_ROLES: readonly UserRole[] = ["admin", "auditor"];
 
 interface AuditorContext {
   supabase: Awaited<ReturnType<typeof createSupabaseClient>>;
@@ -85,11 +92,6 @@ async function requireAuditor(): Promise<AuditorContext> {
   return { supabase, inviterId: user.id, inviterName, error: null };
 }
 
-function buildRedirectUrl() {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  return `${base.replace(/\/$/, "")}/auth/callback?next=/dashboard`;
-}
-
 async function sendInvitationEmail(params: {
   to: string;
   recipientName: string;
@@ -99,6 +101,8 @@ async function sendInvitationEmail(params: {
   invitationUrl: string;
   /** Org cible de l'invitation, pour résoudre le branding white-label. */
   organizationId?: string | null;
+  /** Compte déjà activé : lien de connexion, pas de mot de passe à définir. */
+  existingAccount?: boolean;
 }) {
   const tErrors = await getTranslations("errors");
   const tEmails = await getTranslations("emails");
@@ -110,6 +114,7 @@ async function sendInvitationEmail(params: {
       role: params.role,
       clientName: params.clientName,
       invitationUrl: params.invitationUrl,
+      existingAccount: params.existingAccount,
       branding,
     }),
   );
@@ -154,32 +159,21 @@ export async function inviteUser(
   const lastName = formData.get("last_name")?.toString().trim() ?? "";
   const roleRaw = formData.get("role")?.toString().trim() ?? "";
   const clientIdRaw = formData.get("client_id")?.toString().trim() ?? "";
-  const clientId = clientIdRaw === "" ? null : clientIdRaw;
 
   if (!email || !isValidEmail(email)) {
     return { error: t("emailInvalid") };
   }
   if (!firstName) return { error: t("firstNameRequired") };
   if (!lastName) return { error: t("lastNameRequired") };
-  if (!ALLOWED_ROLES.includes(roleRaw as UserRole)) {
+  if (!INVITE_ROLES.includes(roleRaw as UserRole)) {
     return { error: t("invalidRole") };
   }
   const role = roleRaw as UserRole;
 
   // Les rôles staff (admin/auditor) appartiennent à Axessyo Internal, jamais à
-  // un client. Les rôles client (client_admin/client) doivent toujours avoir
-  // un client_id valide.
-  const isStaffRole = role === "admin" || role === "auditor";
-  if (isStaffRole && clientId !== null) {
+  // un client.
+  if (clientIdRaw !== "") {
     return { error: t("auditorNoClient") };
-  }
-  if (!isStaffRole) {
-    if (!clientId) {
-      return { error: t("roleNeedsClient") };
-    }
-    if (!isValidUuid(clientId)) {
-      return { error: t("invalidClientId") };
-    }
   }
 
   const { data: existing } = await ctx.supabase
@@ -191,29 +185,11 @@ export async function inviteUser(
     return { error: t("emailExists") };
   }
 
-  let clientName: string | null = null;
-  if (clientId) {
-    const { data: client, error: clientError } = await ctx.supabase
-      .from("clients")
-      .select("name")
-      .eq("id", clientId)
-      .maybeSingle();
-    if (clientError || !client) {
-      return { error: t("clientNotFound") };
-    }
-    clientName = client.name as string;
-  }
-
   // ============================================================================
-  // Limite de plan : `max_members` sur l'organisation cible.
-  //   - role staff (admin/auditor) → org "Axessyo Internal" (UUID fixe)
-  //   - role client_admin/client   → clientId == organization_id (backfill
-  //                                  migration 43 : 1 client legacy = 1 org)
-  // Le plan staff est toujours Pro+ historiquement, mais on garde la même
-  // logique pour la cohérence (et pour le jour où on basculera Axessyo
-  // Internal sur un plan Enterprise-only).
+  // Limite de plan : `max_members` de l'org cible - toujours "Axessyo
+  // Internal" (UUID fixe) puisque /users n'invite que l'équipe.
   // ============================================================================
-  const targetOrgId = clientId ?? AXESSIO_INTERNAL_ORG_ID;
+  const targetOrgId = AXESSIO_INTERNAL_ORG_ID;
   const { data: subRow } = await ctx.supabase
     .from("subscriptions")
     .select("plan_code")
@@ -246,19 +222,18 @@ export async function inviteUser(
           first_name: firstName,
           last_name: lastName,
           role,
-          client_id: clientId,
+          client_id: null,
         },
-        redirectTo: buildRedirectUrl(),
       },
     });
 
-  if (linkError || !linkData?.properties?.action_link || !linkData.user) {
+  if (linkError || !linkData?.properties?.hashed_token || !linkData.user) {
     return {
       error: linkError?.message ?? t("invitationLinkFailed"),
     };
   }
 
-  const invitationUrl = linkData.properties.action_link;
+  const invitationUrl = buildInviteUrl(linkData.properties.hashed_token);
   const newUserId = linkData.user.id;
 
   const sendError = await sendInvitationEmail({
@@ -266,7 +241,7 @@ export async function inviteUser(
     recipientName: `${firstName} ${lastName}`.trim(),
     inviterName: ctx.inviterName,
     role,
-    clientName,
+    clientName: null,
     invitationUrl,
     organizationId: targetOrgId,
   });
@@ -408,26 +383,29 @@ export async function resendInvitation(
           role,
           client_id: clientId,
         },
-        redirectTo: buildRedirectUrl(),
       },
     });
 
   // Si l'utilisateur a déjà confirmé son email, "invite" échoue → fallback magiclink.
-  if (linkError || !linkData?.properties?.action_link) {
+  let existingAccount = false;
+  if (linkError || !linkData?.properties?.hashed_token) {
     const fallback = await admin.auth.admin.generateLink({
       type: "magiclink",
       email,
-      options: { redirectTo: buildRedirectUrl() },
     });
     linkData = fallback.data;
     linkError = fallback.error;
+    existingAccount = true;
   }
 
-  if (linkError || !linkData?.properties?.action_link) {
+  if (linkError || !linkData?.properties?.hashed_token) {
     return {
       error: linkError?.message ?? t("newInvitationFailed"),
     };
   }
+  const invitationUrl = existingAccount
+    ? buildMagicLinkUrl(linkData.properties.hashed_token)
+    : buildInviteUrl(linkData.properties.hashed_token);
 
   const sendError = await sendInvitationEmail({
     to: email,
@@ -435,7 +413,8 @@ export async function resendInvitation(
     inviterName: ctx.inviterName,
     role,
     clientName,
-    invitationUrl: linkData.properties.action_link,
+    invitationUrl,
+    existingAccount,
     organizationId: clientId ?? AXESSIO_INTERNAL_ORG_ID,
   });
   if (sendError) return { error: sendError };

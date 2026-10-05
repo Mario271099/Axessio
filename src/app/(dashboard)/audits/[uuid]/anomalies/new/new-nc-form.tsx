@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations, useFormatter, useLocale } from "next-intl";
+import { useTranslations, useFormatter, useLocale, useNow } from "next-intl";
 import { toast } from "sonner";
 import {
   ChevronLeft,
@@ -106,6 +106,16 @@ export function NewNCForm({
   const tDraft = useTranslations("audits.anomaliesNew.draft");
   const tSeverity = useTranslations("constants.ncSeverity");
   const format = useFormatter();
+  // Heure de reference explicite pour relativeTime (sans elle, next-intl leve
+  // ENVIRONMENT_FALLBACK) ; rafraichie pour que "enregistre il y a X" avance.
+  // Bornee a la date d'enregistrement : `now` n'etant rafraichi que toutes les
+  // 10 s, un brouillon tout juste sauve s'afficherait sinon « dans X secondes ».
+  const now = useNow({ updateInterval: 10_000 });
+  const sinceSaved = (savedAt: Date) =>
+    format.relativeTime(
+      savedAt,
+      new Date(Math.max(now.getTime(), savedAt.getTime())),
+    );
   const locale = useLocale();
 
   // -- Cascade thématique → critère → test ---------------------------------
@@ -473,7 +483,7 @@ export function NewNCForm({
       {(noPages || noCriteria) && (
         <p
           role="alert"
-          className="rounded-md bg-warning/10 p-3 text-sm text-warning"
+          className="rounded-md bg-warning/10 p-3 text-sm text-warning-text"
         >
           {noPages ? t("noPages") : t("noCriteria")}
         </p>
@@ -488,7 +498,7 @@ export function NewNCForm({
             <span className="font-medium">{tDraft("bannerTitle")}</span>{" "}
             <span className="text-muted-foreground">
               {tDraft("bannerHint", {
-                when: format.relativeTime(draft.available.savedAt),
+                when: sinceSaved(draft.available.savedAt),
               })}
             </span>
           </p>
@@ -563,7 +573,7 @@ export function NewNCForm({
         {warning && (
           <p
             role="alert"
-            className="rounded-md bg-warning/10 p-3 text-sm text-warning"
+            className="rounded-md bg-warning/10 p-3 text-sm text-warning-text"
           >
             {warning}
           </p>
@@ -636,7 +646,10 @@ export function NewNCForm({
                   onValueChange={setCriteriaId}
                   disabled={!thematicId}
                 >
-                  <SelectTrigger id="nc-criteria">
+                  <SelectTrigger
+                    id="nc-criteria"
+                    className="h-auto min-h-11 py-2 text-left [&>span]:line-clamp-none [&_[data-criterion-name]]:line-clamp-2"
+                  >
                     <SelectValue
                       placeholder={
                         thematicId
@@ -648,12 +661,14 @@ export function NewNCForm({
                   <SelectContent className="max-h-[60vh]">
                     {filteredCriteria.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
-                        <span className="inline-flex items-center gap-2">
-                          <span className="font-mono text-xs text-muted-foreground">
+                        <span className="inline-flex items-start gap-2">
+                          <span className="mt-0.5 font-mono text-xs text-muted-foreground">
                             {c.identifier}
                           </span>
                           <WcagLevelBadge level={c.level} />
-                          <span>{c.name}</span>
+                          {/* Tronque a 2 lignes dans le champ ferme uniquement
+                              (cf. SelectTrigger) : la liste garde le texte complet. */}
+                          <span data-criterion-name="">{c.name}</span>
                         </span>
                       </SelectItem>
                     ))}
@@ -870,7 +885,7 @@ export function NewNCForm({
                 >
                   <Save className="h-3 w-3" aria-hidden="true" />
                   {tDraft("savedAt", {
-                    when: format.relativeTime(draft.savedAt),
+                    when: sinceSaved(draft.savedAt),
                   })}
                 </p>
               ) : (

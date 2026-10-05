@@ -18,7 +18,7 @@ import {
   NC_STATUS_LABELS,
   PAGE_TYPE_LABELS,
 } from "@/lib/constants";
-import { calculateScore } from "@/lib/score";
+import { rateOf } from "@/lib/score";
 import type {
   ConformityStatus,
   NCSeverity,
@@ -128,18 +128,16 @@ export async function buildMatrixXlsx(input: {
     "",
     "",
     ...sortedPages.map((page) => {
+      // Taux de la page (méthode RGAA) : conformes / applicables de la page ;
+      // les cases non saisies ne comptent pas comme des échecs.
       let compliant = 0;
-      let notApplicable = 0;
+      let nonCompliant = 0;
       for (const criterion of sortedCriteria) {
         const status = statusByCell.get(`${page.id}:${criterion.id}`);
         if (status === "COMPLIANT") compliant += 1;
-        else if (status === "NOT_APPLICABLE") notApplicable += 1;
+        else if (status === "NON_COMPLIANT") nonCompliant += 1;
       }
-      return calculateScore({
-        compliant,
-        notApplicable,
-        totalCriteria: sortedCriteria.length,
-      });
+      return rateOf(compliant, nonCompliant) ?? "";
     }),
   ]);
   scoreRow.font = { bold: true };

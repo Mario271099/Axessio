@@ -180,7 +180,7 @@ function TrendIndicator({ delta }: { delta: number | null }) {
     <span
       className={cn(
         "inline-flex items-center gap-1 text-xs font-bold tabular",
-        positive ? "text-success" : "text-destructive",
+        positive ? "text-success-text" : "text-destructive",
       )}
     >
       <Arrow className="size-3" aria-hidden="true" />

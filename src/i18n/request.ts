@@ -14,5 +14,7 @@ export default getRequestConfig(async () => {
     : detectLocaleFromHeader((await headers()).get("accept-language"));
 
   const messages = (await import(`../../messages/${locale}.json`)).default;
-  return { locale, messages };
+  // Fuseau explicite : sans lui, next-intl leve ENVIRONMENT_FALLBACK et le
+  // serveur (UTC sur Vercel) formate les dates differemment du navigateur.
+  return { locale, messages, timeZone: "Europe/Paris" };
 });

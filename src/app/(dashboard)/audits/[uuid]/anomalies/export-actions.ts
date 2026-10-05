@@ -2,7 +2,10 @@
 
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { orgHasFeature } from "@/lib/billing/server";
+import {
+  checkAuditExportAccess,
+  loadAuditExportContext,
+} from "@/lib/audit-export-access";
 import {
   NC_SEVERITY_LABELS,
   NC_STATUS_LABELS,
@@ -66,7 +69,7 @@ export async function exportNonConformitiesCsv(
   const { data: auditRow, error: auditError } = await supabase
     .from("audits")
     .select(
-      `id, project:projects(name, client:clients(id, name))`,
+      `id, organization_id, project:projects(name, client:clients(id, name))`,
     )
     .eq("id", auditId)
     .maybeSingle();
@@ -78,17 +81,16 @@ export async function exportNonConformitiesCsv(
     | null;
   const client = project ? (one(project.client as never) as { id: string; name: string } | null) : null;
 
-  // 3) Autorisation : super-admin/auditor OU client_admin du client de l'audit.
-  const isAuthorized =
-    profile.is_platform_admin === true ||
-    profile.role === "admin" ||
-    profile.role === "auditor" ||
-    (profile.role === "client_admin" && client?.id === profile.client_id);
-  if (!isAuthorized) return { error: t("forbidden") };
-
-  // 4) Feature gate (doublé serveur/UI).
-  const enabled = await orgHasFeature("export.pdf");
-  if (!enabled) return { error: t("planUpgradeRequired") };
+  // 3-4) Autorisation (staff, client_admin, contact de l'audit) + feature
+  // gate doublé serveur/UI - cf. lib/audit-export-access.ts.
+  const access = await checkAuditExportAccess(supabase, {
+    auditId,
+    auditOrganizationId: auditRow.organization_id as string | null,
+    clientId: client?.id ?? null,
+    profile,
+  });
+  if (access === "forbidden") return { error: t("forbidden") };
+  if (access === "plan_required") return { error: t("planUpgradeRequired") };
 
   // 5) Chargement des NC
   const { data, error } = await supabase
@@ -149,7 +151,11 @@ export async function exportNonConformitiesCsv(
 
   // BOM UTF-8 pour qu'Excel ouvre correctement les accents.
   const csv = "﻿" + lines.join("\r\n");
-  const safeName = (client?.name ?? "audit")
+  // Un contact client ne lit pas `clients` (RLS) : repli sur l'en-tête
+  // d'export chargé après le contrôle d'accès.
+  const clientName =
+    client?.name ?? (await loadAuditExportContext(auditId))?.client.name;
+  const safeName = (clientName ?? "audit")
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-zA-Z0-9-]+/g, "-")

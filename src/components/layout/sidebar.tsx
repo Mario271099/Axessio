@@ -154,7 +154,7 @@ export function Sidebar({
               onSelect={() => {
                 void exitImpersonationAndRedirect();
               }}
-              className="text-warning focus:bg-warning/10 focus:text-warning"
+              className="text-warning-text focus:bg-warning/10 focus:text-warning-text"
             >
               <Eye className="size-4" aria-hidden="true" />
               {t("user.exitImpersonation")}

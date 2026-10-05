@@ -105,9 +105,15 @@ export function ExportMenu({
         throw new Error(message);
       }
       const blob = await response.blob();
+      // Nom fourni par le serveur en priorité : un contact client ne lit pas
+      // le projet (RLS), `projectName` peut donc être vide côté page.
+      const serverFilename = response.headers
+        .get("Content-Disposition")
+        ?.match(/filename="([^"]+)"/)?.[1];
       triggerDownload(
         blob,
-        `audit-${slugify(projectName)}-${todayIso()}-${lang}.pdf`,
+        serverFilename ??
+          `audit-${slugify(projectName)}-${todayIso()}-${lang}.pdf`,
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : t("unknownError"));

@@ -222,13 +222,13 @@ const TONE_STYLES: Record<
   },
   warning: {
     wrapper: "border-warning/40 bg-warning/[0.06]",
-    icon: "text-warning",
+    icon: "text-warning-text",
     iconBg: "bg-warning/15",
     cta: "",
   },
   success: {
     wrapper: "border-success/40 bg-success/[0.06]",
-    icon: "text-success",
+    icon: "text-success-text",
     iconBg: "bg-success/15",
     cta: "",
   },

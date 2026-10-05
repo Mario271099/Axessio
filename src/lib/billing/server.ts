@@ -7,7 +7,7 @@ import "server-only";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import type { FeatureCode, LimitCode, PlanCode } from "@/lib/billing/plans";
-import { PLANS } from "@/lib/billing/plans";
+import { PLANS, planHasFeature } from "@/lib/billing/plans";
 
 // ============================================================================
 // Lecture du plan actif
@@ -29,6 +29,24 @@ export async function orgHasFeature(code: FeatureCode): Promise<boolean> {
   });
   if (error) return false;
   return data === true;
+}
+
+/**
+ * Feature du plan d'une organisation DONNÉE (et non de l'org active du
+ * visiteur). Sert quand l'accès est porté par la ressource : un contact
+ * client n'a pas d'org active, c'est le plan de l'org propriétaire de
+ * l'audit qui décide. `org_plan_of` est SECURITY DEFINER (migration 50).
+ */
+export async function organizationHasFeature(
+  organizationId: string,
+  code: FeatureCode,
+): Promise<boolean> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("org_plan_of", {
+    p_org_id: organizationId,
+  });
+  if (error || typeof data !== "string" || !(data in PLANS)) return false;
+  return planHasFeature(data as PlanCode, code);
 }
 
 interface FeatureGuardSuccess {

@@ -341,7 +341,6 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
       <InviteUserDialog
         open={inviteOpen}
         onOpenChange={setInviteOpen}
-        clients={clients}
         onSuccess={() => router.refresh()}
       />
 
@@ -395,7 +394,7 @@ export function UsersList({ users, clients, currentUserId }: UsersListProps) {
 
 const toneClasses = {
   primary: "bg-primary/10 text-primary",
-  success: "bg-success/10 text-success",
+  success: "bg-success/10 text-success-text",
   violet: "bg-violet-500/10 text-violet-500",
   muted: "bg-muted text-muted-foreground",
 } as const;

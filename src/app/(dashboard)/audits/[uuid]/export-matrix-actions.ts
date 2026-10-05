@@ -2,7 +2,10 @@
 
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { orgHasFeature } from "@/lib/billing/server";
+import {
+  checkAuditExportAccess,
+  loadAuditExportContext,
+} from "@/lib/audit-export-access";
 import type {
   ConformityStatus,
   NCSeverity,
@@ -66,7 +69,7 @@ async function loadMatrixData(auditId: string): Promise<
   const { data: auditRow, error: auditError } = await supabase
     .from("audits")
     .select(
-      `id, reference_id,
+      `id, reference_id, organization_id,
        project:projects(name, client:clients(id, name))`,
     )
     .eq("id", auditId)
@@ -83,17 +86,16 @@ async function loadMatrixData(auditId: string): Promise<
         : project.client) as { id: string; name: string } | null)
     : null;
 
-  // 3) Autorisation : super-admin/auditor OU client_admin du client de l'audit.
-  const isAuthorized =
-    profile.is_platform_admin === true ||
-    profile.role === "admin" ||
-    profile.role === "auditor" ||
-    (profile.role === "client_admin" && client?.id === profile.client_id);
-  if (!isAuthorized) return { error: t("forbidden") };
-
-  // 4) Feature gate (doublé serveur/UI).
-  const enabled = await orgHasFeature("export.pdf");
-  if (!enabled) return { error: t("planUpgradeRequired") };
+  // 3-4) Autorisation (staff, client_admin, contact de l'audit) + feature
+  // gate doublé serveur/UI - cf. lib/audit-export-access.ts.
+  const access = await checkAuditExportAccess(supabase, {
+    auditId,
+    auditOrganizationId: auditRow.organization_id as string | null,
+    clientId: client?.id ?? null,
+    profile,
+  });
+  if (access === "forbidden") return { error: t("forbidden") };
+  if (access === "plan_required") return { error: t("planUpgradeRequired") };
 
   const referenceId = auditRow.reference_id as string;
 
@@ -161,7 +163,12 @@ async function loadMatrixData(auditId: string): Promise<
 
   return {
     error: null,
-    clientName: client?.name ?? null,
+    // Un contact client ne lit pas `clients` (RLS) : repli sur l'en-tête
+    // d'export chargé après le contrôle d'accès.
+    clientName:
+      client?.name ??
+      (await loadAuditExportContext(auditId))?.client.name ??
+      null,
     pages,
     criteria,
     conformities,

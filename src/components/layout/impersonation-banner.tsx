@@ -17,7 +17,7 @@ export async function ImpersonationBanner({ profile }: ImpersonationBannerProps)
   return (
     <div
       role="status"
-      className="sticky top-0 z-40 border-b border-warning/40 bg-warning/10 text-warning"
+      className="sticky top-0 z-40 border-b border-warning/40 bg-warning/10 text-warning-text"
     >
       <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-2 text-sm md:px-6">
         <div className="flex items-center gap-2">
@@ -35,7 +35,7 @@ export async function ImpersonationBanner({ profile }: ImpersonationBannerProps)
             type="submit"
             size="sm"
             variant="outline"
-            className="gap-2 border-warning/40 bg-background/60 text-warning hover:bg-warning/10 hover:text-warning"
+            className="gap-2 border-warning/40 bg-background/60 text-warning-text hover:bg-warning/10 hover:text-warning-text"
           >
             <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
             {t("exit")}

@@ -123,7 +123,7 @@ export function AuditProofreaders({
               <div className="flex min-w-0 items-center gap-2">
                 <div
                   aria-hidden="true"
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-warning/10 text-warning"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-warning/10 text-warning-text"
                 >
                   <Eye className="h-4 w-4" />
                 </div>

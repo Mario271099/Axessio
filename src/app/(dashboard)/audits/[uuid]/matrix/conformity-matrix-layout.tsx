@@ -24,7 +24,7 @@ import { AuditTabsNav } from "@/components/audit/audit-tabs-nav";
 import { PagesSidebar } from "./pages-sidebar";
 import { PageMatrixContent } from "./page-matrix-content";
 import { NonConformityModal } from "./non-conformity-modal";
-import { calculateScore } from "@/lib/score";
+import { computeRgaaRates, rateOf } from "@/lib/score";
 import { cn } from "@/lib/utils";
 import {
   bulkSetThematicConformity,
@@ -418,23 +418,19 @@ export function ConformityMatrixLayout({
     [pages, currentPageId],
   );
 
-  // Score global de l'audit : agrégation sur toutes les pages.
-  const auditScore = useMemo(() => {
-    let compliant = 0;
-    let notApplicable = 0;
-    for (const page of pages) {
-      for (const c of criteria) {
-        const status = conformityMap.get(conformityKey(page.id, c.id));
-        if (status === "COMPLIANT") compliant += 1;
-        else if (status === "NOT_APPLICABLE") notApplicable += 1;
-      }
-    }
-    return calculateScore({
-      compliant,
-      notApplicable,
-      totalCriteria: pages.length * totalCriteria,
-    });
-  }, [pages, criteria, conformityMap, totalCriteria]);
+  // Taux global de l'audit, méthode officielle RGAA (par critère sur tout
+  // l'échantillon, cf. lib/score.ts). null tant qu'aucun critère applicable
+  // n'est déterminé.
+  const auditScore = useMemo(
+    () =>
+      computeRgaaRates({
+        pageIds: pages.map((p) => p.id),
+        criterionIds: criteria.map((c) => c.id),
+        statusOf: (pageId, criteriaId) =>
+          conformityMap.get(conformityKey(pageId, criteriaId)),
+      }).globalRate,
+    [pages, criteria, conformityMap],
+  );
 
   const hasAnyEntry = useMemo(() => conformityMap.size > 0, [conformityMap]);
 
@@ -454,13 +450,15 @@ export function ConformityMatrixLayout({
       }
     }
     const filled = compliant + nonCompliant + notApplicable;
+    // Taux de la page : critères conformes / critères applicables de la page.
+    const score = rateOf(compliant, nonCompliant);
     return {
       compliant,
       nonCompliant,
       notApplicable,
       pending: Math.max(0, totalCriteria - filled),
-      score: calculateScore({ compliant, notApplicable, totalCriteria }),
-      hasEntry: filled > 0,
+      score: score ?? 0,
+      hasEntry: score !== null,
     };
   }, [criteria, conformityMap, currentPage, totalCriteria]);
 
@@ -561,7 +559,7 @@ export function ConformityMatrixLayout({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex min-w-0 items-start gap-2 text-sm">
               <RotateCcw
-                className="mt-0.5 h-4 w-4 shrink-0 text-warning"
+                className="mt-0.5 h-4 w-4 shrink-0 text-warning-text"
                 aria-hidden="true"
               />
               <div className="min-w-0">
@@ -604,8 +602,8 @@ export function ConformityMatrixLayout({
           totalCriteria={totalCriteria}
           currentPageId={currentPageId}
           onPageChange={handlePageChange}
-          auditScore={auditScore}
-          hasAnyEntry={hasAnyEntry}
+          auditScore={auditScore ?? 0}
+          hasAnyEntry={hasAnyEntry && auditScore !== null}
         />
 
         <main className="min-w-0 flex-1 px-4 pb-24 pt-6 md:px-6 lg:px-8">
@@ -695,8 +693,8 @@ export function ConformityMatrixLayout({
             className={cn(
               "inline-flex items-center gap-2 text-sm font-medium",
               saveStatus === "error" && "text-destructive",
-              saveStatus !== "error" && hasPending && "text-warning",
-              saveStatus !== "error" && !hasPending && "text-success",
+              saveStatus !== "error" && hasPending && "text-warning-text",
+              saveStatus !== "error" && !hasPending && "text-success-text",
             )}
           >
             {saveStatus === "saving" ? (

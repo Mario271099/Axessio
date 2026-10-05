@@ -9,8 +9,8 @@ import type { NCReviewStatus } from "@/types/domain";
 const TONE_CLASSES = {
   neutral: "bg-secondary text-secondary-foreground",
   info: "bg-primary/10 text-primary",
-  warning: "bg-warning/10 text-warning",
-  success: "bg-success/10 text-success",
+  warning: "bg-warning/10 text-warning-text",
+  success: "bg-success/10 text-success-text",
   destructive: "bg-destructive/10 text-destructive",
   muted: "bg-muted text-muted-foreground",
 } as const;
