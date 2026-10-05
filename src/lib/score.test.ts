@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
   calculateScore,
+  computeRgaaRates,
+  criterionResult,
   getConformityLabel,
   getConformityLevel,
 } from "./score";
@@ -158,5 +160,85 @@ describe("getConformityLabel", () => {
 
   it("retourne 'Totalement conforme' pour 100", () => {
     expect(getConformityLabel(100)).toBe("Totalement conforme");
+  });
+});
+
+// ============================================================================
+// computeRgaaRates - methode officielle DINUM (taux global par critere sur
+// l'echantillon, taux par page, taux moyen).
+// ============================================================================
+describe("computeRgaaRates", () => {
+  type S = "COMPLIANT" | "NON_COMPLIANT" | "NOT_APPLICABLE" | undefined;
+  const run = (grid: Record<string, Record<string, S>>, criterionIds: string[]) =>
+    computeRgaaRates({
+      pageIds: Object.keys(grid),
+      criterionIds,
+      statusOf: (p, c) => grid[p]?.[c],
+    });
+
+  it("un critere non conforme sur une seule page est non conforme pour l'echantillon", () => {
+    const r = run(
+      {
+        p1: { c1: "COMPLIANT", c2: "COMPLIANT" },
+        p2: { c1: "NON_COMPLIANT", c2: "COMPLIANT" },
+      },
+      ["c1", "c2"],
+    );
+    expect(r.criteria).toEqual({ compliant: 1, nonCompliant: 1, notApplicable: 0, pending: 0 });
+    expect(r.globalRate).toBe(50);
+  });
+
+  it("un critere est applicable s'il l'est sur au moins une page", () => {
+    const r = run(
+      {
+        p1: { c1: "NOT_APPLICABLE", c2: "NOT_APPLICABLE" },
+        p2: { c1: "COMPLIANT", c2: "NOT_APPLICABLE" },
+      },
+      ["c1", "c2"],
+    );
+    expect(r.criteria.compliant).toBe(1);
+    expect(r.criteria.notApplicable).toBe(1);
+    expect(r.globalRate).toBe(100);
+  });
+
+  it("calcule le taux par page et le taux moyen", () => {
+    const r = run(
+      {
+        p1: { c1: "COMPLIANT", c2: "COMPLIANT" },
+        p2: { c1: "COMPLIANT", c2: "NON_COMPLIANT" },
+      },
+      ["c1", "c2"],
+    );
+    expect(r.pageRates.get("p1")).toBe(100);
+    expect(r.pageRates.get("p2")).toBe(50);
+    expect(r.averageRate).toBe(75);
+    expect(r.globalRate).toBe(50);
+  });
+
+  it("exclut les criteres pas encore evalues sur toutes les pages (audit en cours)", () => {
+    const r = run(
+      {
+        p1: { c1: "COMPLIANT", c2: "COMPLIANT", c3: "NON_COMPLIANT" },
+        p2: { c1: "COMPLIANT" },
+      },
+      ["c1", "c2", "c3", "c4"],
+    );
+    expect(r.criteria).toEqual({ compliant: 1, nonCompliant: 1, notApplicable: 0, pending: 2 });
+    expect(r.globalRate).toBe(50);
+  });
+
+  it("renvoie null sans aucun critere applicable determine", () => {
+    const r = run({ p1: {} }, ["c1"]);
+    expect(r.globalRate).toBeNull();
+    expect(r.averageRate).toBeNull();
+    expect(r.pageRates.get("p1")).toBeNull();
+  });
+});
+
+describe("criterionResult", () => {
+  it("priorise l'echec sur une case non saisie", () => {
+    expect(criterionResult(["NON_COMPLIANT", undefined])).toBe("NON_COMPLIANT");
+    expect(criterionResult(["COMPLIANT", undefined])).toBe("PENDING");
+    expect(criterionResult([])).toBe("PENDING");
   });
 });

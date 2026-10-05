@@ -21,10 +21,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SeverityBadge } from "@/components/audit/severity-badge";
-import { calculateScore } from "@/lib/score";
+import { computeRgaaRates } from "@/lib/score";
 import { NC_SEVERITY_ORDER } from "@/lib/constants";
 import { cn, themeColorForIdentifier } from "@/lib/utils";
-import type { NCSeverity, NCStatus } from "@/types/domain";
+import type { ConformityStatus, NCSeverity, NCStatus } from "@/types/domain";
 
 export interface SimulatorNC {
   id: string;
@@ -94,21 +94,21 @@ interface RemediationSimulatorProps {
   allNCs: SimulatorNC[];
   auditPages: SimulatorPage[];
   referenceThematics: SimulatorThematic[];
-  /** Cellules COMPLIANT de page_conformities (numérateur du score). */
-  compliantCount: number;
-  /** Cellules NON_COMPLIANT (le reste du dénominateur). */
-  nonCompliantCount: number;
-  /** Clés `${pageId}::${criteriaId}` des cellules actuellement NON_COMPLIANT. */
-  nonCompliantCells: string[];
+  /** Cases saisies de la matrice (page_conformities). */
+  cells: SimulatorCell[];
+}
+
+export interface SimulatorCell {
+  pageId: string;
+  criteriaId: string;
+  status: ConformityStatus;
 }
 
 export function RemediationSimulator({
   allNCs,
   auditPages,
   referenceThematics,
-  compliantCount,
-  nonCompliantCount,
-  nonCompliantCells,
+  cells,
 }: RemediationSimulatorProps) {
   const t = useTranslations("audits.simulator");
   const tSort = useTranslations("audits.simulator.sort");
@@ -126,53 +126,62 @@ export function RemediationSimulator({
   const [thematicFilter, setThematicFilter] = useState<ThematicFilter>("ALL");
   const [sort, setSort] = useState<SortMode>("SEVERITY_DESC");
 
-  const nonCompliantCellSet = useMemo(
-    () => new Set(nonCompliantCells),
-    [nonCompliantCells],
+  const cellStatus = useMemo(
+    () => new Map(cells.map((c) => [`${c.pageId}::${c.criteriaId}`, c.status])),
+    [cells],
   );
 
   // Une non-conformité correspond à une cellule (page × critère) de la
   // matrice. La même cellule peut porter plusieurs NC : elle ne (re)devient
   // conforme que lorsque TOUTES ses NC sont corrigées. On ne fait basculer
   // que des cellules réellement NON_COMPLIANT (les transversales sans cellule
-  // ou les cellules déjà conformes n'influent pas sur le score, comme dans la
-  // RPC audit_current_score).
-  const fixedCells = useMemo(() => {
+  // ou les cellules déjà conformes n'influent pas sur le score).
+  const fixedCellKeys = useMemo(() => {
     const ncsPerCell: Record<string, string[]> = {};
     for (const nc of allNCs) {
       if (nc.isFixed) continue;
       const cellKey = `${nc.page?.id ?? "transversal"}::${nc.criteriaId}`;
-      if (!nonCompliantCellSet.has(cellKey)) continue;
+      if (cellStatus.get(cellKey) !== "NON_COMPLIANT") continue;
       (ncsPerCell[cellKey] ??= []).push(nc.id);
     }
-    return Object.values(ncsPerCell).filter((ncs) =>
-      ncs.every((id) => checked.has(id)),
-    ).length;
-  }, [allNCs, checked, nonCompliantCellSet]);
+    return new Set(
+      Object.entries(ncsPerCell)
+        .filter(([, ncs]) => ncs.every((id) => checked.has(id)))
+        .map(([key]) => key),
+    );
+  }, [allNCs, checked, cellStatus]);
 
-  // Dénominateur constant (COMPLIANT + NON_COMPLIANT) : corriger une NC
-  // déplace une cellule de non_compliant vers compliant sans changer le total.
-  const denominator = compliantCount + nonCompliantCount;
-
-  const initialScore = useMemo(
-    () =>
-      calculateScore({
-        compliant: compliantCount,
-        notApplicable: 0,
-        totalCriteria: denominator,
+  // Taux global officiel RGAA (par critère sur l'échantillon, cf. lib/score.ts,
+  // miroir de la RPC audit_current_score) avant et après corrections : un
+  // critère ne redevient conforme que si toutes ses pages en échec sont
+  // corrigées.
+  const { initialRates, simulatedRates } = useMemo(() => {
+    const pageIds = auditPages.map((p) => p.id);
+    const criterionIds = [...new Set(cells.map((c) => c.criteriaId))];
+    const statusOf = (pageId: string, criteriaId: string) =>
+      cellStatus.get(`${pageId}::${criteriaId}`);
+    return {
+      initialRates: computeRgaaRates({ pageIds, criterionIds, statusOf }),
+      simulatedRates: computeRgaaRates({
+        pageIds,
+        criterionIds,
+        statusOf: (pageId, criteriaId) =>
+          fixedCellKeys.has(`${pageId}::${criteriaId}`)
+            ? "COMPLIANT"
+            : statusOf(pageId, criteriaId),
       }),
-    [compliantCount, denominator],
-  );
+    };
+  }, [auditPages, cells, cellStatus, fixedCellKeys]);
 
-  const simulatedScore = useMemo(
-    () =>
-      calculateScore({
-        compliant: compliantCount + fixedCells,
-        notApplicable: 0,
-        totalCriteria: denominator,
-      }),
-    [compliantCount, fixedCells, denominator],
-  );
+  const initialScore = initialRates.globalRate ?? 0;
+  const simulatedScore = simulatedRates.globalRate ?? 0;
+  // Critères qui redeviennent conformes grâce aux corrections cochées.
+  const fixedCells =
+    simulatedRates.criteria.compliant - initialRates.criteria.compliant;
+  // Critères applicables (constant : une correction déplace un critère de
+  // non conforme vers conforme sans changer le total).
+  const denominator =
+    initialRates.criteria.compliant + initialRates.criteria.nonCompliant;
 
   const delta = +(simulatedScore - initialScore).toFixed(2);
 

@@ -119,9 +119,10 @@ describe("buildMatrixXlsx", () => {
     expect(fillP2.fgColor?.argb).toBe("FFF4CCCC");
   });
 
-  it("calcule le score par page avec la formule officielle", async () => {
+  it("calcule le score par page avec la méthode officielle RGAA", async () => {
     // 4 critères : 1 conforme, 1 NC, 1 NA, 1 non évalué
-    // → score = 1 / (4 - 1) * 100 = 33.33
+    // → taux de la page = conformes / applicables = 1 / (1 + 1) * 100 = 50
+    //   (le non évalué ne compte pas comme un échec)
     const criteria = [
       criterion(),
       criterion({ id: "c2", identifier: "1.2" }),
@@ -139,7 +140,7 @@ describe("buildMatrixXlsx", () => {
       nonConformities: [],
     });
     const ws = wb.getWorksheet(MATRIX_SHEET_NAME)!;
-    expect(ws.getRow(2).getCell(5).value).toBe(33.33);
+    expect(ws.getRow(2).getCell(5).value).toBe(50);
   });
 
   it("trie les critères par thématique puis identifiant numérique", async () => {
