@@ -224,6 +224,10 @@ Deux systèmes coexistent. **Pour toute nouvelle logique, la permission d'organi
 - [x] Export CSV / Excel (CSV : matrice + NC + audit logs ; Excel : classeur matrice colorée + feuille NC via exceljs)
 - [x] Tests automatisés — Vitest (398 tests unitaires) + Playwright E2E (auth, flux audit complet, client→projet→audit, a11y axe-core sur pages publiques + internes). CI : `ci.yml` (unit + build), `a11y.yml` (axe pages publiques), `e2e.yml` (parcours authentifiés, serveur de prod + auto-nettoyage des données). Secrets requis pour l'E2E authentifié : `NEXT_PUBLIC_SUPABASE_*`, `E2E_USER_EMAIL`/`E2E_USER_PASSWORD`, `SUPABASE_SERVICE_ROLE_KEY` (nettoyage). Workflows alignés sur npm 11 (cf. erreur résolue #11).
 
+## Points à voir (en attente de décision)
+
+- [ ] **Journal d'audit incomplet** (relevé au test complet du 2026-10-05) — la page `/organizations/[slug]/audit-logs` ne trace que les transitions de statut, les assignations et les invitations de contacts. **Ne sont PAS journalisés** : création/modification/suppression de clients, projets et audits, création de NC, et surtout les actions sensibles côté sécurité — création/révocation de **tokens API**, création/suppression/rotation de secret des **webhooks**, changements de rôle et (dés)activation d'utilisateurs. Mario a mis ce point **en attente** : ne pas l'implémenter sans son feu vert. Piste le moment venu : insérer dans `audit_logs` depuis les server actions concernées (comme `contact.invited` dans `audits/[uuid]/contacts/actions.ts`), en priorisant tokens API / webhooks / rôles.
+
 ## Workflow avec l'utilisateur
 
 L'utilisateur (Mario) n'est pas développeur. Il décrit ce qu'il veut, Claude Code modifie les fichiers, l'utilisateur teste. **Surtout pas de suggestions du genre "ajoutez ceci au fichier X" — modifie directement**.
