@@ -3012,7 +3012,8 @@
       "title": "What is the RGAA?",
       "paragraphs": [
         "The RGAA (Référentiel général d'amélioration de l'accessibilité) is the official French method for checking the accessibility of a website, an app or a digital document. It is published by DINUM, the French interministerial digital agency.",
-        "Version 4.1.2 has 106 criteria grouped into 13 topics. Each criterion comes with precise tests, so the assessment is reproducible from one auditor to the next. The RGAA covers the international WCAG 2.1 rules at levels A and AA."
+        "Version 4.1.2 has 106 criteria grouped into 13 topics. Each criterion comes with precise tests, so the assessment is reproducible from one auditor to the next. The RGAA covers the international WCAG 2.1 rules at levels A and AA.",
+        "Version 5 of the RGAA is being drafted; it is expected to be published at the end of 2026."
       ],
       "themesTitle": "The 13 RGAA topics",
       "themes": [
@@ -3034,8 +3035,8 @@
     "who": {
       "title": "Who must comply with the RGAA?",
       "paragraphs": [
-        "In France, the digital accessibility duty applies to public services (government bodies, local authorities, public institutions), to organisations carrying out a public service mission and to companies with revenue above 250 million euros.",
-        "Since 28 June 2025, the European Accessibility Act extends the duty to many private-sector products and services: e-commerce, banking, transport, e-books… Microenterprises providing services are exempt."
+        "In France, the digital accessibility duty applies to public services (government bodies, local authorities, public institutions), to organisations carrying out a public service mission and to companies whose revenue in France exceeds 250 million euros. It covers websites, intranets and extranets, mobile apps and software packages.",
+        "Since 28 June 2025, the European Accessibility Act also sets accessibility requirements for many private-sector products and services: e-commerce, banking, transport, e-books… These requirements rely on the European standard EN 301 549. Businesses with fewer than 10 employees and annual revenue below 2 million euros are exempt for the services they provide."
       ],
       "obligationsTitle": "What the law requires",
       "obligations": [
@@ -3052,7 +3053,7 @@
         "The official conformity rate is calculated per criterion, across the whole sample: it is the number of compliant criteria divided by the number of applicable criteria.",
         "A criterion is non-compliant as soon as it fails on at least one page. It is compliant if it passes on every page where it applies, and not applicable only if it applies to no page at all.",
         "Example: with a 5-page sample, a criterion that passes on 4 pages but fails on the fifth counts as non-compliant for the whole site.",
-        "The average rate is the mean of each page's rate. It helps track progress, but only the overall rate has legal value."
+        "The average rate is the mean of each page's rate. It helps track progress, but the overall rate is the one that must appear in the accessibility statement; the average rate is optional there."
       ],
       "levelsTitle": "The three conformity levels",
       "levels": {
@@ -3265,7 +3266,7 @@
       "title": "Levels A, AA and AAA",
       "paragraphs": [
         "Each criterion has a level: A (essential), AA (recommended) or AAA (advanced). WCAG 2.2 has 31 level A criteria, 24 level AA criteria and 31 level AAA criteria.",
-        "Level AA is the reference target: it is the level used by the European standard EN 301 549 and by national standards such as the RGAA. The W3C does not recommend requiring level AAA for entire sites, because some content cannot meet it."
+        "Level AA is the reference target: the European standard EN 301 549 includes the WCAG 2.1 level A and AA criteria, and the RGAA covers them too. The W3C does not recommend requiring level AAA for entire sites, because some content cannot meet it."
       ]
     },
     "news": {
@@ -3316,7 +3317,7 @@
         },
         {
           "q": "Are the WCAG mandatory?",
-          "a": "The WCAG are not a law in themselves, but many laws refer to them. In Europe, the EN 301 549 standard, on which accessibility duties rely, includes the WCAG criteria at levels A and AA."
+          "a": "The WCAG are not a law in themselves, but many laws refer to them. In Europe, the EN 301 549 standard, on which accessibility duties rely, includes the WCAG 2.1 criteria at levels A and AA."
         },
         {
           "q": "Should I aim for level AAA?",
@@ -3373,7 +3374,8 @@
     "who": {
       "title": "Who is concerned?",
       "paragraphs": [
-        "In Luxembourg, the law of 28 May 2019 requires public sector websites and mobile apps to be accessible. The law of 8 March 2023 extends the duty to certain products and services. The SIP monitors compliance."
+        "In Luxembourg, the law of 28 May 2019 requires public sector websites and mobile apps to be accessible. The law of 8 March 2023 extends the duty to certain products and services.",
+        "The Information and Press Service (SIP) monitors public sector bodies. For products and services, monitoring falls to the Office for the Surveillance of the Accessibility of Products and Services (OSAPS)."
       ],
       "source": "This information is provided for guidance only. The official standard is published on <link>accessibilite.public.lu</link>."
     },
@@ -3411,7 +3413,7 @@
         },
         {
           "q": "Who monitors accessibility in Luxembourg?",
-          "a": "The Information and Press Service (SIP) of the Luxembourg government, which also publishes the RAWeb and the RAAM."
+          "a": "The Information and Press Service (SIP), which also publishes the RAWeb and the RAAM, monitors public sector bodies. Products and services fall under the Office for the Surveillance of the Accessibility of Products and Services (OSAPS)."
         }
       ]
     }
@@ -3513,7 +3515,7 @@
       "items": [
         {
           "title": "Data hosted in the EU",
-          "desc": "The database is hosted by Supabase, in Ireland. Our host encrypts stored data."
+          "desc": "The database is hosted by Supabase, in Ireland. Our host encrypts stored data (AES-256)."
         },
         {
           "title": "Regulated subprocessors",
@@ -3543,7 +3545,7 @@
         },
         {
           "title": "Protected passwords",
-          "desc": "Passwords are never stored in plain text: only an encrypted fingerprint is kept."
+          "desc": "Passwords are never stored in plain text: only an irreversible fingerprint (bcrypt hash) is kept."
         },
         {
           "title": "Roles and permissions",

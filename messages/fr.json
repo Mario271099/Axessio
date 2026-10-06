@@ -3012,7 +3012,8 @@
       "title": "Qu'est-ce que le RGAA ?",
       "paragraphs": [
         "Le RGAA (Référentiel général d'amélioration de l'accessibilité) est la méthode officielle française pour vérifier l'accessibilité d'un site web, d'une application ou d'un document numérique. Il est publié par la Direction interministérielle du numérique (DINUM).",
-        "Sa version 4.1.2 compte 106 critères répartis en 13 thématiques. Chaque critère s'accompagne de tests précis, ce qui rend l'évaluation reproductible d'un auditeur à l'autre. Le RGAA reprend les règles internationales WCAG 2.1, aux niveaux A et AA."
+        "Sa version 4.1.2 compte 106 critères répartis en 13 thématiques. Chaque critère s'accompagne de tests précis, ce qui rend l'évaluation reproductible d'un auditeur à l'autre. Le RGAA reprend les règles internationales WCAG 2.1, aux niveaux A et AA.",
+        "La version 5 du RGAA est en cours de rédaction ; sa publication est prévue fin 2026."
       ],
       "themesTitle": "Les 13 thématiques du RGAA",
       "themes": [
@@ -3034,8 +3035,8 @@
     "who": {
       "title": "Qui doit respecter le RGAA ?",
       "paragraphs": [
-        "En France, l'obligation d'accessibilité numérique s'applique aux services publics (administrations, collectivités, établissements publics), aux organismes chargés d'une mission de service public et aux entreprises dont le chiffre d'affaires dépasse 250 millions d'euros.",
-        "Depuis le 28 juin 2025, l'European Accessibility Act étend l'obligation à de nombreux produits et services du secteur privé : commerce en ligne, services bancaires, transports, livres numériques… Les microentreprises qui fournissent des services en sont exemptées."
+        "En France, l'obligation d'accessibilité numérique s'applique aux services publics (administrations, collectivités, établissements publics), aux organismes chargés d'une mission de service public et aux entreprises dont le chiffre d'affaires réalisé en France dépasse 250 millions d'euros. Elle couvre les sites web, intranets et extranets, les applications mobiles et les progiciels.",
+        "Depuis le 28 juin 2025, l'European Accessibility Act impose aussi des exigences d'accessibilité à de nombreux produits et services du secteur privé : commerce en ligne, services bancaires, transports, livres numériques… Ces exigences reposent sur la norme européenne EN 301 549. Les entreprises de moins de 10 salariés dont le chiffre d'affaires annuel est inférieur à 2 millions d'euros en sont exemptées pour les services qu'elles fournissent."
       ],
       "obligationsTitle": "Ce que la loi impose",
       "obligations": [
@@ -3052,7 +3053,7 @@
         "Le taux de conformité officiel se calcule par critère, sur l'ensemble de l'échantillon : c'est le nombre de critères conformes divisé par le nombre de critères applicables.",
         "Un critère est non conforme dès qu'il échoue sur au moins une page. Il est conforme s'il est respecté sur toutes les pages où il s'applique, et non applicable seulement s'il ne s'applique à aucune page.",
         "Exemple : sur un échantillon de 5 pages, un critère respecté sur 4 pages mais en échec sur la cinquième compte comme non conforme pour tout le site.",
-        "Le taux moyen, lui, fait la moyenne des taux de chaque page. Il aide à suivre les progrès, mais seul le taux global a une valeur légale."
+        "Le taux moyen, lui, fait la moyenne des taux de chaque page. Il aide à suivre les progrès, mais c'est le taux global qui doit figurer dans la déclaration d'accessibilité ; le taux moyen y est facultatif."
       ],
       "levelsTitle": "Les trois niveaux de conformité",
       "levels": {
@@ -3265,7 +3266,7 @@
       "title": "Les niveaux A, AA et AAA",
       "paragraphs": [
         "Chaque critère a un niveau : A (essentiel), AA (recommandé) ou AAA (avancé). Les WCAG 2.2 comptent 31 critères de niveau A, 24 de niveau AA et 31 de niveau AAA.",
-        "Le niveau AA est la cible de référence : c'est lui que reprennent la norme européenne EN 301 549 et les référentiels nationaux comme le RGAA. Le W3C ne recommande pas d'exiger le niveau AAA pour un site entier, car certains contenus ne peuvent pas l'atteindre."
+        "Le niveau AA est la cible de référence : la norme européenne EN 301 549 intègre les critères des WCAG 2.1 de niveaux A et AA, et le RGAA les reprend aussi. Le W3C ne recommande pas d'exiger le niveau AAA pour un site entier, car certains contenus ne peuvent pas l'atteindre."
       ]
     },
     "news": {
@@ -3316,7 +3317,7 @@
         },
         {
           "q": "Les WCAG sont-elles obligatoires ?",
-          "a": "Les WCAG ne sont pas une loi en elles-mêmes, mais de nombreuses lois s'y réfèrent. En Europe, la norme EN 301 549, sur laquelle s'appuient les obligations d'accessibilité, reprend les critères WCAG de niveaux A et AA."
+          "a": "Les WCAG ne sont pas une loi en elles-mêmes, mais de nombreuses lois s'y réfèrent. En Europe, la norme EN 301 549, sur laquelle s'appuient les obligations d'accessibilité, intègre les critères des WCAG 2.1 de niveaux A et AA."
         },
         {
           "q": "Faut-il viser le niveau AAA ?",
@@ -3373,7 +3374,8 @@
     "who": {
       "title": "Qui est concerné ?",
       "paragraphs": [
-        "Au Luxembourg, la loi du 28 mai 2019 impose l'accessibilité des sites web et des applications mobiles des organismes du secteur public. La loi du 8 mars 2023 étend l'obligation à certains produits et services. Le SIP contrôle le respect de ces exigences."
+        "Au Luxembourg, la loi du 28 mai 2019 impose l'accessibilité des sites web et des applications mobiles des organismes du secteur public. La loi du 8 mars 2023 étend l'obligation à certains produits et services.",
+        "Le Service information et presse (SIP) contrôle les organismes du secteur public. Pour les produits et services, le contrôle revient à l'Office de la surveillance de l'accessibilité des produits et services (OSAPS)."
       ],
       "source": "Ces informations sont données à titre indicatif. Le référentiel officiel est publié sur <link>accessibilite.public.lu</link>."
     },
@@ -3411,7 +3413,7 @@
         },
         {
           "q": "Qui contrôle l'accessibilité au Luxembourg ?",
-          "a": "Le Service information et presse (SIP) du gouvernement luxembourgeois, qui publie aussi le RAWeb et le RAAM."
+          "a": "Le Service information et presse (SIP), qui publie aussi le RAWeb et le RAAM, contrôle les organismes du secteur public. Les produits et services relèvent de l'Office de la surveillance de l'accessibilité des produits et services (OSAPS)."
         }
       ]
     }
@@ -3513,7 +3515,7 @@
       "items": [
         {
           "title": "Données hébergées dans l'UE",
-          "desc": "La base de données est hébergée chez Supabase, en Irlande. Notre hébergeur chiffre les données stockées."
+          "desc": "La base de données est hébergée chez Supabase, en Irlande. Notre hébergeur chiffre les données stockées (AES-256)."
         },
         {
           "title": "Sous-traitants encadrés",
@@ -3543,7 +3545,7 @@
         },
         {
           "title": "Mots de passe protégés",
-          "desc": "Les mots de passe ne sont jamais stockés en clair : seule une empreinte chiffrée est conservée."
+          "desc": "Les mots de passe ne sont jamais stockés en clair : seule une empreinte irréversible (hachage bcrypt) est conservée."
         },
         {
           "title": "Rôles et permissions",
