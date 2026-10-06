@@ -3078,10 +3078,6 @@
           "a": "Pour les organismes soumis à l'obligation, oui : la déclaration d'accessibilité doit reposer sur un audit RGAA. Il peut être mené en interne ou par un prestataire."
         },
         {
-          "q": "Le RGAA s'applique-t-il aux applications mobiles ?",
-          "a": "Oui, l'obligation couvre aussi les applications mobiles. Axessyo vous permet de retirer de l'échantillon les pages obligatoires sans objet dans une application, et propose en complément le RAAM 1.1, référentiel dédié au mobile."
-        },
-        {
           "q": "Le taux affiché par Axessyo est-il le taux légal ?",
           "a": "Oui. Axessyo applique la méthode de calcul publiée par la DINUM. Pendant l'audit, le taux est signalé comme provisoire tant que tous les critères n'ont pas été évalués sur toutes les pages."
         }

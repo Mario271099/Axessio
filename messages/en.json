@@ -3078,10 +3078,6 @@
           "a": "For organisations subject to the duty, yes: the accessibility statement must be based on an RGAA audit. It can be carried out in-house or by a provider."
         },
         {
-          "q": "Does the RGAA apply to mobile apps?",
-          "a": "Yes, the duty also covers mobile apps. Axessyo lets you remove mandatory pages that make no sense in an app from the sample, and also offers RAAM 1.1, a standard dedicated to mobile."
-        },
-        {
           "q": "Is the rate shown by Axessyo the legal rate?",
           "a": "Yes. Axessyo applies the calculation method published by DINUM. During the audit, the rate is flagged as provisional until every criterion has been assessed on every page."
         }
