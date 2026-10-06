@@ -4,8 +4,8 @@
  * `key` est la clé i18n sous `home.nav`.
  */
 export const PUBLIC_NAV_LINKS = [
-  { href: "/#features", key: "features" },
-  { href: "/#standards", key: "standards" },
+  { href: "/features", key: "features" },
+  { href: "/rgaa", key: "rgaa" },
   { href: "/pricing", key: "pricing" },
-  { href: "/#faq", key: "faq" },
+  { href: "/faq", key: "faq" },
 ] as const;

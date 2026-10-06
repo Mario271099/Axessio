@@ -21,6 +21,9 @@ describe("isPrivateRoute", () => {
   it.each([
     "/",
     "/pricing",
+    "/features",
+    "/rgaa",
+    "/faq",
     "/login",
     "/accessibility",
     "/opengraph-image",

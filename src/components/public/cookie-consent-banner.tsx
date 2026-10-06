@@ -17,6 +17,9 @@ const ACCEPT_SELECTOR = "[data-cookie-accept]";
 // sont derriere l'auth et ne servent pas de contenu marketing.
 const PUBLIC_PREFIXES = [
   "/pricing",
+  "/features",
+  "/rgaa",
+  "/faq",
   "/legal",
   "/privacy",
   "/cookies",

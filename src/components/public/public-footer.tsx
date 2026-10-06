@@ -10,9 +10,10 @@ const GROUPS = [
   {
     key: "product",
     links: [
-      { href: "/#features", labelKey: "features" },
-      { href: "/#standards", labelKey: "standards" },
+      { href: "/features", labelKey: "features" },
+      { href: "/rgaa", labelKey: "rgaa" },
       { href: "/pricing", labelKey: "pricing" },
+      { href: "/faq", labelKey: "faq" },
     ],
   },
   {

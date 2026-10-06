@@ -5,7 +5,7 @@
     "skipToContent": "Aller au contenu principal",
     "nav": {
       "features": "Fonctionnalités",
-      "standards": "Référentiels",
+      "rgaa": "RGAA",
       "pricing": "Tarifs",
       "faq": "Questions",
       "login": "Se connecter",
@@ -91,7 +91,9 @@
         "legal": "Mentions légales",
         "privacy": "Confidentialité",
         "cookies": "Cookies",
-        "accessibility": "Accessibilité"
+        "accessibility": "Accessibilité",
+        "rgaa": "Audit RGAA",
+        "faq": "Questions fréquentes"
       },
       "groups": {
         "product": "Produit",
@@ -2838,5 +2840,362 @@
       "thematicBarAria": "{selected} NC cochées sur {total} pour {name}",
       "gain": "+1 critère"
     }
+  },
+  "marketing": {
+    "breadcrumbLabel": "Fil d'Ariane",
+    "breadcrumbHome": "Accueil",
+    "onThisPage": "Sur cette page",
+    "availableFrom": "Plan {plan} et supérieurs",
+    "availableOn": "Plan {plan}",
+    "related": {
+      "title": "Pour aller plus loin",
+      "features": {
+        "title": "Fonctionnalités",
+        "desc": "Tout ce que fait Axessyo, de l'échantillon au rapport."
+      },
+      "rgaa": {
+        "title": "Audit RGAA",
+        "desc": "Le référentiel, les obligations et le calcul du taux."
+      },
+      "pricing": {
+        "title": "Tarifs",
+        "desc": "Un plan gratuit, puis des plans adaptés à votre équipe."
+      },
+      "faq": {
+        "title": "Questions fréquentes",
+        "desc": "Les réponses aux questions les plus posées."
+      }
+    }
+  },
+  "featuresPage": {
+    "metaTitle": "Fonctionnalités du logiciel d'audit d'accessibilité",
+    "metaDescription": "Échantillon, grille RGAA et WCAG, score officiel, non-conformités, rapport PDF, simulateur de remédiation, relecture et espace client : Axessyo en détail.",
+    "kicker": "Fonctionnalités",
+    "title": "Tout pour mener un audit d'accessibilité de bout en bout",
+    "subtitle": "Axessyo remplace les tableurs, les documents Word et les échanges d'e-mails par un seul outil, du choix de l'échantillon jusqu'au contre-audit.",
+    "groups": {
+      "audit": {
+        "title": "Réaliser l'audit",
+        "intro": "Une grille structurée, la méthodologie sous les yeux et un score toujours juste.",
+        "items": {
+          "sample": {
+            "title": "Échantillon de pages",
+            "desc": "Les pages obligatoires (accueil, contact, mentions légales, plan du site, accessibilité) sont ajoutées dès la création de l'audit, avec une page transversale pour les éléments communs à tout le site. Vous ajoutez les pages représentatives et retirez celles qui ne s'appliquent pas, par exemple pour une application mobile."
+          },
+          "matrix": {
+            "title": "Matrice de conformité",
+            "desc": "Chaque critère s'évalue page par page : conforme, non conforme ou non applicable. Les tests du référentiel restent affichés pendant la saisie, pour une évaluation homogène d'un auditeur à l'autre."
+          },
+          "score": {
+            "title": "Taux de conformité officiel",
+            "desc": "Le taux global suit la méthode publiée par la DINUM : un critère est non conforme dès qu'il échoue sur une page de l'échantillon. Le taux moyen et le taux de chaque page sont calculés en parallèle. Tant que l'audit n'est pas terminé, le taux est signalé comme provisoire."
+          },
+          "ncs": {
+            "title": "Non-conformités détaillées",
+            "desc": "Chaque non-conformité indique sa sévérité, la page et le critère concernés, une description, une recommandation de correction et des captures d'écran."
+          }
+        }
+      },
+      "deliver": {
+        "title": "Livrer et faire corriger",
+        "intro": "Un rapport prêt à remettre, et des outils pour accompagner le client jusqu'à la correction.",
+        "items": {
+          "report": {
+            "title": "Rapport PDF en français ou en anglais",
+            "desc": "Un rapport prêt à remettre au client : page de garde, synthèse des taux, détail par page et fiches de non-conformités, dans la langue de votre choix."
+          },
+          "exports": {
+            "title": "Exports CSV et Excel",
+            "desc": "La matrice et la liste des non-conformités s'exportent en CSV ou en classeur Excel coloré, pour les équipes qui travaillent dans leurs propres outils."
+          },
+          "simulator": {
+            "title": "Simulateur de remédiation",
+            "desc": "Cochez les non-conformités à corriger et voyez aussitôt le taux obtenu. Idéal pour prioriser les corrections avec le client, sans toucher à l'audit officiel."
+          },
+          "client": {
+            "title": "Espace client",
+            "desc": "Les contacts du client consultent leur audit, suivent les non-conformités et téléchargent les documents, sans pouvoir modifier l'évaluation."
+          }
+        }
+      },
+      "team": {
+        "title": "Travailler en équipe",
+        "intro": "Répartir le travail, relire avant de livrer et garder une vue d'ensemble.",
+        "items": {
+          "collaboration": {
+            "title": "Plusieurs auditeurs par audit",
+            "desc": "Assignez plusieurs auditeurs au même audit et travaillez sur une grille commune."
+          },
+          "proofreading": {
+            "title": "Relecture des non-conformités",
+            "desc": "Un relecteur valide ou renvoie chaque non-conformité avant la livraison, pour un rapport homogène et sans erreur."
+          },
+          "planning": {
+            "title": "Planning des audits",
+            "desc": "Visualisez les audits en cours et à venir, leurs échéances et les personnes assignées."
+          },
+          "notifications": {
+            "title": "Notifications par e-mail",
+            "desc": "Assignations, changements de statut, invitations : chacun est prévenu au bon moment."
+          }
+        }
+      },
+      "security": {
+        "title": "Sécurité et intégrations",
+        "intro": "Des données bien gardées, et un outil qui s'intègre à votre environnement.",
+        "items": {
+          "isolation": {
+            "title": "Données cloisonnées",
+            "desc": "Chaque organisation ne voit que ses propres données, grâce à un cloisonnement appliqué directement dans la base de données. Les données sont hébergées dans l'Union européenne."
+          },
+          "auditLogs": {
+            "title": "Journal d'activité",
+            "desc": "Retrouvez l'historique des changements de statut, des assignations et des invitations, exportable en CSV."
+          },
+          "webhooks": {
+            "title": "Webhooks",
+            "desc": "Recevez un événement signé dans vos outils à chaque nouvelle non-conformité, changement de statut ou livraison d'audit."
+          },
+          "api": {
+            "title": "API",
+            "desc": "Consultez vos audits depuis vos propres outils, avec des jetons d'accès aux droits limités."
+          },
+          "branding": {
+            "title": "À vos couleurs",
+            "desc": "Votre logo et vos couleurs dans l'interface, pour une expérience à votre image."
+          }
+        }
+      }
+    }
+  },
+  "rgaaPage": {
+    "metaTitle": "Logiciel d'audit RGAA 4.1.2 : grille et rapport",
+    "metaDescription": "Audits RGAA 4.1.2 avec Axessyo : 106 critères, 13 thématiques, taux de conformité calculé selon la méthode officielle et rapport PDF prêt à livrer.",
+    "kicker": "RGAA 4.1.2",
+    "title": "Le logiciel d'audit RGAA, de l'échantillon au rapport",
+    "subtitle": "Évaluez les 106 critères du RGAA page par page, obtenez un taux de conformité calculé selon la méthode officielle et livrez un rapport clair à votre client.",
+    "what": {
+      "title": "Qu'est-ce que le RGAA ?",
+      "paragraphs": [
+        "Le RGAA (Référentiel général d'amélioration de l'accessibilité) est la méthode officielle française pour vérifier l'accessibilité d'un site web, d'une application ou d'un document numérique. Il est publié par la Direction interministérielle du numérique (DINUM).",
+        "Sa version 4.1.2 compte 106 critères répartis en 13 thématiques. Chaque critère s'accompagne de tests précis, ce qui rend l'évaluation reproductible d'un auditeur à l'autre. Le RGAA reprend les règles internationales WCAG 2.1, aux niveaux A et AA."
+      ],
+      "themesTitle": "Les 13 thématiques du RGAA",
+      "themes": [
+        "Images",
+        "Cadres",
+        "Couleurs",
+        "Multimédia",
+        "Tableaux",
+        "Liens",
+        "Scripts",
+        "Éléments obligatoires",
+        "Structuration de l'information",
+        "Présentation de l'information",
+        "Formulaires",
+        "Navigation",
+        "Consultation"
+      ]
+    },
+    "who": {
+      "title": "Qui doit respecter le RGAA ?",
+      "paragraphs": [
+        "En France, l'obligation d'accessibilité numérique s'applique aux services publics (administrations, collectivités, établissements publics), aux organismes chargés d'une mission de service public et aux entreprises dont le chiffre d'affaires dépasse 250 millions d'euros.",
+        "Depuis le 28 juin 2025, l'European Accessibility Act étend l'obligation à de nombreux produits et services du secteur privé : commerce en ligne, services bancaires, transports, livres numériques… Les microentreprises qui fournissent des services en sont exemptées."
+      ],
+      "obligationsTitle": "Ce que la loi impose",
+      "obligations": [
+        "Publier une déclaration d'accessibilité, fondée sur un audit RGAA, qui indique le taux de conformité et les contenus non accessibles.",
+        "Afficher l'état de conformité (non conforme, partiellement ou totalement conforme) sur la page d'accueil.",
+        "Publier un schéma pluriannuel de mise en accessibilité et des plans d'action annuels.",
+        "Proposer un moyen de contact pour signaler un défaut d'accessibilité."
+      ],
+      "source": "Ces informations sont données à titre indicatif. Le texte de référence est publié sur <link>le site accessibilite.numerique.gouv.fr</link>."
+    },
+    "score": {
+      "title": "Comment est calculé le taux de conformité ?",
+      "paragraphs": [
+        "Le taux de conformité officiel se calcule par critère, sur l'ensemble de l'échantillon : c'est le nombre de critères conformes divisé par le nombre de critères applicables.",
+        "Un critère est non conforme dès qu'il échoue sur au moins une page. Il est conforme s'il est respecté sur toutes les pages où il s'applique, et non applicable seulement s'il ne s'applique à aucune page.",
+        "Exemple : sur un échantillon de 5 pages, un critère respecté sur 4 pages mais en échec sur la cinquième compte comme non conforme pour tout le site.",
+        "Le taux moyen, lui, fait la moyenne des taux de chaque page. Il aide à suivre les progrès, mais seul le taux global a une valeur légale."
+      ],
+      "levelsTitle": "Les trois niveaux de conformité",
+      "levels": {
+        "none": {
+          "range": "Moins de 50 %",
+          "label": "Non conforme"
+        },
+        "partial": {
+          "range": "De 50 à 99 %",
+          "label": "Partiellement conforme"
+        },
+        "full": {
+          "range": "100 %",
+          "label": "Totalement conforme"
+        }
+      }
+    },
+    "how": {
+      "title": "Un audit RGAA avec Axessyo",
+      "steps": [
+        {
+          "title": "Définir l'échantillon",
+          "desc": "Les pages obligatoires sont ajoutées automatiquement : accueil, contact, mentions légales, plan du site et page d'accessibilité. Vous ajoutez les pages représentatives du site."
+        },
+        {
+          "title": "Évaluer les 106 critères",
+          "desc": "Pour chaque page, indiquez si le critère est conforme, non conforme ou non applicable, avec les tests du référentiel sous les yeux."
+        },
+        {
+          "title": "Documenter les non-conformités",
+          "desc": "Sévérité, description, recommandation de correction et captures d'écran : chaque problème est expliqué pour l'équipe qui le corrigera."
+        },
+        {
+          "title": "Livrer le rapport",
+          "desc": "Le taux se met à jour à chaque saisie. Exportez le rapport en PDF : il sert de base à la déclaration d'accessibilité."
+        },
+        {
+          "title": "Suivre les corrections",
+          "desc": "Le client suit les non-conformités depuis son espace, et le simulateur montre le taux atteint une fois les corrections faites."
+        }
+      ],
+      "cta": "Voir toutes les fonctionnalités"
+    },
+    "others": {
+      "title": "Et les autres référentiels ?",
+      "body": "Axessyo prend aussi en charge les WCAG 2.2, le RAWeb 1.1 (Belgique et Luxembourg) et le RAAM 1.1 (applications mobiles). Vous choisissez le référentiel à la création de l'audit, et la grille est prête."
+    },
+    "faq": {
+      "title": "Questions sur le RGAA",
+      "items": [
+        {
+          "q": "Quelle est la différence entre le RGAA et les WCAG ?",
+          "a": "Les WCAG sont les règles internationales d'accessibilité publiées par le W3C. Le RGAA les traduit en critères et en tests précis, adaptés au cadre légal français. Il couvre les WCAG 2.1 aux niveaux A et AA."
+        },
+        {
+          "q": "Un audit RGAA est-il obligatoire ?",
+          "a": "Pour les organismes soumis à l'obligation, oui : la déclaration d'accessibilité doit reposer sur un audit RGAA. Il peut être mené en interne ou par un prestataire."
+        },
+        {
+          "q": "Le RGAA s'applique-t-il aux applications mobiles ?",
+          "a": "Oui, l'obligation couvre aussi les applications mobiles. Axessyo vous permet de retirer de l'échantillon les pages obligatoires sans objet dans une application, et propose en complément le RAAM 1.1, référentiel dédié au mobile."
+        },
+        {
+          "q": "Le taux affiché par Axessyo est-il le taux légal ?",
+          "a": "Oui. Axessyo applique la méthode de calcul publiée par la DINUM. Pendant l'audit, le taux est signalé comme provisoire tant que tous les critères n'ont pas été évalués sur toutes les pages."
+        }
+      ]
+    }
+  },
+  "faqPage": {
+    "metaTitle": "Questions fréquentes : audit d'accessibilité",
+    "metaDescription": "Référentiels, calcul du taux RGAA, rapports, collaboration client, sécurité des données, offre gratuite : les réponses aux questions les plus posées.",
+    "kicker": "Aide",
+    "title": "Questions fréquentes",
+    "subtitle": "Tout ce qu'il faut savoir sur Axessyo et sur l'audit d'accessibilité numérique.",
+    "contactLead": "Vous ne trouvez pas votre réponse ?",
+    "contactLink": "Écrivez-nous",
+    "categories": [
+      {
+        "id": "produit",
+        "title": "Le produit",
+        "items": [
+          {
+            "q": "À qui s'adresse Axessyo ?",
+            "a": "Aux auditeurs indépendants, aux agences et cabinets spécialisés, et aux équipes internes qui réalisent des audits d'accessibilité numérique. Leurs clients peuvent aussi accéder à leur audit pour suivre les corrections."
+          },
+          {
+            "q": "Faut-il installer quelque chose ?",
+            "a": "Non. Axessyo fonctionne dans le navigateur : il suffit de créer un compte."
+          },
+          {
+            "q": "L'interface est-elle disponible en anglais ?",
+            "a": "Oui. L'interface et les rapports PDF existent en français et en anglais."
+          },
+          {
+            "q": "Axessyo est-il lui-même accessible ?",
+            "a": "Nous visons le niveau AA des WCAG 2.2 : navigation au clavier, focus visible, contrastes vérifiés et compatibilité avec les lecteurs d'écran. L'état de conformité détaillé figure dans notre déclaration d'accessibilité."
+          }
+        ]
+      },
+      {
+        "id": "methode",
+        "title": "Référentiels et méthode",
+        "items": [
+          {
+            "q": "Quels référentiels sont pris en charge ?",
+            "a": "RGAA 4.1.2, WCAG 2.2, RAWeb 1.1 et RAAM 1.1. Chaque référentiel est préchargé avec ses critères et ses tests : la grille est prête dès la création de l'audit."
+          },
+          {
+            "q": "Comment est calculé le taux de conformité ?",
+            "a": "Selon la méthode officielle de la DINUM : critères conformes divisés par critères applicables, sur l'ensemble de l'échantillon. Un critère en échec sur une seule page est non conforme pour tout l'audit."
+          },
+          {
+            "q": "Peut-on auditer une application mobile ?",
+            "a": "Oui. Utilisez le RAAM 1.1, conçu pour le mobile, et retirez de l'échantillon les pages obligatoires qui ne s'appliquent pas à une application."
+          },
+          {
+            "q": "Peut-on mesurer l'effet des corrections avant de les faire ?",
+            "a": "Oui, avec le simulateur de remédiation, à partir du plan Starter : vous cochez les non-conformités à corriger et voyez le taux obtenu, sans modifier l'audit."
+          }
+        ]
+      },
+      {
+        "id": "equipe",
+        "title": "Équipe et clients",
+        "items": [
+          {
+            "q": "Mes clients peuvent-ils consulter leur audit ?",
+            "a": "Oui. Vous invitez les contacts du client : ils consultent l'audit, suivent les non-conformités et téléchargent les documents, sans pouvoir modifier l'évaluation."
+          },
+          {
+            "q": "Plusieurs auditeurs peuvent-ils travailler sur le même audit ?",
+            "a": "Oui, à partir du plan Pro. Les plans Free et Starter permettent un auditeur par audit."
+          },
+          {
+            "q": "Comment fonctionne la relecture ?",
+            "a": "À partir du plan Pro, un relecteur valide ou renvoie chaque non-conformité avant la livraison. Le rapport remis au client est ainsi homogène et vérifié."
+          }
+        ]
+      },
+      {
+        "id": "donnees",
+        "title": "Données et sécurité",
+        "items": [
+          {
+            "q": "Où sont hébergées les données ?",
+            "a": "La base de données est hébergée dans l'Union européenne (Irlande). Les données sont traitées conformément au RGPD ; la liste des sous-traitants figure dans notre politique de confidentialité."
+          },
+          {
+            "q": "Mes données sont-elles séparées de celles des autres clients ?",
+            "a": "Oui. Chaque organisation ne voit que ses propres données : le cloisonnement est appliqué directement dans la base de données, pas seulement dans l'interface."
+          },
+          {
+            "q": "Puis-je supprimer mon compte ?",
+            "a": "Oui, à tout moment depuis vos paramètres. Vous pouvez aussi exercer vos droits d'accès, de rectification et d'effacement en nous écrivant."
+          }
+        ]
+      },
+      {
+        "id": "tarifs",
+        "title": "Tarifs et compte",
+        "items": [
+          {
+            "q": "Y a-t-il une offre gratuite ?",
+            "a": "Oui. Le plan Free permet de mener un audit, sans carte bancaire et sans limite de durée."
+          },
+          {
+            "q": "Y a-t-il un engagement de durée ?",
+            "a": "Non. L'abonnement mensuel se résilie à tout moment et reste actif jusqu'à la fin de la période en cours."
+          },
+          {
+            "q": "Comment payer ?",
+            "a": "Par carte bancaire, via notre prestataire de paiement Stripe. Une facture est émise automatiquement à chaque échéance."
+          }
+        ]
+      }
+    ],
+    "pricingLink": "Toutes les questions sur les tarifs"
   }
 }

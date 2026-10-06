@@ -13,6 +13,7 @@ import {
 import { PublicHeader } from "@/components/public/public-header";
 import { PublicFooter } from "@/components/public/public-footer";
 import { HomeAppPreview } from "@/components/public/home-app-preview";
+import { SignupCta } from "@/components/public/marketing-page";
 import { createClient } from "@/lib/supabase/server";
 import { SITE, siteUrl } from "@/lib/site";
 
@@ -431,50 +432,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* =================================================================
-            CTA
-            ================================================================= */}
-        <section
-          aria-labelledby="cta-title"
-          className="container mx-auto max-w-7xl px-6 pb-16 md:pb-20 lg:px-9"
-        >
-          <div className="relative flex flex-wrap items-center justify-between gap-8 overflow-hidden rounded-[2rem] bg-cobalt p-8 text-cobalt-foreground md:p-14">
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 420 420"
-              className="pointer-events-none absolute -right-16 -top-20 h-[420px] w-[420px] opacity-[0.14]"
-            >
-              <g fill="currentColor">
-                <rect x="0" y="0" width="190" height="190" rx="46" />
-                <circle cx="325" cy="95" r="95" />
-                <rect x="0" y="230" width="190" height="190" rx="46" />
-              </g>
-            </svg>
-
-            <div className="relative min-w-0">
-              <h2
-                id="cta-title"
-                className="max-w-[20ch] text-[1.875rem] font-black leading-[1.05] tracking-[-0.04em] md:text-[2.75rem]"
-              >
-                {t("cta.title")}
-              </h2>
-              <p className="mt-3.5 max-w-[46ch] text-lg text-cobalt-foreground/85">
-                {t("cta.subtitle")}
-              </p>
-            </div>
-
-            <Link
-              href="/register"
-              className="group relative inline-flex h-[54px] items-center gap-2.5 rounded-[14px] bg-card px-6 text-[1.05rem] font-extrabold text-foreground transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-float"
-            >
-              {t("cta.button")}
-              <ArrowRight
-                className="size-[18px] transition-transform duration-200 group-hover:translate-x-1"
-                aria-hidden="true"
-              />
-            </Link>
-          </div>
-        </section>
+        <SignupCta />
       </main>
 
       <PublicFooter />

@@ -8,6 +8,9 @@ import { IS_PRODUCTION_DEPLOYMENT, siteUrl } from "@/lib/site";
 const PUBLIC_PAGES = [
   "/",
   "/pricing",
+  "/features",
+  "/rgaa",
+  "/faq",
   "/legal",
   "/privacy",
   "/cookies",

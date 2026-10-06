@@ -5,9 +5,9 @@
     "skipToContent": "Skip to main content",
     "nav": {
       "features": "Features",
-      "standards": "Standards",
+      "rgaa": "RGAA",
       "pricing": "Pricing",
-      "faq": "Questions",
+      "faq": "FAQ",
       "login": "Sign in",
       "register": "Sign up",
       "getStarted": "Start for free"
@@ -91,7 +91,9 @@
         "legal": "Legal notice",
         "privacy": "Privacy",
         "cookies": "Cookies",
-        "accessibility": "Accessibility"
+        "accessibility": "Accessibility",
+        "rgaa": "RGAA audit",
+        "faq": "FAQ"
       },
       "groups": {
         "product": "Product",
@@ -2838,5 +2840,362 @@
       "thematicBarAria": "{selected} NCs ticked out of {total} for {name}",
       "gain": "+1 criterion"
     }
+  },
+  "marketing": {
+    "breadcrumbLabel": "Breadcrumb",
+    "breadcrumbHome": "Home",
+    "onThisPage": "On this page",
+    "availableFrom": "{plan} plan and above",
+    "availableOn": "{plan} plan",
+    "related": {
+      "title": "Learn more",
+      "features": {
+        "title": "Features",
+        "desc": "Everything Axessyo does, from sample to report."
+      },
+      "rgaa": {
+        "title": "RGAA audit",
+        "desc": "The standard, the legal duties and how the rate is calculated."
+      },
+      "pricing": {
+        "title": "Pricing",
+        "desc": "A free plan, then plans that fit your team."
+      },
+      "faq": {
+        "title": "FAQ",
+        "desc": "Answers to the most common questions."
+      }
+    }
+  },
+  "featuresPage": {
+    "metaTitle": "Accessibility audit software features",
+    "metaDescription": "Page sample, RGAA and WCAG checklists, official score, non-conformities, PDF report, remediation simulator, proofreading and client space: Axessyo in detail.",
+    "kicker": "Features",
+    "title": "Everything you need to run an accessibility audit end to end",
+    "subtitle": "Axessyo replaces spreadsheets, Word documents and email threads with a single tool, from choosing the sample to the follow-up audit.",
+    "groups": {
+      "audit": {
+        "title": "Run the audit",
+        "intro": "A structured checklist, the methodology at hand and a score that is always right.",
+        "items": {
+          "sample": {
+            "title": "Page sample",
+            "desc": "Mandatory pages (home, contact, legal notice, sitemap, accessibility) are added when the audit is created, along with a cross-cutting page for site-wide elements. You add representative pages and remove those that do not apply, for example in a mobile app."
+          },
+          "matrix": {
+            "title": "Conformity matrix",
+            "desc": "Each criterion is assessed page by page: compliant, non-compliant or not applicable. The standard's tests stay on screen while you work, so every auditor assesses the same way."
+          },
+          "score": {
+            "title": "Official conformity rate",
+            "desc": "The overall rate follows the method published by DINUM, the French digital agency: a criterion is non-compliant as soon as it fails on one page of the sample. The average rate and the rate of each page are calculated alongside. Until the audit is complete, the rate is flagged as provisional."
+          },
+          "ncs": {
+            "title": "Detailed non-conformities",
+            "desc": "Each non-conformity records its severity, the page and criterion involved, a description, a fix recommendation and screenshots."
+          }
+        }
+      },
+      "deliver": {
+        "title": "Deliver and get it fixed",
+        "intro": "A report ready to hand over, and tools to support the client until everything is fixed.",
+        "items": {
+          "report": {
+            "title": "PDF report in French or English",
+            "desc": "A report ready to hand over: cover page, rate summary, page-by-page detail and non-conformity sheets, in the language of your choice."
+          },
+          "exports": {
+            "title": "CSV and Excel exports",
+            "desc": "Export the matrix and the non-conformity list as CSV or as a colour-coded Excel workbook, for teams that work in their own tools."
+          },
+          "simulator": {
+            "title": "Remediation simulator",
+            "desc": "Tick the non-conformities to fix and see the resulting rate straight away. Ideal for prioritising fixes with the client, without touching the official audit."
+          },
+          "client": {
+            "title": "Client space",
+            "desc": "Client contacts view their audit, follow the non-conformities and download the documents, without being able to change the assessment."
+          }
+        }
+      },
+      "team": {
+        "title": "Work as a team",
+        "intro": "Share the work, proofread before delivery and keep the big picture.",
+        "items": {
+          "collaboration": {
+            "title": "Several auditors per audit",
+            "desc": "Assign several auditors to the same audit and work on a shared checklist."
+          },
+          "proofreading": {
+            "title": "Non-conformity proofreading",
+            "desc": "A proofreader approves or returns each non-conformity before delivery, for a consistent, error-free report."
+          },
+          "planning": {
+            "title": "Audit planning",
+            "desc": "See current and upcoming audits, their deadlines and who is assigned."
+          },
+          "notifications": {
+            "title": "Email notifications",
+            "desc": "Assignments, status changes, invitations: everyone is told at the right time."
+          }
+        }
+      },
+      "security": {
+        "title": "Security and integrations",
+        "intro": "Well-protected data, and a tool that fits into your environment.",
+        "items": {
+          "isolation": {
+            "title": "Isolated data",
+            "desc": "Each organisation only sees its own data, thanks to isolation enforced directly in the database. Data is hosted in the European Union."
+          },
+          "auditLogs": {
+            "title": "Activity log",
+            "desc": "Review the history of status changes, assignments and invitations, and export it as CSV."
+          },
+          "webhooks": {
+            "title": "Webhooks",
+            "desc": "Receive a signed event in your tools for every new non-conformity, status change or audit delivery."
+          },
+          "api": {
+            "title": "API",
+            "desc": "Read your audits from your own tools, with access tokens limited to specific rights."
+          },
+          "branding": {
+            "title": "Your branding",
+            "desc": "Your logo and colours in the interface, for an experience that looks like you."
+          }
+        }
+      }
+    }
+  },
+  "rgaaPage": {
+    "metaTitle": "RGAA 4.1.2 audit software: checklist and report",
+    "metaDescription": "RGAA 4.1.2 audits with Axessyo: 106 criteria, 13 topics, a conformity rate calculated with the official method and a PDF report ready to deliver.",
+    "kicker": "RGAA 4.1.2",
+    "title": "RGAA audit software, from sample to report",
+    "subtitle": "Assess the 106 RGAA criteria page by page, get a conformity rate calculated with the official method and deliver a clear report to your client.",
+    "what": {
+      "title": "What is the RGAA?",
+      "paragraphs": [
+        "The RGAA (Référentiel général d'amélioration de l'accessibilité) is the official French method for checking the accessibility of a website, an app or a digital document. It is published by DINUM, the French interministerial digital agency.",
+        "Version 4.1.2 has 106 criteria grouped into 13 topics. Each criterion comes with precise tests, so the assessment is reproducible from one auditor to the next. The RGAA covers the international WCAG 2.1 rules at levels A and AA."
+      ],
+      "themesTitle": "The 13 RGAA topics",
+      "themes": [
+        "Images",
+        "Frames",
+        "Colours",
+        "Multimedia",
+        "Tables",
+        "Links",
+        "Scripts",
+        "Mandatory elements",
+        "Information structure",
+        "Information presentation",
+        "Forms",
+        "Navigation",
+        "Consultation"
+      ]
+    },
+    "who": {
+      "title": "Who must comply with the RGAA?",
+      "paragraphs": [
+        "In France, the digital accessibility duty applies to public services (government bodies, local authorities, public institutions), to organisations carrying out a public service mission and to companies with revenue above 250 million euros.",
+        "Since 28 June 2025, the European Accessibility Act extends the duty to many private-sector products and services: e-commerce, banking, transport, e-books… Microenterprises providing services are exempt."
+      ],
+      "obligationsTitle": "What the law requires",
+      "obligations": [
+        "Publish an accessibility statement, based on an RGAA audit, giving the conformity rate and the non-accessible content.",
+        "Display the conformity status (non-compliant, partially or fully compliant) on the home page.",
+        "Publish a multi-year accessibility plan and yearly action plans.",
+        "Provide a way to report an accessibility issue."
+      ],
+      "source": "This information is provided for guidance only. The reference text is published on <link>accessibilite.numerique.gouv.fr</link> (in French)."
+    },
+    "score": {
+      "title": "How is the conformity rate calculated?",
+      "paragraphs": [
+        "The official conformity rate is calculated per criterion, across the whole sample: it is the number of compliant criteria divided by the number of applicable criteria.",
+        "A criterion is non-compliant as soon as it fails on at least one page. It is compliant if it passes on every page where it applies, and not applicable only if it applies to no page at all.",
+        "Example: with a 5-page sample, a criterion that passes on 4 pages but fails on the fifth counts as non-compliant for the whole site.",
+        "The average rate is the mean of each page's rate. It helps track progress, but only the overall rate has legal value."
+      ],
+      "levelsTitle": "The three conformity levels",
+      "levels": {
+        "none": {
+          "range": "Below 50%",
+          "label": "Non-compliant"
+        },
+        "partial": {
+          "range": "50 to 99%",
+          "label": "Partially compliant"
+        },
+        "full": {
+          "range": "100%",
+          "label": "Fully compliant"
+        }
+      }
+    },
+    "how": {
+      "title": "An RGAA audit with Axessyo",
+      "steps": [
+        {
+          "title": "Define the sample",
+          "desc": "Mandatory pages are added automatically: home, contact, legal notice, sitemap and accessibility page. You add the site's representative pages."
+        },
+        {
+          "title": "Assess the 106 criteria",
+          "desc": "For each page, mark the criterion as compliant, non-compliant or not applicable, with the standard's tests at hand."
+        },
+        {
+          "title": "Document non-conformities",
+          "desc": "Severity, description, fix recommendation and screenshots: every issue is explained for the team that will fix it."
+        },
+        {
+          "title": "Deliver the report",
+          "desc": "The rate updates with every entry. Export the report as PDF: it is the basis for the accessibility statement."
+        },
+        {
+          "title": "Follow up on fixes",
+          "desc": "The client follows the non-conformities from their space, and the simulator shows the rate reached once fixes are made."
+        }
+      ],
+      "cta": "See all features"
+    },
+    "others": {
+      "title": "What about other standards?",
+      "body": "Axessyo also supports WCAG 2.2, RAWeb 1.1 (Belgium and Luxembourg) and RAAM 1.1 (mobile apps). You pick the standard when creating the audit, and the checklist is ready."
+    },
+    "faq": {
+      "title": "RGAA questions",
+      "items": [
+        {
+          "q": "What is the difference between the RGAA and WCAG?",
+          "a": "WCAG are the international accessibility rules published by the W3C. The RGAA turns them into precise criteria and tests suited to the French legal framework. It covers WCAG 2.1 at levels A and AA."
+        },
+        {
+          "q": "Is an RGAA audit mandatory?",
+          "a": "For organisations subject to the duty, yes: the accessibility statement must be based on an RGAA audit. It can be carried out in-house or by a provider."
+        },
+        {
+          "q": "Does the RGAA apply to mobile apps?",
+          "a": "Yes, the duty also covers mobile apps. Axessyo lets you remove mandatory pages that make no sense in an app from the sample, and also offers RAAM 1.1, a standard dedicated to mobile."
+        },
+        {
+          "q": "Is the rate shown by Axessyo the legal rate?",
+          "a": "Yes. Axessyo applies the calculation method published by DINUM. During the audit, the rate is flagged as provisional until every criterion has been assessed on every page."
+        }
+      ]
+    }
+  },
+  "faqPage": {
+    "metaTitle": "FAQ: Axessyo and accessibility audits",
+    "metaDescription": "Standards, RGAA rate calculation, reports, working with clients, data security, free plan: answers to the most common questions.",
+    "kicker": "Help",
+    "title": "Frequently asked questions",
+    "subtitle": "Everything you need to know about Axessyo and digital accessibility audits.",
+    "contactLead": "Can't find your answer?",
+    "contactLink": "Write to us",
+    "categories": [
+      {
+        "id": "product",
+        "title": "The product",
+        "items": [
+          {
+            "q": "Who is Axessyo for?",
+            "a": "Independent auditors, specialised agencies and firms, and in-house teams that run digital accessibility audits. Their clients can also access their audit to follow the fixes."
+          },
+          {
+            "q": "Do I need to install anything?",
+            "a": "No. Axessyo runs in the browser: you just create an account."
+          },
+          {
+            "q": "Is the interface available in English?",
+            "a": "Yes. The interface and the PDF reports are available in French and English."
+          },
+          {
+            "q": "Is Axessyo itself accessible?",
+            "a": "We aim for WCAG 2.2 level AA: keyboard navigation, visible focus, checked contrast and screen reader support. The detailed conformity status is in our accessibility statement."
+          }
+        ]
+      },
+      {
+        "id": "method",
+        "title": "Standards and method",
+        "items": [
+          {
+            "q": "Which standards are supported?",
+            "a": "RGAA 4.1.2, WCAG 2.2, RAWeb 1.1 and RAAM 1.1. Each standard is preloaded with its criteria and tests: the checklist is ready as soon as you create the audit."
+          },
+          {
+            "q": "How is the conformity rate calculated?",
+            "a": "With DINUM's official method: compliant criteria divided by applicable criteria, across the whole sample. A criterion that fails on a single page is non-compliant for the whole audit."
+          },
+          {
+            "q": "Can I audit a mobile app?",
+            "a": "Yes. Use RAAM 1.1, designed for mobile, and remove from the sample the mandatory pages that do not apply to an app."
+          },
+          {
+            "q": "Can I measure the effect of fixes before making them?",
+            "a": "Yes, with the remediation simulator, from the Starter plan: tick the non-conformities to fix and see the resulting rate, without changing the audit."
+          }
+        ]
+      },
+      {
+        "id": "team",
+        "title": "Team and clients",
+        "items": [
+          {
+            "q": "Can my clients view their audit?",
+            "a": "Yes. You invite the client's contacts: they view the audit, follow the non-conformities and download the documents, without being able to change the assessment."
+          },
+          {
+            "q": "Can several auditors work on the same audit?",
+            "a": "Yes, from the Pro plan. The Free and Starter plans allow one auditor per audit."
+          },
+          {
+            "q": "How does proofreading work?",
+            "a": "From the Pro plan, a proofreader approves or returns each non-conformity before delivery, so the report handed to the client is consistent and checked."
+          }
+        ]
+      },
+      {
+        "id": "data",
+        "title": "Data and security",
+        "items": [
+          {
+            "q": "Where is the data hosted?",
+            "a": "The database is hosted in the European Union (Ireland). Data is processed in line with the GDPR; the list of subprocessors is in our privacy policy."
+          },
+          {
+            "q": "Is my data kept separate from other customers?",
+            "a": "Yes. Each organisation only sees its own data: isolation is enforced directly in the database, not just in the interface."
+          },
+          {
+            "q": "Can I delete my account?",
+            "a": "Yes, at any time from your settings. You can also exercise your rights of access, rectification and erasure by writing to us."
+          }
+        ]
+      },
+      {
+        "id": "pricing",
+        "title": "Pricing and account",
+        "items": [
+          {
+            "q": "Is there a free plan?",
+            "a": "Yes. The Free plan lets you run one audit, with no credit card and no time limit."
+          },
+          {
+            "q": "Is there a minimum commitment?",
+            "a": "No. The monthly subscription can be cancelled at any time and stays active until the end of the current period."
+          },
+          {
+            "q": "How do I pay?",
+            "a": "By card, through our payment provider Stripe. An invoice is issued automatically at each renewal."
+          }
+        ]
+      }
+    ],
+    "pricingLink": "All pricing questions"
   }
 }
