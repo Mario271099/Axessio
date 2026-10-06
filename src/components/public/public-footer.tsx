@@ -11,16 +11,27 @@ const GROUPS = [
     key: "product",
     links: [
       { href: "/features", labelKey: "features" },
-      { href: "/rgaa", labelKey: "rgaa" },
       { href: "/pricing", labelKey: "pricing" },
       { href: "/faq", labelKey: "faq" },
+      { href: "/register", labelKey: "register" },
     ],
   },
   {
-    key: "account",
+    key: "standards",
     links: [
-      { href: "/login", labelKey: "login" },
-      { href: "/register", labelKey: "register" },
+      { href: "/rgaa", labelKey: "rgaa" },
+      { href: "/wcag", labelKey: "wcag" },
+      { href: "/raweb", labelKey: "raweb" },
+      { href: "/raam", labelKey: "raam" },
+    ],
+  },
+  {
+    key: "company",
+    links: [
+      { href: "/about", labelKey: "about" },
+      { href: "/security", labelKey: "security" },
+      { href: "/contact", labelKey: "contact" },
+      { href: "/accessibility", labelKey: "accessibility" },
     ],
   },
   {
@@ -29,7 +40,6 @@ const GROUPS = [
       { href: "/legal", labelKey: "legal" },
       { href: "/privacy", labelKey: "privacy" },
       { href: "/cookies", labelKey: "cookies" },
-      { href: "/accessibility", labelKey: "accessibility" },
     ],
   },
 ] as const;
@@ -77,7 +87,7 @@ export function PublicFooter({ currentHref }: { currentHref?: string } = {}) {
         </div>
 
         {/* Colonnes -------------------------------------------------------- */}
-        <div className="mt-9 grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(3,minmax(0,1fr))]">
+        <div className="mt-9 grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(4,minmax(0,1fr))]">
           <div className="min-w-0">
             <Link
               href="/"

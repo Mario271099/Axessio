@@ -8,6 +8,7 @@
       "rgaa": "RGAA",
       "pricing": "Pricing",
       "faq": "FAQ",
+      "contact": "Contact",
       "login": "Sign in",
       "register": "Sign up",
       "getStarted": "Start for free"
@@ -64,7 +65,7 @@
         },
         "RAWeb": {
           "name": "RAWeb",
-          "desc": "1.1, Belgium and Luxembourg"
+          "desc": "1.1, Luxembourg"
         },
         "RAAM": {
           "name": "RAAM",
@@ -93,12 +94,19 @@
         "cookies": "Cookies",
         "accessibility": "Accessibility",
         "rgaa": "RGAA audit",
-        "faq": "FAQ"
+        "faq": "FAQ",
+        "wcag": "WCAG audit",
+        "raweb": "RAWeb audit",
+        "raam": "RAAM audit",
+        "about": "About",
+        "security": "Security",
+        "contact": "Contact"
       },
       "groups": {
         "product": "Product",
-        "account": "Account",
-        "info": "Information"
+        "standards": "Standards",
+        "company": "Axessyo",
+        "info": "Legal"
       }
     },
     "faq": {
@@ -2864,8 +2872,33 @@
       "faq": {
         "title": "FAQ",
         "desc": "Answers to the most common questions."
+      },
+      "wcag": {
+        "title": "WCAG 2.2 audit",
+        "desc": "The international rules and their A, AA and AAA levels."
+      },
+      "raweb": {
+        "title": "RAWeb audit",
+        "desc": "Luxembourg's official web standard."
+      },
+      "raam": {
+        "title": "RAAM audit",
+        "desc": "Accessibility of iOS and Android mobile apps."
+      },
+      "security": {
+        "title": "Security",
+        "desc": "Hosting, isolation and protection of your data."
+      },
+      "about": {
+        "title": "About",
+        "desc": "Our mission and commitments."
+      },
+      "contact": {
+        "title": "Contact",
+        "desc": "A demo, a quote or a question?"
       }
-    }
+    },
+    "otherStandards": "Other standards"
   },
   "featuresPage": {
     "metaTitle": "Accessibility audit software features",
@@ -3064,7 +3097,7 @@
     },
     "others": {
       "title": "What about other standards?",
-      "body": "Axessyo also supports WCAG 2.2, RAWeb 1.1 (Belgium and Luxembourg) and RAAM 1.1 (mobile apps). You pick the standard when creating the audit, and the checklist is ready."
+      "body": "Axessyo also supports WCAG 2.2, RAWeb 1.1 (Luxembourg) and RAAM 1.1 (mobile apps). You pick the standard when creating the audit, and the checklist is ready."
     },
     "faq": {
       "title": "RGAA questions",
@@ -3193,5 +3226,481 @@
       }
     ],
     "pricingLink": "All pricing questions"
+  },
+  "wcagPage": {
+    "metaTitle": "WCAG 2.2 audit: software, criteria and report",
+    "metaDescription": "Audit your sites against WCAG 2.2 with Axessyo: 86 success criteria, levels A, AA and AAA, built-in test methodology and a PDF report ready to deliver.",
+    "kicker": "WCAG 2.2",
+    "breadcrumb": "WCAG audit",
+    "title": "WCAG 2.2 audit software, criterion by criterion",
+    "subtitle": "Assess the 86 WCAG 2.2 success criteria, track non-conformities and deliver a clear report, in English or French.",
+    "what": {
+      "title": "What are the WCAG?",
+      "paragraphs": [
+        "The WCAG (Web Content Accessibility Guidelines) are the international rules for web content accessibility. They are published by the W3C, the body that sets web standards.",
+        "Version 2.2, published on 5 October 2023, has 86 success criteria spread across 13 guidelines, grouped under 4 principles."
+      ],
+      "principlesTitle": "The 4 principles",
+      "principles": [
+        {
+          "title": "Perceivable",
+          "desc": "Information must be perceivable by everyone: text alternatives, captions, sufficient contrast."
+        },
+        {
+          "title": "Operable",
+          "desc": "The interface must work with a keyboard, without excessive time limits, with clear navigation."
+        },
+        {
+          "title": "Understandable",
+          "desc": "Content and behaviour must be readable and predictable, with input assistance."
+        },
+        {
+          "title": "Robust",
+          "desc": "Code must stay compatible with browsers and assistive technologies."
+        }
+      ]
+    },
+    "levels": {
+      "title": "Levels A, AA and AAA",
+      "paragraphs": [
+        "Each criterion has a level: A (essential), AA (recommended) or AAA (advanced). WCAG 2.2 has 31 level A criteria, 24 level AA criteria and 31 level AAA criteria.",
+        "Level AA is the reference target: it is the level used by the European standard EN 301 549 and by national standards such as the RGAA. The W3C does not recommend requiring level AAA for entire sites, because some content cannot meet it."
+      ]
+    },
+    "news": {
+      "title": "What's new in WCAG 2.2",
+      "paragraphs": [
+        "Compared with version 2.1, WCAG 2.2 adds 9 criteria and removes one: 4.1.1 Parsing, now obsolete. The new criteria mainly address keyboard navigation, people with motor disabilities and people with cognitive disabilities."
+      ],
+      "listTitle": "The 9 new criteria",
+      "criteria": [
+        "2.4.11 Focus Not Obscured (Minimum) (level AA)",
+        "2.4.12 Focus Not Obscured (Enhanced) (level AAA)",
+        "2.4.13 Focus Appearance (level AAA)",
+        "2.5.7 Dragging Movements (level AA)",
+        "2.5.8 Target Size (Minimum) (level AA)",
+        "3.2.6 Consistent Help (level A)",
+        "3.3.7 Redundant Entry (level A)",
+        "3.3.8 Accessible Authentication (Minimum) (level AA)",
+        "3.3.9 Accessible Authentication (Enhanced) (level AAA)"
+      ]
+    },
+    "how": {
+      "title": "A WCAG audit with Axessyo",
+      "steps": [
+        {
+          "title": "A complete checklist",
+          "desc": "All 86 success criteria are preloaded, with their level and test procedures. The checklist is ready as soon as the audit is created."
+        },
+        {
+          "title": "Page-by-page assessment",
+          "desc": "For each page in the sample, mark the criterion as compliant, non-compliant or not applicable."
+        },
+        {
+          "title": "Actionable non-conformities",
+          "desc": "Severity, description, fix recommendation and screenshots: the team doing the fixes knows what to do."
+        },
+        {
+          "title": "A bilingual report",
+          "desc": "Export the report as PDF, in English or French: handy for international clients."
+        }
+      ]
+    },
+    "faq": {
+      "title": "WCAG questions",
+      "items": [
+        {
+          "q": "What is the difference between WCAG 2.1 and 2.2?",
+          "a": "WCAG 2.2 adds 9 criteria to WCAG 2.1 and removes criterion 4.1.1 Parsing. Content that conforms to WCAG 2.2 also conforms to WCAG 2.1."
+        },
+        {
+          "q": "Are the WCAG mandatory?",
+          "a": "The WCAG are not a law in themselves, but many laws refer to them. In Europe, the EN 301 549 standard, on which accessibility duties rely, includes the WCAG criteria at levels A and AA."
+        },
+        {
+          "q": "Should I aim for level AAA?",
+          "a": "Not for a whole site: the W3C advises against it, because some content cannot meet it. Aim for level AA, and apply AAA criteria where they help."
+        },
+        {
+          "q": "Should I choose the RGAA or the WCAG?",
+          "a": "In France, to meet a legal duty, use the RGAA. For an international client or outside the French legal framework, the WCAG are the reference. Axessyo offers both."
+        }
+      ]
+    }
+  },
+  "rawebPage": {
+    "metaTitle": "RAWeb 1.1 audit: web accessibility in Luxembourg",
+    "metaDescription": "Run your RAWeb 1.1 audits, Luxembourg's web accessibility standard: 136 criteria, 17 topics, built-in methodology and a PDF report.",
+    "kicker": "RAWeb 1.1",
+    "breadcrumb": "RAWeb audit",
+    "title": "RAWeb audit software, for web accessibility in Luxembourg",
+    "subtitle": "Assess the 136 RAWeb 1.1 criteria page by page, document non-conformities and deliver a report ready to hand over.",
+    "what": {
+      "title": "What is the RAWeb?",
+      "paragraphs": [
+        "The RAWeb (Référentiel d'évaluation de l'accessibilité web) is Luxembourg's official method for checking website accessibility. It is published by the Information and Press Service (SIP) of the Luxembourg government.",
+        "Version 1.1 has 136 criteria grouped into 17 topics. It reuses the content of the French RGAA 4.1.2 and checks conformity with the European standard EN 301 549."
+      ],
+      "themesTitle": "The 17 RAWeb topics",
+      "themes": [
+        "Images",
+        "Frames",
+        "Colours",
+        "Multimedia",
+        "Tables",
+        "Links",
+        "Scripts",
+        "Mandatory elements",
+        "Information structure",
+        "Information presentation",
+        "Forms",
+        "Navigation",
+        "Consultation",
+        "Documentation and accessibility features",
+        "Authoring tools",
+        "Support services",
+        "Real-time communication"
+      ]
+    },
+    "diff": {
+      "title": "RAWeb and RGAA: what are the differences?",
+      "paragraphs": [
+        "The first 13 RAWeb topics are very close to the RGAA's. The next 4 cover EN 301 549 requirements: documentation and accessibility features, authoring tools, support services and real-time communication.",
+        "The RAWeb only covers websites. Native mobile apps fall under another standard, the RAAM."
+      ]
+    },
+    "who": {
+      "title": "Who is concerned?",
+      "paragraphs": [
+        "In Luxembourg, the law of 28 May 2019 requires public sector websites and mobile apps to be accessible. The law of 8 March 2023 extends the duty to certain products and services. The SIP monitors compliance."
+      ],
+      "source": "This information is provided for guidance only. The official standard is published on <link>accessibilite.public.lu</link>."
+    },
+    "how": {
+      "title": "A RAWeb audit with Axessyo",
+      "steps": [
+        {
+          "title": "A complete checklist",
+          "desc": "All 136 criteria and their tests are preloaded: the checklist is ready as soon as the audit is created."
+        },
+        {
+          "title": "Page-by-page assessment",
+          "desc": "Mark each criterion as compliant, non-compliant or not applicable for each page, with the methodology at hand."
+        },
+        {
+          "title": "Detailed non-conformities",
+          "desc": "Severity, description, fix recommendation and screenshots for every issue found."
+        },
+        {
+          "title": "A report ready to hand over",
+          "desc": "Export the report as PDF, in English or French."
+        }
+      ]
+    },
+    "faq": {
+      "title": "RAWeb questions",
+      "items": [
+        {
+          "q": "Is the RAWeb different from the RGAA?",
+          "a": "It reuses the RGAA's content for its first 13 topics and adds 4 topics from the EN 301 549 standard. It is published by Luxembourg, while the RGAA is published by France."
+        },
+        {
+          "q": "Does the RAWeb apply to mobile apps?",
+          "a": "No. The RAWeb only covers websites. Native mobile apps are assessed with the RAAM, also available in Axessyo."
+        },
+        {
+          "q": "Who monitors accessibility in Luxembourg?",
+          "a": "The Information and Press Service (SIP) of the Luxembourg government, which also publishes the RAWeb and the RAAM."
+        }
+      ]
+    }
+  },
+  "raamPage": {
+    "metaTitle": "RAAM 1.1 audit: mobile app accessibility",
+    "metaDescription": "Audit your iOS and Android apps with RAAM 1.1: 108 criteria based on the EN 301 549 standard, built-in methodology and a PDF report ready to deliver.",
+    "kicker": "RAAM 1.1",
+    "breadcrumb": "RAAM audit",
+    "title": "RAAM audit software, for mobile apps",
+    "subtitle": "Assess the accessibility of your iOS and Android apps with the 108 RAAM 1.1 criteria, and deliver a clear report to your client.",
+    "what": {
+      "title": "What is the RAAM?",
+      "paragraphs": [
+        "The RAAM (Référentiel d'évaluation de l'accessibilité des applications mobiles) is Luxembourg's official method for checking the accessibility of native mobile apps. It is published by the Information and Press Service (SIP).",
+        "Version 1.1, published on 24 February 2025, has 108 criteria grouped into 15 topics. It checks that an app meets the European standard EN 301 549 (version 3.2.1)."
+      ],
+      "themesTitle": "The 15 RAAM topics",
+      "themes": [
+        "Graphic elements",
+        "Colours",
+        "Multimedia",
+        "Tables",
+        "Interactive components",
+        "Mandatory elements",
+        "Information structure",
+        "Information presentation",
+        "Forms",
+        "Navigation",
+        "Consultation",
+        "Documentation and accessibility features",
+        "Authoring tools",
+        "Support services",
+        "Real-time communication"
+      ]
+    },
+    "why": {
+      "title": "Why a standard dedicated to mobile?",
+      "paragraphs": [
+        "A native app is not tested like a website: it has no HTML, its components are specific to iOS or Android, and it is used with gestures and specific screen readers such as VoiceOver and TalkBack.",
+        "The RAAM adapts the criteria to these specifics. Because it relies on the European standard EN 301 549, it can also serve as an assessment method outside Luxembourg."
+      ]
+    },
+    "who": {
+      "title": "Who is concerned?",
+      "paragraphs": [
+        "In Luxembourg, the law of 28 May 2019 requires public sector websites and mobile apps to be accessible, and the law of 8 March 2023 extends the duty to certain products and services."
+      ],
+      "source": "This information is provided for guidance only. The official standard is published on <link>accessibilite.public.lu</link>."
+    },
+    "how": {
+      "title": "A RAAM audit with Axessyo",
+      "steps": [
+        {
+          "title": "A sample of screens",
+          "desc": "Remove the website mandatory pages, which make no sense in an app, and add the screens to assess."
+        },
+        {
+          "title": "The 108 criteria",
+          "desc": "Criteria and their tests are preloaded. Mark each criterion as compliant, non-compliant or not applicable for each screen."
+        },
+        {
+          "title": "Illustrated non-conformities",
+          "desc": "Attach screenshots of the app, with the severity and fix recommendation."
+        },
+        {
+          "title": "A report ready to hand over",
+          "desc": "Export the report as PDF, in English or French."
+        }
+      ]
+    },
+    "faq": {
+      "title": "RAAM questions",
+      "items": [
+        {
+          "q": "Does the RAAM cover iOS and Android?",
+          "a": "Yes. The RAAM applies to native apps, on iOS and Android alike."
+        },
+        {
+          "q": "Can I audit a web app with the RAAM?",
+          "a": "No. A web app, even when used on mobile, falls under a web standard: RAWeb, RGAA or WCAG. The RAAM is for native apps only."
+        },
+        {
+          "q": "How do I build the sample for an app?",
+          "a": "In Axessyo, remove the mandatory pages meant for a website, then add the app's representative screens: home, sign-in, main journeys, forms."
+        }
+      ]
+    }
+  },
+  "securityPage": {
+    "metaTitle": "Security and data protection",
+    "metaDescription": "EU hosting, isolated data, two-factor authentication, GDPR: how Axessyo protects your audits and your clients' audits.",
+    "kicker": "Security",
+    "breadcrumb": "Security",
+    "title": "Your audits are in safe hands",
+    "subtitle": "An audit holds sensitive information about your clients. Here is exactly how Axessyo protects it.",
+    "hosting": {
+      "title": "Hosting and GDPR",
+      "items": [
+        {
+          "title": "Data hosted in the EU",
+          "desc": "The database is hosted by Supabase, in Ireland. Our host encrypts stored data."
+        },
+        {
+          "title": "Regulated subprocessors",
+          "desc": "Vercel (app hosting) and Resend (email delivery) are based in the United States. Transfers are covered by the European Commission's standard contractual clauses."
+        },
+        {
+          "title": "Your rights respected",
+          "desc": "Access, rectification, erasure: you can delete your account at any time from your settings. Your data is never sold."
+        },
+        {
+          "title": "No tracking without consent",
+          "desc": "Audience measurement and error tracking only load after you agree in the cookie banner."
+        }
+      ],
+      "source": "Processing details are in our <link>privacy policy</link>."
+    },
+    "access": {
+      "title": "Access and authentication",
+      "items": [
+        {
+          "title": "Two-factor authentication",
+          "desc": "Turn on a second factor from your settings, with an authenticator app (Google Authenticator, 1Password, Authy…)."
+        },
+        {
+          "title": "Monitored sign-ins",
+          "desc": "Sign-in attempts are limited per IP address and logged, to slow down brute-force attacks."
+        },
+        {
+          "title": "Protected passwords",
+          "desc": "Passwords are never stored in plain text: only an encrypted fingerprint is kept."
+        },
+        {
+          "title": "Roles and permissions",
+          "desc": "Each member has a role that sets what they can see and change. Your clients' contacts only see their audit, without being able to change it."
+        }
+      ]
+    },
+    "data": {
+      "title": "Isolation and encryption",
+      "items": [
+        {
+          "title": "Isolation in the database",
+          "desc": "Every query is filtered by the database itself: one organisation cannot read another's data, even if the interface has a bug."
+        },
+        {
+          "title": "Encrypted traffic",
+          "desc": "All connections use HTTPS, enforced in browsers by the HSTS header."
+        },
+        {
+          "title": "Browser protections",
+          "desc": "Strict security headers limit code injection risks and prevent Axessyo from being embedded in another page."
+        },
+        {
+          "title": "Activity log",
+          "desc": "Status changes, assignments, invitations and sign-ins are recorded."
+        }
+      ]
+    },
+    "integrations": {
+      "title": "Secure integrations",
+      "items": [
+        {
+          "title": "API tokens",
+          "desc": "Tokens are never stored in plain text. Each has limited rights, an expiry date and can be revoked immediately."
+        },
+        {
+          "title": "Signed webhooks",
+          "desc": "Every event sent is signed (HMAC SHA-256), so you can check it really comes from Axessyo."
+        }
+      ]
+    },
+    "report": {
+      "title": "Report a vulnerability",
+      "body": "Think you have found a security issue? Write to us at <link>{email}</link> describing the problem. We will reply and fix it as quickly as possible."
+    }
+  },
+  "aboutPage": {
+    "metaTitle": "About",
+    "metaDescription": "Axessyo is a digital accessibility audit platform, built for auditors and the teams that fix issues. Our mission and commitments.",
+    "kicker": "About",
+    "breadcrumb": "About",
+    "title": "Making accessibility audits simpler, fairer and more useful",
+    "subtitle": "Axessyo is a digital accessibility audit platform, built for auditors and for the teams that fix issues.",
+    "mission": {
+      "title": "Our mission",
+      "paragraphs": [
+        "Accessibility audits are still too often run with a spreadsheet, a Word document and dozens of emails. Results get lost, rates are miscalculated, and the teams who must fix issues don't know where to start.",
+        "Axessyo brings the whole audit into one tool: the sample, the checklist, the non-conformities, the report and the follow-up on fixes. So that every audit truly helps make digital services accessible."
+      ]
+    },
+    "commitments": {
+      "title": "Our commitments",
+      "items": [
+        {
+          "title": "Follow the official methods",
+          "desc": "Standards are complete, with their official tests, and the conformity rate follows the method published by DINUM, the French digital agency."
+        },
+        {
+          "title": "Be accessible ourselves",
+          "desc": "An accessibility audit tool has to be accessible. We aim for WCAG 2.2 level AA and publish our accessibility statement."
+        },
+        {
+          "title": "Protect your data",
+          "desc": "Data hosted in the European Union, isolated per organisation, never sold. You can export it at any time."
+        },
+        {
+          "title": "Be transparent",
+          "desc": "Public pricing, a free plan with no time limit and a subscription with no commitment."
+        }
+      ]
+    },
+    "audience": {
+      "title": "Who is it for?",
+      "items": [
+        "Independent auditors, who want to deliver flawless reports faster.",
+        "Specialised agencies and firms, who coordinate several auditors and many clients.",
+        "In-house teams, who assess and track the accessibility of their own services.",
+        "Audit clients, who follow the fixes from their own space."
+      ]
+    }
+  },
+  "contactPage": {
+    "metaTitle": "Contact: demo, quote and help",
+    "metaDescription": "A question about Axessyo, a demo, an Enterprise quote or need help? Write to us using the contact form.",
+    "kicker": "Contact",
+    "breadcrumb": "Contact",
+    "title": "Let's talk about your audits",
+    "subtitle": "A demo, a quote, a question about your account: write to us and we will reply by email.",
+    "formTitle": "Send a message",
+    "requiredNote": "All fields are required unless marked optional.",
+    "fields": {
+      "name": "Name",
+      "email": "Email address",
+      "organization": "Organisation (optional)",
+      "subject": "Subject",
+      "subjectPlaceholder": "Choose a subject",
+      "message": "Message",
+      "messageHint": "Between 20 and 5,000 characters.",
+      "honeypot": "Do not fill in this field"
+    },
+    "subjects": {
+      "demo": "Request a demo",
+      "enterprise": "Enterprise plan quote",
+      "support": "Help with my account",
+      "partnership": "Partnership",
+      "other": "Other question"
+    },
+    "submit": "Send message",
+    "submitting": "Sending…",
+    "privacy": "Your details are only used to reply to your message. Learn more: <link>privacy policy</link>.",
+    "errors": {
+      "summary": "{count, plural, one {The form has # error} other {The form has # errors}}:",
+      "name": {
+        "required": "Enter your name.",
+        "tooLong": "Your name must be 120 characters or fewer."
+      },
+      "email": {
+        "required": "Enter your email address.",
+        "invalid": "The email address is not valid. Example: firstname.lastname@example.com",
+        "tooLong": "The email address is too long."
+      },
+      "organization": {
+        "tooLong": "The organisation name must be 160 characters or fewer."
+      },
+      "subject": {
+        "required": "Choose a subject.",
+        "invalid": "Choose a subject from the list."
+      },
+      "message": {
+        "required": "Write your message.",
+        "tooShort": "Your message must be at least 20 characters.",
+        "tooLong": "Your message must be 5,000 characters or fewer."
+      },
+      "rateLimited": "You have sent several messages in a short time. Try again in an hour, or email us directly at {email}.",
+      "sendFailed": "The message could not be sent. Try again, or email us directly at {email}."
+    },
+    "success": {
+      "title": "Message sent",
+      "body": "Thank you! We have received your message and will reply to the address you gave.",
+      "again": "Send another message"
+    },
+    "aside": {
+      "title": "Other ways to reach us",
+      "emailLabel": "By email",
+      "faqLead": "Your question may already be in our",
+      "faqLink": "FAQ",
+      "pricingLead": "To compare plans, see our",
+      "pricingLink": "pricing"
+    }
   }
 }

@@ -7,12 +7,8 @@ import {
   MarketingHero,
   MarketingPage,
 } from "@/components/public/marketing-page";
-import {
-  minPlanForFeature,
-  PLAN_ORDER,
-  PLANS,
-  type FeatureCode,
-} from "@/lib/billing/plans";
+import { planBadgeLabel } from "@/components/public/marketing-blocks";
+import type { FeatureCode } from "@/lib/billing/plans";
 import { buildPublicMetadata } from "@/lib/public-metadata";
 import { SITE, siteUrl } from "@/lib/site";
 
@@ -79,17 +75,7 @@ export default async function FeaturesPage() {
   const tm = await getTranslations("marketing");
   const tHome = await getTranslations("home");
 
-  /** Libellé du plan minimum, ou null si la fonctionnalité est dans tous les plans. */
-  function planBadge(feature?: FeatureCode): string | null {
-    if (!feature) return null;
-    const plan = minPlanForFeature(feature);
-    if (!plan || plan === "free") return null;
-    // Le plan le plus haut n'a pas de « supérieurs ».
-    const isTopPlan = plan === PLAN_ORDER[PLAN_ORDER.length - 1];
-    return tm(isTopPlan ? "availableOn" : "availableFrom", {
-      plan: PLANS[plan].name,
-    });
-  }
+  const planBadge = (feature?: FeatureCode) => planBadgeLabel(feature, tm);
 
   const softwareLd = {
     "@context": "https://schema.org",

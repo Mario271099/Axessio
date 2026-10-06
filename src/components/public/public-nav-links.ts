@@ -8,4 +8,5 @@ export const PUBLIC_NAV_LINKS = [
   { href: "/rgaa", key: "rgaa" },
   { href: "/pricing", key: "pricing" },
   { href: "/faq", key: "faq" },
+  { href: "/contact", key: "contact" },
 ] as const;

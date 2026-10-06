@@ -5,15 +5,32 @@ import { PublicHeader } from "@/components/public/public-header";
 import { PublicFooter } from "@/components/public/public-footer";
 import { siteUrl } from "@/lib/site";
 
-/** Pages marketing reliées entre elles par le bloc « Pour aller plus loin ». */
-const RELATED_PAGES = [
-  { href: "/features", key: "features" },
-  { href: "/rgaa", key: "rgaa" },
-  { href: "/pricing", key: "pricing" },
-  { href: "/faq", key: "faq" },
-] as const;
+/**
+ * Pages marketing pouvant figurer dans le bloc « Pour aller plus loin ».
+ * La valeur est la clé i18n sous marketing.related.
+ */
+const MARKETING_PAGES = {
+  "/features": "features",
+  "/rgaa": "rgaa",
+  "/wcag": "wcag",
+  "/raweb": "raweb",
+  "/raam": "raam",
+  "/pricing": "pricing",
+  "/faq": "faq",
+  "/security": "security",
+  "/about": "about",
+  "/contact": "contact",
+} as const;
 
-type MarketingHref = (typeof RELATED_PAGES)[number]["href"];
+export type MarketingHref = keyof typeof MARKETING_PAGES;
+
+/** Maillage par défaut : les pages de conversion. */
+const DEFAULT_RELATED: ReadonlyArray<MarketingHref> = [
+  "/features",
+  "/pricing",
+  "/faq",
+  "/rgaa",
+];
 
 /** Données structurées injectées telles quelles dans un script JSON-LD. */
 export function JsonLd({ data }: { data: object }) {
@@ -34,9 +51,12 @@ export function MarketingPage({
   currentHref,
   pageName,
   jsonLd = [],
+  related = DEFAULT_RELATED,
   children,
 }: {
   currentHref: MarketingHref;
+  /** Pages proposées en fin de page ; la page courante est retirée, 3 au plus. */
+  related?: ReadonlyArray<MarketingHref>;
   /** Libellé court de la page, dernier maillon du fil d'Ariane. */
   pageName: string;
   jsonLd?: object[];
@@ -89,7 +109,9 @@ export function MarketingPage({
 
         {children}
 
-        <RelatedPages currentHref={currentHref} />
+        <RelatedPages
+          pages={related.filter((href) => href !== currentHref).slice(0, 3)}
+        />
         <SignupCta />
       </main>
 
@@ -196,9 +218,8 @@ export function faqJsonLd(items: ReadonlyArray<{ q: string; a: string }>) {
   };
 }
 
-function RelatedPages({ currentHref }: { currentHref: MarketingHref }) {
+function RelatedPages({ pages }: { pages: ReadonlyArray<MarketingHref> }) {
   const t = useTranslations("marketing.related");
-  const pages = RELATED_PAGES.filter((page) => page.href !== currentHref);
   return (
     <section
       aria-labelledby="related-title"
@@ -211,21 +232,21 @@ function RelatedPages({ currentHref }: { currentHref: MarketingHref }) {
         {t("title")}
       </h2>
       <ul className="mt-7 grid gap-4 md:grid-cols-3">
-        {pages.map((page) => (
-          <li key={page.href}>
+        {pages.map((href) => (
+          <li key={href}>
             <Link
-              href={page.href}
+              href={href}
               className="group flex h-full flex-col gap-1.5 rounded-hero border border-border bg-card p-6 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-md"
             >
               <span className="inline-flex items-center gap-2 text-xl font-black tracking-tight group-hover:text-primary">
-                {t(`${page.key}.title`)}
+                {t(`${MARKETING_PAGES[href]}.title`)}
                 <ArrowRight
                   aria-hidden="true"
                   className="size-4.5 transition-transform duration-200 group-hover:translate-x-1"
                 />
               </span>
               <span className="text-base text-secondary-foreground">
-                {t(`${page.key}.desc`)}
+                {t(`${MARKETING_PAGES[href]}.desc`)}
               </span>
             </Link>
           </li>
