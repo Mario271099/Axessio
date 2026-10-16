@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { LegalSection, LegalShell } from "@/components/public/legal-shell";
 import { intlLocale } from "@/lib/intl";
@@ -24,6 +25,7 @@ interface RawSection {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
+  if (HIDDEN) return {};
   const t = await getTranslations("legal");
   return {
     title: t("metaTitle"),
@@ -42,7 +44,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// Page masquee : passer HIDDEN a false (et remettre les liens footer / auth /
+// sidebar / sitemap / robots / inscription / test a11y) pour la republier.
+const HIDDEN = true;
+
 export default async function LegalPage() {
+  if (HIDDEN) notFound();
   const t = await getTranslations("legal");
   const locale = await getLocale();
   const formattedDate = new Intl.DateTimeFormat(intlLocale(locale), {

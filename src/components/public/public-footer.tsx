@@ -37,7 +37,6 @@ const GROUPS = [
   {
     key: "info",
     links: [
-      { href: "/legal", labelKey: "legal" },
       { href: "/privacy", labelKey: "privacy" },
       { href: "/cookies", labelKey: "cookies" },
     ],

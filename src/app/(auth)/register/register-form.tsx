@@ -244,14 +244,6 @@ export function RegisterForm({ plan }: { plan?: string }) {
 
       <p className="text-[0.8rem] text-muted-foreground">
         {t.rich("terms", {
-          terms: (chunks) => (
-            <Link
-              href="/legal"
-              className="font-medium text-foreground underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded"
-            >
-              {chunks}
-            </Link>
-          ),
           privacy: (chunks) => (
             <Link
               href="/privacy"

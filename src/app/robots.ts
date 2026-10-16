@@ -17,7 +17,6 @@ const PUBLIC_PAGES = [
   "/security",
   "/about",
   "/contact",
-  "/legal",
   "/privacy",
   "/cookies",
   "/accessibility",

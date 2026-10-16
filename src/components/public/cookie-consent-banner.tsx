@@ -26,7 +26,6 @@ const PUBLIC_PREFIXES = [
   "/security",
   "/about",
   "/contact",
-  "/legal",
   "/privacy",
   "/cookies",
   "/accessibility",

@@ -76,12 +76,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
-      url: siteUrl("/legal"),
-      lastModified: legalLastModified,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
       url: siteUrl("/privacy"),
       lastModified: legalLastModified,
       changeFrequency: "yearly",

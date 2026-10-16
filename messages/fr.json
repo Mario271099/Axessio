@@ -1307,7 +1307,7 @@
         "uppercase": "Une majuscule",
         "digit": "Un chiffre"
       },
-      "terms": "En créant un compte, vous acceptez nos <terms>conditions d'utilisation</terms> et notre <privacy>politique de confidentialité</privacy>.",
+      "terms": "En créant un compte, vous acceptez notre <privacy>politique de confidentialité</privacy>.",
       "submit": "Créer mon compte",
       "submitting": "Création en cours…",
       "footer": "Vous avez déjà un compte ?",

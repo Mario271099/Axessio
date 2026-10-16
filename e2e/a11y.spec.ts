@@ -90,7 +90,6 @@ test.describe("Accessibilité (axe-core) — pages publiques", () => {
     { path: "/about", nom: "à propos" },
     { path: "/contact", nom: "contact" },
     { path: "/accessibility", nom: "déclaration d'accessibilité" },
-    { path: "/legal", nom: "mentions légales" },
     { path: "/privacy", nom: "confidentialité" },
     { path: "/cookies", nom: "cookies" },
   ];

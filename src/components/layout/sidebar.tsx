@@ -317,9 +317,6 @@ export function Sidebar({
             "text-xs text-muted-foreground",
           )}
         >
-          <Link href="/legal" className="rounded hover:text-primary">
-            {t("legal.mentions")}
-          </Link>
           <Link href="/privacy" className="rounded hover:text-primary">
             {t("legal.privacy")}
           </Link>
