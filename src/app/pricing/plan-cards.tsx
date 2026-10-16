@@ -3,7 +3,14 @@ import { useTranslations } from "next-intl";
 import { ArrowRight, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SUPPORTED_STANDARDS } from "@/lib/constants";
-import { rowsAddedByPlan } from "@/lib/billing/comparison";
+import {
+  rowsAddedByPlan,
+  rowsIncludedInPlan,
+} from "@/lib/billing/comparison";
+import {
+  LAUNCH_OFFER_ACTIVE,
+  LAUNCH_OFFER_PLAN,
+} from "@/lib/billing/launch-offer";
 import {
   PLAN_ORDER,
   PLANS,
@@ -57,14 +64,27 @@ const LIMIT_TILES: ReadonlyArray<LimitCode> = [
 export const ONLY_MONTHLY = "group-data-[interval=yearly]/pricing:hidden";
 export const ONLY_YEARLY = "group-data-[interval=monthly]/pricing:hidden";
 
+/** Vrai pour la carte du plan offert pendant l'offre de lancement. */
+function isLaunchOffer(code: PlanCode): boolean {
+  return LAUNCH_OFFER_ACTIVE && code === LAUNCH_OFFER_PLAN;
+}
+
 export function PlanCards({
   ctaHrefs,
+  plans = PLAN_ORDER,
 }: {
   ctaHrefs: Readonly<Record<PlanCode, string>>;
+  /** Plans affichés, dans l'ordre (tous par défaut). */
+  plans?: ReadonlyArray<PlanCode>;
 }) {
   return (
-    <ul className="grid items-stretch gap-x-4.5 gap-y-8 sm:grid-cols-2 xl:grid-cols-4">
-      {PLAN_ORDER.map((code) => (
+    <ul
+      className={cn(
+        "grid items-stretch gap-x-4.5 gap-y-8 sm:grid-cols-2",
+        plans.length > 2 ? "xl:grid-cols-4" : "max-w-4xl",
+      )}
+    >
+      {plans.map((code) => (
         <PlanCard
           key={code}
           code={code}
@@ -90,13 +110,21 @@ function PlanCard({
   const onInk = code === RECOMMENDED_PLAN;
   const muted = onInk ? "text-ink-muted" : "text-muted-foreground";
   const colors = PLAN_COLORS[code];
-  const features = rowsAddedByPlan(code);
+  const launchOffer = isLaunchOffer(code);
+  // Le plan offert est présenté sans les plans inférieurs : on liste tout ce
+  // qu'il contient plutôt que « Tout le plan Starter, plus... ».
+  const features = launchOffer
+    ? rowsIncludedInPlan(code)
+    : rowsAddedByPlan(code);
+  const previousLine = launchOffer ? null : previous;
 
-  const ctaLabel = plan.isContactSales
-    ? t("cta.contactSales")
-    : plan.monthlyPriceEur === 0
-      ? t("cta.startFree")
-      : t("cta.choosePlan");
+  const ctaLabel = launchOffer
+    ? t("launch.cta")
+    : plan.isContactSales
+      ? t("cta.contactSales")
+      : plan.monthlyPriceEur === 0
+        ? t("cta.startFree")
+        : t("cta.choosePlan");
 
   return (
     <li
@@ -134,7 +162,7 @@ function PlanCard({
         </h3>
         {onInk && (
           <span className="inline-flex h-6.5 items-center rounded-full bg-highlight px-3 text-[0.78rem] font-extrabold text-ink">
-            {t("recommendedBadge")}
+            {launchOffer ? t("launch.badge") : t("recommendedBadge")}
           </span>
         )}
       </div>
@@ -183,9 +211,9 @@ function PlanCard({
       </ul>
 
       <ul className="flex flex-col gap-2.5">
-        {previous && (
+        {previousLine && (
           <FeatureItem onInk={onInk}>
-            {t("everythingIn", { plan: PLANS[previous].name })}
+            {t("everythingIn", { plan: PLANS[previousLine].name })}
           </FeatureItem>
         )}
         {features.map((row) => (
@@ -240,6 +268,25 @@ function PlanPrice({
       <div>
         <p className={amount}>{t("contactSales")}</p>
         <p className={note}>{t("contactSalesNote")}</p>
+      </div>
+    );
+  }
+
+  if (isLaunchOffer(code) && plan.monthlyPriceEur) {
+    return (
+      <div>
+        <p className="flex flex-wrap items-baseline gap-2.5">
+          <span className={amount}>{t("price.amount", { amount: 0 })}</span>
+          <s className={cn("text-[1.375rem] font-extrabold tabular", muted)}>
+            <span className="sr-only">
+              {t("launch.regularPrice", { amount: plan.monthlyPriceEur })}
+            </span>
+            <span aria-hidden="true">
+              {t("price.amount", { amount: plan.monthlyPriceEur })}
+            </span>
+          </s>
+        </p>
+        <p className={note}>{t("launch.priceNote")}</p>
       </div>
     );
   }

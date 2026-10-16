@@ -5,7 +5,8 @@
 // Le mapping des events est minimal (les 5 dont on a réellement besoin) :
 //   - checkout.session.completed       → activer l'abonnement après checkout
 //   - customer.subscription.updated    → MAJ plan / period / cancel_at
-//   - customer.subscription.deleted    → repasser sur 'free'
+//   - customer.subscription.deleted    → repasser sur 'free' (ou sur le plan
+//                                        offert pendant l'offre de lancement)
 //   - invoice.paid                     → marquer 'active'
 //   - invoice.payment_failed           → marquer 'past_due'
 //
@@ -15,6 +16,10 @@ import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import Stripe from "stripe";
 import { getStripe, getWebhookSecret } from "@/lib/billing/stripe";
+import {
+  LAUNCH_OFFER_ACTIVE,
+  LAUNCH_OFFER_PLAN,
+} from "@/lib/billing/launch-offer";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -201,11 +206,15 @@ async function handleSubscriptionDeleted(
   const customerId = typeof sub.customer === "string" ? sub.customer : null;
   if (!customerId) return;
   const admin = createAdminClient();
+  // Pendant l'offre de lancement, une résiliation ramène sur le plan offert
+  // (comme n'importe quelle nouvelle organisation), pas sur Free.
+  const fallback = LAUNCH_OFFER_ACTIVE
+    ? { plan_code: LAUNCH_OFFER_PLAN, status: "active", launch_offer: true }
+    : { plan_code: "free", status: "canceled" };
   await admin
     .from("subscriptions")
     .update({
-      plan_code: "free",
-      status: "canceled",
+      ...fallback,
       billing_interval: null,
       cancel_at_period_end: false,
       stripe_subscription_id: null,

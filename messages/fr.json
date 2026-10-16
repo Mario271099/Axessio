@@ -555,6 +555,21 @@
     }
   },
   "pricing": {
+    "launch": {
+      "metaDescription": "Offre de lancement : le plan Pro d'Axessyo est gratuit, sans carte bancaire. Audits RGAA / WCAG, rapports PDF, relecture et travail en équipe.",
+      "kicker": "Offre de lancement",
+      "title": "Le plan Pro offert pendant le lancement",
+      "subtitle": "Toutes les fonctions du plan Pro, gratuitement et sans carte bancaire, pendant la phase de lancement d'Axessyo. Vous serez prévenu bien avant tout changement de tarif.",
+      "badge": "Offert",
+      "priceNote": "Pendant la phase de lancement",
+      "regularPrice": "Au lieu de {amount} € HT par mois",
+      "cta": "Profiter de l'offre",
+      "guarantees": {
+        "noCard": "Sans carte bancaire",
+        "allFeatures": "Toutes les fonctions Pro",
+        "notice": "Prévenu avant tout changement de tarif"
+      }
+    },
     "metaTitle": "Tarifs du logiciel d'audit RGAA et WCAG",
     "metaDescription": "Choisissez le plan Axessyo adapté à votre équipe : Free, Starter, Pro ou Enterprise. Audits RGAA / WCAG, rapports PDF, SSO et plus.",
     "kicker": "Tarifs",
@@ -590,6 +605,14 @@
       "title": "Questions sur les tarifs",
       "subtitle": "Tout ce qu'il faut savoir avant de choisir un plan.",
       "items": {
+        "launchFree": {
+          "question": "Le plan Pro est-il vraiment gratuit ?",
+          "answer": "Oui. Pendant la phase de lancement, chaque nouvelle organisation reçoit automatiquement le plan Pro : audits illimités, export PDF, simulateur de remédiation, relecture et plusieurs auditeurs par audit. Aucune carte bancaire n'est demandée."
+        },
+        "launchAfter": {
+          "question": "Que se passera-t-il à la fin de l'offre de lancement ?",
+          "answer": "Vous serez prévenu par e-mail bien avant tout changement de tarif. Rien ne vous sera facturé sans votre accord, et vos audits restent intacts et accessibles quoi que vous décidiez."
+        },
         "free": {
           "question": "Puis-je utiliser Axessyo gratuitement ?",
           "answer": "Oui. Le plan Free permet de créer un audit actif et de découvrir la matrice de conformité, sans carte bancaire et sans limite de durée. Vous passez à un plan payant uniquement quand vos besoins grandissent (exports PDF, plusieurs audits, équipe)."
@@ -1138,6 +1161,7 @@
       "compareTitle": "Comparer les plans",
       "currentBadge": "Plan actuel",
       "downgradeNote": "Pour rétrograder, passez par le portail de gestion.",
+      "launchOffer": "Offre de lancement : le plan Pro vous est offert pendant la phase de lancement d'Axessyo. Vous serez prévenu bien avant tout changement de tarif.",
       "contactSales": "Contacter le service commercial",
       "selectMonthly": "Choisir mensuel",
       "selectYearly": "Choisir annuel",
@@ -2868,7 +2892,7 @@
       },
       "pricing": {
         "title": "Tarifs",
-        "desc": "Un plan gratuit, puis des plans adaptés à votre équipe."
+        "desc": "Le plan Pro offert pendant le lancement."
       },
       "faq": {
         "title": "Questions fréquentes",
@@ -3214,7 +3238,7 @@
         "items": [
           {
             "q": "Y a-t-il une offre gratuite ?",
-            "a": "Oui. Le plan Free permet de mener un audit, sans carte bancaire et sans limite de durée."
+            "a": "Oui. Pendant la phase de lancement, le plan Pro est offert à chaque nouvelle organisation, sans carte bancaire. Vous serez prévenu bien avant tout changement de tarif."
           },
           {
             "q": "Y a-t-il un engagement de durée ?",
@@ -3623,7 +3647,7 @@
         },
         {
           "title": "Être transparents",
-          "desc": "Des tarifs publics, une offre gratuite sans limite de durée et un abonnement sans engagement."
+          "desc": "Des tarifs publics, le plan Pro offert pendant le lancement et un abonnement sans engagement."
         }
       ]
     },

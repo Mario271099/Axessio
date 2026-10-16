@@ -555,6 +555,21 @@
     }
   },
   "pricing": {
+    "launch": {
+      "metaDescription": "Launch offer: Axessyo's Pro plan is free, no credit card required. RGAA / WCAG audits, PDF reports, proofreading and teamwork.",
+      "kicker": "Launch offer",
+      "title": "The Pro plan, free during launch",
+      "subtitle": "Every Pro feature, free and with no credit card, during Axessyo's launch phase. You will be notified well before any pricing change.",
+      "badge": "Free",
+      "priceNote": "During the launch phase",
+      "regularPrice": "Instead of €{amount} excl. VAT per month",
+      "cta": "Get the offer",
+      "guarantees": {
+        "noCard": "No credit card",
+        "allFeatures": "Every Pro feature",
+        "notice": "Notified before any pricing change"
+      }
+    },
     "metaTitle": "Pricing for the RGAA and WCAG audit software",
     "metaDescription": "Choose the Axessyo plan that fits your team: Free, Starter, Pro or Enterprise. RGAA / WCAG audits, PDF reports, SSO and more.",
     "kicker": "Pricing",
@@ -590,6 +605,14 @@
       "title": "Pricing questions",
       "subtitle": "Everything you need to know before choosing a plan.",
       "items": {
+        "launchFree": {
+          "question": "Is the Pro plan really free?",
+          "answer": "Yes. During the launch phase, every new organization automatically gets the Pro plan: unlimited audits, PDF export, remediation simulator, proofreading and several auditors per audit. No credit card is required."
+        },
+        "launchAfter": {
+          "question": "What happens when the launch offer ends?",
+          "answer": "You will be notified by email well before any pricing change. Nothing will be charged without your consent, and your audits stay intact and accessible whatever you decide."
+        },
         "free": {
           "question": "Can I use Axessyo for free?",
           "answer": "Yes. The Free plan lets you create one active audit and explore the conformity matrix, with no credit card and no time limit. You only upgrade when your needs grow (PDF exports, multiple audits, a team)."
@@ -1138,6 +1161,7 @@
       "compareTitle": "Compare plans",
       "currentBadge": "Current plan",
       "downgradeNote": "To downgrade, use the management portal.",
+      "launchOffer": "Launch offer: the Pro plan is free for you during Axessyo's launch phase. You will be notified well before any pricing change.",
       "contactSales": "Contact sales",
       "selectMonthly": "Choose monthly",
       "selectYearly": "Choose yearly",
@@ -2868,7 +2892,7 @@
       },
       "pricing": {
         "title": "Pricing",
-        "desc": "A free plan, then plans that fit your team."
+        "desc": "The Pro plan, free during launch."
       },
       "faq": {
         "title": "FAQ",
@@ -3214,7 +3238,7 @@
         "items": [
           {
             "q": "Is there a free plan?",
-            "a": "Yes. The Free plan lets you run one audit, with no credit card and no time limit."
+            "a": "Yes. During the launch phase, the Pro plan is free for every new organization, with no credit card. You will be notified well before any pricing change."
           },
           {
             "q": "Is there a minimum commitment?",
@@ -3623,7 +3647,7 @@
         },
         {
           "title": "Be transparent",
-          "desc": "Public pricing, a free plan with no time limit and a subscription with no commitment."
+          "desc": "Public pricing, the Pro plan free during launch and a subscription with no commitment."
         }
       ]
     },

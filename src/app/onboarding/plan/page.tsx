@@ -5,6 +5,7 @@ import { requireProfile } from "@/lib/auth";
 import { resolveCurrentOrg } from "@/lib/current-org";
 import { getOrgSubscription } from "@/lib/billing/server";
 import { isStripeReady } from "@/lib/billing/stripe";
+import { LAUNCH_OFFER_ACTIVE } from "@/lib/billing/launch-offer";
 import { PLANS } from "@/lib/billing/plans";
 import type { PlanCode } from "@/lib/billing/plans";
 import { OnboardingPlanSelector } from "./onboarding-plan-selector";
@@ -32,6 +33,10 @@ export default async function OnboardingPlanPage({
   searchParams,
 }: OnboardingPlanPageProps) {
   await requireProfile();
+
+  // Offre de lancement : l'org reçoit déjà le plan offert à sa création, il
+  // n'y a rien à choisir.
+  if (LAUNCH_OFFER_ACTIVE) redirect("/dashboard");
 
   const { current } = await resolveCurrentOrg();
   // Cas pathologique : profil non rattaché à une org → on n'a rien à proposer.
