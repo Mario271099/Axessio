@@ -35,7 +35,6 @@ const BENEFIT_KEYS = [
 const STEP_KEYS = ["workspace", "team", "audit"] as const;
 
 const LEGAL_LINKS = [
-  { href: "/legal", key: "legal" },
   { href: "/privacy", key: "privacy" },
   { href: "/accessibility", key: "accessibility" },
 ] as const;

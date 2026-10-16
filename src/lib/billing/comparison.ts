@@ -105,6 +105,11 @@ export const CORE_ROWS: ReadonlyArray<FeatureRow> = FEATURE_ROWS.filter(
   (row) => row.features.length === 0,
 );
 
+/** Toutes les lignes incluses dans un plan, socle compris. */
+export function rowsIncludedInPlan(plan: PlanCode): FeatureRow[] {
+  return FEATURE_ROWS.filter((row) => planIncludesRow(plan, row));
+}
+
 /**
  * Lignes qu'un plan ajoute au plan précédent de `PLAN_ORDER`. Pour le premier
  * plan, ce sont les lignes du socle.

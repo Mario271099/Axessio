@@ -20,6 +20,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { rowsAddedByPlan } from "@/lib/billing/comparison";
+import {
+  LAUNCH_OFFER_ACTIVE,
+  LAUNCH_OFFER_PLAN,
+  LAUNCH_OFFER_VISIBLE_PLANS,
+} from "@/lib/billing/launch-offer";
 import { PLAN_ORDER, PLANS, type PlanCode } from "@/lib/billing/plans";
 import { SITE, siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
@@ -38,6 +43,16 @@ const FAQ_KEYS = [
   "limits",
   "payment",
   "vat",
+  "data",
+  "references",
+] as const;
+
+// Pendant l'offre de lancement, les questions sur la facturation (engagement,
+// changement de plan, TVA...) ne concernent personne : on les remplace.
+const LAUNCH_FAQ_KEYS = [
+  "launchFree",
+  "launchAfter",
+  "limits",
   "data",
   "references",
 ] as const;
@@ -65,7 +80,8 @@ const ENTERPRISE_ICONS: Record<string, { icon: LucideIcon; color: string }> = {
  */
 function planCtaHref(code: PlanCode, isAuthenticated: boolean): string {
   const plan = PLANS[code];
-  if (plan.monthlyPriceEur === 0) {
+  const offered = LAUNCH_OFFER_ACTIVE && code === LAUNCH_OFFER_PLAN;
+  if (plan.monthlyPriceEur === 0 || offered) {
     return isAuthenticated ? "/dashboard" : "/register";
   }
   if (plan.isContactSales) return ENTERPRISE_MAILTO;
@@ -80,15 +96,18 @@ function planCtaHref(code: PlanCode, isAuthenticated: boolean): string {
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("pricing");
   const locale = await getLocale();
+  const description = LAUNCH_OFFER_ACTIVE
+    ? t("launch.metaDescription")
+    : t("metaDescription");
   return {
     title: t("metaTitle"),
-    description: t("metaDescription"),
+    description,
     alternates: { canonical: "/pricing" },
     openGraph: {
       type: "website",
       siteName: SITE.name,
       title: `${t("metaTitle")} · ${SITE.name}`,
-      description: t("metaDescription"),
+      description,
       url: `${SITE.url}/pricing`,
       locale: locale === "en" ? SITE.locale.en : SITE.locale.fr,
       // Un `openGraph` défini ici remplace celui du layout : sans cette ligne,
@@ -98,7 +117,7 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: "summary_large_image",
       title: `${t("metaTitle")} · ${SITE.name}`,
-      description: t("metaDescription"),
+      description,
       images: [siteUrl("/twitter-image")],
     },
   };
@@ -130,7 +149,10 @@ export default async function PricingPage() {
   const enterprise = PLANS.enterprise;
   const enterpriseRows = rowsAddedByPlan("enterprise");
 
-  const faqItems = FAQ_KEYS.map((key) => ({
+  const faqKeys: ReadonlyArray<string> = LAUNCH_OFFER_ACTIVE
+    ? LAUNCH_FAQ_KEYS
+    : FAQ_KEYS;
+  const faqItems = faqKeys.map((key) => ({
     key,
     question: t(`faq.items.${key}.question`),
     answer: t(`faq.items.${key}.answer`),
@@ -153,25 +175,34 @@ export default async function PricingPage() {
     "@context": "https://schema.org",
     "@type": "Product",
     name: SITE.name,
-    description: t("metaDescription"),
+    description: LAUNCH_OFFER_ACTIVE
+      ? t("launch.metaDescription")
+      : t("metaDescription"),
     brand: { "@type": "Brand", name: SITE.name },
     offers: Object.values(PLANS)
       .filter((p) => p.monthlyPriceEur !== null && p.code !== "free")
+      .filter((p) => !LAUNCH_OFFER_ACTIVE || p.code === LAUNCH_OFFER_PLAN)
       .map((p) => ({
         "@type": "Offer",
         name: p.name,
-        price: p.monthlyPriceEur,
+        price: LAUNCH_OFFER_ACTIVE ? 0 : p.monthlyPriceEur,
         priceCurrency: "EUR",
         url: siteUrl(`/pricing#${p.code}`),
         availability: "https://schema.org/InStock",
       })),
   };
 
-  const guarantees = [
-    t("guarantees.noCard", { plan: PLANS.free.name }),
-    t("guarantees.noCommitment"),
-    t("guarantees.stripe"),
-  ];
+  const guarantees = LAUNCH_OFFER_ACTIVE
+    ? [
+        t("launch.guarantees.noCard"),
+        t("launch.guarantees.allFeatures"),
+        t("launch.guarantees.notice"),
+      ]
+    : [
+        t("guarantees.noCard", { plan: PLANS.free.name }),
+        t("guarantees.noCommitment"),
+        t("guarantees.stripe"),
+      ];
 
   return (
     <div className="flex min-h-screen flex-col bg-card">
@@ -197,16 +228,16 @@ export default async function PricingPage() {
               <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
                 <div>
                   <p className="text-base font-extrabold text-primary">
-                    {t("kicker")}
+                    {LAUNCH_OFFER_ACTIVE ? t("launch.kicker") : t("kicker")}
                   </p>
                   <h1
                     id="pricing-title"
                     className="mt-3 max-w-[15ch] text-[2.5rem] font-black leading-none tracking-[-0.045em] sm:text-[3.25rem] lg:text-[4rem]"
                   >
-                    {t("title")}
+                    {LAUNCH_OFFER_ACTIVE ? t("launch.title") : t("title")}
                   </h1>
                   <p className="mt-5 max-w-[52ch] text-lg leading-relaxed text-secondary-foreground sm:text-[1.1875rem]">
-                    {t("subtitle")}
+                    {LAUNCH_OFFER_ACTIVE ? t("launch.subtitle") : t("subtitle")}
                   </p>
                   <ul className="mt-5.5 flex flex-wrap gap-x-6 gap-y-2.5">
                     {guarantees.map((text) => (
@@ -224,10 +255,14 @@ export default async function PricingPage() {
                     ))}
                   </ul>
                 </div>
-                <BillingIntervalToggle
-                  yearlySavingsPercent={yearlySavingsPercent}
-                  yearlyFreeMonths={yearlyFreeMonths}
-                />
+                {/* Rien à facturer pendant l'offre de lancement : ni période,
+                    ni aide au choix, ni comparatif de plans payants. */}
+                {!LAUNCH_OFFER_ACTIVE && (
+                  <BillingIntervalToggle
+                    yearlySavingsPercent={yearlySavingsPercent}
+                    yearlyFreeMonths={yearlyFreeMonths}
+                  />
+                )}
               </div>
             </section>
 
@@ -236,15 +271,20 @@ export default async function PricingPage() {
               <h2 id="pricing-plans-title" className="sr-only">
                 {t("plansLabel")}
               </h2>
-              <PlanCards ctaHrefs={ctaHrefs} />
-              <p className="mt-5 text-sm text-muted-foreground">
-                {t("vatNote")}
-              </p>
+              <PlanCards
+                ctaHrefs={ctaHrefs}
+                plans={LAUNCH_OFFER_ACTIVE ? LAUNCH_OFFER_VISIBLE_PLANS : PLAN_ORDER}
+              />
+              {!LAUNCH_OFFER_ACTIVE && (
+                <p className="mt-5 text-sm text-muted-foreground">
+                  {t("vatNote")}
+                </p>
+              )}
             </section>
 
-            <PlanFinder ctaHrefs={ctaHrefs} />
+            {!LAUNCH_OFFER_ACTIVE && <PlanFinder ctaHrefs={ctaHrefs} />}
 
-            <ComparisonTable />
+            {!LAUNCH_OFFER_ACTIVE && <ComparisonTable />}
 
             {/* Enterprise --------------------------------------------- */}
             <section
@@ -347,7 +387,7 @@ export default async function PricingPage() {
               <Accordion
                 type="single"
                 collapsible
-                defaultValue={FAQ_KEYS[0]}
+                defaultValue={faqKeys[0]}
                 className="border-t border-border"
               >
                 {faqItems.map((item) => (

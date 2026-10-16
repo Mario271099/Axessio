@@ -22,6 +22,11 @@ import {
   type LimitCode,
   type PlanCode,
 } from "@/lib/billing/plans";
+import {
+  LAUNCH_OFFER_ACTIVE,
+  LAUNCH_OFFER_PLAN,
+  LAUNCH_OFFER_VISIBLE_PLANS,
+} from "@/lib/billing/launch-offer";
 import { getOrgSubscription } from "@/lib/billing/server";
 import { getOrgUsageSnapshot } from "@/lib/billing/usage";
 import { isStripeReady } from "@/lib/billing/stripe";
@@ -83,6 +88,7 @@ export default async function BillingPage({
   const currentPlan: PlanCode = subscription?.planCode ?? "free";
   const currentPlanDescriptor = PLANS[currentPlan];
   const stripeReady = isStripeReady();
+  const onLaunchOffer = LAUNCH_OFFER_ACTIVE && currentPlan === LAUNCH_OFFER_PLAN;
   const usage = await getOrgUsageSnapshot(org.id);
   const USAGE_BY_LIMIT: Record<LimitCode, number> = {
     max_members: usage.members,
@@ -177,7 +183,9 @@ export default async function BillingPage({
         </CardHeader>
         <CardContent className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
           <div className="text-sm text-muted-foreground">
-            {stripeReady ? (
+            {onLaunchOffer ? (
+              <span>{t("launchOffer")}</span>
+            ) : stripeReady ? (
               subscription?.stripeCustomerId ? null : (
                 <span>{t("downgradeNote")}</span>
               )
@@ -269,8 +277,13 @@ export default async function BillingPage({
       {/* Comparaison de plans */}
       <section className="space-y-3">
         <h2 className="text-lg font-semibold tracking-tight">{t("compareTitle")}</h2>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {PLAN_ORDER.map((code) => (
+        <div
+          className={cn(
+            "grid gap-4 md:grid-cols-2",
+            !LAUNCH_OFFER_ACTIVE && "xl:grid-cols-4",
+          )}
+        >
+          {(LAUNCH_OFFER_ACTIVE ? LAUNCH_OFFER_VISIBLE_PLANS : PLAN_ORDER).map((code) => (
             <PlanCard
               key={code}
               code={code}
@@ -298,6 +311,8 @@ async function PlanCard({
 }) {
   const t = await getTranslations("organizations.billing");
   const plan = PLANS[code];
+  // Plan offert pendant le lancement : affiché à 0 €, sans checkout.
+  const offered = LAUNCH_OFFER_ACTIVE && code === LAUNCH_OFFER_PLAN;
 
   const featureKey = (f: FeatureCode): string => f.replace(".", "_");
 
@@ -327,12 +342,17 @@ async function PlanCard({
             </p>
           ) : (
             <p className="text-xl font-semibold tracking-tight tabular-nums">
-              {plan.monthlyPriceEur === 0
+              {plan.monthlyPriceEur === 0 || offered
                 ? "0 €"
                 : `${plan.monthlyPriceEur} €`}
               <span className="ml-1 text-xs font-normal text-muted-foreground">
                 {t("perMonth")}
               </span>
+              {offered && (
+                <s className="ml-2 text-sm font-normal text-muted-foreground">
+                  {plan.monthlyPriceEur} €
+                </s>
+              )}
             </p>
           )}
         </div>
@@ -358,7 +378,7 @@ async function PlanCard({
             </ul>
           )}
         </div>
-        {!isCurrent && !plan.isContactSales && code !== "free" && canManage && (
+        {!isCurrent && !plan.isContactSales && code !== "free" && !offered && canManage && (
           <div className="mt-auto flex flex-col gap-2 border-t pt-3">
             <form
               action={async () => {
